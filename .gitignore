@@ -1,0 +1,17 @@
+# Xcode user data
+*.xcuserdatad
+*.xcuserstate
+
+# Xcode workspace settings
+xcuserdata/
+project.xcworkspace/xcuserdata/
+
+# Xcode generated files
+*.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+*.xcbkptlist
+
+# Swift PM cache (if used)
+.build/
+
+# Derived data
+DerivedData/
