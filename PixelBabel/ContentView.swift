@@ -36,6 +36,12 @@ struct ContentView: View
                             refreshRandomImage()
                         }
                     }
+                    .onChange(of: settings.backgroundRefresh) { _ in
+                        settings.pixels.producer = settings.backgroundRefresh
+                        if (!showSettings) {
+                            refreshRandomImage()
+                        }
+                    }
                     .gesture(
                         DragGesture()
                             .onEnded { value in

@@ -85,11 +85,10 @@ struct SettingsView: View {
             .padding(.top, 0)
             .onChange(of: settings.pixelSize) { newValue in
                 settings.pixelSize = newValue
-                // settings.pixels.scale = newValue
             }
 
             HStack {
-                Text("Random Image")
+                Text("Image")
                     .bold()
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.leading)
@@ -99,13 +98,13 @@ struct SettingsView: View {
             }.padding(.top, 10)
 
             HStack {
-                Text("Random Image Period")
+                Text("Image Period")
                     .bold()
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.leading)
                 Spacer()
-                Picker("Random Image N", selection: $randomFixedImagePeriodSelected) {
+                Picker("", selection: $randomFixedImagePeriodSelected) {
                     ForEach(RandomFixedImagePeriod.allCases) { mode in
                         Text(mode.rawValue)
                             .lineLimit(1)
@@ -121,6 +120,22 @@ struct SettingsView: View {
                     settings.randomFixedImagePeriod = newMode
                 }
             }
+
+            Divider()
+                .frame(height: 3)
+                .background(Color.gray.opacity(0.3))
+                .padding(.horizontal)
+                .padding(.top, 20)
+                .padding(.bottom, 10)
+            HStack {
+                Text("Background [\(settings.pixels.cached)]")
+                    .bold()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.leading)
+                Toggle("", isOn: $settings.backgroundRefresh)
+                    .labelsHidden()
+                    .padding(.trailing, 30)
+            }.padding(.top, 10)
 
             Spacer()
             Spacer()

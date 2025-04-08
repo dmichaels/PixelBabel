@@ -3,8 +3,7 @@ import Foundation
 
 class DefaultAppSettings
 {
-    // xyzzy public static let pixelSize: Int = 10
-    public static let pixelSize: Int = 80
+    public static let pixelSize: Int = 10
     public static let colorMode: ColorMode = ColorMode.color
 }
 
@@ -15,7 +14,7 @@ class AppSettings: ObservableObject
     @Published var pixelSize: Int = DefaultAppSettings.pixelSize
     @Published var soundEnabled: Bool = false // xyzzy
     @Published var hapticEnabled: Bool = false // xyzzy
-    @Published var randomFixedImage: Bool = false // xyzzy
+    @Published var randomFixedImage: Bool = true
     @Published var randomFixedImagePeriod: RandomFixedImagePeriod = RandomFixedImagePeriod.sometimes
     @Published var backgroundRefresh: Bool = true
 

@@ -13,13 +13,14 @@ class PixelMap {
     private var _scale: Int = 1
     private var _mode: ColorMode = ColorMode.color
 
-    private let _producer: Bool
-    private let _pixelsListMax: Int = 21
+    private var _producer: Bool
+    private let _pixelsListMax: Int = 16
     private var _pixelsList: [[UInt8]]? = nil
     private var _pixelsListAccessQueue: DispatchQueue? = nil
     private var _pixelsListReplenishQueue: DispatchQueue? = nil
 
-    init(_ width: Int, _ height: Int, scale: Int = 1, mode: ColorMode = ColorMode.color, producer: Bool = true) {
+    init(_ width: Int, _ height: Int, scale: Int = 1, mode: ColorMode = ColorMode.color) {
+        self._producer = true
         self._pixelsWidth = width
         self._pixelsHeight = height
         self._scale = scale
@@ -54,6 +55,28 @@ class PixelMap {
     public var data: [UInt8] {
         get { return self._pixels }
         set { self._pixels = newValue }
+    }
+
+    public var producer: Bool {
+        get { return self._producer }
+        set {
+            self._producer = newValue
+            if (!self._producer) {
+                self._invalidate()
+            }
+        }
+    }
+
+    public var cached: Int {
+        get {
+            var pixelsListCount: Int = 0
+            if (self._pixelsListAccessQueue != nil) {
+                self._pixelsListAccessQueue!.sync {
+                    pixelsListCount = self._pixelsList!.count
+                }
+            }
+            return pixelsListCount
+        }
     }
 
     public func randomize()
@@ -178,7 +201,7 @@ class PixelMap {
 
     public func _invalidate()
     {
-        if (self._producer) {
+        if (self._pixelsListAccessQueue != nil) {
             self._pixelsListAccessQueue!.sync {
                 self._pixelsList!.removeAll()
             }
