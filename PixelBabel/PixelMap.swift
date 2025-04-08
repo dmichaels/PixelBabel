@@ -1,5 +1,4 @@
 import Foundation
-
 import SwiftUI
 
 let ScreenWidth = Int(UIScreen.main.bounds.width)
@@ -21,12 +20,10 @@ class PixelMap {
     private var _pixelsListReplenishQueue: DispatchQueue? = nil
 
     init(_ width: Int, _ height: Int, scale: Int = 1, mode: ColorMode = ColorMode.color, producer: Bool = true) {
-        print("PixelMap.init: \(producer)")
         self._pixelsWidth = width
         self._pixelsHeight = height
         self._scale = scale
         self._pixels = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
-        print("PixelMap.init.CREATE-PIXELS: [\(self._pixelsWidth * self._pixelsHeight * ScreenDepth)]")
         self._producer = producer
         if (producer) {
             self._pixelsList = []
@@ -46,12 +43,12 @@ class PixelMap {
 
     public var scale: Int {
         get { return self._scale }
-        set { self._scale = newValue ; self.invalidate() }
+        set { self._scale = newValue ; self._invalidate() }
     }
 
     public var mode: ColorMode {
         get { return self._mode }
-        set { self._mode = newValue ; self.invalidate() }
+        set { self._mode = newValue ; self._invalidate() }
     }
 
     public var data: [UInt8] {
@@ -65,25 +62,19 @@ class PixelMap {
         if (self._producer) {
             var pixels: [UInt8]? = nil
             self._pixelsListAccessQueue!.sync {
-                print("PixelMap.randomize.IN-SYNC-BLOCK: [\(self._pixelsList!.count)]")
                 // This block of code effectively synchronizes
                 // access to pixelsList between producer and consumer.
                 if !self._pixelsList!.isEmpty {
                     pixels = self._pixelsList!.removeFirst()
                 }
-                else {
-                    print("PixelMap.randomize.PIXEL-LIST-EMPTY")
-                }
             }
             if (pixels != nil) {
-                print("PixelMap.randomize.USE-CACHED-PIXELS")
                 self._pixels = pixels!
                 done = true
             }
             self._replenish()
         }
         if (!done) {
-            print("PixelMap.randomize.USE-EXISTING-PIXELS")
             PixelMap._randomize(&self._pixels, self._pixelsWidth, self._pixelsHeight,
                                 width: self.width, height: self.height, scale: self.scale, mode: self.mode)
         }
@@ -112,15 +103,6 @@ class PixelMap {
         }
 
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: self._pixelsWidth, height: self._pixelsHeight))
-    }
-
-    public func invalidate()
-    {
-        if (self._producer) {
-            self._pixelsListAccessQueue!.sync {
-                self._pixelsList!.removeAll()
-            }
-        }
     }
 
     static func _randomize(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
@@ -171,7 +153,6 @@ class PixelMap {
 
     private func _replenish() {
         self._pixelsListReplenishQueue!.async {
-            print("_replenish.START")
             // This block of code runs OFF of the main thread (i.e. in the background);
             // and no more than one of these will ever be running at a time. 
             var additionalPixelsProbableCount: Int = 0
@@ -179,24 +160,28 @@ class PixelMap {
                 // This block of code is effectively to synchronize
                 // access to pixelsList between (this) producer and consumer.
                 additionalPixelsProbableCount = self._pixelsListMax - self._pixelsList!.count
-                print("_replenish.ADDITIONAL-PROBABLE-COUNT: [\(self._pixelsListMax)] - [\(self._pixelsList!.count)] = [\(additionalPixelsProbableCount)]")
             }
             if (additionalPixelsProbableCount > 0) {
                 for i in 0..<additionalPixelsProbableCount {
                     var pixels: [UInt8] = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
                     PixelMap._randomize(&pixels, self._pixelsWidth, self._pixelsHeight,
                                         width: self.width, height: self.height, scale: self.scale, mode: self.mode)
-                    print("replenish.CREATED-PIXELS: [\(self._pixelsWidth * self._pixelsHeight * ScreenDepth)]")
                     self._pixelsListAccessQueue!.sync {
                         if (self._pixelsList!.count < self._pixelsListMax) {
-                            print("replenish.QUEUEING-CACHED-PIXELS: [\(self._pixelsList!.count)]")
                             self._pixelsList!.append(pixels)
-                            print("replenish.QUEUED-CACHED-PIXELS: [\(self._pixelsList!.count)]")
                         }
                     }
                 }
             }
-            print("_replenish.END")
+        }
+    }
+
+    public func _invalidate()
+    {
+        if (self._producer) {
+            self._pixelsListAccessQueue!.sync {
+                self._pixelsList!.removeAll()
+            }
         }
     }
 }
