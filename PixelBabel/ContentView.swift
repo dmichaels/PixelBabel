@@ -1,3 +1,4 @@
+
 import SwiftUI
 
 struct ContentView: View
@@ -31,8 +32,8 @@ struct ContentView: View
     }
 
     var body: some View {
-        ZStack {
-            if let image = self._randomImage {
+        NavigationView {
+            ZStack { if let image = self._randomImage {
                 Image(decorative: image, scale: 1.0)
                     .resizable()
                     .scaledToFill()
@@ -65,48 +66,38 @@ struct ContentView: View
                                 }
                             }
                     )
-                
-                if showSettings {
-                    SettingsView(showSettings: $showSettings)
-                        .transition(.move(edge: .trailing))
-                }
-            }
+                    .gesture(
+                        TapGesture().onEnded {
+                            if (!showSettings) {
+                                tapCount += 1
+                                self._feedback.triggerHaptic()
+                                refreshRandomImage()
+                            }
+                        }
+                    )
+                    .gesture(
+                        LongPressGesture(minimumDuration: 1.0).onEnded { value in
+                            autoTapping.toggle()
+                            if (autoTapping) {
+                                autoTappingStart()
+                            }
+                            else {
+                                autoTappingStop()
+                            }
+                        }
+                    )
+                    NavigationLink(
+                        destination: SettingsView(),
+                        isActive: $showSettings,
+                        label: { EmptyView() }
+                    )
+            }}
+            .navigationTitle("Home")
+            .navigationBarHidden(true)
         }
         .onAppear {
-            // This is only called on first appearance;
-            // not called after coming back from settings view.
             refreshRandomImage()
         }
-        // .onAppear(perform: prepareHaptics)
-        .simultaneousGesture(
-            TapGesture().onEnded {
-                if (!showSettings) {
-                    tapCount += 1
-                    self._feedback.triggerHaptic()
-                    refreshRandomImage()
-                }
-            }
-        )
-        .onLongPressGesture(minimumDuration: 1.0) {
-            autoTapping.toggle()
-            if (autoTapping) {
-                autoTappingStart()
-            }
-            else {
-                autoTappingStop()
-            }
-        }
-        /*
-        .gesture(TapGesture(count: 2).onEnded {
-            tapCount += 1
-            self._feedback.triggerHaptic()
-        })
-        .gesture(TapGesture(count: 1).onEnded {
-            tapCount += 1
-            self._feedback.triggerHaptic()
-            refreshRandomImage()
-        })
-        */
         .edgesIgnoringSafeArea(.all)    
     }
 }

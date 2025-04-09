@@ -5,160 +5,140 @@ import AVFoundation
 
 struct SettingsView: View {
     @EnvironmentObject var settings: AppSettings
-    @Binding var showSettings: Bool
     @State private var randomFixedImagePeriodSelected: RandomFixedImagePeriod = .sometimes
 
     var body: some View {
-        VStack(spacing: 2) {
+            Form {
 
-            Spacer()
-            HStack {
-                Text("Color Mode")
-                    .bold()
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading)
-                Spacer()
-                Picker("Color Mode", selection: $settings.colorMode) {
-                    ForEach(ColorMode.allCases) { mode in
-                        Text(mode.rawValue)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                            .tag(mode)
+            Section(header: Text("PIXELS").padding(.leading, -12)) {
+                HStack {
+                    Label("Color Mode", systemImage: "paintpalette")
+                    Picker("", selection: $settings.colorMode) {
+                        ForEach(ColorMode.allCases) { mode in
+                            Text(mode.rawValue)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                                .tag(mode)
+                        }
+                    }.pickerStyle(MenuPickerStyle())
+                    .onChange(of: settings.colorMode) { newValue in
+                        settings.colorMode = newValue
                     }
                 }
-                .pickerStyle(MenuPickerStyle())
-                .frame(width: 200, alignment: .trailing)
-                .padding(.trailing)
-                .lineLimit(1)
-                .onChange(of: settings.colorMode) { newValue in
-                    settings.colorMode = newValue
-                }
-            }
-            
-            HStack {
-                Text("Sounds")
-                    .bold()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading)
-                Toggle("", isOn: $settings.soundEnabled)
-                    .labelsHidden()
-                    .padding(.trailing, 30)
-            }.padding(.top, 2)
-            
-            HStack {
-                Text("Haptics")
-                    .bold()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading)
-                Toggle("", isOn: $settings.hapticEnabled)
-                    .labelsHidden()
-                    .padding(.trailing, 30)
-            }.padding(.top, 5)
-
-            Divider()
-                .frame(height: 3)
-                .background(Color.gray.opacity(0.3))
-                .padding(.horizontal)
-                .padding(.top, 20)
-                .padding(.bottom, 10)
-            HStack {
-                Text("Pixel Size")
-                    .bold()
-                    .frame(width: 100, alignment: .leading)
-                    .padding(.leading)
-                Spacer()
-                Text("\(settings.pixelSize)")
-                    .monospacedDigit()
-                    .frame(width: 50, alignment: .trailing)
-                    .padding(.trailing)
-            }
-            Slider(
-                value: Binding(
-                    get: { Double(settings.pixelSize) },
-                    set: { settings.pixelSize = Int($0) }
-                ),
-                in: 1...50,
-                step: 1
-            )
-            .padding(.horizontal)
-            .padding(.top, 0)
-            .onChange(of: settings.pixelSize) { newValue in
-                settings.pixelSize = newValue
             }
 
-            HStack {
-                Text("Image")
-                    .bold()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading)
-                Toggle("", isOn: $settings.randomFixedImage)
-                    .labelsHidden()
-                    .padding(.trailing, 30)
-            }.padding(.top, 10)
-
-            HStack {
-                Text("Image Period")
-                    .bold()
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading)
-                Spacer()
-                Picker("", selection: $randomFixedImagePeriodSelected) {
-                    ForEach(RandomFixedImagePeriod.allCases) { mode in
-                        Text(mode.rawValue)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                            .tag(mode)
+            Section(header: Label("ZOOM", systemImage: "magnifyingglass").labelStyle(ReverseLabelStyle()).padding(.leading, -12)) {
+                VStack {
+                    Text("Pixel Size: \(Int(settings.pixelSize))")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    //Text("Pixel Size: \(Int(settings.pixelSize))")
+                        //.frame(maxWidth: .infinity, alignment: .leading)
+                    Slider(
+                        value: Binding(
+                            get: { Double(settings.pixelSize) },
+                            set: { settings.pixelSize = Int($0) }
+                        ),
+                        in: 1...50, step: 1)
+                        .padding(.top, -10)
+                    .onChange(of: settings.pixelSize) { newValue in
+                        settings.pixelSize = newValue
                     }
                 }
-                .pickerStyle(MenuPickerStyle())
-                .frame(width: 200, alignment: .trailing)
-                .padding(.trailing)
-                .lineLimit(1)
-                .onChange(of: randomFixedImagePeriodSelected) { newMode in
-                    settings.randomFixedImagePeriod = newMode
+            }
+
+            Section(header: Text("MULTIMEDIA").padding(.leading, -12)) {
+                HStack { Label("Sounds", systemImage: "speaker.wave.2")
+                    Spacer()
+                    Toggle("", isOn: $settings.soundEnabled)
+                        .labelsHidden()
+                }
+                HStack { Label("Haptics", systemImage: "hand.tap")
+                    Spacer()
+                    Toggle("", isOn: $settings.hapticEnabled)
                 }
             }
 
-            Divider()
-                .frame(height: 3)
-                .background(Color.gray.opacity(0.3))
-                .padding(.horizontal)
-                .padding(.top, 20)
-                .padding(.bottom, 10)
-            HStack {
-                Text("Background [\(settings.pixels.cached)]")
-                    .bold()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading)
-                Toggle("", isOn: $settings.backgroundRefresh)
-                    .labelsHidden()
-                    .padding(.trailing, 30)
-            }.padding(.top, 10)
-
-            Spacer()
-            Spacer()
-            Spacer()
+            Section(header: Text("DEVELOPER").padding(.leading, -12)) {
+                NavigationLink(destination: AdvancedSettingsView()) {
+                    Label("Advanced", systemImage: "gearshape")
+                }
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.white)
-        .ignoresSafeArea()
-        .gesture(
-            DragGesture()
-                .onEnded { value in
-                    if value.translation.width > 100 {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showSettings = false
+        .navigationTitle("Settings")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct AdvancedSettingsView: View {
+
+    @EnvironmentObject var settings: AppSettings
+    @State private var randomFixedImagePeriodSelected: RandomFixedImagePeriod = .sometimes
+
+    var body: some View {
+        Form {
+            Section(header: Text("PROCESSING").padding(.leading, -12)) {
+                HStack { Label("Background  [\(settings.pixels.cached)]", systemImage: "arrow.triangle.2.circlepath")
+                    Spacer()
+                    Toggle("", isOn: $settings.backgroundRefresh)
+                        .labelsHidden()
+                }
+                /*
+                HStack {
+                    Text("Background [\(settings.pixels.cached)]")
+                        .bold()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading)
+                    Toggle("", isOn: $settings.backgroundRefresh)
+                        .labelsHidden()
+                        .padding(.trailing, 30)
+                }.padding(.top, 10)
+                */
+            }
+            Section(header: Text("RANDOM IMAGE").padding(.leading, -12)) {
+                HStack {
+                    Text("Image")
+                        .bold()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading)
+                    Toggle("", isOn: $settings.randomFixedImage)
+                        .labelsHidden()
+                        .padding(.trailing, 30)
+                }.padding(.top, 10)
+                HStack {
+                    Text("Image Period")
+                        .bold()
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading)
+                    Spacer()
+                    Picker("", selection: $randomFixedImagePeriodSelected) {
+                        ForEach(RandomFixedImagePeriod.allCases) { mode in
+                            Text(mode.rawValue)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                                .tag(mode)
                         }
                     }
+                        .pickerStyle(MenuPickerStyle())
+                        .frame(width: 200, alignment: .trailing)
+                        .padding(.trailing)
+                        .lineLimit(1)
+                        .onChange(of: randomFixedImagePeriodSelected) { newMode in
+                            settings.randomFixedImagePeriod = newMode
+                        }
                 }
-        )
-        // .onDisappear {
-        //     // settings.pixels.mode = settings.colorMode
-        //     // settings.pixels.scale = settings.pixelSize
-        //     // settings.pixels.randomize()
-        //     print("SETTINGS-DISAPPEAR")
-        // }
+            }
+        }
+        .navigationTitle("Advanced")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct ReverseLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack {
+            configuration.title
+            configuration.icon
+        }
     }
 }
