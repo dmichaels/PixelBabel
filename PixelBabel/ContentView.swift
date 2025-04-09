@@ -139,7 +139,7 @@ struct RandomPixelGenerator {
         }
 
         if (randomFixedImage) {
-            settings.pixels.load("flowers")
+            settings.pixels.load("monolisa")
         }
         else {
             settings.pixels.randomize()
