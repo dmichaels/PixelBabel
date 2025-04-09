@@ -103,7 +103,7 @@ class PixelMap {
         }
     }
 
-    public func load(_ name: String)
+    public func load(_ name: String, pixelate: Bool = true)
     {
         guard let image = UIImage(named: name),
             let cgImage = image.cgImage else {
@@ -126,6 +126,74 @@ class PixelMap {
         }
 
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: self._pixelsWidth, height: self._pixelsHeight))
+
+        if (pixelate) {
+            if let image = self._pixelate(cgImage, self.scale) {
+                guard let context = CGContext(
+                    data: &self._pixels,
+                    width: self._pixelsWidth,
+                    height: self._pixelsHeight,
+                    bitsPerComponent: 8,
+                    bytesPerRow: self._pixelsWidth * ScreenDepth,
+                    space: colorSpace,
+                    bitmapInfo: bitmapInfo.rawValue
+                ) else {
+                    return
+                }
+                context.draw(image, in: CGRect(x: 0, y: 0, width: self._pixelsWidth, height: self._pixelsHeight))
+            }
+        }
+    }
+
+    func _pixelate(_ image: CGImage, _ blockSize: Int) -> CGImage? {
+        if (blockSize <= 0) {
+            return image
+        }
+        let width = image.width
+        let height = image.height
+
+        // Calculate the size of the downsampled image
+        let pixelatedWidth = width / blockSize
+        let pixelatedHeight = height / blockSize
+
+        // Create context for downsampled image
+        guard let context = CGContext(
+            data: nil,
+            width: pixelatedWidth,
+            height: pixelatedHeight,
+            bitsPerComponent: image.bitsPerComponent,
+            bytesPerRow: 0,
+            space: image.colorSpace ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: image.bitmapInfo.rawValue
+         ) else {
+            return nil
+        }
+
+        // Draw the original image into the smaller context
+        context.interpolationQuality = .none
+        context.draw(image, in: CGRect(x: 0, y: 0, width: pixelatedWidth, height: pixelatedHeight))
+
+        guard let downsampledImage = context.makeImage() else {
+            return nil
+        }
+
+        // Now draw the downsampled image into a full-sized context (blown up)
+        guard let upContext = CGContext(
+            data: nil,
+            width: width,
+            height: height,
+            bitsPerComponent: image.bitsPerComponent,
+            bytesPerRow: 0,
+            space: image.colorSpace ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: image.bitmapInfo.rawValue
+        ) else {
+            return nil
+        }
+
+        upContext.interpolationQuality = .none
+        upContext.draw(downsampledImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+        return upContext.makeImage()
     }
 
     static func _randomize(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
@@ -208,4 +276,3 @@ class PixelMap {
         }
     }
 }
-
