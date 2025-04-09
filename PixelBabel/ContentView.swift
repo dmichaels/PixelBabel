@@ -5,6 +5,8 @@ struct ContentView: View
     @EnvironmentObject var settings: AppSettings
     @State private var _randomImage: CGImage?
     @State private var tapCount = 0
+    @State private var autoTapping = false
+    @State private var autoTappingTimer: Timer?
     @State private var showSettings = false
 
     private var _feedback: Feedback {
@@ -15,6 +17,17 @@ struct ContentView: View
         if let randomImage = RandomPixelGenerator.generate(settings: settings, taps: tapCount) {
             self._randomImage = randomImage
         }
+    }
+
+    func autoTappingStart() {
+        autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
+            refreshRandomImage()
+        }
+    }
+
+    func autoTappingStop() {
+        autoTappingTimer?.invalidate()
+        autoTappingTimer = nil
     }
 
     var body: some View {
@@ -74,6 +87,15 @@ struct ContentView: View
                 }
             }
         )
+        .onLongPressGesture(minimumDuration: 1.0) {
+            autoTapping.toggle()
+            if (autoTapping) {
+                autoTappingStart()
+            }
+            else {
+                autoTappingStop()
+            }
+        }
         /*
         .gesture(TapGesture(count: 2).onEnded {
             tapCount += 1
@@ -120,7 +142,6 @@ struct RandomPixelGenerator {
             settings.pixels.load("flowers")
         }
         else {
-            print("ContentView: settings.pixels.randomize()")
             settings.pixels.randomize()
         }
 

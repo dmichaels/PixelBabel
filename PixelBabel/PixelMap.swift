@@ -14,7 +14,7 @@ class PixelMap {
     private var _mode: ColorMode = ColorMode.color
 
     private var _producer: Bool
-    private let _pixelsListMax: Int = 16
+    private let _pixelsListMax: Int = 50
     private var _pixelsList: [[UInt8]]? = nil
     private var _pixelsListAccessQueue: DispatchQueue? = nil
     private var _pixelsListReplenishQueue: DispatchQueue? = nil
