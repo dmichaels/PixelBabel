@@ -43,6 +43,16 @@ struct ContentView: View
                             refreshRandomImage()
                         }
                     }
+                    .onChange(of: settings.rgbFilter) { _ in
+                        print("xyzzy.rgb")
+                        print(settings.rgbFilter)
+                        settings.pixels.filter = settings.rgbFilter
+                        print("xyzzy.rgb.a")
+                        print(settings.pixels.filter)
+                        if (!showSettings) {
+                            refreshRandomImage()
+                        }
+                    }
                     .onChange(of: settings.pixelSize) { _ in
                         settings.pixels.scale = settings.pixelSize
                         if (!showSettings) {

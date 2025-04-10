@@ -5,6 +5,7 @@ class DefaultAppSettings
 {
     public static let pixelSize: Int = 10
     public static let colorMode: ColorMode = ColorMode.color
+    public static let rgbFilter: RGBFilterOptions = RGBFilterOptions.RGB
     public static let backgroundBufferSizeDefault: Int = 50
     public static let backgroundBufferSizeMax: Int = 250
 }
@@ -16,6 +17,7 @@ class AppSettings: ObservableObject
     @Published var pixelSize: Int = DefaultAppSettings.pixelSize
     @Published var soundEnabled: Bool = true
     @Published var hapticEnabled: Bool = true
+    @Published var rgbFilter: RGBFilterOptions = DefaultAppSettings.rgbFilter
     @Published var randomFixedImage: Bool = false
     @Published var randomFixedImagePeriod: RandomFixedImagePeriod = RandomFixedImagePeriod.sometimes
     @Published var backgroundBufferEnabled: Bool = true
@@ -28,6 +30,7 @@ class AppSettings: ObservableObject
         self.pixels = PixelMap(ScreenWidth, ScreenHeight,
                                scale: DefaultAppSettings.pixelSize,
                                mode: DefaultAppSettings.colorMode,
+                               filter: DefaultAppSettings.rgbFilter,
                                backgroundBufferSize: DefaultAppSettings.backgroundBufferSizeDefault)
     }
 }

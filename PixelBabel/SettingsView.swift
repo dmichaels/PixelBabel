@@ -6,7 +6,6 @@ import AVFoundation
 struct SettingsView: View
 {
     @EnvironmentObject var settings: AppSettings
-    // @State private var foobar: Date = Date()
 
     var body: some View {
         Form {
@@ -26,6 +25,18 @@ struct SettingsView: View
                     .onChange(of: settings.colorMode) { newValue in
                         settings.colorMode = newValue
                     }
+                }
+                HStack {
+                    Label("RGB Selection", systemImage: "eyedropper")
+                        .lineLimit(1)
+                        .layoutPriority(1)
+                    Picker("", selection: $settings.rgbFilter) {
+                        ForEach(RGBFilterOptions.allCases) { option in
+                            Text(option.label).tag(option)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .disabled(settings.colorMode != ColorMode.color)
                 }
                 VStack {
                     HStack {
@@ -162,7 +173,7 @@ struct DeveloperSettingsView: View {
                 }
             }
         }
-        .navigationTitle("Developer Settings")
+        .navigationTitle("Developer")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

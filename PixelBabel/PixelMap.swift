@@ -12,6 +12,7 @@ class PixelMap {
     private var _pixelsHeight: Int
     private var _scale: Int = 1
     private var _mode: ColorMode = ColorMode.color
+    private var _filter: RGBFilterOptions = RGBFilterOptions.RGB
 
     private var _producer: Bool
     private var _backgroundBufferSize: Int = DefaultAppSettings.backgroundBufferSizeDefault
@@ -22,12 +23,14 @@ class PixelMap {
     init(_ width: Int, _ height: Int,
          scale: Int = 1,
          mode: ColorMode = ColorMode.color,
+         filter: RGBFilterOptions = RGBFilterOptions.RGB,
          backgroundBufferSize: Int = DefaultAppSettings.backgroundBufferSizeDefault) {
-        self._producer = true
         self._pixelsWidth = width
         self._pixelsHeight = height
-        self._scale = scale
         self._pixels = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
+        self._mode = mode
+        self._scale = scale
+        self._filter = filter
         self._producer = backgroundBufferSize > 0
         if (self._producer) {
             self._backgroundBufferSize = backgroundBufferSize
@@ -54,6 +57,11 @@ class PixelMap {
     public var mode: ColorMode {
         get { return self._mode }
         set { self._mode = newValue ; self._invalidate() }
+    }
+
+    public var filter: RGBFilterOptions {
+        get { return self._filter }
+        set { self._filter = newValue ; self._invalidate() }
     }
 
     public var data: [UInt8] {
@@ -108,7 +116,8 @@ class PixelMap {
         }
         if (!done) {
             PixelMap._randomize(&self._pixels, self._pixelsWidth, self._pixelsHeight,
-                                width: self.width, height: self.height, scale: self.scale, mode: self.mode)
+                                width: self.width, height: self.height,
+                                scale: self.scale, mode: self.mode, filter: self.filter)
         }
     }
 
@@ -198,8 +207,10 @@ class PixelMap {
     }
 
     static func _randomize(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
-                           width: Int, height: Int, scale: Int, mode: ColorMode)
+                           width: Int, height: Int,
+                           scale: Int, mode: ColorMode, filter: RGBFilterOptions = RGBFilterOptions.RGB)
     {
+        // var rgbFilterLocal: ((UInt32) -> UInt32)? = RGBFilters.Rox
         for y in 0..<height {
             for x in 0..<width {
                 if (mode == ColorMode.monochrome) {
@@ -213,7 +224,10 @@ class PixelMap {
                                     x: x, y: y, scale: scale, red: value, green: value, blue: value)
                 }
                 else {
-                    let rgb = UInt32.random(in: 0...0xFFFFFF)
+                    var rgb = UInt32.random(in: 0...0xFFFFFF)
+                    if (filter != RGBFilterOptions.RGB) {
+                        rgb = filter.function(rgb)
+                    }
                     let red = UInt8((rgb >> 16) & 0xFF)
                     let green = UInt8((rgb >> 8) & 0xFF)
                     let blue = UInt8(rgb & 0xFF)
@@ -257,7 +271,8 @@ class PixelMap {
                 for i in 0..<additionalPixelsProbableCount {
                     var pixels: [UInt8] = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
                     PixelMap._randomize(&pixels, self._pixelsWidth, self._pixelsHeight,
-                                        width: self.width, height: self.height, scale: self.scale, mode: self.mode)
+                                        width: self.width, height: self.height,
+                                        scale: self.scale, mode: self.mode, filter: self.filter)
                     self._pixelsListAccessQueue!.sync {
                         if (self._pixelsList!.count < self._backgroundBufferSize) {
                             self._pixelsList!.append(pixels)
