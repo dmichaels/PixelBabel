@@ -27,10 +27,15 @@ struct SettingsView: View {
                     }
                 }
                 HStack {
-                    Label("Automation", systemImage: "play.circle" /*"sparkles"*/)
+                    Label("Automation", systemImage: "play.circle")
                     Spacer()
                     Toggle("", isOn: $settings.automationEnabled)
                         .labelsHidden()
+                }
+                HStack {
+                    Label("Automation Speed", systemImage: "sparkles")
+                    Spacer()
+                    Text("TODO")
                 }
             }
 
