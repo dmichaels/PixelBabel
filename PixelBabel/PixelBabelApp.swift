@@ -11,14 +11,3 @@ struct PixelBabelApp: App {
         }
     }
 }
-
-/*
-class AppSettings: ObservableObject {
-    @Published var useGrayscale: Bool = false {
-        didSet { print("Grayscale changed: \(useGrayscale)") }
-    }
-    @Published var pixelSize: Int = 1 {
-        didSet { print("Pixel Size changed: \(pixelSize)") }
-    }
-}
-*/
