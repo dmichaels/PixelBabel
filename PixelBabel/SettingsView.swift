@@ -93,24 +93,17 @@ struct SettingsView: View
                 }
             }
 
-            Section(header: Text("ADVANCED").padding(.leading, -12),
-                    footer: Text("System Memory: \(Memory.system()) • App: \(Memory.app()) • \(Memory.app(percent: true))").padding(.leading, -10)) {
+            Section(header: Text("ADVANCED").padding(.leading, -12).onTapGesture { settings.dummy = Date() },
+                    footer: Text("Memory: \(Memory.system()) • \(Memory.app()) • \(Memory.app(percent: true)) • Buffered: \(settings.pixels.cached)").padding(.leading, -10).onTapGesture { settings.dummy = Date() }) {
                 NavigationLink(destination: DeveloperSettingsView()) {
                     Label("Developer", systemImage: "gearshape")
-                }
-                HStack {
-                    Label("Buffered", systemImage: "rectangle.stack")
-                    Spacer()
-                    Text("\(settings.pixels.cached)")
-                }
-                .onTapGesture {
-                    settings.dummy = Date()
                 }
             }
 
         }
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
+                
     }
 }
 
