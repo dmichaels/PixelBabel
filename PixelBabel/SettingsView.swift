@@ -19,10 +19,17 @@ struct SettingsView: View {
                                 .truncationMode(.tail)
                                 .tag(mode)
                         }
-                    }   .pickerStyle(MenuPickerStyle())
-                        .onChange(of: settings.colorMode) { newValue in
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    .onChange(of: settings.colorMode) { newValue in
                         settings.colorMode = newValue
                     }
+                }
+                HStack {
+                    Label("Automation", systemImage: "play.circle" /*"sparkles"*/)
+                    Spacer()
+                    Toggle("", isOn: $settings.automationEnabled)
+                        .labelsHidden()
                 }
             }
 
@@ -86,8 +93,20 @@ struct AdvancedSettingsView: View {
                             .baselineOffset(-2)
                     }
                     Spacer()
-                    Toggle("", isOn: $settings.backgroundRefresh)
+                    Toggle("", isOn: $settings.backgroundBufferEnabled)
                         .labelsHidden()
+                }
+                HStack {
+                    Label("Buffer Size", systemImage: "rectangle.stack")
+                    Picker("", selection: $settings.backgroundBufferSize) {
+                        ForEach(Array(stride(from: 0,
+                                             through: DefaultAppSettings.backgroundBufferSizeMax,
+                                             by: 10)), id: \.self) { value in
+                            Text("\(value)").tag(value)
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    .disabled(!settings.backgroundBufferEnabled)
                 }
             }
             Section(header: Text("RANDOM IMAGE").padding(.leading, -12)) {

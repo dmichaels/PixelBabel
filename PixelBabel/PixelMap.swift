@@ -14,22 +14,26 @@ class PixelMap {
     private var _mode: ColorMode = ColorMode.color
 
     private var _producer: Bool
-    private let _pixelsListMax: Int = 50
+    private var _backgroundBufferSize: Int = DefaultAppSettings.backgroundBufferSizeDefault
     private var _pixelsList: [[UInt8]]? = nil
     private var _pixelsListAccessQueue: DispatchQueue? = nil
     private var _pixelsListReplenishQueue: DispatchQueue? = nil
 
-    init(_ width: Int, _ height: Int, scale: Int = 1, mode: ColorMode = ColorMode.color) {
+    init(_ width: Int, _ height: Int,
+         scale: Int = 1,
+         mode: ColorMode = ColorMode.color,
+         backgroundBufferSize: Int = DefaultAppSettings.backgroundBufferSizeDefault) {
         self._producer = true
         self._pixelsWidth = width
         self._pixelsHeight = height
         self._scale = scale
         self._pixels = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
-        self._producer = producer
-        if (producer) {
+        self._producer = backgroundBufferSize > 0
+        if (self._producer) {
+            self._backgroundBufferSize = backgroundBufferSize
             self._pixelsList = []
-            self._pixelsListAccessQueue = DispatchQueue(label: "PixelBabel.PixelMap.ACCESS" /*, qos: .background */)
-            self._pixelsListReplenishQueue = DispatchQueue(label: "PixelBabel.PixelMap.REPLENISH" /*, qos: .background */)
+            self._pixelsListAccessQueue = DispatchQueue(label: "PixelBabel.PixelMap.ACCESS")
+            self._pixelsListReplenishQueue = DispatchQueue(label: "PixelBabel.PixelMap.REPLENISH")
             self._replenish()
         }
     }
@@ -65,6 +69,11 @@ class PixelMap {
                 self._invalidate()
             }
         }
+    }
+
+    public var backgroundBufferSize: Int {
+        get { return self._backgroundBufferSize }
+        set { self._backgroundBufferSize = newValue }
     }
 
     public var cached: Int {
@@ -238,7 +247,7 @@ class PixelMap {
             self._pixelsListAccessQueue!.sync {
                 // This block of code is effectively to synchronize
                 // access to pixelsList between (this) producer and consumer.
-                additionalPixelsProbableCount = self._pixelsListMax - self._pixelsList!.count
+                additionalPixelsProbableCount = self._backgroundBufferSize - self._pixelsList!.count
             }
             if (additionalPixelsProbableCount > 0) {
                 for i in 0..<additionalPixelsProbableCount {
@@ -246,7 +255,7 @@ class PixelMap {
                     PixelMap._randomize(&pixels, self._pixelsWidth, self._pixelsHeight,
                                         width: self.width, height: self.height, scale: self.scale, mode: self.mode)
                     self._pixelsListAccessQueue!.sync {
-                        if (self._pixelsList!.count < self._pixelsListMax) {
+                        if (self._pixelsList!.count < self._backgroundBufferSize) {
                             self._pixelsList!.append(pixels)
                         }
                     }

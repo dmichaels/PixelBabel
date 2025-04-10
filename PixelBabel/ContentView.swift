@@ -50,8 +50,14 @@ struct ContentView: View
                             refreshRandomImage()
                         }
                     }
-                    .onChange(of: settings.backgroundRefresh) { _ in
-                        settings.pixels.producer = settings.backgroundRefresh
+                    .onChange(of: settings.backgroundBufferEnabled) { _ in
+                        settings.pixels.producer = settings.backgroundBufferEnabled
+                        if (!showSettings) {
+                            refreshRandomImage()
+                        }
+                    }
+                    .onChange(of: settings.backgroundBufferSize) { _ in
+                        settings.pixels.backgroundBufferSize = settings.backgroundBufferSize
                         if (!showSettings) {
                             refreshRandomImage()
                         }
