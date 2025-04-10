@@ -83,7 +83,7 @@ struct SettingsView: View
             }
 
             Section(header: Text("ADVANCED").padding(.leading, -12),
-                    footer: Text("System Memory: \(Memory.system()) | App : \(Memory.app()) | \(Memory.app(percent: true))")) {
+                    footer: Text("System Memory: \(Memory.system()) | App : \(Memory.app()) | \(Memory.app(percent: true))").padding(.leading, -10)) {
                 NavigationLink(destination: DeveloperSettingsView()) {
                     Label("Developer", systemImage: "gearshape")
                 }
@@ -190,5 +190,5 @@ let AutomationSpeedOptions: [(label: String, value: Double)] = [
     ("Fast", 0.5),
     ("Faster", 0.25),
     ("Fastest", 0.1),
-    ("Maximum", 0.0)
+    ("Max", 0.0)
 ]
