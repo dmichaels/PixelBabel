@@ -21,7 +21,7 @@ struct ContentView: View
     }
 
     func autoTappingStart() {
-        autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
+        autoTappingTimer = Timer.scheduledTimer(withTimeInterval: settings.automationSpeed, repeats: true) { _ in
             refreshRandomImage()
         }
     }

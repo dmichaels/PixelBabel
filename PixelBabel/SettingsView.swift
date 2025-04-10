@@ -9,7 +9,8 @@ struct SettingsView: View {
     var body: some View {
             Form {
 
-            Section(header: Text("PIXELS").padding(.leading, -12)) {
+            Section(header: Text("PIXELS").padding(.leading, -12),
+                    footer: Text("Long press to start/stop automation.").padding(.leading, -10)) {
                 HStack {
                     Label("Color Mode", systemImage: "paintpalette")
                     Picker("", selection: $settings.colorMode) {
