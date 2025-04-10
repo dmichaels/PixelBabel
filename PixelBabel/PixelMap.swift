@@ -119,6 +119,10 @@ class PixelMap {
             return
         }
 
+        self.load(cgImage, pixelate: pixelate)
+    }
+
+    public func load(_ image: CGImage, pixelate: Bool = true) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
     
@@ -134,7 +138,7 @@ class PixelMap {
             return
         }
 
-        var finalImage: CGImage = cgImage
+        var finalImage: CGImage = image
 
         context.draw(finalImage, in: CGRect(x: 0, y: 0, width: self._pixelsWidth, height: self._pixelsHeight))
 

@@ -110,13 +110,13 @@ struct DeveloperSettingsView: View {
 
     var body: some View {
         Form {
-            Section(header: Text("PROCESSING").padding(.leading, -12)) {
+            Section(header: Text("BUFFERING").padding(.leading, -12)) {
                 HStack {
                     // Label("Background  [\(settings.pixels.cached)]", systemImage: "arrow.triangle.2.circlepath")
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.triangle.2.circlepath")
-                        Text("Background")
-                            .padding(.leading, 10)
+                        Text("Enabled")
+                            .padding(.leading, 16)
                         Text("  (\(settings.pixels.cached))")
                             .font(.caption)
                             .foregroundColor(.gray)
