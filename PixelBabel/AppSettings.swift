@@ -14,7 +14,7 @@ class AppSettings: ObservableObject
     @Published var pixelSize: Int = DefaultAppSettings.pixelSize
     @Published var soundEnabled: Bool = false // xyzzy
     @Published var hapticEnabled: Bool = false // xyzzy
-    @Published var randomFixedImage: Bool = true
+    @Published var randomFixedImage: Bool = false
     @Published var randomFixedImagePeriod: RandomFixedImagePeriod = RandomFixedImagePeriod.sometimes
     @Published var backgroundRefresh: Bool = true
 

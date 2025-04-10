@@ -5,7 +5,6 @@ import AVFoundation
 
 struct SettingsView: View {
     @EnvironmentObject var settings: AppSettings
-    @State private var randomFixedImagePeriodSelected: RandomFixedImagePeriod = .sometimes
 
     var body: some View {
             Form {
@@ -20,8 +19,8 @@ struct SettingsView: View {
                                 .truncationMode(.tail)
                                 .tag(mode)
                         }
-                    }.pickerStyle(MenuPickerStyle())
-                    .onChange(of: settings.colorMode) { newValue in
+                    }   .pickerStyle(MenuPickerStyle())
+                        .onChange(of: settings.colorMode) { newValue in
                         settings.colorMode = newValue
                     }
                 }
@@ -31,8 +30,6 @@ struct SettingsView: View {
                 VStack {
                     Text("Pixel Size: \(Int(settings.pixelSize))")
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    //Text("Pixel Size: \(Int(settings.pixelSize))")
-                        //.frame(maxWidth: .infinity, alignment: .leading)
                     Slider(
                         value: Binding(
                             get: { Double(settings.pixelSize) },
@@ -77,24 +74,29 @@ struct AdvancedSettingsView: View {
     var body: some View {
         Form {
             Section(header: Text("PROCESSING").padding(.leading, -12)) {
-                HStack { Label("Background  [\(settings.pixels.cached)]", systemImage: "arrow.triangle.2.circlepath")
+                HStack {
+                    // Label("Background  [\(settings.pixels.cached)]", systemImage: "arrow.triangle.2.circlepath")
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                        Text("Background")
+                            .padding(.leading, 6)
+                        Text("  (\(settings.pixels.cached))")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .baselineOffset(-2)
+                    }
                     Spacer()
                     Toggle("", isOn: $settings.backgroundRefresh)
                         .labelsHidden()
                 }
-                /*
-                HStack {
-                    Text("Background [\(settings.pixels.cached)]")
-                        .bold()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading)
-                    Toggle("", isOn: $settings.backgroundRefresh)
-                        .labelsHidden()
-                        .padding(.trailing, 30)
-                }.padding(.top, 10)
-                */
             }
             Section(header: Text("RANDOM IMAGE").padding(.leading, -12)) {
+                HStack { Label("Enabled", systemImage: "photo")
+                    Spacer()
+                    Toggle("", isOn: $settings.randomFixedImage)
+                        .labelsHidden()
+                }
+                /*
                 HStack {
                     Text("Image")
                         .bold()
@@ -104,13 +106,16 @@ struct AdvancedSettingsView: View {
                         .labelsHidden()
                         .padding(.trailing, 30)
                 }.padding(.top, 10)
+                */
                 HStack {
+                    /*
                     Text("Image Period")
                         .bold()
                         .lineLimit(1)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.leading)
-                    Spacer()
+                        */
+                    Label("Frequency", systemImage: "repeat")
                     Picker("", selection: $randomFixedImagePeriodSelected) {
                         ForEach(RandomFixedImagePeriod.allCases) { mode in
                             Text(mode.rawValue)
@@ -118,11 +123,10 @@ struct AdvancedSettingsView: View {
                                 .truncationMode(.tail)
                                 .tag(mode)
                         }
-                    }
-                        .pickerStyle(MenuPickerStyle())
-                        .frame(width: 200, alignment: .trailing)
-                        .padding(.trailing)
-                        .lineLimit(1)
+                    }   .pickerStyle(MenuPickerStyle())
+                        // .frame(width: 200, alignment: .trailing)
+                        // .padding(.trailing)
+                        // .lineLimit(1)
                         .onChange(of: randomFixedImagePeriodSelected) { newMode in
                             settings.randomFixedImagePeriod = newMode
                         }
