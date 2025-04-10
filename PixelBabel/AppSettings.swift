@@ -15,7 +15,7 @@ class AppSettings: ObservableObject
     @Published var colorMode: ColorMode = DefaultAppSettings.colorMode
     @Published var pixelSize: Int = DefaultAppSettings.pixelSize
     @Published var soundEnabled: Bool = true
-    @Published var hapticEnabled: Bool = false
+    @Published var hapticEnabled: Bool = true
     @Published var randomFixedImage: Bool = false
     @Published var randomFixedImagePeriod: RandomFixedImagePeriod = RandomFixedImagePeriod.sometimes
     @Published var backgroundBufferEnabled: Bool = true

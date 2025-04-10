@@ -80,7 +80,7 @@ struct ContentView: View
                         TapGesture().onEnded {
                             if (!showSettings) {
                                 tapCount += 1
-                                self._feedback.triggerHaptic()
+                                self._feedback.trigger()
                                 refreshRandomImage()
                             }
                         }
