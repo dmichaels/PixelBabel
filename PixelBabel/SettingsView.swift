@@ -7,10 +7,9 @@ struct SettingsView: View {
     @EnvironmentObject var settings: AppSettings
 
     var body: some View {
-            Form {
+        Form {
 
-            Section(header: Text("PIXELS").padding(.leading, -12),
-                    footer: Text("Long press to start/stop automation.").padding(.leading, -10)) {
+            Section(header: Text("PIXELS").padding(.leading, -12), footer: Text("Long press to start/stop automation.").padding(.leading, -10)) {
                 HStack {
                     Label("Color Mode", systemImage: "paintpalette")
                     Picker("", selection: $settings.colorMode) {
@@ -26,6 +25,25 @@ struct SettingsView: View {
                         settings.colorMode = newValue
                     }
                 }
+                VStack {
+                    HStack {
+                        Label("Pixel Size", systemImage: "magnifyingglass")
+                        Spacer()
+                        Text("\(settings.pixelSize)")
+                    }
+                    Slider(
+                        value: Binding(
+                            get: { Double(settings.pixelSize) },
+                            set: { settings.pixelSize = Int($0) }
+                        ),
+                        in: 1...50, step: 1)
+                        .padding(.top, -6)
+                        .padding(.bottom, -6)
+                    .onChange(of: settings.pixelSize) { newValue in
+                        settings.pixelSize = newValue
+                    }
+                }
+
                 HStack {
                     Label("Automation", systemImage: "play.circle")
                     Spacer()
@@ -34,25 +52,16 @@ struct SettingsView: View {
                 }
                 HStack {
                     Label("Automation Speed", systemImage: "sparkles")
+                        .lineLimit(1)
+                        .layoutPriority(1)
                     Spacer()
-                    Text("TODO")
-                }
-            }
-
-            Section(header: Label("ZOOM", systemImage: "magnifyingglass").labelStyle(ReverseLabelStyle()).padding(.leading, -12)) {
-                VStack {
-                    Text("Pixel Size: \(Int(settings.pixelSize))")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    Slider(
-                        value: Binding(
-                            get: { Double(settings.pixelSize) },
-                            set: { settings.pixelSize = Int($0) }
-                        ),
-                        in: 1...50, step: 1)
-                        .padding(.top, -10)
-                    .onChange(of: settings.pixelSize) { newValue in
-                        settings.pixelSize = newValue
+                    Picker("", selection: $settings.automationSpeed) {
+                        ForEach(AutomationSpeedOptions, id: \.value) { option in
+                            Text(option.label)
+                                .tag(option.value)
+                        }
                     }
+                    .pickerStyle(MenuPickerStyle())
                 }
             }
 
@@ -151,3 +160,20 @@ struct ReverseLabelStyle: LabelStyle {
         }
     }
 }
+
+let RandomFixedImagePeriodOptions: [(label: String, value: Int)] = [
+    ("Frequent", 5),
+    ("Sometimes", 25),
+    ("Seldom", 100)
+]
+
+let AutomationSpeedOptions: [(label: String, value: Double)] = [
+    ("Slowest", 7.0),
+    ("Slower", 3.0),
+    ("Slow", 2.0),
+    ("Medium", 1.0),
+    ("Fast", 0.5),
+    ("Faster", 0.25),
+    ("Fastest", 0.1),
+    ("Maximum", 0.0)
+]
