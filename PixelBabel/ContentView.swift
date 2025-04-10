@@ -61,6 +61,11 @@ struct ContentView: View
                             refreshRandomImage()
                         }
                     }
+                    .onChange(of: settings.automationEnabled) { _ in
+                        if (!settings.automationEnabled) {
+                            autoTappingStop()
+                        }
+                    }
                     .gesture(
                         DragGesture()
                             .onEnded { value in
@@ -82,11 +87,16 @@ struct ContentView: View
                     )
                     .gesture(
                         LongPressGesture(minimumDuration: 1.0).onEnded { value in
-                            autoTapping.toggle()
-                            if (autoTapping) {
-                                autoTappingStart()
+                            if (settings.automationEnabled) {
+                                autoTapping.toggle()
+                                if (autoTapping) {
+                                    autoTappingStart()
+                                }
+                                else {
+                                    autoTappingStop()
+                                }
                             }
-                            else {
+                            else if (autoTapping) {
                                 autoTappingStop()
                             }
                         }

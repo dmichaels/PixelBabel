@@ -66,6 +66,7 @@ struct SettingsView: View
                         }
                     }
                     .pickerStyle(MenuPickerStyle())
+                    .disabled(!settings.automationEnabled)
                 }
             }
 
@@ -81,7 +82,8 @@ struct SettingsView: View
                 }
             }
 
-            Section(header: Text("ADVANCED").padding(.leading, -12)) {
+            Section(header: Text("ADVANCED").padding(.leading, -12),
+                    footer: Text("System Memory: \(Memory.system()) | App : \(Memory.app()) | \(Memory.app(percent: true))")) {
                 NavigationLink(destination: DeveloperSettingsView()) {
                     Label("Developer", systemImage: "gearshape")
                 }
