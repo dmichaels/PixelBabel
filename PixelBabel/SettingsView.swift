@@ -79,7 +79,7 @@ struct AdvancedSettingsView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.triangle.2.circlepath")
                         Text("Background")
-                            .padding(.leading, 8)
+                            .padding(.leading, 10)
                         Text("  (\(settings.pixels.cached))")
                             .font(.caption)
                             .foregroundColor(.gray)
