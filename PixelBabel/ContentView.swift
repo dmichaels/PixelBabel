@@ -151,7 +151,7 @@ struct RandomPixelGenerator {
         }
 
         if (randomFixedImage) {
-            settings.pixels.load("monolisa")
+            settings.pixels.load("emilbisttram")
         }
         else {
             settings.pixels.randomize()
