@@ -83,7 +83,7 @@ struct SettingsView: View
             }
 
             Section(header: Text("ADVANCED").padding(.leading, -12),
-                    footer: Text("System Memory: \(Memory.system()) | App : \(Memory.app()) | \(Memory.app(percent: true))").padding(.leading, -10)) {
+                    footer: Text("System Memory: \(Memory.system()) • App: \(Memory.app()) • \(Memory.app(percent: true))").padding(.leading, -10)) {
                 NavigationLink(destination: DeveloperSettingsView()) {
                     Label("Developer", systemImage: "gearshape")
                 }
