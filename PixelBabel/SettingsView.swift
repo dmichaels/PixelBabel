@@ -3,13 +3,15 @@ import AudioToolbox
 import CoreHaptics
 import AVFoundation
 
-struct SettingsView: View {
+struct SettingsView: View
+{
     @EnvironmentObject var settings: AppSettings
+    // @State private var foobar: Date = Date()
 
     var body: some View {
         Form {
 
-            Section(header: Text("PIXELS").padding(.leading, -12), footer: Text("Long press to start/stop automation.").padding(.leading, -10)) {
+            Section(header: Text("PIXELS").padding(.leading, -12)) {
                 HStack {
                     Label("Color Mode", systemImage: "paintpalette")
                     Picker("", selection: $settings.colorMode) {
@@ -37,13 +39,15 @@ struct SettingsView: View {
                             set: { settings.pixelSize = Int($0) }
                         ),
                         in: 1...50, step: 1)
-                        .padding(.top, -6)
-                        .padding(.bottom, -6)
+                        .padding(.top, -8)
+                        .padding(.bottom, -2)
                     .onChange(of: settings.pixelSize) { newValue in
                         settings.pixelSize = newValue
                     }
                 }
+            }
 
+            Section(header: Text("ANIMATION").padding(.leading, -12), footer: Text("Long press to start/stop automation.").padding(.leading, -10)) {
                 HStack {
                     Label("Automation", systemImage: "play.circle")
                     Spacer()
@@ -77,18 +81,27 @@ struct SettingsView: View {
                 }
             }
 
-            Section(header: Text("DEVELOPER").padding(.leading, -12)) {
-                NavigationLink(destination: AdvancedSettingsView()) {
-                    Label("Advanced", systemImage: "gearshape")
+            Section(header: Text("ADVANCED").padding(.leading, -12)) {
+                NavigationLink(destination: DeveloperSettingsView()) {
+                    Label("Developer", systemImage: "gearshape")
+                }
+                HStack {
+                    Label("Buffered", systemImage: "rectangle.stack")
+                    Spacer()
+                    Text("\(settings.pixels.cached)")
+                }
+                .onTapGesture {
+                    settings.dummy = Date()
                 }
             }
+
         }
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-struct AdvancedSettingsView: View {
+struct DeveloperSettingsView: View {
 
     @EnvironmentObject var settings: AppSettings
     @State private var randomFixedImagePeriodSelected: RandomFixedImagePeriod = .sometimes
@@ -147,7 +160,7 @@ struct AdvancedSettingsView: View {
                 }
             }
         }
-        .navigationTitle("Advanced")
+        .navigationTitle("Developer Settings")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

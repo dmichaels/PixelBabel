@@ -22,6 +22,7 @@ class AppSettings: ObservableObject
     @Published var backgroundBufferSize: Int = DefaultAppSettings.backgroundBufferSizeDefault
     @Published var automationEnabled: Bool = true
     @Published var automationSpeed: Double = 0.1
+    @Published var dummy: Date = Date()
 
     init() {
         self.pixels = PixelMap(ScreenWidth, ScreenHeight,
