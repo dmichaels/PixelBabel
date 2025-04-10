@@ -96,25 +96,7 @@ struct AdvancedSettingsView: View {
                     Toggle("", isOn: $settings.randomFixedImage)
                         .labelsHidden()
                 }
-                /*
                 HStack {
-                    Text("Image")
-                        .bold()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading)
-                    Toggle("", isOn: $settings.randomFixedImage)
-                        .labelsHidden()
-                        .padding(.trailing, 30)
-                }.padding(.top, 10)
-                */
-                HStack {
-                    /*
-                    Text("Image Period")
-                        .bold()
-                        .lineLimit(1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading)
-                        */
                     Label("Frequency", systemImage: "repeat")
                     Picker("", selection: $randomFixedImagePeriodSelected) {
                         ForEach(RandomFixedImagePeriod.allCases) { mode in
@@ -124,12 +106,10 @@ struct AdvancedSettingsView: View {
                                 .tag(mode)
                         }
                     }   .pickerStyle(MenuPickerStyle())
-                        // .frame(width: 200, alignment: .trailing)
-                        // .padding(.trailing)
-                        // .lineLimit(1)
                         .onChange(of: randomFixedImagePeriodSelected) { newMode in
                             settings.randomFixedImagePeriod = newMode
                         }
+                        .disabled(!settings.randomFixedImage)
                 }
             }
         }
