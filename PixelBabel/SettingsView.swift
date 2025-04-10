@@ -116,7 +116,7 @@ struct DeveloperSettingsView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.triangle.2.circlepath")
                         Text("Enabled")
-                            .padding(.leading, 16)
+                            .padding(.leading, 17)
                         Text("  (\(settings.pixels.cached))")
                             .font(.caption)
                             .foregroundColor(.gray)
