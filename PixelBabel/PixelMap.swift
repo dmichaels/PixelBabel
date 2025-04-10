@@ -13,20 +13,28 @@ class PixelMap {
     private var _scale: Int = 1
     private var _mode: ColorMode = ColorMode.color
 
-    private let _pixelsListMax: Int = 2
+    private var _producer: Bool
+    private var _backgroundBufferSize: Int = DefaultAppSettings.backgroundBufferSizeDefault
     private var _pixelsList: [[UInt8]]? = nil
-    private var _pixelsListDispatchQueue: DispatchQueue? = nil
+    private var _pixelsListAccessQueue: DispatchQueue? = nil
+    private var _pixelsListReplenishQueue: DispatchQueue? = nil
 
-    init(_ width: Int, _ height: Int, scale: Int = 1, mode: ColorMode = ColorMode.color, producer: Bool = true) {
-        print("PixelMap.init")
+    init(_ width: Int, _ height: Int,
+         scale: Int = 1,
+         mode: ColorMode = ColorMode.color,
+         backgroundBufferSize: Int = DefaultAppSettings.backgroundBufferSizeDefault) {
+        self._producer = true
         self._pixelsWidth = width
         self._pixelsHeight = height
         self._scale = scale
         self._pixels = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
-        if (producer) {
+        self._producer = backgroundBufferSize > 0
+        if (self._producer) {
+            self._backgroundBufferSize = backgroundBufferSize
             self._pixelsList = []
-            self._pixelsListDispatchQueue = DispatchQueue(label: "com.dmichaels.prufrock.PixelBabel.PixelMap.ACCESS", qos: .background)
-            // self._producePixelsList()
+            self._pixelsListAccessQueue = DispatchQueue(label: "PixelBabel.PixelMap.ACCESS")
+            self._pixelsListReplenishQueue = DispatchQueue(label: "PixelBabel.PixelMap.REPLENISH")
+            self._replenish()
         }
     }
 
@@ -40,12 +48,12 @@ class PixelMap {
 
     public var scale: Int {
         get { return self._scale }
-        set { self._scale = newValue }
+        set { self._scale = newValue ; self._invalidate() }
     }
 
     public var mode: ColorMode {
         get { return self._mode }
-        set { self._mode = newValue }
+        set { self._mode = newValue ; self._invalidate() }
     }
 
     public var data: [UInt8] {
@@ -53,19 +61,68 @@ class PixelMap {
         set { self._pixels = newValue }
     }
 
-    public func randomize()
-    {
-        print("PixelMap.randomize")
-        PixelMap._randomize(self)
+    public var producer: Bool {
+        get { return self._producer }
+        set {
+            self._producer = newValue
+            if (!self._producer) {
+                self._invalidate()
+            }
+        }
     }
 
-    public func load(_ name: String)
+    public var backgroundBufferSize: Int {
+        get { return self._backgroundBufferSize }
+        set { self._backgroundBufferSize = newValue }
+    }
+
+    public var cached: Int {
+        get {
+            var pixelsListCount: Int = 0
+            if (self._pixelsListAccessQueue != nil) {
+                self._pixelsListAccessQueue!.sync {
+                    pixelsListCount = self._pixelsList!.count
+                }
+            }
+            return pixelsListCount
+        }
+    }
+
+    public func randomize()
+    {
+        var done: Bool = false
+        if (self._producer) {
+            var pixels: [UInt8]? = nil
+            self._pixelsListAccessQueue!.sync {
+                // This block of code effectively synchronizes
+                // access to pixelsList between producer and consumer.
+                if !self._pixelsList!.isEmpty {
+                    pixels = self._pixelsList!.removeFirst()
+                }
+            }
+            if (pixels != nil) {
+                self._pixels = pixels!
+                done = true
+            }
+            self._replenish()
+        }
+        if (!done) {
+            PixelMap._randomize(&self._pixels, self._pixelsWidth, self._pixelsHeight,
+                                width: self.width, height: self.height, scale: self.scale, mode: self.mode)
+        }
+    }
+
+    public func load(_ name: String, pixelate: Bool = true)
     {
         guard let image = UIImage(named: name),
-            let cgImage = image.cgImage else {
+            let cgImage: CGImage = image.cgImage else {
             return
         }
 
+        self.load(cgImage, pixelate: pixelate)
+    }
+
+    public func load(_ image: CGImage, pixelate: Bool = true) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
     
@@ -81,72 +138,141 @@ class PixelMap {
             return
         }
 
-        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: self._pixelsWidth, height: self._pixelsHeight))
+        var finalImage: CGImage = image
+
+        context.draw(finalImage, in: CGRect(x: 0, y: 0, width: self._pixelsWidth, height: self._pixelsHeight))
+
+        if (pixelate) {
+            if let image = ImageUtils.pixelate(finalImage, self._pixelsWidth, self._pixelsHeight, pixelSize: self._scale) {
+                guard let context = CGContext(
+                    data: &self._pixels,
+                    width: self._pixelsWidth,
+                    height: self._pixelsHeight,
+                    bitsPerComponent: 8,
+                    bytesPerRow: self._pixelsWidth * ScreenDepth,
+                    space: colorSpace,
+                    bitmapInfo: bitmapInfo.rawValue
+                ) else {
+                    return
+                }
+                context.draw(image, in: CGRect(x: 0, y: 0, width: self._pixelsWidth, height: self._pixelsHeight))
+                finalImage = image
+            }
+        }
+
+        if (self.mode == ColorMode.monochrome) {
+            if let image = ImageUtils.monochrome(finalImage) {
+                guard let context = CGContext(
+                    data: &self._pixels,
+                    width: self._pixelsWidth,
+                    height: self._pixelsHeight,
+                    bitsPerComponent: 8,
+                    bytesPerRow: self._pixelsWidth * ScreenDepth,
+                    space: colorSpace,
+                    bitmapInfo: bitmapInfo.rawValue
+                ) else {
+                    return
+                }
+                context.draw(image, in: CGRect(x: 0, y: 0, width: self._pixelsWidth, height: self._pixelsHeight))
+                finalImage = image
+            }
+        }
+
+        if (self.mode == ColorMode.grayscale) {
+            if let image = ImageUtils.grayscale(finalImage) {
+                guard let context = CGContext(
+                    data: &self._pixels,
+                    width: self._pixelsWidth,
+                    height: self._pixelsHeight,
+                    bitsPerComponent: 8,
+                    bytesPerRow: self._pixelsWidth * ScreenDepth,
+                    space: colorSpace,
+                    bitmapInfo: bitmapInfo.rawValue
+                ) else {
+                    return
+                }
+                context.draw(image, in: CGRect(x: 0, y: 0, width: self._pixelsWidth, height: self._pixelsHeight))
+                finalImage = image
+            }
+        }
     }
 
-    private static func _randomize(_ pixelMap: PixelMap)
+    static func _randomize(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
+                           width: Int, height: Int, scale: Int, mode: ColorMode)
     {
-        print("PixelMap._randomize")
-        for y in 0..<pixelMap.height {
-            for x in 0..<pixelMap.width {
-                if (pixelMap._mode == ColorMode.monochrome) {
+        for y in 0..<height {
+            for x in 0..<width {
+                if (mode == ColorMode.monochrome) {
                     let value: UInt8 = UInt8.random(in: 0...1) * 255
-                    PixelMap._write(pixelMap, x, y, red: value, green: value, blue: value)
+                    PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
+                                    x: x, y: y, scale: scale, red: value, green: value, blue: value)
                 }
-                else if pixelMap._mode == ColorMode.grayscale {
+                else if (mode == ColorMode.grayscale) {
                     let value = UInt8.random(in: 0...255)
-                    PixelMap._write(pixelMap, x, y, red: value, green: value, blue: value)
+                    PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
+                                    x: x, y: y, scale: scale, red: value, green: value, blue: value)
                 }
                 else {
                     let rgb = UInt32.random(in: 0...0xFFFFFF)
                     let red = UInt8((rgb >> 16) & 0xFF)
                     let green = UInt8((rgb >> 8) & 0xFF)
                     let blue = UInt8(rgb & 0xFF)
-                    PixelMap._write(pixelMap, x, y, red: red, green: green, blue: blue)
+                    PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
+                                     x: x, y: y, scale: scale, red: red, green: green, blue: blue)
                 }
             }
         }
     }
 
-    private static func _write(_ pixelMap: PixelMap, _ x: Int, _ y: Int,
-                               red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255)
+    static func _write(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
+                       x: Int, y: Int, scale: Int,
+                       red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255)
     {
-        for dy in 0..<pixelMap._scale {
-            for dx in 0..<pixelMap._scale {
-                let ix = x * pixelMap._scale + dx
-                let iy = y * pixelMap._scale + dy
-                let i = (iy * pixelMap._pixelsWidth + ix) * ScreenDepth
-                if ((ix < pixelMap._pixelsWidth) && (i < pixelMap._pixels.count)) {
-                    pixelMap._pixels[i] = red
-                    pixelMap._pixels[i + 1] = green
-                    pixelMap._pixels[i + 2] = blue
-                    pixelMap._pixels[i + 3] = transparency
+        for dy in 0..<scale {
+            for dx in 0..<scale {
+                let ix = x * scale + dx
+                let iy = y * scale + dy
+                let i = (iy * pixelsWidth + ix) * ScreenDepth
+                if ((ix < pixelsWidth) && (i < pixels.count)) {
+                    pixels[i] = red
+                    pixels[i + 1] = green
+                    pixels[i + 2] = blue
+                    pixels[i + 3] = transparency
                 }
             }
         }
     }
 
-    private func _producePixelsList() {
-        DispatchQueue.global(qos: .background).async {
-            // This block of code runs OFF of the main thread (i.e. in the background).
-            if (self._pixelsList!.count < self._pixelsListMax) {
-                var additionalPixelsList: [[UInt8]] = []
-                for _ in 0..<(self._pixelsListMax - self._pixelsList!.count) {
-                    // let additionalPixels = self.generatePixels()
-                    // let additionalPixels = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
-                    // var pixels = PixelMap(self._pixelsWidth, self._pixelsHeight, scale: self._scale)
-                    // pixels._randomize(
-                    // additionalPixelsList.append(additionalPixels)
-                }
-                if (additionalPixelsList.count > 0) {
-                    // This block of code is effectively to synchronize access
-                    // to pixelsList between (this) producer and consumer.
-                    self._pixelsListDispatchQueue!.async {
-                        print("PRODUCE-PIXELS: [\(additionalPixelsList.count)] to [\(self._pixelsList!.count)]")
-                        self._pixelsList!.append(contentsOf: additionalPixelsList)
-                        print("DONE-PRODUCE-PIXELS: [\(additionalPixelsList.count)] to [\(self._pixelsList!.count)]")
+    private func _replenish() {
+        self._pixelsListReplenishQueue!.async {
+            // This block of code runs OFF of the main thread (i.e. in the background);
+            // and no more than one of these will ever be running at a time. 
+            var additionalPixelsProbableCount: Int = 0
+            self._pixelsListAccessQueue!.sync {
+                // This block of code is effectively to synchronize
+                // access to pixelsList between (this) producer and consumer.
+                additionalPixelsProbableCount = self._backgroundBufferSize - self._pixelsList!.count
+            }
+            if (additionalPixelsProbableCount > 0) {
+                for i in 0..<additionalPixelsProbableCount {
+                    var pixels: [UInt8] = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
+                    PixelMap._randomize(&pixels, self._pixelsWidth, self._pixelsHeight,
+                                        width: self.width, height: self.height, scale: self.scale, mode: self.mode)
+                    self._pixelsListAccessQueue!.sync {
+                        if (self._pixelsList!.count < self._backgroundBufferSize) {
+                            self._pixelsList!.append(pixels)
+                        }
                     }
                 }
+            }
+        }
+    }
+
+    public func _invalidate()
+    {
+        if (self._pixelsListAccessQueue != nil) {
+            self._pixelsListAccessQueue!.sync {
+                self._pixelsList!.removeAll()
             }
         }
     }

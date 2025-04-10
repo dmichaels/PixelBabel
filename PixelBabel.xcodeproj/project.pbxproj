@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9801C8202DA6833400AB409F /* ImageUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9801C81F2DA6833400AB409F /* ImageUtils.swift */; };
+		9801C8222DA7EC9800AB409F /* Memory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9801C8212DA7EC9800AB409F /* Memory.swift */; };
 		982857762DA1796A00770B45 /* ColorMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857752DA1796A00770B45 /* ColorMode.swift */; };
 		982857782DA179C800770B45 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857772DA179C800770B45 /* AppSettings.swift */; };
 		9828577A2DA17A1700770B45 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857792DA17A1700770B45 /* SettingsView.swift */; };
@@ -39,6 +41,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9801C81F2DA6833400AB409F /* ImageUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageUtils.swift; sourceTree = "<group>"; };
+		9801C8212DA7EC9800AB409F /* Memory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Memory.swift; sourceTree = "<group>"; };
 		982857752DA1796A00770B45 /* ColorMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorMode.swift; sourceTree = "<group>"; };
 		982857772DA179C800770B45 /* AppSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		982857792DA17A1700770B45 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -104,6 +108,8 @@
 		984AE8372D9904ED00DBCEDA /* PixelBabel */ = {
 			isa = PBXGroup;
 			children = (
+				9801C8212DA7EC9800AB409F /* Memory.swift */,
+				9801C81F2DA6833400AB409F /* ImageUtils.swift */,
 				9828577D2DA17AD000770B45 /* Feedback.swift */,
 				9828577B2DA17A5900770B45 /* PixelMap.swift */,
 				982857792DA17A1700770B45 /* SettingsView.swift */,
@@ -272,7 +278,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9801C8222DA7EC9800AB409F /* Memory.swift in Sources */,
 				9828577A2DA17A1700770B45 /* SettingsView.swift in Sources */,
+				9801C8202DA6833400AB409F /* ImageUtils.swift in Sources */,
 				984AE83B2D9904ED00DBCEDA /* ContentView.swift in Sources */,
 				984AE8392D9904ED00DBCEDA /* PixelBabelApp.swift in Sources */,
 				9828577C2DA17A5900770B45 /* PixelMap.swift in Sources */,

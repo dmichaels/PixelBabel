@@ -5,6 +5,8 @@ struct ContentView: View
     @EnvironmentObject var settings: AppSettings
     @State private var _randomImage: CGImage?
     @State private var tapCount = 0
+    @State private var autoTapping = false
+    @State private var autoTappingTimer: Timer?
     @State private var showSettings = false
 
     private var _feedback: Feedback {
@@ -17,9 +19,20 @@ struct ContentView: View
         }
     }
 
+    func autoTappingStart() {
+        autoTappingTimer = Timer.scheduledTimer(withTimeInterval: settings.automationSpeed, repeats: true) { _ in
+            refreshRandomImage()
+        }
+    }
+
+    func autoTappingStop() {
+        autoTappingTimer?.invalidate()
+        autoTappingTimer = nil
+    }
+
     var body: some View {
-        ZStack {
-            if let image = self._randomImage {
+        NavigationView {
+            ZStack { if let image = self._randomImage {
                 Image(decorative: image, scale: 1.0)
                     .resizable()
                     .scaledToFill()
@@ -36,6 +49,23 @@ struct ContentView: View
                             refreshRandomImage()
                         }
                     }
+                    .onChange(of: settings.backgroundBufferEnabled) { _ in
+                        settings.pixels.producer = settings.backgroundBufferEnabled
+                        if (!showSettings) {
+                            refreshRandomImage()
+                        }
+                    }
+                    .onChange(of: settings.backgroundBufferSize) { _ in
+                        settings.pixels.backgroundBufferSize = settings.backgroundBufferSize
+                        if (!showSettings) {
+                            refreshRandomImage()
+                        }
+                    }
+                    .onChange(of: settings.automationEnabled) { _ in
+                        if (!settings.automationEnabled) {
+                            autoTappingStop()
+                        }
+                    }
                     .gesture(
                         DragGesture()
                             .onEnded { value in
@@ -46,39 +76,43 @@ struct ContentView: View
                                 }
                             }
                     )
-                
-                if showSettings {
-                    SettingsView(showSettings: $showSettings)
-                        .transition(.move(edge: .trailing))
-                }
-            }
+                    .gesture(
+                        TapGesture().onEnded {
+                            if (!showSettings) {
+                                tapCount += 1
+                                self._feedback.trigger()
+                                refreshRandomImage()
+                            }
+                        }
+                    )
+                    .gesture(
+                        LongPressGesture(minimumDuration: 1.0).onEnded { value in
+                            if (settings.automationEnabled) {
+                                autoTapping.toggle()
+                                if (autoTapping) {
+                                    autoTappingStart()
+                                }
+                                else {
+                                    autoTappingStop()
+                                }
+                            }
+                            else if (autoTapping) {
+                                autoTappingStop()
+                            }
+                        }
+                    )
+                    NavigationLink(
+                        destination: SettingsView(),
+                        isActive: $showSettings,
+                        label: { EmptyView() }
+                    )
+            }}
+            .navigationTitle("Home")
+            .navigationBarHidden(true)
         }
         .onAppear {
-            // This is only called on first appearance;
-            // not called after coming back from settings view.
             refreshRandomImage()
         }
-        // .onAppear(perform: prepareHaptics)
-        .simultaneousGesture(
-            TapGesture().onEnded {
-                if (!showSettings) {
-                    tapCount += 1
-                    self._feedback.triggerHaptic()
-                    refreshRandomImage()
-                }
-            }
-        )
-        /*
-        .gesture(TapGesture(count: 2).onEnded {
-            tapCount += 1
-            self._feedback.triggerHaptic()
-        })
-        .gesture(TapGesture(count: 1).onEnded {
-            tapCount += 1
-            self._feedback.triggerHaptic()
-            refreshRandomImage()
-        })
-        */
         .edgesIgnoringSafeArea(.all)    
     }
 }
@@ -111,10 +145,9 @@ struct RandomPixelGenerator {
         }
 
         if (randomFixedImage) {
-            settings.pixels.load("flowers")
+            settings.pixels.load("monolisa")
         }
         else {
-            print("ContentView: settings.pixels.randomize()")
             settings.pixels.randomize()
         }
 
