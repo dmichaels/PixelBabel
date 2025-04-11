@@ -13,6 +13,7 @@ class DefaultAppSettings
 
 class AppSettings: ObservableObject
 {
+    @Published var initialized: Bool = false
     @Published var pixels: PixelMap
     @Published var pixelSize: Int = DefaultAppSettings.pixelSize
     @Published var colorMode: ColorMode = DefaultAppSettings.colorMode

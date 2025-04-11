@@ -2,7 +2,11 @@ import SwiftUI
 
 struct ContentView: View
 {
+    let scale = UIScreen.main.scale
+    let screenSize = UIScreen.main.bounds.size
+
     @EnvironmentObject var settings: AppSettings
+    @State private var viewSize: CGSize = .zero
     @State private var _randomImage: CGImage?
     @State private var tapCount = 0
     @State private var autoTapping = false
@@ -14,7 +18,8 @@ struct ContentView: View
     }
     
     func refreshRandomImage() {
-        if let randomImage = RandomPixelGenerator.generate(settings: settings, taps: tapCount) {
+        if let randomImage = RandomPixelGenerator.generate(width: Int(viewSize.width), height: Int(viewSize.height),
+                                                           settings: settings, taps: tapCount) {
             self._randomImage = randomImage
         }
     }
@@ -32,6 +37,7 @@ struct ContentView: View
 
     var body: some View {
         NavigationView {
+            GeometryReader { geometry in
             ZStack { if let image = self._randomImage {
                 Image(decorative: image, scale: 1.0)
                     .resizable()
@@ -121,17 +127,20 @@ struct ContentView: View
             }}
             .navigationTitle("Home")
             .navigationBarHidden(true)
-        }
-        .onAppear {
-            refreshRandomImage()
+            .onAppear {
+                viewSize = geometry.size
+                refreshRandomImage()
+            }
         }
         .edgesIgnoringSafeArea(.all)    
+        }
+        .navigationViewStyle(.stack)
     }
 }
 
 struct RandomPixelGenerator {
 
-    static func generate(settings: AppSettings, taps: Int = 0) -> CGImage?
+    static func generate(width: Int, height: Int, settings: AppSettings, taps: Int = 0) -> CGImage?
     {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
@@ -170,10 +179,10 @@ struct RandomPixelGenerator {
 
             let context = CGContext(
                 data: baseAddress,
-                width: ScreenWidth,
-                height: ScreenHeight,
+                width: width, // ScreenWidth,
+                height: height, // ScreenHeight,
                 bitsPerComponent: 8,
-                bytesPerRow: ScreenWidth * ScreenDepth,
+                bytesPerRow:  width * ScreenDepth, // ScreenWidth * ScreenDepth,
                 space: colorSpace,
                 bitmapInfo: bitmapInfo.rawValue
             )
