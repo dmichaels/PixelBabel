@@ -106,10 +106,11 @@ struct SettingsView: View
                 }
             }
 
-            Section(header: Text("ADVANCED").padding(.leading, -12).onTapGesture { settings.dummy = Date() },
+            // Section(header: Text("ADVANCED").padding(.leading, -12).onTapGesture { settings.dummy = Date() },
+            Section(
                     footer: Text("Memory: \(Memory.system()) • \(Memory.app()) • \(Memory.app(percent: true)) • Buffered: \(settings.pixels.cached)").padding(.leading, -10).onTapGesture { settings.dummy = Date() }) {
                 NavigationLink(destination: DeveloperSettingsView()) {
-                    Label("Developer", systemImage: "gearshape")
+                    Label("Advanced", systemImage: "gearshape")
                 }
             }
 
@@ -178,7 +179,7 @@ struct DeveloperSettingsView: View {
                 }
             }
         }
-        .navigationTitle("Developer")
+        .navigationTitle("Advanced")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
