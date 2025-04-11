@@ -9,7 +9,10 @@ class PixelMapProducer {
     private var _pixelMapHeight: Int
     private var _pixelMapScale: Int
     private var _pixelMapMode: ColorMode
+    private var _pixelMapShape: PixelShape
     private var _pixelMapFilter: RGBFilterOptions
+    private var _pixelMapBackground: Pixel
+    private var _pixelMapMargin: Int
     private var _bufferSize: Int
     private var _buffer: [[UInt8]]
     private var _bufferAccessQueue: DispatchQueue
@@ -21,8 +24,11 @@ class PixelMapProducer {
         self._pixelMapWidth = pixelMap.width
         self._pixelMapHeight = pixelMap.height
         self._pixelMapMode = pixelMap.mode
+        self._pixelMapShape = pixelMap.shape
         self._pixelMapScale = pixelMap.scale
         self._pixelMapFilter = pixelMap.filter
+        self._pixelMapMargin = 0 // TODO
+        self._pixelMapBackground = pixelMap.background
         self._bufferSize = backgroundBufferSize
         self._buffer = []
         self._bufferAccessQueue = DispatchQueue(label: "PixelBabel.PixelMapProducer.ACCESS")
