@@ -12,6 +12,7 @@ class PixelMap {
     private var _pixelsHeight: Int
     private var _scale: Int = 1
     private var _mode: ColorMode = ColorMode.color
+    private var _background: Pixel = Pixel(255, 255, 255)
     private var _shape: PixelShape = PixelShape.square
     private var _filter: RGBFilterOptions = RGBFilterOptions.RGB
 
@@ -65,6 +66,11 @@ class PixelMap {
     public var shape: PixelShape {
         get { return self._shape }
         set { self._shape = newValue ; self._invalidate() }
+    }
+
+    public var background: Pixel {
+        get { return self._background }
+        set { self._background = newValue ; self._invalidate() }
     }
 
     public var filter: RGBFilterOptions {
@@ -143,7 +149,7 @@ class PixelMap {
     public func load(_ image: CGImage, pixelate: Bool = true) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
-    
+
         guard let context = CGContext(
             data: &self._pixels,
             width: self._pixelsWidth,
@@ -248,12 +254,99 @@ class PixelMap {
     }
 
     static func _write(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
+                       x: Int, y: Int, scale: Int,
+                       red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255,
+                       shape: PixelShape = .square,
+                       margin: Bool? = nil,
+                       background: Pixel = Pixel.dark)
+    {
+        let startX = x * scale
+        let startY = y * scale
+        let endX = startX + scale
+        let endY = startY + scale
+
+        let innerMargin = (margin ?? (shape != .square)) ? 1 : 0
+        let adjustedScale = scale - 2 * innerMargin
+
+        let centerX = Float(startX + scale / 2)
+        let centerY = Float(startY + scale / 2)
+        let circleRadius = Float(adjustedScale) / 2.0
+        let radiusSquared = circleRadius * circleRadius
+
+        for dy in 0..<scale {
+            for dx in 0..<scale {
+                let ix = startX + dx
+                let iy = startY + dy
+
+                if ix >= pixelsWidth || iy >= pixelsHeight { continue }
+
+                let fx = Float(ix) + 0.5
+                let fy = Float(iy) + 0.5
+
+                var shouldWrite = false
+
+                switch shape {
+                case .square, .inset:
+                    shouldWrite = (dx >= innerMargin && dx < scale - innerMargin &&
+                                   dy >= innerMargin && dy < scale - innerMargin)
+
+                case .circle:
+                    let dxSq = (fx - centerX) * (fx - centerX)
+                    let dySq = (fy - centerY) * (fy - centerY)
+                    shouldWrite = dxSq + dySq <= radiusSquared
+
+                case .rounded:
+                    let cornerRadius: Float = Float(adjustedScale) * 0.25
+                    let cr2 = cornerRadius * cornerRadius
+
+                    let minX = Float(startX + innerMargin)
+                    let minY = Float(startY + innerMargin)
+                    let maxX = Float(endX - innerMargin)
+                    let maxY = Float(endY - innerMargin)
+
+                    if fx >= minX + cornerRadius && fx <= maxX - cornerRadius {
+                        shouldWrite = fy >= minY && fy <= maxY
+                    } else if fy >= minY + cornerRadius && fy <= maxY - cornerRadius {
+                        shouldWrite = fx >= minX && fx <= maxX
+                    } else {
+                        let cx = fx < minX + cornerRadius ? minX + cornerRadius :
+                                 fx > maxX - cornerRadius ? maxX - cornerRadius : fx
+                        let cy = fy < minY + cornerRadius ? minY + cornerRadius :
+                                 fy > maxY - cornerRadius ? maxY - cornerRadius : fy
+                        let dx = fx - cx
+                        let dy = fy - cy
+                        shouldWrite = dx * dx + dy * dy <= cr2
+                    }
+                }
+
+                let i = (iy * pixelsWidth + ix) * ScreenDepth
+                if i + 3 < pixels.count {
+                    if shouldWrite {
+                        pixels[i] = red
+                        pixels[i + 1] = green
+                        pixels[i + 2] = blue
+                        pixels[i + 3] = transparency
+                    } else {
+                        pixels[i] = background.red
+                        pixels[i + 1] = background.green
+                        pixels[i + 2] = background.blue
+                        // pixels[i] = 255 // 255
+                        // pixels[i + 1] = 0 // 255
+                        // pixels[i + 2] = 0 // 255
+                        pixels[i + 3] = transparency
+                    }
+                }
+            }
+        }
+    }
+
+    static func obsolete_write(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
                              x: Int, y: Int, scale: Int,
                              red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255,
                              shape: PixelShape = PixelShape.square)
     {
         if (shape == PixelShape.circle) {
-            PixelMap._writeCircle(
+            PixelMap.obsolete_writeCircle(
                 &pixels, pixelsWidth, pixelsHeight,
                 x: x, y: y, scale: scale, red: red, green: green, blue: blue, margin: true)
             return
@@ -273,7 +366,7 @@ class PixelMap {
         }
     }
 
-    static func _writeCircle(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
+    static func obsolete_writeCircle(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
                              x: Int, y: Int, scale: Int,
                              red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255,
                              margin: Bool = true)
@@ -323,7 +416,7 @@ class PixelMap {
     private func _replenish() {
         self._pixelsListReplenishQueue!.async {
             // This block of code runs OFF of the main thread (i.e. in the background);
-            // and no more than one of these will ever be running at a time. 
+            // and no more than one of these will ever be running at a time.
             var additionalPixelsProbableCount: Int = 0
             self._pixelsListAccessQueue!.sync {
                 // This block of code is effectively to synchronize
