@@ -2,9 +2,6 @@ import SwiftUI
 
 struct ContentView: View
 {
-    let scale = UIScreen.main.scale
-    let screenSize = UIScreen.main.bounds.size
-
     @EnvironmentObject var settings: AppSettings
     @State private var viewSize: CGSize = .zero
     @State private var _randomImage: CGImage?
