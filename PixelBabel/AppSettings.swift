@@ -18,6 +18,7 @@ class AppSettings: ObservableObject
     @Published var colorMode: ColorMode = DefaultAppSettings.colorMode
     @Published var rgbFilter: RGBFilterOptions = DefaultAppSettings.rgbFilter
     @Published var pixelShape: PixelShape = DefaultAppSettings.pixelShape
+    @Published var backgroundColor: Pixel = Pixel.dark
     @Published var soundEnabled: Bool = true
     @Published var hapticEnabled: Bool = true
     @Published var randomFixedImage: Bool = false

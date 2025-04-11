@@ -12,7 +12,7 @@ class PixelMap {
     private var _pixelsHeight: Int
     private var _scale: Int = 1
     private var _mode: ColorMode = ColorMode.color
-    private var _background: Pixel = Pixel(255, 255, 255)
+    private var _background: Pixel = Pixel.dark
     private var _shape: PixelShape = PixelShape.square
     private var _filter: RGBFilterOptions = RGBFilterOptions.RGB
 
@@ -132,7 +132,8 @@ class PixelMap {
             PixelMap._randomize(&self._pixels, self._pixelsWidth, self._pixelsHeight,
                                 width: self.width, height: self.height,
                                 scale: self.scale, mode: self.mode,
-                                shape: self.shape, filter: self.filter)
+                                shape: self.shape, background: self.background,
+                                filter: self.filter)
         }
     }
 
@@ -223,7 +224,10 @@ class PixelMap {
 
     static func _randomize(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
                            width: Int, height: Int,
-                           scale: Int, mode: ColorMode, shape: PixelShape,
+                           scale: Int,
+                           mode: ColorMode,
+                           shape: PixelShape,
+                           background: Pixel = Pixel.dark,
                            filter: RGBFilterOptions = RGBFilterOptions.RGB)
     {
         let margin = (scale < 6) ? false : nil
@@ -232,12 +236,16 @@ class PixelMap {
                 if (mode == ColorMode.monochrome) {
                     let value: UInt8 = UInt8.random(in: 0...1) * 255
                     PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
-                                    x: x, y: y, scale: scale, red: value, green: value, blue: value, shape: shape, margin: margin)
+                                    x: x, y: y, scale: scale,
+                                    red: value, green: value, blue: value,
+                                    shape: shape, background: background, margin: margin)
                 }
                 else if (mode == ColorMode.grayscale) {
                     let value = UInt8.random(in: 0...255)
                     PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
-                                    x: x, y: y, scale: scale, red: value, green: value, blue: value, shape: shape, margin: margin)
+                                    x: x, y: y, scale: scale,
+                                    red: value, green: value, blue: value,
+                                    shape: shape, background: background, margin: margin)
                 }
                 else {
                     var rgb = UInt32.random(in: 0...0xFFFFFF)
@@ -248,7 +256,9 @@ class PixelMap {
                     let green = UInt8((rgb >> 8) & 0xFF)
                     let blue = UInt8(rgb & 0xFF)
                     PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
-                                    x: x, y: y, scale: scale, red: red, green: green, blue: blue, shape: shape, margin: margin)
+                                    x: x, y: y, scale: scale,
+                                    red: red, green: green, blue: blue,
+                                    shape: shape, background: background, margin: margin)
                 }
             }
         }
@@ -258,8 +268,8 @@ class PixelMap {
                        x: Int, y: Int, scale: Int,
                        red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255,
                        shape: PixelShape = .square,
-                       margin: Bool? = nil,
-                       background: Pixel = Pixel.dark)
+                       background: Pixel = Pixel.dark,
+                       margin: Bool? = nil)
     {
         let startX = x * scale
         let startY = y * scale
@@ -430,7 +440,9 @@ class PixelMap {
                     var pixels: [UInt8] = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
                     PixelMap._randomize(&pixels, self._pixelsWidth, self._pixelsHeight,
                                         width: self.width, height: self.height,
-                                        scale: self.scale, mode: self.mode, shape: self.shape, filter: self.filter)
+                                        scale: self.scale, mode: self.mode, shape: self.shape,
+                                        background: self.background,
+                                        filter: self.filter)
                     self._pixelsListAccessQueue!.sync {
                         if (self._pixelsList!.count < self._backgroundBufferSize) {
                             self._pixelsList!.append(pixels)

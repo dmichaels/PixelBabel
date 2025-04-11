@@ -106,7 +106,6 @@ struct SettingsView: View
                 }
             }
 
-            // Section(header: Text("ADVANCED").padding(.leading, -12).onTapGesture { settings.dummy = Date() },
             Section(
                     footer: Text("Memory: \(Memory.system()) • \(Memory.app()) • \(Memory.app(percent: true)) • Buffered: \(settings.pixels.cached)").padding(.leading, -10).onTapGesture { settings.dummy = Date() }) {
                 NavigationLink(destination: DeveloperSettingsView()) {
@@ -125,9 +124,42 @@ struct DeveloperSettingsView: View {
 
     @EnvironmentObject var settings: AppSettings
     @State private var randomFixedImagePeriodSelected: RandomFixedImagePeriod = .sometimes
+    @State private var backgroundColor: Color
+    @State private var initialized = false
+
+    init() {
+        _backgroundColor = State(initialValue: .clear)
+    }
 
     var body: some View {
         Form {
+            Section(header: Text("PIXELS").padding(.leading, -12)) {
+                HStack {
+                    HStack {
+                        ColorCircleIcon()
+                        Text("Background Color")
+                            .lineLimit(1)
+                            .layoutPriority(1)
+                            .padding(.leading, 11)
+                        Spacer()
+                    }
+                    ColorPicker("", selection: $backgroundColor)
+                        .onChange(of: backgroundColor) { newValue in
+                            let color = UIColor(backgroundColor)
+                            var red: CGFloat = 0
+                            var green: CGFloat = 0
+                            var blue: CGFloat = 0
+                            var alpha: CGFloat = 0
+                            if color.getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
+                                settings.backgroundColor = Pixel(UInt8(red * 255), UInt8(green * 255), UInt8(blue * 255))
+                                print("PIXEL")
+                                print(settings.backgroundColor)
+                            } else {
+                                print("NONONO")
+                            }
+                        }
+                }
+            }
             Section(header: Text("BUFFERING").padding(.leading, -12)) {
                 HStack {
                     HStack(spacing: 4) {
@@ -179,6 +211,12 @@ struct DeveloperSettingsView: View {
                 }
             }
         }
+    .onAppear {
+        if (!initialized) {
+            backgroundColor = settings.backgroundColor.color
+            initialized = true
+        }
+    }
         .navigationTitle("Advanced")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -209,3 +247,15 @@ let AutomationSpeedOptions: [(label: String, value: Double)] = [
     ("Fastest", 0.1),
     ("Max", 0.0)
 ]
+struct ColorCircleIcon: View {
+    var body: some View {
+        Circle()
+            .fill(
+                AngularGradient(
+                    gradient: Gradient(colors: [.red, .orange, .yellow, .green, .blue, .purple, .red]),
+                    center: .center
+                )
+            )
+            .frame(width: 24, height: 24)
+    }
+}
