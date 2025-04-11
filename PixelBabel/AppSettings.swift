@@ -6,6 +6,7 @@ class DefaultAppSettings
     public static let pixelSize: Int = 10
     public static let colorMode: ColorMode = ColorMode.color
     public static let rgbFilter: RGBFilterOptions = RGBFilterOptions.RGB
+    public static let pixelShape: PixelShape = PixelShape.square
     public static let backgroundBufferSizeDefault: Int = 50
     public static let backgroundBufferSizeMax: Int = 250
 }
@@ -13,11 +14,12 @@ class DefaultAppSettings
 class AppSettings: ObservableObject
 {
     @Published var pixels: PixelMap
-    @Published var colorMode: ColorMode = DefaultAppSettings.colorMode
     @Published var pixelSize: Int = DefaultAppSettings.pixelSize
+    @Published var colorMode: ColorMode = DefaultAppSettings.colorMode
+    @Published var rgbFilter: RGBFilterOptions = DefaultAppSettings.rgbFilter
+    @Published var pixelShape: PixelShape = DefaultAppSettings.pixelShape
     @Published var soundEnabled: Bool = true
     @Published var hapticEnabled: Bool = true
-    @Published var rgbFilter: RGBFilterOptions = DefaultAppSettings.rgbFilter
     @Published var randomFixedImage: Bool = false
     @Published var randomFixedImagePeriod: RandomFixedImagePeriod = RandomFixedImagePeriod.sometimes
     @Published var backgroundBufferEnabled: Bool = true

@@ -10,6 +10,7 @@
 		9801C8202DA6833400AB409F /* ImageUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9801C81F2DA6833400AB409F /* ImageUtils.swift */; };
 		9801C8222DA7EC9800AB409F /* Memory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9801C8212DA7EC9800AB409F /* Memory.swift */; };
 		9801C8262DA8414700AB409F /* RGBFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9801C8252DA8414700AB409F /* RGBFilters.swift */; };
+		9801C8282DA8BB2A00AB409F /* PixelShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9801C8272DA8BB2A00AB409F /* PixelShape.swift */; };
 		982857762DA1796A00770B45 /* ColorMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857752DA1796A00770B45 /* ColorMode.swift */; };
 		982857782DA179C800770B45 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857772DA179C800770B45 /* AppSettings.swift */; };
 		9828577A2DA17A1700770B45 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857792DA17A1700770B45 /* SettingsView.swift */; };
@@ -45,6 +46,7 @@
 		9801C81F2DA6833400AB409F /* ImageUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageUtils.swift; sourceTree = "<group>"; };
 		9801C8212DA7EC9800AB409F /* Memory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Memory.swift; sourceTree = "<group>"; };
 		9801C8252DA8414700AB409F /* RGBFilters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RGBFilters.swift; sourceTree = "<group>"; };
+		9801C8272DA8BB2A00AB409F /* PixelShape.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PixelShape.swift; sourceTree = "<group>"; };
 		982857752DA1796A00770B45 /* ColorMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorMode.swift; sourceTree = "<group>"; };
 		982857772DA179C800770B45 /* AppSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		982857792DA17A1700770B45 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -110,6 +112,7 @@
 		984AE8372D9904ED00DBCEDA /* PixelBabel */ = {
 			isa = PBXGroup;
 			children = (
+				9801C8272DA8BB2A00AB409F /* PixelShape.swift */,
 				9801C8252DA8414700AB409F /* RGBFilters.swift */,
 				9801C8212DA7EC9800AB409F /* Memory.swift */,
 				9801C81F2DA6833400AB409F /* ImageUtils.swift */,
@@ -290,6 +293,7 @@
 				9828577C2DA17A5900770B45 /* PixelMap.swift in Sources */,
 				982857782DA179C800770B45 /* AppSettings.swift in Sources */,
 				9828577E2DA17AD000770B45 /* Feedback.swift in Sources */,
+				9801C8282DA8BB2A00AB409F /* PixelShape.swift in Sources */,
 				982857762DA1796A00770B45 /* ColorMode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

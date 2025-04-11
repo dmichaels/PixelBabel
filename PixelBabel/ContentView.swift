@@ -49,6 +49,12 @@ struct ContentView: View
                             refreshRandomImage()
                         }
                     }
+                    .onChange(of: settings.pixelShape) { _ in
+                        settings.pixels.shape = settings.pixelShape
+                        if (!showSettings) {
+                            refreshRandomImage()
+                        }
+                    }
                     .onChange(of: settings.pixelSize) { _ in
                         settings.pixels.scale = settings.pixelSize
                         if (!showSettings) {

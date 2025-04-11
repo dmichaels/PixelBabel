@@ -38,6 +38,18 @@ struct SettingsView: View
                     .pickerStyle(.menu)
                     .disabled(settings.colorMode != ColorMode.color)
                 }
+                HStack {
+                    Label("Pixel Shape", systemImage: "puzzlepiece.fill")
+                    Picker("", selection: $settings.pixelShape) {
+                        ForEach(PixelShape.allCases) { mode in
+                            Text(mode.rawValue)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                                .tag(mode)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
                 VStack {
                     HStack {
                         Label("Pixel Size", systemImage: "magnifyingglass")
@@ -116,7 +128,6 @@ struct DeveloperSettingsView: View {
         Form {
             Section(header: Text("BUFFERING").padding(.leading, -12)) {
                 HStack {
-                    // Label("Background  [\(settings.pixels.cached)]", systemImage: "arrow.triangle.2.circlepath")
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.triangle.2.circlepath")
                         Text("Enabled")

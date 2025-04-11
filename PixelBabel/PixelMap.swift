@@ -12,6 +12,7 @@ class PixelMap {
     private var _pixelsHeight: Int
     private var _scale: Int = 1
     private var _mode: ColorMode = ColorMode.color
+    private var _shape: PixelShape = PixelShape.square
     private var _filter: RGBFilterOptions = RGBFilterOptions.RGB
 
     private var _producer: Bool
@@ -24,12 +25,14 @@ class PixelMap {
          scale: Int = 1,
          mode: ColorMode = ColorMode.color,
          filter: RGBFilterOptions = RGBFilterOptions.RGB,
+         shape: PixelShape = PixelShape.square,
          backgroundBufferSize: Int = DefaultAppSettings.backgroundBufferSizeDefault) {
         self._pixelsWidth = width
         self._pixelsHeight = height
         self._pixels = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
         self._mode = mode
         self._scale = scale
+        self._shape = shape
         self._filter = filter
         self._producer = backgroundBufferSize > 0
         if (self._producer) {
@@ -57,6 +60,11 @@ class PixelMap {
     public var mode: ColorMode {
         get { return self._mode }
         set { self._mode = newValue ; self._invalidate() }
+    }
+
+    public var shape: PixelShape {
+        get { return self._shape }
+        set { self._shape = newValue ; self._invalidate() }
     }
 
     public var filter: RGBFilterOptions {
@@ -117,7 +125,8 @@ class PixelMap {
         if (!done) {
             PixelMap._randomize(&self._pixels, self._pixelsWidth, self._pixelsHeight,
                                 width: self.width, height: self.height,
-                                scale: self.scale, mode: self.mode, filter: self.filter)
+                                scale: self.scale, mode: self.mode,
+                                shape: self.shape, filter: self.filter)
         }
     }
 
@@ -208,20 +217,20 @@ class PixelMap {
 
     static func _randomize(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
                            width: Int, height: Int,
-                           scale: Int, mode: ColorMode, filter: RGBFilterOptions = RGBFilterOptions.RGB)
+                           scale: Int, mode: ColorMode, shape: PixelShape,
+                           filter: RGBFilterOptions = RGBFilterOptions.RGB)
     {
-        // var rgbFilterLocal: ((UInt32) -> UInt32)? = RGBFilters.Rox
         for y in 0..<height {
             for x in 0..<width {
                 if (mode == ColorMode.monochrome) {
                     let value: UInt8 = UInt8.random(in: 0...1) * 255
                     PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
-                                    x: x, y: y, scale: scale, red: value, green: value, blue: value)
+                                    x: x, y: y, scale: scale, red: value, green: value, blue: value, shape: shape)
                 }
                 else if (mode == ColorMode.grayscale) {
                     let value = UInt8.random(in: 0...255)
                     PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
-                                    x: x, y: y, scale: scale, red: value, green: value, blue: value)
+                                    x: x, y: y, scale: scale, red: value, green: value, blue: value, shape: shape)
                 }
                 else {
                     var rgb = UInt32.random(in: 0...0xFFFFFF)
@@ -232,16 +241,23 @@ class PixelMap {
                     let green = UInt8((rgb >> 8) & 0xFF)
                     let blue = UInt8(rgb & 0xFF)
                     PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
-                                     x: x, y: y, scale: scale, red: red, green: green, blue: blue)
+                                    x: x, y: y, scale: scale, red: red, green: green, blue: blue, shape: shape)
                 }
             }
         }
     }
 
     static func _write(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
-                       x: Int, y: Int, scale: Int,
-                       red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255)
+                             x: Int, y: Int, scale: Int,
+                             red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255,
+                             shape: PixelShape = PixelShape.square)
     {
+        if (shape == PixelShape.circle) {
+            PixelMap._writeCircle(
+                &pixels, pixelsWidth, pixelsHeight,
+                x: x, y: y, scale: scale, red: red, green: green, blue: blue, margin: true)
+            return
+        }
         for dy in 0..<scale {
             for dx in 0..<scale {
                 let ix = x * scale + dx
@@ -252,6 +268,53 @@ class PixelMap {
                     pixels[i + 1] = green
                     pixels[i + 2] = blue
                     pixels[i + 3] = transparency
+                }
+            }
+        }
+    }
+
+    static func _writeCircle(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
+                             x: Int, y: Int, scale: Int,
+                             red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255,
+                             margin: Bool = true)
+    {
+        var radius = Float(scale) / 2.0
+        if margin {
+            radius -= 1.0  // leave a 1-pixel margin
+        }
+
+        let centerX = Float(x * scale) + Float(scale) / 2.0
+        let centerY = Float(y * scale) + Float(scale) / 2.0
+        let radiusSquared = radius * radius
+
+        for dy in 0..<scale {
+            for dx in 0..<scale {
+                let ix = x * scale + dx
+                let iy = y * scale + dy
+
+                if (ix < pixelsWidth && iy < pixelsHeight) {
+                    let fx = Float(ix) + 0.5
+                    let fy = Float(iy) + 0.5
+                    let dxSquared = (fx - centerX) * (fx - centerX)
+                    let dySquared = (fy - centerY) * (fy - centerY)
+
+                    let isInside = dxSquared + dySquared <= radiusSquared
+                    let i = (iy * pixelsWidth + ix) * ScreenDepth
+
+                    if i + 3 < pixels.count {
+                        if isInside {
+                            pixels[i] = red
+                            pixels[i + 1] = green
+                            pixels[i + 2] = blue
+                            pixels[i + 3] = transparency
+                        } else {
+                            // Fill outside of circle with white
+                            pixels[i] = 255
+                            pixels[i + 1] = 255
+                            pixels[i + 2] = 255
+                            pixels[i + 3] = 255
+                        }
+                    }
                 }
             }
         }
@@ -272,7 +335,7 @@ class PixelMap {
                     var pixels: [UInt8] = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
                     PixelMap._randomize(&pixels, self._pixelsWidth, self._pixelsHeight,
                                         width: self.width, height: self.height,
-                                        scale: self.scale, mode: self.mode, filter: self.filter)
+                                        scale: self.scale, mode: self.mode, shape: self.shape, filter: self.filter)
                     self._pixelsListAccessQueue!.sync {
                         if (self._pixelsList!.count < self._backgroundBufferSize) {
                             self._pixelsList!.append(pixels)
