@@ -226,17 +226,18 @@ class PixelMap {
                            scale: Int, mode: ColorMode, shape: PixelShape,
                            filter: RGBFilterOptions = RGBFilterOptions.RGB)
     {
+        let margin = (scale < 6) ? false : nil
         for y in 0..<height {
             for x in 0..<width {
                 if (mode == ColorMode.monochrome) {
                     let value: UInt8 = UInt8.random(in: 0...1) * 255
                     PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
-                                    x: x, y: y, scale: scale, red: value, green: value, blue: value, shape: shape)
+                                    x: x, y: y, scale: scale, red: value, green: value, blue: value, shape: shape, margin: margin)
                 }
                 else if (mode == ColorMode.grayscale) {
                     let value = UInt8.random(in: 0...255)
                     PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
-                                    x: x, y: y, scale: scale, red: value, green: value, blue: value, shape: shape)
+                                    x: x, y: y, scale: scale, red: value, green: value, blue: value, shape: shape, margin: margin)
                 }
                 else {
                     var rgb = UInt32.random(in: 0...0xFFFFFF)
@@ -247,7 +248,7 @@ class PixelMap {
                     let green = UInt8((rgb >> 8) & 0xFF)
                     let blue = UInt8(rgb & 0xFF)
                     PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
-                                    x: x, y: y, scale: scale, red: red, green: green, blue: blue, shape: shape)
+                                    x: x, y: y, scale: scale, red: red, green: green, blue: blue, shape: shape, margin: margin)
                 }
             }
         }
@@ -265,7 +266,8 @@ class PixelMap {
         let endX = startX + scale
         let endY = startY + scale
 
-        let innerMargin = (margin ?? (shape != .square)) ? 1 : 0
+        let marginThickness: Int = 2
+        let innerMargin = (margin ?? (shape != .square)) ? marginThickness : 0
         let adjustedScale = scale - 2 * innerMargin
 
         let centerX = Float(startX + scale / 2)

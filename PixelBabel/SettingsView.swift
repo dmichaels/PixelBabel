@@ -49,6 +49,7 @@ struct SettingsView: View
                         }
                     }
                     .pickerStyle(.menu)
+                    .disabled(settings.pixelSize < 6)
                 }
                 VStack {
                     HStack {
