@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContentView: View
 {
-    @EnvironmentObject var settings: AppSettings
+    @EnvironmentObject var settings: Settings
     @State private var viewSize: CGSize = .zero
     @State private var _randomImage: CGImage?
     @State private var tapCount = 0
@@ -30,6 +30,43 @@ struct ContentView: View
     func autoTappingStop() {
         autoTappingTimer?.invalidate()
         autoTappingTimer = nil
+    }
+
+
+    func dragDuringUpdate(_ x: Int, _ y: Int) {
+        print("dragDuringUpdate.start")
+        let pixel = Pixel.black
+        settings.pixels.write(x: x, y: y, red: pixel.red, green: pixel.green, blue: pixel.blue)
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+        var image: CGImage? = nil
+        let width = Int(viewSize.width)
+        let height = Int(viewSize.height)
+        settings.pixels.data.withUnsafeMutableBytes { rawBuffer in
+            guard let baseAddress = rawBuffer.baseAddress else {
+                fatalError("Buffer has no base address")
+            }
+            let context = CGContext(
+                data: baseAddress,
+                width: width, // ScreenWidth,
+                height: height, // ScreenHeight,
+                bitsPerComponent: 8,
+                bytesPerRow:  width * ScreenDepth, // ScreenWidth * ScreenDepth,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo.rawValue
+            )
+            if let cgImage = context?.makeImage() {
+                image = cgImage
+            } else {
+                fatalError("Failed to make CGImage")
+            }
+        }
+        print("dragDuringUpate.ok")
+        if (image != nil) {
+            // return image!
+            print("dragDuringUpate.finish")
+            self._randomImage = image
+        }
     }
 
     var body: some View {
@@ -95,11 +132,24 @@ struct ContentView: View
                     }
                     .gesture(
                         DragGesture()
+                            .onChanged { value in
+                                // print("DRAG-CHANGE: [\(x),\(y)] [\(px),\(py)]")
+                                if (settings.updateMode) {
+                                    let x = Int(value.location.x)
+                                    let y = Int(value.location.y)
+                                    let px = x / settings.pixels.scale
+                                    let py = y / settings.pixels.scale
+                                    dragDuringUpdate(px, py)
+                                }
+                            }
                             .onEnded { value in
+                                // print("DRAG-END: [\(Int(value.location.x)),\(Int(value.location.y))]")
                                 if value.translation.width < -100 { // Swipe left
                                     withAnimation {
                                         showSettings = true
                                     }
+                                }
+                                else if (value.translation.width > 100) { // Swipe right
                                 }
                             }
                     )
@@ -134,6 +184,7 @@ struct ContentView: View
                         label: { EmptyView() }
                     )
             }}
+            .statusBar(hidden: true)
             .navigationTitle("Home")
             .navigationBarHidden(true)
             .onAppear {
@@ -149,7 +200,7 @@ struct ContentView: View
 
 struct RandomPixelGenerator {
 
-    static func generate(width: Int, height: Int, settings: AppSettings, taps: Int = 0) -> CGImage?
+    static func generate(width: Int, height: Int, settings: Settings, taps: Int = 0) -> CGImage?
     {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
@@ -210,7 +261,7 @@ struct RandomPixelGenerator {
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static let settings = AppSettings()
+    static let settings = Settings()
     static var previews: some View {
         ContentView()
             .environmentObject(settings)

@@ -7,7 +7,8 @@ let ScreenDepth = 4
 
 class PixelMap {
 
-    private var _pixels: [UInt8]
+    // private var _pixels: [UInt8]
+    public var _pixels: [UInt8] // xyzzy
     private var _pixelsWidth: Int
     private var _pixelsHeight: Int
     private var _scale: Int = 1
@@ -18,7 +19,7 @@ class PixelMap {
     private var _filter: RGBFilterOptions = RGBFilterOptions.RGB
 
     private var _producer: Bool
-    private var _backgroundBufferSize: Int = DefaultAppSettings.backgroundBufferSizeDefault
+    private var _backgroundBufferSize: Int = DefaultSettings.backgroundBufferSizeDefault
     private var _pixelsList: [[UInt8]]? = nil
     private var _pixelsListAccessQueue: DispatchQueue? = nil
     private var _pixelsListReplenishQueue: DispatchQueue? = nil
@@ -29,7 +30,7 @@ class PixelMap {
          filter: RGBFilterOptions = RGBFilterOptions.RGB,
          shape: PixelShape = PixelShape.square,
          margin: Int = 1,
-         backgroundBufferSize: Int = DefaultAppSettings.backgroundBufferSizeDefault) {
+         backgroundBufferSize: Int = DefaultSettings.backgroundBufferSizeDefault) {
         self._pixelsWidth = width
         self._pixelsHeight = height
         self._pixels = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
@@ -273,6 +274,13 @@ class PixelMap {
         }
     }
 
+    func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255) {
+        PixelMap._write(&self._pixels, self._pixelsWidth, self._pixelsHeight,
+                        x: x, y: y, scale: self.scale,
+                        red: red, green: green, blue: blue, transparency: transparency,
+                        shape: self.shape, background: self.background, margin: self.margin)
+    }
+
     static func _write(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
                        x: Int, y: Int, scale: Int,
                        red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255,
@@ -281,7 +289,7 @@ class PixelMap {
                        margin: Int = 0)
     {
         var marginThickness: Int = 0
-        if ((margin > 0) && (scale >= FixedAppSettings.pixelSizeMarginMin) && (shape != PixelShape.square)) {
+        if ((margin > 0) && (scale >= FixedSettings.pixelSizeMarginMin) && (shape != PixelShape.square)) {
             marginThickness = margin
         }
 

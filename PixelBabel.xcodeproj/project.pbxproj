@@ -13,14 +13,13 @@
 		9801C8282DA8BB2A00AB409F /* PixelShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9801C8272DA8BB2A00AB409F /* PixelShape.swift */; };
 		9801C82A2DA94E0300AB409F /* Pixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9801C8292DA94E0300AB409F /* Pixel.swift */; };
 		982857762DA1796A00770B45 /* ColorMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857752DA1796A00770B45 /* ColorMode.swift */; };
-		982857782DA179C800770B45 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857772DA179C800770B45 /* AppSettings.swift */; };
+		982857782DA179C800770B45 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857772DA179C800770B45 /* Settings.swift */; };
 		9828577A2DA17A1700770B45 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857792DA17A1700770B45 /* SettingsView.swift */; };
 		9828577C2DA17A5900770B45 /* PixelMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9828577B2DA17A5900770B45 /* PixelMap.swift */; };
 		9828577E2DA17AD000770B45 /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9828577D2DA17AD000770B45 /* Feedback.swift */; };
 		984AE8392D9904ED00DBCEDA /* PixelBabelApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8382D9904ED00DBCEDA /* PixelBabelApp.swift */; };
 		984AE83B2D9904ED00DBCEDA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE83A2D9904ED00DBCEDA /* ContentView.swift */; };
 		984AE83D2D9904EE00DBCEDA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 984AE83C2D9904EE00DBCEDA /* Assets.xcassets */; };
-		984AE8402D9904EE00DBCEDA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 984AE83F2D9904EE00DBCEDA /* Preview Assets.xcassets */; };
 		984AE84A2D9904EE00DBCEDA /* PixelBabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8492D9904EE00DBCEDA /* PixelBabelTests.swift */; };
 		984AE8542D9904EE00DBCEDA /* PixelBabelUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8532D9904EE00DBCEDA /* PixelBabelUITests.swift */; };
 		984AE8562D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8552D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift */; };
@@ -50,7 +49,7 @@
 		9801C8272DA8BB2A00AB409F /* PixelShape.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PixelShape.swift; sourceTree = "<group>"; };
 		9801C8292DA94E0300AB409F /* Pixel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pixel.swift; sourceTree = "<group>"; };
 		982857752DA1796A00770B45 /* ColorMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorMode.swift; sourceTree = "<group>"; };
-		982857772DA179C800770B45 /* AppSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		982857772DA179C800770B45 /* Settings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		982857792DA17A1700770B45 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		9828577B2DA17A5900770B45 /* PixelMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PixelMap.swift; sourceTree = "<group>"; };
 		9828577D2DA17AD000770B45 /* Feedback.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feedback.swift; sourceTree = "<group>"; };
@@ -58,7 +57,6 @@
 		984AE8382D9904ED00DBCEDA /* PixelBabelApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBabelApp.swift; sourceTree = "<group>"; };
 		984AE83A2D9904ED00DBCEDA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		984AE83C2D9904EE00DBCEDA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		984AE83F2D9904EE00DBCEDA /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		984AE8452D9904EE00DBCEDA /* PixelBabelTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PixelBabelTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		984AE8492D9904EE00DBCEDA /* PixelBabelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBabelTests.swift; sourceTree = "<group>"; };
 		984AE84F2D9904EE00DBCEDA /* PixelBabelUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PixelBabelUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -114,30 +112,22 @@
 		984AE8372D9904ED00DBCEDA /* PixelBabel */ = {
 			isa = PBXGroup;
 			children = (
+				98C0FC672DAA859E004D5C43 /* Preview Content */,
+				984AE83C2D9904EE00DBCEDA /* Assets.xcassets */,
+				982857752DA1796A00770B45 /* ColorMode.swift */,
+				984AE83A2D9904ED00DBCEDA /* ContentView.swift */,
+				9828577D2DA17AD000770B45 /* Feedback.swift */,
+				9801C81F2DA6833400AB409F /* ImageUtils.swift */,
+				9801C8212DA7EC9800AB409F /* Memory.swift */,
 				9801C8292DA94E0300AB409F /* Pixel.swift */,
+				984AE8382D9904ED00DBCEDA /* PixelBabelApp.swift */,
+				9828577B2DA17A5900770B45 /* PixelMap.swift */,
 				9801C8272DA8BB2A00AB409F /* PixelShape.swift */,
 				9801C8252DA8414700AB409F /* RGBFilters.swift */,
-				9801C8212DA7EC9800AB409F /* Memory.swift */,
-				9801C81F2DA6833400AB409F /* ImageUtils.swift */,
-				9828577D2DA17AD000770B45 /* Feedback.swift */,
-				9828577B2DA17A5900770B45 /* PixelMap.swift */,
+				982857772DA179C800770B45 /* Settings.swift */,
 				982857792DA17A1700770B45 /* SettingsView.swift */,
-				982857772DA179C800770B45 /* AppSettings.swift */,
-				982857752DA1796A00770B45 /* ColorMode.swift */,
-				984AE8382D9904ED00DBCEDA /* PixelBabelApp.swift */,
-				984AE83A2D9904ED00DBCEDA /* ContentView.swift */,
-				984AE83C2D9904EE00DBCEDA /* Assets.xcassets */,
-				984AE83E2D9904EE00DBCEDA /* Preview Content */,
 			);
 			path = PixelBabel;
-			sourceTree = "<group>";
-		};
-		984AE83E2D9904EE00DBCEDA /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				984AE83F2D9904EE00DBCEDA /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		984AE8482D9904EE00DBCEDA /* PixelBabelTests */ = {
@@ -155,6 +145,13 @@
 				984AE8552D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift */,
 			);
 			path = PixelBabelUITests;
+			sourceTree = "<group>";
+		};
+		98C0FC672DAA859E004D5C43 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -261,7 +258,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				984AE8402D9904EE00DBCEDA /* Preview Assets.xcassets in Resources */,
 				984AE83D2D9904EE00DBCEDA /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -295,7 +291,7 @@
 				984AE8392D9904ED00DBCEDA /* PixelBabelApp.swift in Sources */,
 				9801C8262DA8414700AB409F /* RGBFilters.swift in Sources */,
 				9828577C2DA17A5900770B45 /* PixelMap.swift in Sources */,
-				982857782DA179C800770B45 /* AppSettings.swift in Sources */,
+				982857782DA179C800770B45 /* Settings.swift in Sources */,
 				9828577E2DA17AD000770B45 /* Feedback.swift in Sources */,
 				9801C8282DA8BB2A00AB409F /* PixelShape.swift in Sources */,
 				982857762DA1796A00770B45 /* ColorMode.swift in Sources */,

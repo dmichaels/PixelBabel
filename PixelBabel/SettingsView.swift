@@ -5,7 +5,7 @@ import AVFoundation
 
 struct SettingsView: View
 {
-    @EnvironmentObject var settings: AppSettings
+    @EnvironmentObject var settings: Settings
 
     var body: some View {
         Form {
@@ -122,7 +122,7 @@ struct SettingsView: View
 
 struct DeveloperSettingsView: View {
 
-    @EnvironmentObject var settings: AppSettings
+    @EnvironmentObject var settings: Settings
     @State private var randomFixedImagePeriodSelected: RandomFixedImagePeriod = .sometimes
     @State private var backgroundColor: Color
     @State private var initialized = false
@@ -138,7 +138,7 @@ struct DeveloperSettingsView: View {
                     Label("Pixel Margin", systemImage: "ruler")
                     Picker("", selection: $settings.pixelMargin) {
                         ForEach(Array(stride(from: 0,
-                                             through: FixedAppSettings.pixelMarginMax, by: 1)), id: \.self) { value in
+                                             through: FixedSettings.pixelMarginMax, by: 1)), id: \.self) { value in
                             Text("\(value)").tag(value)
                         }
                     }
@@ -188,7 +188,7 @@ struct DeveloperSettingsView: View {
                     Label("Buffer Size", systemImage: "rectangle.stack")
                     Picker("", selection: $settings.backgroundBufferSize) {
                         ForEach(Array(stride(from: 0,
-                                             through: DefaultAppSettings.backgroundBufferSizeMax,
+                                             through: DefaultSettings.backgroundBufferSizeMax,
                                              by: 10)), id: \.self) { value in
                             Text("\(value)").tag(value)
                         }
@@ -219,6 +219,26 @@ struct DeveloperSettingsView: View {
                         .disabled(!settings.randomFixedImage)
                 }
             }
+            Section(header: Text("EXPERIMENTAL").padding(.leading, -12)) {
+                HStack {
+                    Label("Update Mode", systemImage: "pencil")
+                    Spacer()
+                    Toggle("", isOn: $settings.updateMode)
+                        .labelsHidden()
+                }
+            }
+            Section(footer:
+                VStack(alignment: .leading, spacing: 6) {
+                    Divider() // light horizontal line
+                        .padding(.top, 8)
+                    Text("Version: \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?")"
+                        + " • Build: #\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?")")
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                }
+                .padding(.top, 10)
+                .padding(.leading, 4)
+            ) { EmptyView() }
         }
     .onAppear {
         if (!initialized) {

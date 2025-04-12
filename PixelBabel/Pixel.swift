@@ -32,13 +32,24 @@ struct Pixel: Equatable {
     }
 
     public var value: UInt32 {
-        get { (UInt32(self._red) << 24) | (UInt32(self._green) << 16) | (UInt32(self._blue) << 8) | UInt32(self._alpha) }
+        get {
+            (UInt32(self._red) << 24) |
+            (UInt32(self._green) << 16) |
+            (UInt32(self._blue) << 8) |
+            UInt32(self._alpha)
+        }
     }
 
     init(_ red: UInt8, _ green: UInt8, _ blue: UInt8, alpha: UInt8 = 255) {
         self._red = red
         self._green = green
         self._blue = blue
+    }
+
+    init(_ red: Int, _ green: Int, _ blue: Int, alpha: Int = 255) {
+        self._red = UInt8(red)
+        self._green = UInt8(green)
+        self._blue = UInt8(blue)
     }
 
     init(_ color: Color) {

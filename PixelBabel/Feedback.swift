@@ -5,9 +5,9 @@ import AVFoundation
 
 struct Feedback
 {
-    private var _settings: AppSettings
+    private var _settings: Settings
 
-    init(_ settings: AppSettings) {
+    init(_ settings: Settings) {
         self._settings = settings
     }
     
