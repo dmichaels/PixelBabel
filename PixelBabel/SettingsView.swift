@@ -165,10 +165,6 @@ struct DeveloperSettingsView: View {
                             var alpha: CGFloat = 0
                             if color.getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
                                 settings.backgroundColor = Pixel(UInt8(red * 255), UInt8(green * 255), UInt8(blue * 255))
-                                print("PIXEL")
-                                print(settings.backgroundColor)
-                            } else {
-                                print("NONONO")
                             }
                         }
                 }
