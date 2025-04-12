@@ -14,6 +14,7 @@ class PixelMap {
     private var _mode: ColorMode = ColorMode.color
     private var _background: Pixel = Pixel.dark
     private var _shape: PixelShape = PixelShape.square
+    private var _margin: Int = 1
     private var _filter: RGBFilterOptions = RGBFilterOptions.RGB
 
     private var _producer: Bool
@@ -27,6 +28,7 @@ class PixelMap {
          mode: ColorMode = ColorMode.color,
          filter: RGBFilterOptions = RGBFilterOptions.RGB,
          shape: PixelShape = PixelShape.square,
+         margin: Int = 1,
          backgroundBufferSize: Int = DefaultAppSettings.backgroundBufferSizeDefault) {
         self._pixelsWidth = width
         self._pixelsHeight = height
@@ -34,6 +36,7 @@ class PixelMap {
         self._mode = mode
         self._scale = scale
         self._shape = shape
+        self._margin = margin
         self._filter = filter
         self._producer = backgroundBufferSize > 0
         if (self._producer) {
@@ -66,6 +69,11 @@ class PixelMap {
     public var shape: PixelShape {
         get { return self._shape }
         set { self._shape = newValue ; self._invalidate() }
+    }
+
+    public var margin: Int {
+        get { return self._margin }
+        set { if (newValue >= 0) { self._margin = newValue ; self._invalidate() } }
     }
 
     public var background: Pixel {
@@ -132,7 +140,8 @@ class PixelMap {
             PixelMap._randomize(&self._pixels, self._pixelsWidth, self._pixelsHeight,
                                 width: self.width, height: self.height,
                                 scale: self.scale, mode: self.mode,
-                                shape: self.shape, background: self.background,
+                                shape: self.shape, margin: self.margin,
+                                background: self.background,
                                 filter: self.filter)
         }
     }
@@ -227,10 +236,10 @@ class PixelMap {
                            scale: Int,
                            mode: ColorMode,
                            shape: PixelShape,
+                           margin: Int,
                            background: Pixel = Pixel.dark,
                            filter: RGBFilterOptions = RGBFilterOptions.RGB)
     {
-        let margin = (scale < 6) ? false : nil
         for y in 0..<height {
             for x in 0..<width {
                 if (mode == ColorMode.monochrome) {
@@ -269,16 +278,21 @@ class PixelMap {
                        red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255,
                        shape: PixelShape = .square,
                        background: Pixel = Pixel.dark,
-                       margin: Bool? = nil)
+                       margin: Int = 0)
     {
+        var marginThickness: Int = 0
+        if ((margin > 0) && (scale >= FixedAppSettings.pixelSizeMarginMin) && (shape != PixelShape.square)) {
+            marginThickness = margin
+        }
+
         let startX = x * scale
         let startY = y * scale
         let endX = startX + scale
         let endY = startY + scale
 
-        let marginThickness: Int = 2
-        let innerMargin = (margin ?? (shape != .square)) ? marginThickness : 0
-        let adjustedScale = scale - 2 * innerMargin
+        // let marginThickness: Int = 2
+        // let innerMargin = (margin ?? (shape != .square)) ? marginThickness : 0
+        let adjustedScale = scale - 2 * marginThickness
 
         let centerX = Float(startX + scale / 2)
         let centerY = Float(startY + scale / 2)
@@ -299,8 +313,8 @@ class PixelMap {
 
                 switch shape {
                 case .square, .inset:
-                    shouldWrite = (dx >= innerMargin && dx < scale - innerMargin &&
-                                   dy >= innerMargin && dy < scale - innerMargin)
+                    shouldWrite = (dx >= marginThickness && dx < scale - marginThickness &&
+                                   dy >= marginThickness && dy < scale - marginThickness)
 
                 case .circle:
                     let dxSq = (fx - centerX) * (fx - centerX)
@@ -311,10 +325,10 @@ class PixelMap {
                     let cornerRadius: Float = Float(adjustedScale) * 0.25
                     let cr2 = cornerRadius * cornerRadius
 
-                    let minX = Float(startX + innerMargin)
-                    let minY = Float(startY + innerMargin)
-                    let maxX = Float(endX - innerMargin)
-                    let maxY = Float(endY - innerMargin)
+                    let minX = Float(startX + marginThickness)
+                    let minY = Float(startY + marginThickness)
+                    let maxX = Float(endX - marginThickness)
+                    let maxY = Float(endY - marginThickness)
 
                     if fx >= minX + cornerRadius && fx <= maxX - cornerRadius {
                         shouldWrite = fy >= minY && fy <= maxY
@@ -440,7 +454,7 @@ class PixelMap {
                     var pixels: [UInt8] = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
                     PixelMap._randomize(&pixels, self._pixelsWidth, self._pixelsHeight,
                                         width: self.width, height: self.height,
-                                        scale: self.scale, mode: self.mode, shape: self.shape,
+                                        scale: self.scale, mode: self.mode, shape: self.shape, margin: self.margin,
                                         background: self.background,
                                         filter: self.filter)
                     self._pixelsListAccessQueue!.sync {

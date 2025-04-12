@@ -64,6 +64,12 @@ struct ContentView: View
                             refreshRandomImage()
                         }
                     }
+                    .onChange(of: settings.pixelMargin) { _ in
+                        settings.pixels.margin = settings.pixelMargin
+                        if (!showSettings) {
+                            refreshRandomImage()
+                        }
+                    }
                     .onChange(of: settings.backgroundColor) { _ in
                         settings.pixels.background = settings.backgroundColor
                         if (!showSettings) {

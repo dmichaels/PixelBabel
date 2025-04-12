@@ -135,12 +135,25 @@ struct DeveloperSettingsView: View {
         Form {
             Section(header: Text("PIXELS").padding(.leading, -12)) {
                 HStack {
+                    Label("Pixel Margin", systemImage: "ruler")
+                    Picker("", selection: $settings.pixelMargin) {
+                        ForEach(Array(stride(from: 0,
+                                             through: FixedAppSettings.pixelMarginMax, by: 1)), id: \.self) { value in
+                            Text("\(value)").tag(value)
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    .disabled(!settings.backgroundBufferEnabled)
+                }
+                HStack {
                     HStack {
                         ColorCircleIcon()
                         Text("Background Color")
-                            .lineLimit(1)
-                            .layoutPriority(1)
                             .padding(.leading, 11)
+                            .frame(width: 152) // TODO: only need to stop wrapping; need better way.
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                            .layoutPriority(1)
                         Spacer()
                     }
                     ColorPicker("", selection: $backgroundColor)
@@ -247,6 +260,7 @@ let AutomationSpeedOptions: [(label: String, value: Double)] = [
     ("Fastest", 0.1),
     ("Max", 0.0)
 ]
+
 struct ColorCircleIcon: View {
     var body: some View {
         Circle()
