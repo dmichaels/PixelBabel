@@ -10,11 +10,6 @@ struct Pixel: Equatable {
     var _blue: UInt8
     var _alpha: UInt8 = 255
 
-    public static let black: Pixel = Pixel(0, 0, 0)
-    public static let white: Pixel = Pixel(255, 255, 255)
-    public static let dark: Pixel = Pixel(50, 50, 50)
-    public static let light: Pixel = Pixel(200, 200, 200)
-
     public var red: UInt8 {
         get { self._red }
     }
@@ -33,10 +28,10 @@ struct Pixel: Equatable {
 
     public var value: UInt32 {
         get {
-            (UInt32(self._red) << 24) |
+            (UInt32(self._red)   << 24) |
             (UInt32(self._green) << 16) |
-            (UInt32(self._blue) << 8) |
-            UInt32(self._alpha)
+            (UInt32(self._blue)  << 8)  |
+             UInt32(self._alpha)
         }
     }
 
@@ -84,6 +79,11 @@ struct Pixel: Equatable {
         get { return Color(red: Double(self.red) / 255.0, green: Double(self.green) / 255.0, blue: Double(self.blue) / 255.0) }
     }
 
+    public static let black: Pixel = Pixel(0, 0, 0)
+    public static let white: Pixel = Pixel(255, 255, 255)
+    public static let dark: Pixel = Pixel(50, 50, 50)
+    public static let light: Pixel = Pixel(200, 200, 200)
+
     public static func random(mode: ColorMode = ColorMode.color, filter: RGBFilterOptions? = nil) -> Pixel {
         if (mode == ColorMode.monochrome) {
             let value: UInt8 = UInt8.random(in: 0...1) * 255
@@ -100,5 +100,31 @@ struct Pixel: Equatable {
             }
             return Pixel(UInt8((rgb >> 16) & 0xFF), UInt8((rgb >> 8) & 0xFF), UInt8(rgb & 0xFF))
         }
+    }
+
+    typealias FilterFunction = (inout [UInt8], Int) -> Void
+
+    static func tintRed(pixels: inout [UInt8], index: Int, amount: Double = 0.2) {
+        let boost = amount * 255.0
+        let drop  = boost / 2
+        pixels[index]     = UInt8(clamping: Int(Double(pixels[index]) + boost))
+        pixels[index + 1] = UInt8(clamping: Int(Double(pixels[index + 1]) - drop))
+        pixels[index + 2] = UInt8(clamping: Int(Double(pixels[index + 2]) - drop))
+    }
+
+    static func tintGreen(pixels: inout [UInt8], index: Int, amount: Double = 0.2) {
+        let boost = amount * 255.0
+        let drop  = boost / 2
+        pixels[index]     = UInt8(clamping: Int(Double(pixels[index]) - drop))
+        pixels[index + 1] = UInt8(clamping: Int(Double(pixels[index + 1]) + boost))
+        pixels[index + 2] = UInt8(clamping: Int(Double(pixels[index + 2]) - drop))
+    }
+
+    static func tintBlue(pixels: inout [UInt8], index: Int, amount: Double = 0.2) {
+        let boost = amount * 255.0
+        let drop  = boost / 2
+        pixels[index]     = UInt8(clamping: Int(Double(pixels[index]) - drop))
+        pixels[index + 1] = UInt8(clamping: Int(Double(pixels[index + 1]) - drop))
+        pixels[index + 2] = UInt8(clamping: Int(Double(pixels[index + 2]) + boost))
     }
 }

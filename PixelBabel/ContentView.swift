@@ -34,9 +34,12 @@ struct ContentView: View
 
 
     func dragDuringUpdate(_ x: Int, _ y: Int) {
-        print("dragDuringUpdate.start")
-        let pixel = Pixel.black
-        settings.pixels.write(x: x, y: y, red: pixel.red, green: pixel.green, blue: pixel.blue)
+        // let filter: Pixel.FilterFunction = {pixels, index in Pixel.tintBlue(pixels: &pixels, index: index, amount: 0.4)}
+        // settings.pixels.write(x: x, y: y, red: 0, green: 0, blue: 0, filter: filter)
+        settings.pixels.write(x: x, y: y, red: 0, green: 0, blue: 0, filter:
+        {
+            pixels, index in Pixel.tintGreen(pixels: &pixels, index: index, amount: 0.2)
+        })
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
         var image: CGImage? = nil

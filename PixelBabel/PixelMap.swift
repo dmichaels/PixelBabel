@@ -274,11 +274,11 @@ class PixelMap {
         }
     }
 
-    func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255) {
+    func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255, filter: Pixel.FilterFunction? = nil) {
         PixelMap._write(&self._pixels, self._pixelsWidth, self._pixelsHeight,
                         x: x, y: y, scale: self.scale,
                         red: red, green: green, blue: blue, transparency: transparency,
-                        shape: self.shape, background: self.background, margin: self.margin)
+                        shape: self.shape, background: self.background, margin: self.margin, filter: filter)
     }
 
     static func _write(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
@@ -286,7 +286,8 @@ class PixelMap {
                        red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255,
                        shape: PixelShape = .square,
                        background: Pixel = Pixel.dark,
-                       margin: Int = 0)
+                       margin: Int = 0,
+                       filter: Pixel.FilterFunction? = nil)
     {
         var marginThickness: Int = 0
         if ((margin > 0) && (scale >= FixedSettings.pixelSizeMarginMin) && (shape != PixelShape.square)) {
@@ -356,17 +357,45 @@ class PixelMap {
                 let i = (iy * pixelsWidth + ix) * ScreenDepth
                 if i + 3 < pixels.count {
                     if shouldWrite {
-                        pixels[i] = red
-                        pixels[i + 1] = green
-                        pixels[i + 2] = blue
-                        pixels[i + 3] = transparency
+                        if (filter != nil) {
+                            //
+                            // This is different from the filter on _randomize.
+                            // In this case if a filter is given then the given RGB values are ignored
+                            // and we call the filter with the existing pixel value to get the new value.
+                            //
+                            filter!(&pixels, i)
+                            /*
+                            let existingRed = pixels[i]
+                            let existingGreen = pixels[i + 1]
+                            let existingBlue = pixels[i + 2]
+                            let existingTransparency = pixels[i + 3]
+                            var pixel = Pixel(filter!(Pixel(existingRed, existingGreen, existingBlue, alpha: existingTransparency).value))
+                                // print("DEBUG")
+                                // print(existingRed)
+                                // print(existingGreen)
+                                // print(existingBlue)
+                                // print(existingTransparency)
+                                // print("DEBUGX")
+                                // print(pixel.red)
+                                // print(pixel.green)
+                                // print(pixel.blue)
+                                // print(pixel.alpha)
+                            pixels[i] = pixel.red
+                            pixels[i + 1] = pixel.green
+                            pixels[i + 2] = pixel.blue
+                            pixels[i + 3] = pixel.alpha
+                            */
+                        }
+                        else {
+                            pixels[i] = red
+                            pixels[i + 1] = green
+                            pixels[i + 2] = blue
+                            pixels[i + 3] = transparency
+                        }
                     } else {
                         pixels[i] = background.red
                         pixels[i + 1] = background.green
                         pixels[i + 2] = background.blue
-                        // pixels[i] = 255 // 255
-                        // pixels[i + 1] = 0 // 255
-                        // pixels[i + 2] = 0 // 255
                         pixels[i + 3] = transparency
                     }
                 }
