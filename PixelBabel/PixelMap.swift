@@ -23,7 +23,7 @@ class PixelMap {
     private var _mode: ColorMode = ColorMode.color
     private var _background: Pixel = Pixel.dark
     private var _shape: PixelShape = PixelShape.square
-    private var _margin: Int = 1
+    private var _margin: Int = 2
     private var _filter: RGBFilterOptions = RGBFilterOptions.RGB
     private var _writeAlgorithm: WriteAlgorithm = DefaultSettings.writeAlgorithm
 
@@ -38,7 +38,7 @@ class PixelMap {
          mode: ColorMode = ColorMode.color,
          filter: RGBFilterOptions = RGBFilterOptions.RGB,
          shape: PixelShape = PixelShape.square,
-         margin: Int = 1,
+         margin: Int = 2,
          backgroundBufferSize: Int = DefaultSettings.backgroundBufferSizeDefault,
          writeAlgorithm: WriteAlgorithm = DefaultSettings.writeAlgorithm) {
         PixelMap._precomputeMasks()
