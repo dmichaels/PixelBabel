@@ -128,6 +128,12 @@ struct ContentView: View
                             refreshRandomImage()
                         }
                     }
+                    .onChange(of: settings.writeAlgorithmLegacy) { _ in
+                        settings.pixels.legacy = settings.writeAlgorithmLegacy
+                        if (!showSettings) {
+                            refreshRandomImage()
+                        }
+                    }
                     .onChange(of: settings.automationEnabled) { _ in
                         if (!settings.automationEnabled) {
                             autoTappingStop()

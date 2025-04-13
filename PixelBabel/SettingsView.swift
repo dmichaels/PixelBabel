@@ -12,7 +12,7 @@ struct SettingsView: View
 
             Section(header: Text("PIXELS").padding(.leading, -12)) {
                 HStack {
-                    Label("Color Mode", systemImage: "paintpalette")
+                    Label("Pixel Depth", systemImage: "paintpalette")
                     Picker("", selection: $settings.colorMode) {
                         ForEach(ColorMode.allCases) { mode in
                             Text(mode.rawValue)
@@ -27,7 +27,7 @@ struct SettingsView: View
                     }
                 }
                 HStack {
-                    Label("RGB Selection", systemImage: "eyedropper")
+                    Label("Pixel Colors", systemImage: "eyedropper")
                         .lineLimit(1)
                         .layoutPriority(1)
                     Picker("", selection: $settings.rgbFilter) {
@@ -135,7 +135,7 @@ struct DeveloperSettingsView: View {
         Form {
             Section(header: Text("PIXELS").padding(.leading, -12)) {
                 HStack {
-                    Label("Pixel Margin", systemImage: "ruler")
+                    Label("Pixel Margin", systemImage: /*"squareshape.squareshape.dotted"*/ "ruler")
                     Picker("", selection: $settings.pixelMargin) {
                         ForEach(Array(stride(from: 0,
                                              through: FixedSettings.pixelMarginMax, by: 1)), id: \.self) { value in
@@ -149,8 +149,7 @@ struct DeveloperSettingsView: View {
                     HStack {
                         ColorCircleIcon()
                         Text("Background Color")
-                            .padding(.leading, 11)
-                            .frame(width: 152) // TODO: only need to stop wrapping; need better way.
+                            .frame(width: 162) // TODO: only need to stop wrapping; need better way.
                             .lineLimit(1)
                             .truncationMode(.tail)
                             .layoutPriority(1)
@@ -221,9 +220,15 @@ struct DeveloperSettingsView: View {
             }
             Section(header: Text("EXPERIMENTAL").padding(.leading, -12)) {
                 HStack {
-                    Label("Update Mode", systemImage: "pencil")
+                    Label("Update Mode", systemImage: "highlighter")
                     Spacer()
                     Toggle("", isOn: $settings.updateMode)
+                        .labelsHidden()
+                }
+                HStack {
+                    Label("Legacy Write Method", systemImage: "compass.drawing" /*"pencil.and.outline"*/)
+                    Spacer()
+                    Toggle("", isOn: $settings.writeAlgorithmLegacy)
                         .labelsHidden()
                 }
             }

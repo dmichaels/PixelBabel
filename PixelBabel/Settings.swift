@@ -16,6 +16,7 @@ class DefaultSettings
     public static let backgroundBufferSizeDefault: Int = 50
     public static let backgroundBufferSizeMax: Int = 250
     public static let updateMode: Bool = false
+    public static let writeAlgorithmLegacy: Bool = false
 }
 
 class Settings: ObservableObject
@@ -28,6 +29,7 @@ class Settings: ObservableObject
     @Published var pixelMargin: Int = DefaultSettings.pixelMargin
     @Published var backgroundColor: Pixel = Pixel.dark
     @Published var updateMode: Bool = DefaultSettings.updateMode
+    @Published var writeAlgorithmLegacy: Bool = DefaultSettings.writeAlgorithmLegacy
     @Published var soundEnabled: Bool = true
     @Published var hapticEnabled: Bool = true
     @Published var randomFixedImage: Bool = false
@@ -43,6 +45,7 @@ class Settings: ObservableObject
                                scale: DefaultSettings.pixelSize,
                                mode: DefaultSettings.colorMode,
                                filter: DefaultSettings.rgbFilter,
-                               backgroundBufferSize: DefaultSettings.backgroundBufferSizeDefault)
+                               backgroundBufferSize: DefaultSettings.backgroundBufferSizeDefault,
+                               writeAlgorithmLegacy: DefaultSettings.writeAlgorithmLegacy)
     }
 }
