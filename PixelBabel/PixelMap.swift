@@ -25,7 +25,7 @@ class PixelMap {
     private var _shape: PixelShape = PixelShape.square
     private var _margin: Int = 1
     private var _filter: RGBFilterOptions = RGBFilterOptions.RGB
-    private var _writeAlgorithmLegacy: Bool = DefaultSettings.writeAlgorithmLegacy
+    private var _writeAlgorithm: WriteAlgorithm = DefaultSettings.writeAlgorithm
 
     private var _producer: Bool
     private var _backgroundBufferSize: Int = DefaultSettings.backgroundBufferSizeDefault
@@ -40,7 +40,7 @@ class PixelMap {
          shape: PixelShape = PixelShape.square,
          margin: Int = 1,
          backgroundBufferSize: Int = DefaultSettings.backgroundBufferSizeDefault,
-         writeAlgorithmLegacy: Bool = DefaultSettings.writeAlgorithmLegacy) {
+         writeAlgorithm: WriteAlgorithm = DefaultSettings.writeAlgorithm) {
         PixelMap._precomputeMasks()
         self._pixelsWidth = width
         self._pixelsHeight = height
@@ -51,7 +51,7 @@ class PixelMap {
         self._margin = margin
         self._filter = filter
         self._producer = backgroundBufferSize > 0
-        self._writeAlgorithmLegacy = writeAlgorithmLegacy
+        self._writeAlgorithm = writeAlgorithm
         if (self._producer) {
             self._backgroundBufferSize = backgroundBufferSize
             self._pixelsList = []
@@ -119,9 +119,9 @@ class PixelMap {
         set { self._backgroundBufferSize = newValue }
     }
 
-    public var legacy: Bool {
-        get { return self._writeAlgorithmLegacy }
-        set { self._writeAlgorithmLegacy = newValue }
+    public var algorithm: WriteAlgorithm {
+        get { return self._writeAlgorithm }
+        set { self._writeAlgorithm = newValue }
     }
 
     public var cached: Int {
@@ -161,7 +161,7 @@ class PixelMap {
                                 shape: self.shape, margin: self.margin,
                                 background: self.background,
                                 filter: self.filter,
-                                legacy: self.legacy)
+                                algorithm: self.algorithm)
         }
     }
 
@@ -258,7 +258,7 @@ class PixelMap {
                            margin: Int,
                            background: Pixel = Pixel.dark,
                            filter: RGBFilterOptions = RGBFilterOptions.RGB,
-                           legacy: Bool = false)
+                           algorithm: WriteAlgorithm = WriteAlgorithm.auto)
     {
         for y in 0..<height {
             for x in 0..<width {
@@ -267,14 +267,14 @@ class PixelMap {
                     PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
                                     x: x, y: y, scale: scale,
                                     red: value, green: value, blue: value,
-                                    shape: shape, background: background, margin: margin, legacy: legacy)
+                                    shape: shape, background: background, margin: margin, algorithm: algorithm)
                 }
                 else if (mode == ColorMode.grayscale) {
                     let value = UInt8.random(in: 0...255)
                     PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
                                     x: x, y: y, scale: scale,
                                     red: value, green: value, blue: value,
-                                    shape: shape, background: background, margin: margin, legacy: legacy)
+                                    shape: shape, background: background, margin: margin, algorithm: algorithm)
                 }
                 else {
                     var rgb = UInt32.random(in: 0...0xFFFFFF)
@@ -287,19 +287,19 @@ class PixelMap {
                     PixelMap._write(&pixels, pixelsWidth, pixelsHeight,
                                     x: x, y: y, scale: scale,
                                     red: red, green: green, blue: blue,
-                                    shape: shape, background: background, margin: margin, legacy: legacy)
+                                    shape: shape, background: background, margin: margin, algorithm: algorithm)
                 }
             }
         }
     }
 
     func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255,
-               filter: Pixel.FilterFunction? = nil, legacy: Bool = false) {
+               filter: Pixel.FilterFunction? = nil, algorithm: WriteAlgorithm = WriteAlgorithm.auto) {
         PixelMap._write(&self._pixels, self._pixelsWidth, self._pixelsHeight,
                         x: x, y: y, scale: self.scale,
                         red: red, green: green, blue: blue, transparency: transparency,
                         shape: self.shape, background: self.background,
-                        margin: self.margin, filter: filter, legacy: legacy)
+                        margin: self.margin, filter: filter, algorithm: algorithm)
     }
 
     static func _write(_ pixels: inout [UInt8],
@@ -316,24 +316,45 @@ class PixelMap {
                 background: Pixel = Pixel.dark,
                 margin: Int = 0,
                 filter: Pixel.FilterFunction? = nil,
-                legacy: Bool = false) {
+                algorithm: WriteAlgorithm = WriteAlgorithm.auto) {
 
-        if (legacy || (shape == PixelShape.square) || (shape == PixelShape.inset) || ((scale - margin) < 6)) {
-            PixelMap._writeLegacy(
-                &pixels,
-                pixelsWidth,
-                pixelsHeight,
-                x: x, y: y,
-                scale: scale,
-                red: red,
-                green: green,
-                blue: blue,
-                transparency: transparency,
-                shape: shape,
-                background: background,
-                margin: margin,
-                filter: filter)
-            return
+        switch algorithm {
+            case WriteAlgorithm.auto:
+                if ((shape == PixelShape.square) || (shape == PixelShape.inset) || ((scale - margin) < 6)) {
+                    PixelMap._writeLegacy(
+                        &pixels, pixelsWidth, pixelsHeight,
+                        x: x, y: y, scale: scale,
+                        red: red, green: green, blue: blue,
+                        transparency: transparency,
+                        shape: shape,
+                        background: background,
+                        margin: margin,
+                        filter: filter)
+                        return
+                }
+                break
+            case WriteAlgorithm.new:
+                break
+            case WriteAlgorithm.best:
+                PixelMap._writeGood(
+                    &pixels, pixelsWidth, pixelsHeight,
+                    x: x, y: y, scale: scale,
+                    red: red, green: green, blue: blue,
+                    transparency: transparency,
+                    shape: shape,
+                    background: background,
+                    margin: margin,
+                    filter: filter)
+            case WriteAlgorithm.legacy:
+                PixelMap._writeLegacy(
+                    &pixels, pixelsWidth, pixelsHeight,
+                    x: x, y: y, scale: scale,
+                    red: red, green: green, blue: blue,
+                    transparency: transparency,
+                    shape: shape,
+                    background: background,
+                    margin: margin,
+                    filter: filter)
         }
 
         let key = MaskKey(size: scale, shape: shape, margin: margin)
@@ -369,6 +390,112 @@ class PixelMap {
                     pixels[idx + 1] = UInt8(round(outGreen))
                     pixels[idx + 2] = UInt8(round(outBlue))
                     pixels[idx + 3] = UInt8(round(outAlpha))
+                }
+            }
+        }
+    }
+
+    static func _writeGood(_ pixels: inout [UInt8], _ pixelsWidth: Int, _ pixelsHeight: Int,
+                       x: Int, y: Int, scale: Int,
+                       red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255,
+                       shape: PixelShape = .square,
+                       background: Pixel = Pixel.dark,
+                       margin: Int = 0,
+                       filter: Pixel.FilterFunction? = nil)
+    {
+        let marginThickness = (margin > 0 && scale >= FixedSettings.pixelSizeMarginMin && shape != .square) ? margin : 0
+        let startX = x * scale
+        let startY = y * scale
+        let endX = startX + scale
+        let endY = startY + scale
+        let adjustedScale = scale - 2 * marginThickness
+        let antialiasWidth: Float = 1.5
+
+        let centerX = Float(startX + scale / 2)
+        let centerY = Float(startY + scale / 2)
+        let circleRadius = Float(adjustedScale) / 2
+        let radiusSquared = circleRadius * circleRadius
+
+        let cornerRadiusFactor: Float = 0.2
+        let cornerRadius: Float = Float(adjustedScale) * cornerRadiusFactor
+        let cr2 = cornerRadius * cornerRadius
+
+        let minX = Float(startX + marginThickness)
+        let minY = Float(startY + marginThickness)
+        let maxX = Float(endX - marginThickness)
+        let maxY = Float(endY - marginThickness)
+
+        for dy in 0..<scale {
+            for dx in 0..<scale {
+                let ix = startX + dx
+                let iy = startY + dy
+                if ix >= pixelsWidth || iy >= pixelsHeight { continue }
+
+                let fx = Float(ix) + 0.5
+                let fy = Float(iy) + 0.5
+
+                var alpha: Float = 0
+
+                switch shape {
+                case .square, .inset:
+                    let inside = (dx >= marginThickness && dx < scale - marginThickness &&
+                                  dy >= marginThickness && dy < scale - marginThickness)
+                    alpha = inside ? 1 : 0
+
+                case .circle:
+                    let dx = fx - centerX
+                    let dy = fy - centerY
+                    let dist = sqrt(dx * dx + dy * dy)
+                    let edgeDist = circleRadius - dist
+                    alpha = min(max(edgeDist / antialiasWidth, 0), 1)
+
+                case .rounded:
+                    let innerLeft   = minX + cornerRadius
+                    let innerRight  = maxX - cornerRadius
+                    let innerTop    = minY + cornerRadius
+                    let innerBottom = maxY - cornerRadius
+
+                    if fx >= innerLeft && fx <= innerRight &&
+                       fy >= minY && fy <= maxY {
+                        alpha = 1
+                    } else if fy >= innerTop && fy <= innerBottom &&
+                              fx >= minX && fx <= maxX {
+                        alpha = 1
+                    } else {
+                        // Top-left
+                        let cx = fx < innerLeft ? innerLeft : fx > innerRight ? innerRight : fx
+                        let cy = fy < innerTop ? innerTop : fy > innerBottom ? innerBottom : fy
+                        let dx = fx - cx
+                        let dy = fy - cy
+                        let dist = sqrt(dx * dx + dy * dy)
+                        let edgeDist = cornerRadius - dist
+                        alpha = min(max(edgeDist / antialiasWidth, 0), 1)
+                    }
+                }
+
+                let i = (iy * pixelsWidth + ix) * ScreenDepth
+                if i + 3 >= pixels.count { continue }
+
+                let bgR = Float(background.red)
+                let bgG = Float(background.green)
+                let bgB = Float(background.blue)
+
+                if let filter = filter, alpha > 0 {
+                    filter(&pixels, i)
+                } else {
+                    let fgR = Float(red)
+                    let fgG = Float(green)
+                    let fgB = Float(blue)
+
+                    let blendedR = UInt8((fgR * alpha + bgR * (1 - alpha)).rounded())
+                    let blendedG = UInt8((fgG * alpha + bgG * (1 - alpha)).rounded())
+                    let blendedB = UInt8((fgB * alpha + bgB * (1 - alpha)).rounded())
+                    let finalAlpha = UInt8(Float(transparency) * alpha)
+
+                    pixels[i]     = blendedR
+                    pixels[i + 1] = blendedG
+                    pixels[i + 2] = blendedB
+                    pixels[i + 3] = finalAlpha
                 }
             }
         }
@@ -493,7 +620,7 @@ class PixelMap {
                                         scale: self.scale, mode: self.mode, shape: self.shape, margin: self.margin,
                                         background: self.background,
                                         filter: self.filter,
-                                        legacy: self.legacy)
+                                        algorithm: self.algorithm)
                     self._pixelsListAccessQueue!.sync {
                         if (self._pixelsList!.count < self._backgroundBufferSize) {
                             self._pixelsList!.append(pixels)

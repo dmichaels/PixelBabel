@@ -12,11 +12,19 @@ class DefaultSettings
     public static let colorMode: ColorMode = ColorMode.color
     public static let rgbFilter: RGBFilterOptions = RGBFilterOptions.RGB
     public static let pixelShape: PixelShape = PixelShape.square
-    public static let pixelMargin: Int = 1
+    public static let pixelMargin: Int = 2
     public static let backgroundBufferSizeDefault: Int = 50
     public static let backgroundBufferSizeMax: Int = 250
     public static let updateMode: Bool = false
-    public static let writeAlgorithmLegacy: Bool = false
+    public static let writeAlgorithm: WriteAlgorithm = WriteAlgorithm.auto
+}
+
+enum WriteAlgorithm: String, CaseIterable, Identifiable {
+    case auto = "Auto"
+    case new = "New"
+    case best = "Best"
+    case legacy = "Legacy"
+    var id: String { self.rawValue }
 }
 
 class Settings: ObservableObject
@@ -29,7 +37,7 @@ class Settings: ObservableObject
     @Published var pixelMargin: Int = DefaultSettings.pixelMargin
     @Published var backgroundColor: Pixel = Pixel.dark
     @Published var updateMode: Bool = DefaultSettings.updateMode
-    @Published var writeAlgorithmLegacy: Bool = DefaultSettings.writeAlgorithmLegacy
+    @Published var writeAlgorithm: WriteAlgorithm = DefaultSettings.writeAlgorithm
     @Published var soundEnabled: Bool = true
     @Published var hapticEnabled: Bool = true
     @Published var randomFixedImage: Bool = false
@@ -46,6 +54,6 @@ class Settings: ObservableObject
                                mode: DefaultSettings.colorMode,
                                filter: DefaultSettings.rgbFilter,
                                backgroundBufferSize: DefaultSettings.backgroundBufferSizeDefault,
-                               writeAlgorithmLegacy: DefaultSettings.writeAlgorithmLegacy)
+                               writeAlgorithm: DefaultSettings.writeAlgorithm)
     }
 }

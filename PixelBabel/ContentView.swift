@@ -128,8 +128,8 @@ struct ContentView: View
                             refreshRandomImage()
                         }
                     }
-                    .onChange(of: settings.writeAlgorithmLegacy) { _ in
-                        settings.pixels.legacy = settings.writeAlgorithmLegacy
+                    .onChange(of: settings.writeAlgorithm) { _ in
+                        settings.pixels.algorithm = settings.writeAlgorithm
                         if (!showSettings) {
                             refreshRandomImage()
                         }

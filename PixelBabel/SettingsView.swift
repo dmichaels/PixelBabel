@@ -220,15 +220,23 @@ struct DeveloperSettingsView: View {
             }
             Section(header: Text("EXPERIMENTAL").padding(.leading, -12)) {
                 HStack {
+                    Label("Write Algorithm", systemImage: "compass.drawing" /*"pencil.and.outline"*/)
+                        .lineLimit(1)
+                        .layoutPriority(1)
+                    Picker("", selection: $settings.writeAlgorithm) {
+                        ForEach(WriteAlgorithm.allCases) { mode in
+                            Text(mode.rawValue)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                                .tag(mode)
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                }
+                HStack {
                     Label("Update Mode", systemImage: "highlighter")
                     Spacer()
                     Toggle("", isOn: $settings.updateMode)
-                        .labelsHidden()
-                }
-                HStack {
-                    Label("Legacy Write Method", systemImage: "compass.drawing" /*"pencil.and.outline"*/)
-                    Spacer()
-                    Toggle("", isOn: $settings.writeAlgorithmLegacy)
                         .labelsHidden()
                 }
             }
@@ -248,6 +256,7 @@ struct DeveloperSettingsView: View {
     .onAppear {
         if (!initialized) {
             backgroundColor = settings.backgroundColor.color
+            // writeAlgorithmLegacy = settings.writeAlgorithmLegacy
             initialized = true
         }
     }
