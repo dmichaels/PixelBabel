@@ -1,5 +1,7 @@
 # PixelBabel Support
 
+![PixelBabel Icon](icon.png)
+
 If you have questions, issues, or feedback about PixelBabel, please reach out:
 
 - **Report Issues:** [Create an issue](https://github.com/dmichaels/PixelBabel/issues/new)
