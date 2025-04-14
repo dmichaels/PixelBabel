@@ -1,6 +1,6 @@
 # PixelBabel Support
 
-![PixelBabel Icon](icon.png)
+![PixelBabel Icon](pixel_babel_icon_image.png)
 
 If you have questions, issues, or feedback about PixelBabel, please reach out:
 
