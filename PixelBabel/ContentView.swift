@@ -87,7 +87,7 @@ struct ContentView: View
                 Image(decorative: image, scale: 1.0)
                     .resizable()
                     .scaledToFill()
-                    // .ignoresSafeArea()
+                    .ignoresSafeArea()
                     .onChange(of: settings.colorMode) { _ in
                         settings.pixels.mode = settings.colorMode
                         if (!showSettings) {
