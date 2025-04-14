@@ -143,7 +143,6 @@ struct DeveloperSettingsView: View {
                         }
                     }
                     .pickerStyle(MenuPickerStyle())
-                    .disabled(!settings.backgroundBufferEnabled)
                 }
                 HStack {
                     HStack {
