@@ -1,5 +1,5 @@
 <h2 style="display:flex; align-items:center; justify-content:space-between;">
-  <img src="pixel_babel_icon_image.png" alt="PixelBabel Icon" width="50" style="margin-left:auto;">
+  <img src="pixel_babel_icon_image.png" alt="PixelBabel Icon" width="50">
   PixelBabel Support
 </h2>
 
