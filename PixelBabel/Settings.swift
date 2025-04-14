@@ -23,6 +23,7 @@ enum WriteAlgorithm: String, CaseIterable, Identifiable {
     case auto = "Auto"
     case new = "New"
     case best = "Best"
+    case experimental = "Experimental"
     case legacy = "Legacy"
     var id: String { self.rawValue }
 }

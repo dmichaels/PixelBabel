@@ -75,11 +75,19 @@ struct ContentView: View
     var body: some View {
         NavigationView {
             GeometryReader { geometry in
+            /*
+            Text("HELLO")
+                AnyView(RoundedRectangle(cornerRadius: 20).fill(Color.black))
+                .frame(width: 100, height: 200)
+                .padding(.leading, 100)
+                .padding(.top, 100)
+                let uiImage = view.asUIImage(size: CGSize(width: cellSize, height: cellSize))
+            */
             ZStack { if let image = self._randomImage {
                 Image(decorative: image, scale: 1.0)
                     .resizable()
                     .scaledToFill()
-                    .ignoresSafeArea()
+                    // .ignoresSafeArea()
                     .onChange(of: settings.colorMode) { _ in
                         settings.pixels.mode = settings.colorMode
                         if (!showSettings) {
@@ -192,16 +200,20 @@ struct ContentView: View
                         isActive: $showSettings,
                         label: { EmptyView() }
                     )
-            }}
+            }
+            }
             .statusBar(hidden: true)
             .navigationTitle("Home")
             .navigationBarHidden(true)
             .onAppear {
                 viewSize = geometry.size
+                DispatchQueue.main.async {
+                    let _ = PrecomputedSwiftUIMasks.shared
+                }
                 refreshRandomImage()
             }
         }
-        .edgesIgnoringSafeArea(.all)    
+        // .edgesIgnoringSafeArea(.all)    
         }
         .navigationViewStyle(.stack)
     }

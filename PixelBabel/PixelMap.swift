@@ -345,6 +345,18 @@ class PixelMap {
                     background: background,
                     margin: margin,
                     filter: filter)
+                return
+            case WriteAlgorithm.experimental:
+                Renderer._write(
+                    &pixels, pixelsWidth, pixelsHeight,
+                    x: x, y: y, scale: scale,
+                    red: red, green: green, blue: blue,
+                    transparency: transparency,
+                    shape: shape,
+                    background: background,
+                    margin: margin,
+                    filter: filter)
+                return
             case WriteAlgorithm.legacy:
                 PixelMap._writeLegacy(
                     &pixels, pixelsWidth, pixelsHeight,
@@ -355,6 +367,7 @@ class PixelMap {
                     background: background,
                     margin: margin,
                     filter: filter)
+                return
         }
 
         let key = MaskKey(size: scale, shape: shape, margin: margin)

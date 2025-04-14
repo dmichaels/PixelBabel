@@ -12,6 +12,7 @@
 		9801C8262DA8414700AB409F /* RGBFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9801C8252DA8414700AB409F /* RGBFilters.swift */; };
 		9801C8282DA8BB2A00AB409F /* PixelShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9801C8272DA8BB2A00AB409F /* PixelShape.swift */; };
 		9801C82A2DA94E0300AB409F /* Pixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9801C8292DA94E0300AB409F /* Pixel.swift */; };
+		9809B9032DAC519000A9A99B /* Graphics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9809B9022DAC518F00A9A99B /* Graphics.swift */; };
 		982857762DA1796A00770B45 /* ColorMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857752DA1796A00770B45 /* ColorMode.swift */; };
 		982857782DA179C800770B45 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857772DA179C800770B45 /* Settings.swift */; };
 		9828577A2DA17A1700770B45 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857792DA17A1700770B45 /* SettingsView.swift */; };
@@ -48,6 +49,7 @@
 		9801C8252DA8414700AB409F /* RGBFilters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RGBFilters.swift; sourceTree = "<group>"; };
 		9801C8272DA8BB2A00AB409F /* PixelShape.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PixelShape.swift; sourceTree = "<group>"; };
 		9801C8292DA94E0300AB409F /* Pixel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pixel.swift; sourceTree = "<group>"; };
+		9809B9022DAC518F00A9A99B /* Graphics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Graphics.swift; sourceTree = "<group>"; };
 		982857752DA1796A00770B45 /* ColorMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorMode.swift; sourceTree = "<group>"; };
 		982857772DA179C800770B45 /* Settings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		982857792DA17A1700770B45 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 				982857752DA1796A00770B45 /* ColorMode.swift */,
 				984AE83A2D9904ED00DBCEDA /* ContentView.swift */,
 				9828577D2DA17AD000770B45 /* Feedback.swift */,
+				9809B9022DAC518F00A9A99B /* Graphics.swift */,
 				9801C81F2DA6833400AB409F /* ImageUtils.swift */,
 				9801C8212DA7EC9800AB409F /* Memory.swift */,
 				9801C8292DA94E0300AB409F /* Pixel.swift */,
@@ -284,6 +287,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9801C8222DA7EC9800AB409F /* Memory.swift in Sources */,
+				9809B9032DAC519000A9A99B /* Graphics.swift in Sources */,
 				9828577A2DA17A1700770B45 /* SettingsView.swift in Sources */,
 				9801C8202DA6833400AB409F /* ImageUtils.swift in Sources */,
 				984AE83B2D9904ED00DBCEDA /* ContentView.swift in Sources */,
