@@ -218,6 +218,7 @@ struct DeveloperSettingsView: View {
                 }
             }
             Section(header: Text("EXPERIMENTAL").padding(.leading, -12)) {
+                /*
                 HStack {
                     Label("Write Algorithm", systemImage: "compass.drawing" /*"pencil.and.outline"*/)
                         .lineLimit(1)
@@ -232,6 +233,7 @@ struct DeveloperSettingsView: View {
                     }
                     .pickerStyle(MenuPickerStyle())
                 }
+                */
                 HStack {
                     Label("Update Mode", systemImage: "highlighter")
                     Spacer()
@@ -251,6 +253,16 @@ struct DeveloperSettingsView: View {
                 .padding(.top, 10)
                 .padding(.leading, 4)
             ) { EmptyView() }
+            Section {
+                Text("Screen: \(settings.pixels.screenWidth) x \(settings.pixels.screenHeight) (scale: \(Int(UIScreen.main.scale)))")
+                HStack {
+                    Text("Toggle Screen Size")
+                        .padding(.leading, 17)
+                    Spacer()
+                    Toggle("", isOn: $settings.screenSmall)
+                        .labelsHidden()
+                }
+            }
         }
     .onAppear {
         if (!initialized) {

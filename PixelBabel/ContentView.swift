@@ -147,6 +147,14 @@ struct ContentView: View
                             autoTappingStop()
                         }
                     }
+                    .onChange(of: settings.screenSmall) { _ in
+                        if (settings.screenSmall) {
+                            // let w = CGFloat(settings.pixels.screenWidth)
+                            // let h = CGFloat(500)
+                            // settings.pixels.screenSize = CGSize(width: w, height: h)
+                            settings.pixels.screenSize = CGSize(width: CGFloat(settings.pixels.screenWidth), height: CGFloat(500))
+                        }
+                    }
                     .gesture(
                         DragGesture()
                             .onChanged { value in
@@ -207,8 +215,12 @@ struct ContentView: View
             .navigationBarHidden(true)
             .onAppear {
                 viewSize = geometry.size
-                DispatchQueue.main.async {
-                    let _ = PrecomputedSwiftUIMasks.shared
+                print("XXXXXXXXXXXXXXXXXXXXXXXXXXX")
+                print(geometry.size)
+                if (false) {
+                    DispatchQueue.main.async {
+                        let _ = PrecomputedSwiftUIMasks.shared
+                    }
                 }
                 refreshRandomImage()
             }

@@ -15,7 +15,6 @@ class PixelMap {
 
     private static var _masks: [MaskKey: [Float]] = [:]
 
-    // private var _pixels: [UInt8]
     public var _pixels: [UInt8] // xyzzy
     private var _pixelsWidth: Int
     private var _pixelsHeight: Int
@@ -102,6 +101,29 @@ class PixelMap {
     public var data: [UInt8] {
         get { return self._pixels }
         set { self._pixels = newValue }
+    }
+
+    public var screenSize: CGSize {
+        get { return CGSize(width: self._pixelsWidth, height: self._pixelsHeight) }
+        set {
+            print("xyzzy.a")
+            self._pixelsWidth = Int(newValue.width)
+            print("xyzzy.b")
+            self._pixelsHeight = Int(newValue.height)
+            print("xyzzy.c")
+            self._pixels = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
+            print("xyzzy.d")
+            self._invalidate()
+            print("xyzzy.e")
+        }
+    }
+
+    public var screenWidth: Int {
+        get { return self._pixelsWidth }
+    }
+
+    public var screenHeight: Int {
+        get { return self._pixelsHeight }
     }
 
     public var producer: Bool {
@@ -616,6 +638,7 @@ class PixelMap {
     }
 
     private func _replenish() {
+        return // xyzzy
         self._pixelsListReplenishQueue!.async {
             // This block of code runs OFF of the main thread (i.e. in the background);
             // and no more than one of these will ever be running at a time.
@@ -627,6 +650,12 @@ class PixelMap {
             }
             if (additionalPixelsProbableCount > 0) {
                 for i in 0..<additionalPixelsProbableCount {
+                    print("xyzzy.producer.a")
+                    if (!self._producer) {
+                        print("xyzzy.producer.break")
+                        break
+                    }
+                    print("xyzzy.producer.b")
                     var pixels: [UInt8] = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
                     PixelMap._randomize(&pixels, self._pixelsWidth, self._pixelsHeight,
                                         width: self.width, height: self.height,

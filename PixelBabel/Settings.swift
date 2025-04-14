@@ -17,6 +17,7 @@ class DefaultSettings
     public static let backgroundBufferSizeMax: Int = 250
     public static let updateMode: Bool = false
     public static let writeAlgorithm: WriteAlgorithm = WriteAlgorithm.auto
+    public static let screenSmall: Bool = false
 }
 
 enum WriteAlgorithm: String, CaseIterable, Identifiable {
@@ -48,6 +49,7 @@ class Settings: ObservableObject
     @Published var automationEnabled: Bool = true
     @Published var automationSpeed: Double = 0.1
     @Published var dummy: Date = Date()
+    @Published var screenSmall: Bool = DefaultSettings.screenSmall
 
     init() {
         self.pixels = PixelMap(ScreenWidth, ScreenHeight,

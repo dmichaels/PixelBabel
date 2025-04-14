@@ -24,6 +24,7 @@
 		984AE84A2D9904EE00DBCEDA /* PixelBabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8492D9904EE00DBCEDA /* PixelBabelTests.swift */; };
 		984AE8542D9904EE00DBCEDA /* PixelBabelUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8532D9904EE00DBCEDA /* PixelBabelUITests.swift */; };
 		984AE8562D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8552D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift */; };
+		98DF05902DAD9C4100A24923 /* ScreenInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98DF058F2DAD9C4100A24923 /* ScreenInfo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +65,7 @@
 		984AE84F2D9904EE00DBCEDA /* PixelBabelUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PixelBabelUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		984AE8532D9904EE00DBCEDA /* PixelBabelUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBabelUITests.swift; sourceTree = "<group>"; };
 		984AE8552D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBabelUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		98DF058F2DAD9C4100A24923 /* ScreenInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenInfo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,6 +129,7 @@
 				9828577B2DA17A5900770B45 /* PixelMap.swift */,
 				9801C8272DA8BB2A00AB409F /* PixelShape.swift */,
 				9801C8252DA8414700AB409F /* RGBFilters.swift */,
+				98DF058F2DAD9C4100A24923 /* ScreenInfo.swift */,
 				982857772DA179C800770B45 /* Settings.swift */,
 				982857792DA17A1700770B45 /* SettingsView.swift */,
 			);
@@ -287,6 +290,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9801C8222DA7EC9800AB409F /* Memory.swift in Sources */,
+				98DF05902DAD9C4100A24923 /* ScreenInfo.swift in Sources */,
 				9809B9032DAC519000A9A99B /* Graphics.swift in Sources */,
 				9828577A2DA17A1700770B45 /* SettingsView.swift in Sources */,
 				9801C8202DA6833400AB409F /* ImageUtils.swift in Sources */,
