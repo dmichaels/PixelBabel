@@ -1,6 +1,7 @@
-# PixelBabel Support
-
-<img src="pixel_babel_icon_image.png" width="100">
+<h2 style="display:flex; align-items:center; justify-content:space-between;">
+  PixelBabel Support
+  <img src="icon.png" alt="PixelBabel Icon" width="60" style="margin-left:auto;">
+</h2>
 
 If you have questions, issues, or feedback about PixelBabel, please reach out:
 
