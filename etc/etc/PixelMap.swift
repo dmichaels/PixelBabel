@@ -10,13 +10,13 @@ class PixelMap: ObservableObject {
         var set: Bool
     }
 
-    class CellInfo {
+    class DebugCellInfo {
         var indicesSet: [Int] = []
         var indicesUnset: [Int] = []
         var indicesSetByBlocks: [[Int]] = []
         var indicesUnsetByBlocks: [[Int]] = []
     }
-    static var _cellsInfo: [CellInfo] = []
+    static var _cellsInfo: [DebugCellInfo] = []
 
     static var _randomizeCalledOnce: Bool = false
 
@@ -177,13 +177,17 @@ class PixelMap: ObservableObject {
     {
         let start = Date()
 
-        if (false && PixelMap._randomizeCalledOnce) {
+        if (PixelMap._randomizeCalledOnce) {
             for cellInfo in PixelMap._cellsInfo {
                 var rgb = UInt32.random(in: 0...0xFFFFFF)
                 let red = UInt8((rgb >> 16) & 0xFF)
                 let green = UInt8((rgb >> 8) & 0xFF)
                 let blue = UInt8(rgb & 0xFF)
                 let transparency = UInt8(255)
+                // if cellInfo.indicesUnset != cellInfo.indicesUnset.sorted() {
+                    // print("FOOBAR")
+                // }
+                /*
                 for i in cellInfo.indicesSet {
                     buffer[i] = red
                     buffer[i + 1] = green
@@ -196,6 +200,41 @@ class PixelMap: ObservableObject {
                     buffer[i + 2] = background.blue
                     buffer[i + 3] = transparency
                 }
+                */
+                /*
+                print("CHECKING...")
+                for indicesSet in cellInfo.indicesSetByBlocks {
+                    for i in indicesSet {
+                        if !cellInfo.indicesSet.contains(i) {
+                            print("foobar")
+                        }
+                    }
+                }
+                for indicesUnset in cellInfo.indicesUnsetByBlocks {
+                    for i in indicesUnset {
+                        if !cellInfo.indicesUnset.contains(i) {
+                            print("goobar")
+                        }
+                    }
+                }
+                print("CHECKING...DONE")
+                */
+                for indicesSet in cellInfo.indicesSetByBlocks {
+                    for i in indicesSet {
+                        buffer[i] = red
+                        buffer[i + 1] = green
+                        buffer[i + 2] = blue
+                        buffer[i + 3] = transparency
+                    }
+                }
+                for indicesUnset in cellInfo.indicesUnsetByBlocks {
+                    for i in indicesUnset {
+                        buffer[i] = background.red
+                        buffer[i + 1] = background.green
+                        buffer[i + 2] = background.blue
+                        buffer[i + 3] = transparency
+                    }
+                }
             }
             let end = Date()
             let elapsed = end.timeIntervalSince(start)
@@ -203,7 +242,7 @@ class PixelMap: ObservableObject {
             return
         }
 
-        var xyzzy_cellInfo: CellInfo? = nil
+        var xyzzy_cellInfo: DebugCellInfo? = nil
 
         for y in 0..<height {
             for x in 0..<width {
@@ -231,6 +270,8 @@ class PixelMap: ObservableObject {
                                     red: red, green: green, blue: blue,
                                     cellShape: cellShape, background: background, cellPadding: cellPadding, debug: true)
                     if (!PixelMap._randomizeCalledOnce) {
+                        xyzzy_cellInfo!.indicesSetByBlocks = _consecutiveBlocks(xyzzy_cellInfo!.indicesSet)
+                        xyzzy_cellInfo!.indicesUnsetByBlocks = _consecutiveBlocks(xyzzy_cellInfo!.indicesUnset)
                         PixelMap._cellsInfo.append(xyzzy_cellInfo!)
                     }
                 }
@@ -243,8 +284,6 @@ class PixelMap: ObservableObject {
         print("CELLS-INFO: \(PixelMap._cellsInfo.count)")
         if (xyzzy_cellInfo != nil) {
             print("CELL-INFO: \(xyzzy_cellInfo!.indicesSet.count) \(xyzzy_cellInfo!.indicesUnset.count)")
-            xyzzy_cellInfo!.indicesSetByBlocks = _consecutiveBlocks(xyzzy_cellInfo!.indicesSet)
-            xyzzy_cellInfo!.indicesUnsetByBlocks = _consecutiveBlocks(xyzzy_cellInfo!.indicesUnset)
             print("CELL-INFO-BY-BLOCKS: \(xyzzy_cellInfo!.indicesSetByBlocks.count) \(xyzzy_cellInfo!.indicesUnsetByBlocks.count)")
         }
 
@@ -271,9 +310,9 @@ class PixelMap: ObservableObject {
                 transparency: UInt8 = 255,
                 cellShape: PixelShape = .rounded,
                 background: PixelValue = PixelValue.dark,
-                cellPadding: Int = 0, debug: Bool = false) -> CellInfo?
+                cellPadding: Int = 0, debug: Bool = false) -> DebugCellInfo?
     {
-        var cellInfo: CellInfo? = debug ? CellInfo() : nil
+        var cellInfo: DebugCellInfo? = debug ? DebugCellInfo() : nil
 
         var cellPaddingThickness: Int = 0
         if ((cellPadding > 0) && (cellSize >= 6 /*FixedSettings.pixelSizeMarginMin*/) && (cellShape != PixelShape.square)) {
