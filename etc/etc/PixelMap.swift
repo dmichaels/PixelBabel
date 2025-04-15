@@ -184,56 +184,13 @@ class PixelMap: ObservableObject {
                 let green = UInt8((rgb >> 8) & 0xFF)
                 let blue = UInt8(rgb & 0xFF)
                 let transparency = UInt8(255)
-                // if cellInfo.indicesUnset != cellInfo.indicesUnset.sorted() {
-                    // print("FOOBAR")
-                // }
-                /*
-                for i in cellInfo.indicesSet {
-                    buffer[i] = red
-                    buffer[i + 1] = green
-                    buffer[i + 2] = blue
-                    buffer[i + 3] = transparency
-                }
-                for i in cellInfo.indicesUnset {
-                    buffer[i] = background.red
-                    buffer[i + 1] = background.green
-                    buffer[i + 2] = background.blue
-                    buffer[i + 3] = transparency
-                }
-                */
-                /*
-                print("CHECKING...")
+                var fg: PixelValue = PixelValue(red, green, blue, alpha: transparency)
                 for indicesSet in cellInfo.indicesSetByBlocks {
-                    for i in indicesSet {
-                        if !cellInfo.indicesSet.contains(i) {
-                            print("foobar")
-                        }
-                    }
+                    Memory.fastcopy(to: &buffer, index: indicesSet[0] / 4, count: indicesSet.count, value: fg.value)
                 }
+                var bg: PixelValue = PixelValue(background.red, background.green, background.blue, alpha: transparency)
                 for indicesUnset in cellInfo.indicesUnsetByBlocks {
-                    for i in indicesUnset {
-                        if !cellInfo.indicesUnset.contains(i) {
-                            print("goobar")
-                        }
-                    }
-                }
-                print("CHECKING...DONE")
-                */
-                for indicesSet in cellInfo.indicesSetByBlocks {
-                    for i in indicesSet {
-                        buffer[i] = red
-                        buffer[i + 1] = green
-                        buffer[i + 2] = blue
-                        buffer[i + 3] = transparency
-                    }
-                }
-                for indicesUnset in cellInfo.indicesUnsetByBlocks {
-                    for i in indicesUnset {
-                        buffer[i] = background.red
-                        buffer[i + 1] = background.green
-                        buffer[i + 2] = background.blue
-                        buffer[i + 3] = transparency
-                    }
+                    Memory.fastcopy(to: &buffer, index: indicesUnset[0] / 4, count: indicesUnset.count, value: bg.value)
                 }
             }
             let end = Date()
