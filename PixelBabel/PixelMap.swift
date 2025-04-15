@@ -340,8 +340,11 @@ class PixelMap {
                 filter: Pixel.FilterFunction? = nil,
                 algorithm: WriteAlgorithm = WriteAlgorithm.auto) {
 
+        print("xyzzy.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-a")
+        print(algorithm)
         switch algorithm {
             case WriteAlgorithm.auto:
+                print("xyzzy.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-b")
                 if ((shape == PixelShape.square) || (shape == PixelShape.inset) || ((scale - margin) < 6)) {
                     PixelMap._writeLegacy(
                         &pixels, pixelsWidth, pixelsHeight,
@@ -354,6 +357,7 @@ class PixelMap {
                         filter: filter)
                         return
                 }
+                print("xyzzy.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-c")
                 break
             case WriteAlgorithm.new:
                 break
@@ -391,6 +395,7 @@ class PixelMap {
                     filter: filter)
                 return
         }
+        print("xyzzy.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-d")
 
         let key = MaskKey(size: scale, shape: shape, margin: margin)
         guard let mask = PixelMap._masks[key] else {
@@ -438,6 +443,7 @@ class PixelMap {
                        margin: Int = 0,
                        filter: Pixel.FilterFunction? = nil)
     {
+        print("xyzzy.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-good")
         let marginThickness = (margin > 0 && scale >= FixedSettings.pixelSizeMarginMin && shape != .square) ? margin : 0
         let startX = x * scale
         let startY = y * scale
@@ -544,6 +550,7 @@ class PixelMap {
                              margin: Int = 0,
                              filter: Pixel.FilterFunction? = nil)
     {
+        print("xyzzy.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-legacy")
         var marginThickness: Int = 0
         if ((margin > 0) && (scale >= FixedSettings.pixelSizeMarginMin) && (shape != PixelShape.square)) {
             marginThickness = margin
