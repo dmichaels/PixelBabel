@@ -5,38 +5,46 @@ import SwiftUI
 @MainActor
 class PixelMap: ObservableObject {
 
-    struct Debug {
-        var index: Int
-        var set: Bool
-    }
+    // This is mainly (was first created) for keeping track of the fourground/background buffer
+    // indices for each cell, for the purpose of being able to write the values very fast using
+    // block memory copy (see Memory.fastcopy). It is ASSUMED that the addBufferIndexFourground
+    // and addBufferIndexBackground function are called with indices which are monotonically
+    // increasing, and are not duplicated or anything weird; assumes called from the buffer
+    // setting loop in the PixelMap._write method.
+    //
+    struct CellInfo {
 
-    class DebugCellInfo {
-        var indicesSet: [Int] = []
-        var indicesUnset: [Int] = []
-        var indicesSetByBlocks: [[Int]] = []
-        var indicesUnsetByBlocks: [[Int]] = []
+        struct BlockInfo {
+            var index: Int
+            var count: Int
+            var lastIndex: Int
+        }
+
+        var bufferIndicesFourground: [BlockInfo] = []
+        var bufferIndicesBackground: [BlockInfo] = []
+        static private let bufferBlockSize: Int = 4
+
+        mutating public func addBufferIndexFourground(_ index: Int) {
+            CellInfo.addBufferIndex(index, indices: &self.bufferIndicesFourground)
+        }
+
+        mutating public func addBufferIndexBackground(_ index: Int) {
+            CellInfo.addBufferIndex(index, indices: &self.bufferIndicesBackground)
+        }
+
+        private static func addBufferIndex(_ index: Int, indices: inout [BlockInfo]) {
+            for i in stride(from: indices.count - 1, through: 0, by: -1) {
+                if (index == (indices[i].lastIndex + CellInfo.bufferBlockSize)) {
+                    indices[i].count += 1
+                    indices[i].lastIndex = index
+                    return
+                }
+            }
+            indices.append(BlockInfo(index: index, count: 1, lastIndex: index))
+        }
     }
-    static var _cellsInfo: [DebugCellInfo] = []
 
     static var _randomizeCalledOnce: Bool = false
-
-    static func _consecutiveBlocks(_ input: [Int], step: Int = 4) -> [[Int]] {
-        let sorted = input.sorted()
-        var result: [[Int]] = []
-        var currentBlock: [Int] = []
-        for num in sorted {
-            if currentBlock.isEmpty || num - currentBlock.last! == step {
-                currentBlock.append(num)
-            } else {
-                result.append(currentBlock)
-                currentBlock = [num]
-            }
-        }
-        if !currentBlock.isEmpty {
-            result.append(currentBlock)
-        }
-        return result
-    }
 
     @Published var image: CGImage? = nil
 
@@ -45,29 +53,33 @@ class PixelMap: ObservableObject {
     private var _displayChannelSize: Int = 0
     private var _displayScale: CGFloat = 0.0
     private var _displayScalingEnabled: Bool = true
-    private var _cellSize: Int = 120 // 40
-    private var _cellPadding: Int = 1
+    private var _cellSize: Int = 20 // 120 // 40
+    private var _cellPadding: Int = 2
     private var _cellShape: PixelShape = PixelShape.rounded
     private var _cellColorMode: ColorMode = ColorMode.color
     private var _cellBackground: PixelValue = PixelValue.dark
+    private var _cellInfoCachingEnabled: Bool = true
     private var _bufferSize: Int = 0
     private var _buffer: [UInt8] = []
+    private var _cellsInfo: [CellInfo] = []
     private let _colorSpace = CGColorSpaceCreateDeviceRGB()
     private let _bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
 
     func configure(screen: ScreenInfo,
-                   cellSize: Int = 120, // 40,
-                   cellPadding: Int = 1,
+                   cellSize: Int = 20, // 120, // 40,
+                   cellPadding: Int = 2,
                    cellShape: PixelShape = PixelShape.rounded,
                    cellColorMode: ColorMode = ColorMode.color,
-                   cellBackground: PixelValue = PixelValue.white,
-                   displayScaling: Bool = true)
+                   cellBackground: PixelValue = PixelValue.dark,
+                   displayScaling: Bool = true,
+                   cellInfoCaching: Bool = true)
     {
         self._displayWidth = displayScaling ? screen.scaledWidth : screen.width
         self._displayHeight = displayScaling ? screen.scaledHeight : screen.height
         self._displayChannelSize = screen.channelSize
         self._displayScale = screen.scale
         self._displayScalingEnabled = displayScaling
+        self._cellInfoCachingEnabled = cellInfoCaching
 
         self._cellSize = displayScaling ? ScreenInfo.scaledValue(cellSize, scale: screen.scale) : cellSize
         self._cellPadding = displayScaling ? ScreenInfo.scaledValue(cellPadding, scale: screen.scale) : cellPadding
@@ -85,8 +97,28 @@ class PixelMap: ObservableObject {
         print("PIXMAP-SIZE:          \(self.width) x \(self.height)")
         print("BUFFER-SIZE:          \(self._bufferSize)")
 
+        self._initializeCellInfo()
+
         self.fill(with: PixelValue.light)
         self.update()
+    }
+
+    private func _initializeCellInfo() {
+        self._cellsInfo = []
+        for y in 0..<self.height {
+            for x in 0..<self.width {
+                if let cellInfo = PixelMap._write(&self._buffer, self._displayWidth, self._displayHeight,
+                                                  x: x, y: y,
+                                                  cellSize: self.cellSize,
+                                                  red: 0, green: 0, blue: 0,
+                                                  cellShape: self.cellShape,
+                                                  background: self.background,
+                                                  cellPadding: self.cellPadding,
+                                                  forCellInfo: true) {
+                    self._cellsInfo.append(cellInfo)
+                }
+            }
+        }
     }
 
     public var displayScale: CGFloat {
@@ -128,7 +160,6 @@ class PixelMap: ObservableObject {
     }
 
     func fill(with pixel: PixelValue = PixelValue.dark) {
-        // print("FILl: \(self._displayWidth)x\(self._displayHeight)")
         for y in 0..<self._displayHeight {
             for x in 0..<self._displayWidth {
                 let i = (y * self._displayWidth + x) * 4
@@ -164,7 +195,9 @@ class PixelMap: ObservableObject {
                             width: self.width, height: self.height,
                             cellSize: self.cellSize, cellColorMode: self.cellColorMode,
                             cellShape: self.cellShape, cellPadding: self.cellPadding,
-                            background: self.background)
+                            background: self.background,
+                            cellsInfo: self._cellsInfo,
+                            cellInfoCaching: self._cellInfoCachingEnabled)
     }
 
     static func _randomize(_ buffer: inout [UInt8], _ displayWidth: Int, _ displayHeight: Int,
@@ -173,24 +206,29 @@ class PixelMap: ObservableObject {
                            cellColorMode: ColorMode,
                            cellShape: PixelShape,
                            cellPadding: Int,
-                           background: PixelValue = PixelValue.dark)
+                           background: PixelValue = PixelValue.dark,
+                           cellsInfo: [CellInfo]? = nil,
+                           cellInfoCaching: Bool = true)
     {
         let start = Date()
 
-        if (PixelMap._randomizeCalledOnce) {
-            for cellInfo in PixelMap._cellsInfo {
-                var rgb = UInt32.random(in: 0...0xFFFFFF)
-                let red = UInt8((rgb >> 16) & 0xFF)
-                let green = UInt8((rgb >> 8) & 0xFF)
-                let blue = UInt8(rgb & 0xFF)
-                let transparency = UInt8(255)
-                var fg: PixelValue = PixelValue(red, green, blue, alpha: transparency)
-                for indicesSet in cellInfo.indicesSetByBlocks {
-                    Memory.fastcopy(to: &buffer, index: indicesSet[0] / 4, count: indicesSet.count, value: fg.value)
-                }
-                var bg: PixelValue = PixelValue(background.red, background.green, background.blue, alpha: transparency)
-                for indicesUnset in cellInfo.indicesUnsetByBlocks {
-                    Memory.fastcopy(to: &buffer, index: indicesUnset[0] / 4, count: indicesUnset.count, value: bg.value)
+        if (PixelMap._randomizeCalledOnce && cellInfoCaching) {
+            if (cellsInfo != nil) {
+                print("RANDOMIZE-USING-CACHE")
+                for cellInfo in cellsInfo! {
+                    var rgb = UInt32.random(in: 0...0xFFFFFF)
+                    let red = UInt8((rgb >> 16) & 0xFF)
+                    let green = UInt8((rgb >> 8) & 0xFF)
+                    let blue = UInt8(rgb & 0xFF)
+                    let transparency = UInt8(255)
+                    var fg: PixelValue = PixelValue(red, green, blue, alpha: transparency)
+                    var bg: PixelValue = PixelValue(background.red, background.green, background.blue, alpha: transparency)
+                    for blockInfo in cellInfo.bufferIndicesFourground {
+                        Memory.fastcopy(to: &buffer, index: blockInfo.index / 4, count: blockInfo.count, value: fg.value)
+                    }
+                    for blockInfo in cellInfo.bufferIndicesBackground {
+                        Memory.fastcopy(to: &buffer, index: blockInfo.index / 4, count: blockInfo.count, value: bg.value)
+                    }
                 }
             }
             let end = Date()
@@ -198,8 +236,6 @@ class PixelMap: ObservableObject {
             print(String(format: "RANDOMIZE-SHORT-CIRCUIT-TIME: %.5f seconds", elapsed))
             return
         }
-
-        var xyzzy_cellInfo: DebugCellInfo? = nil
 
         for y in 0..<height {
             for x in 0..<width {
@@ -222,15 +258,10 @@ class PixelMap: ObservableObject {
                     let red = UInt8((rgb >> 16) & 0xFF)
                     let green = UInt8((rgb >> 8) & 0xFF)
                     let blue = UInt8(rgb & 0xFF)
-                    xyzzy_cellInfo = PixelMap._write(&buffer, displayWidth, displayHeight,
+                    PixelMap._write(&buffer, displayWidth, displayHeight,
                                     x: x, y: y, cellSize: cellSize,
                                     red: red, green: green, blue: blue,
-                                    cellShape: cellShape, background: background, cellPadding: cellPadding, debug: true)
-                    if (!PixelMap._randomizeCalledOnce) {
-                        xyzzy_cellInfo!.indicesSetByBlocks = _consecutiveBlocks(xyzzy_cellInfo!.indicesSet)
-                        xyzzy_cellInfo!.indicesUnsetByBlocks = _consecutiveBlocks(xyzzy_cellInfo!.indicesUnset)
-                        PixelMap._cellsInfo.append(xyzzy_cellInfo!)
-                    }
+                                    cellShape: cellShape, background: background, cellPadding: cellPadding)
                 }
             }
         }
@@ -238,38 +269,33 @@ class PixelMap: ObservableObject {
         let elapsed = end.timeIntervalSince(start)
         print(String(format: "RANDOMIZE-TIME: %.5f seconds", elapsed))
 
-        print("CELLS-INFO: \(PixelMap._cellsInfo.count)")
-        if (xyzzy_cellInfo != nil) {
-            print("CELL-INFO: \(xyzzy_cellInfo!.indicesSet.count) \(xyzzy_cellInfo!.indicesUnset.count)")
-            print("CELL-INFO-BY-BLOCKS: \(xyzzy_cellInfo!.indicesSetByBlocks.count) \(xyzzy_cellInfo!.indicesUnsetByBlocks.count)")
-        }
-
         PixelMap._randomizeCalledOnce = true
     }
 
-    func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255, debug: Bool = false) {
+    func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255) {
         PixelMap._write(&self._buffer, self._displayWidth, self._displayHeight,
                         x: x, y: y, cellSize: self.cellSize,
                         red: red, green: green, blue: blue, transparency: transparency,
                         cellShape: self.cellShape, background: self.background,
-                        cellPadding: self.cellPadding, debug: debug)
+                        cellPadding: self.cellPadding)
     }
 
     static func _write(_ buffer: inout [UInt8],
-                _ displayWidth: Int,
-                _ displayHeight: Int,
-                x: Int,
-                y: Int,
-                cellSize: Int,
-                red: UInt8,
-                green: UInt8,
-                blue: UInt8,
-                transparency: UInt8 = 255,
-                cellShape: PixelShape = .rounded,
-                background: PixelValue = PixelValue.dark,
-                cellPadding: Int = 0, debug: Bool = false) -> DebugCellInfo?
+                       _ displayWidth: Int,
+                       _ displayHeight: Int,
+                       x: Int,
+                       y: Int,
+                       cellSize: Int,
+                       red: UInt8,
+                       green: UInt8,
+                       blue: UInt8,
+                       transparency: UInt8 = 255,
+                       cellShape: PixelShape = .rounded,
+                       background: PixelValue = PixelValue.dark,
+                       cellPadding: Int = 0,
+                       forCellInfo: Bool = false) -> CellInfo?
     {
-        var cellInfo: DebugCellInfo? = debug ? DebugCellInfo() : nil
+        var cellInfo: CellInfo? = forCellInfo ? CellInfo() : nil
 
         var cellPaddingThickness: Int = 0
         if ((cellPadding > 0) && (cellSize >= 6 /*FixedSettings.pixelSizeMarginMin*/) && (cellShape != PixelShape.square)) {
@@ -286,7 +312,6 @@ class PixelMap: ObservableObject {
         let circleRadius = Float(adjustedScale) / 2.0
         let radiusSquared = circleRadius * circleRadius
 
-        // print("CELL-WRITE-ITERATIONS: \(cellSize * cellSize) == \(cellSize)^2")
         for dy in 0..<cellSize {
             for dx in 0..<cellSize {
                 let ix = startX + dx
@@ -337,16 +362,16 @@ class PixelMap: ObservableObject {
 
                 if i + 3 < buffer.count {
                     if shouldWrite {
-                        if debug {
-                            cellInfo!.indicesSet.append(i)
+                        if (cellInfo != nil) {
+                            cellInfo!.addBufferIndexFourground(i)
                         }
                         buffer[i] = red
                         buffer[i + 1] = green
                         buffer[i + 2] = blue
                         buffer[i + 3] = transparency
                     } else {
-                        if debug {
-                            cellInfo!.indicesUnset.append(i)
+                        if (cellInfo != nil) {
+                            cellInfo!.addBufferIndexBackground(i)
                         }
                         buffer[i] = background.red
                         buffer[i + 1] = background.green
