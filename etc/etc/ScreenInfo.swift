@@ -3,7 +3,6 @@ import SwiftUI
 @MainActor
 class ScreenInfo: ObservableObject
 {
-    static let depth: Int = 4
     static let shared = ScreenInfo()
 
     @Published private var _width: Int = Int(UIScreen.main.bounds.width)
@@ -33,10 +32,6 @@ class ScreenInfo: ObservableObject
     public var scaledSize: CGSize {
         CGSize(width: CGFloat(self.scaledWidth), height: CGFloat(self.scaledHeight))
     }
-
-    // This is the number of byte (UInt8) elements in a pixel, 
-    // i.e. one byte each for red, blue, green, and alpha, aka RGBA.
-    //
     public let channelSize: Int = 4
 
     // Returns the scaling factor for the screen/display.
@@ -47,6 +42,11 @@ class ScreenInfo: ObservableObject
     public var scale: CGFloat {
         self._scale 
     }
+
+    // This is the number of byte (UInt8) elements in a pixel, 
+    // i.e. one byte each for red, blue, green, and alpha, aka RGBA.
+    //
+    static let depth: Int = 4
 
     // Returns the byte (UInt8) size an in-memory buffer should
     // be to contain all of the pixel (point) data for the screen/display.

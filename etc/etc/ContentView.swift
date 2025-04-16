@@ -61,7 +61,6 @@ struct ContentView: View
             )
             .simultaneousGesture(
                 LongPressGesture(minimumDuration: 1.0).onEnded { value in
-                    print("LONG-TAP: \(value)")
                     autoTapping.toggle()
                     if (autoTapping) {
                         autoTappingStart()
