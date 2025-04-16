@@ -20,9 +20,16 @@ class PixelMap: ObservableObject {
             var lastIndex: Int
         }
 
+        let x: Int
+        let y: Int
         var bufferIndicesFourground: [BlockInfo] = []
         var bufferIndicesBackground: [BlockInfo] = []
         static private let bufferBlockSize: Int = 4
+
+        init(x: Int, y: Int) {
+            self.x = x
+            self.y = y
+        }
 
         mutating public func addBufferIndexFourground(_ index: Int) {
             CellInfo.addBufferIndex(index, indices: &self.bufferIndicesFourground)
@@ -50,6 +57,28 @@ class PixelMap: ObservableObject {
             if (bg != nil) {
                 for blockInfo in self.bufferIndicesBackground {
                     Memory.fastcopy(to: &buffer, index: blockInfo.index / 4, count: blockInfo.count, value: bg!.value)
+                }
+            }
+        }
+
+        func sanityCheck() {
+            return
+            for blockInfoFG in self.bufferIndicesFourground {
+                for blockInfoBG in self.bufferIndicesBackground {
+                    let fgStart = blockInfoFG.index
+                    let fgEnd = (blockInfoFG.index + (blockInfoFG.count * CellInfo.bufferBlockSize)) - 1
+                    let bgStart = blockInfoBG.index
+                    let bgEnd = (blockInfoBG.index + (blockInfoBG.count * CellInfo.bufferBlockSize)) - 1
+                    // if ((fgStart > bgStart) || (fgEnd < bgStart)) {
+                    if ((fgStart > bgEnd) || (fgEnd < bgStart) || (bgStart > fgEnd) || (bgEnd < fgStart)) {
+                        // OK
+                    }
+                    else {
+                        print("CELL-BLOCK-SANITY-CHECK-ERROR: \(fgStart) \(fgEnd) \(bgStart) \(bgEnd)")
+                        print(blockInfoFG)
+                        print(blockInfoBG)
+                        // hm: 85668 86148 86148 86208
+                    }
                 }
             }
         }
@@ -83,7 +112,7 @@ class PixelMap: ObservableObject {
                    cellShape: PixelShape = PixelShape.rounded,
                    cellColorMode: ColorMode = ColorMode.color,
                    cellBackground: PixelValue = PixelValue.dark,
-                   displayScaling: Bool = true,
+                   displayScaling: Bool = true, // xyzzy
                    cellInfoCaching: Bool = true)
     {
         self._displayWidth = displayScaling ? screen.scaledWidth : screen.width
@@ -130,6 +159,9 @@ class PixelMap: ObservableObject {
                                                   cellPadding: self.cellPadding,
                                                   forCellInfo: true) {
                     self._cellsInfo.append(cellInfo)
+                    for debugCellInfo in self._cellsInfo {
+                        debugCellInfo.sanityCheck()
+                    }
                 }
             }
         }
@@ -331,6 +363,13 @@ class PixelMap: ObservableObject {
     func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255) {
         if (self._cellsInfo != nil) {
             // TODO
+            for cellInfo in self._cellsInfo {
+                if ((cellInfo.x == x) && (cellInfo.y == y)) {
+                    print("WRITE-XYZZY: \(x) \(y)")
+                    cellInfo.writeBuffer(&self._buffer, fg: PixelValue(red, green, blue))
+                }
+            }
+            return
         }
         PixelMap._write(&self._buffer, self._displayWidth, self._displayHeight,
                         x: x, y: y, cellSize: self.cellSize,
@@ -358,7 +397,7 @@ class PixelMap: ObservableObject {
             return nil
         }
 
-        var cellInfo: CellInfo? = forCellInfo ? CellInfo() : nil
+        var cellInfo: CellInfo? = forCellInfo ? CellInfo(x: x, y: y) : nil
 
         var cellPaddingThickness: Int = 0
         if ((cellPadding > 0) && (cellSize >= 6 /*FixedSettings.pixelSizeMarginMin*/) && (cellShape != PixelShape.square)) {
@@ -423,9 +462,6 @@ class PixelMap: ObservableObject {
 
                 let i = (iy * displayWidth + ix) * 4 /*ScreenDepth*/
 
-                if i < 0 {
-                    print("NONONONONONONONOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! x: \(x) y: \(y) i: \(i) dw: \(displayWidth) dh: \(displayHeight)")
-                }
                 if ((i >= 0) && ((i + 3) < buffer.count)) {
                     if shouldWrite {
                         if (cellInfo != nil) {
