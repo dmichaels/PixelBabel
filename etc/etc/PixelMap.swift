@@ -42,6 +42,17 @@ class PixelMap: ObservableObject {
             }
             indices.append(BlockInfo(index: index, count: 1, lastIndex: index))
         }
+
+        public func writeBuffer(_ buffer: inout [UInt8], fg: PixelValue, bg: PixelValue? = nil) {
+            for blockInfo in self.bufferIndicesFourground {
+                Memory.fastcopy(to: &buffer, index: blockInfo.index / 4, count: blockInfo.count, value: fg.value)
+            }
+            if (bg != nil) {
+                for blockInfo in self.bufferIndicesBackground {
+                    Memory.fastcopy(to: &buffer, index: blockInfo.index / 4, count: blockInfo.count, value: bg!.value)
+                }
+            }
+        }
     }
 
     static var _randomizeCalledOnce: Bool = false
@@ -53,7 +64,8 @@ class PixelMap: ObservableObject {
     private var _displayChannelSize: Int = 0
     private var _displayScale: CGFloat = 0.0
     private var _displayScalingEnabled: Bool = true
-    private var _cellSize: Int = 20 // 120 // 40
+    private var _cellSize: Int = 50 // 120 // 40
+    private var _cellSizeUnscaled: Int = 50
     private var _cellPadding: Int = 2
     private var _cellShape: PixelShape = PixelShape.rounded
     private var _cellColorMode: ColorMode = ColorMode.color
@@ -66,7 +78,7 @@ class PixelMap: ObservableObject {
     private let _bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
 
     func configure(screen: ScreenInfo,
-                   cellSize: Int = 20, // 120, // 40,
+                   cellSize: Int = 50, // 120, // 40,
                    cellPadding: Int = 2,
                    cellShape: PixelShape = PixelShape.rounded,
                    cellColorMode: ColorMode = ColorMode.color,
@@ -82,6 +94,7 @@ class PixelMap: ObservableObject {
         self._cellInfoCachingEnabled = cellInfoCaching
 
         self._cellSize = displayScaling ? ScreenInfo.scaledValue(cellSize, scale: screen.scale) : cellSize
+        self._cellSizeUnscaled = cellSize
         self._cellPadding = displayScaling ? ScreenInfo.scaledValue(cellPadding, scale: screen.scale) : cellPadding
         self._cellShape = cellShape
         self._cellColorMode = cellColorMode
@@ -94,6 +107,7 @@ class PixelMap: ObservableObject {
         print("DISPLAY-SCALE:        \(screen.scale)")
         print("DISPLAY-SCALED-WIDTH: \(screen.scaledWidth) x \(screen.scaledHeight)")
         print("CELL-SIZE:            \(self.cellSize)")
+        print("CELL-SIZE-UNSCALED:   \(self._cellSizeUnscaled)")
         print("PIXMAP-SIZE:          \(self.width) x \(self.height)")
         print("BUFFER-SIZE:          \(self._bufferSize)")
 
@@ -159,6 +173,51 @@ class PixelMap: ObservableObject {
         self._cellBackground
     }
 
+    public func locate(_ screenPoint: CGPoint) -> CGPoint {
+
+        let screenX = max(Int(screenPoint.x), 0)
+        let screenY = max(Int(screenPoint.y), 0)
+        return CGPoint(x: Int(screenX / self._cellSizeUnscaled), y: Int(screenY / self._cellSizeUnscaled))
+
+        // let unscaledCellSize: CGFloat = CGFloat(self._cellSize) / self.displayScale
+        // return CGPoint(x: Int(screenPoint.x / unscaledCellSize), y: Int(screenPoint.y / unscaledCellSize))
+
+        // return CGPoint(x: Int(screenPoint.x) / self._cellSizeUnscaled, y: Int(screenPoint.y) / self._cellSizeUnscaled)
+        // return self.locate(Int(screenPoint.x), Int(screenPoint.y))
+    }
+
+    /*
+    public func locate(_ screenX: Int, _ screenY: Int) -> CGPoint {
+        let unscaledCellSize: CGFloat = CGFloat(self._cellSize) / self.displayScale
+        return CGPoint(x: screenX / CGFloat(unscaledCellSize), y: screenY / CGFloat(unscaledCellSize))
+        // return CGPoint(x: screenX / self._cellSizeUnscaled, y: screenY / self._cellSizeUnscaled)
+    }
+    */
+
+    public func onDrag(_ location: CGPoint) {
+        let clocation = self.locate(location)  
+        print("ON-DRAG: \(location)")
+        let color = PixelValue.black
+        print("ON-DRAG-A: \(color)")
+        self.write(x: Int(clocation.x), y: Int(clocation.y), red: color.red, green: color.green, blue: color.blue)
+        print("ON-DRAG-B")
+        self.update()
+        print("ON-DRAG-C")
+    }
+
+    public func onDragEnd(_ location: CGPoint) {
+        print("ON-DRAG-END: \(location)")
+        let color = PixelValue.random()
+        self.write(x: Int(location.x), y: Int(location.y), red: color.red, green: color.green, blue: color.blue)
+        self.update()
+    }
+
+    public func onTap(_ location: CGPoint) {
+        print("ON-TAP: \(location)")
+        self.randomize()
+        self.update()
+    }
+
     func fill(with pixel: PixelValue = PixelValue.dark) {
         for y in 0..<self._displayHeight {
             for x in 0..<self._displayWidth {
@@ -216,6 +275,7 @@ class PixelMap: ObservableObject {
             if (cellsInfo != nil) {
                 print("RANDOMIZE-USING-CACHE")
                 for cellInfo in cellsInfo! {
+                    /*
                     var rgb = UInt32.random(in: 0...0xFFFFFF)
                     let red = UInt8((rgb >> 16) & 0xFF)
                     let green = UInt8((rgb >> 8) & 0xFF)
@@ -223,12 +283,8 @@ class PixelMap: ObservableObject {
                     let transparency = UInt8(255)
                     var fg: PixelValue = PixelValue(red, green, blue, alpha: transparency)
                     var bg: PixelValue = PixelValue(background.red, background.green, background.blue, alpha: transparency)
-                    for blockInfo in cellInfo.bufferIndicesFourground {
-                        Memory.fastcopy(to: &buffer, index: blockInfo.index / 4, count: blockInfo.count, value: fg.value)
-                    }
-                    for blockInfo in cellInfo.bufferIndicesBackground {
-                        Memory.fastcopy(to: &buffer, index: blockInfo.index / 4, count: blockInfo.count, value: bg.value)
-                    }
+                    */
+                    cellInfo.writeBuffer(&buffer, fg: PixelValue.random()) // , bg: background)
                 }
             }
             let end = Date()
@@ -273,6 +329,9 @@ class PixelMap: ObservableObject {
     }
 
     func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255) {
+        if (self._cellsInfo != nil) {
+            // TODO
+        }
         PixelMap._write(&self._buffer, self._displayWidth, self._displayHeight,
                         x: x, y: y, cellSize: self.cellSize,
                         red: red, green: green, blue: blue, transparency: transparency,
@@ -295,6 +354,10 @@ class PixelMap: ObservableObject {
                        cellPadding: Int = 0,
                        forCellInfo: Bool = false) -> CellInfo?
     {
+        if ((x < 0) || (y < 0)) {
+            return nil
+        }
+
         var cellInfo: CellInfo? = forCellInfo ? CellInfo() : nil
 
         var cellPaddingThickness: Int = 0
@@ -360,7 +423,10 @@ class PixelMap: ObservableObject {
 
                 let i = (iy * displayWidth + ix) * 4 /*ScreenDepth*/
 
-                if i + 3 < buffer.count {
+                if i < 0 {
+                    print("NONONONONONONONOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! x: \(x) y: \(y) i: \(i) dw: \(displayWidth) dh: \(displayHeight)")
+                }
+                if ((i >= 0) && ((i + 3) < buffer.count)) {
                     if shouldWrite {
                         if (cellInfo != nil) {
                             cellInfo!.addBufferIndexFourground(i)

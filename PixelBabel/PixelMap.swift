@@ -106,15 +106,10 @@ class PixelMap {
     public var screenSize: CGSize {
         get { return CGSize(width: self._pixelsWidth, height: self._pixelsHeight) }
         set {
-            print("xyzzy.a")
             self._pixelsWidth = Int(newValue.width)
-            print("xyzzy.b")
             self._pixelsHeight = Int(newValue.height)
-            print("xyzzy.c")
             self._pixels = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
-            print("xyzzy.d")
             self._invalidate()
-            print("xyzzy.e")
         }
     }
 
@@ -282,6 +277,8 @@ class PixelMap {
                            filter: RGBFilterOptions = RGBFilterOptions.RGB,
                            algorithm: WriteAlgorithm = WriteAlgorithm.auto)
     {
+        let start = Date()
+
         for y in 0..<height {
             for x in 0..<width {
                 if (mode == ColorMode.monochrome) {
@@ -313,6 +310,10 @@ class PixelMap {
                 }
             }
         }
+
+        let end = Date()
+        let elapsed = end.timeIntervalSince(start)
+        print(String(format: "RANDOMIZE-TIME: %.5f seconds", elapsed))
     }
 
     func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255,
@@ -340,11 +341,8 @@ class PixelMap {
                 filter: Pixel.FilterFunction? = nil,
                 algorithm: WriteAlgorithm = WriteAlgorithm.auto) {
 
-        print("xyzzy.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-a")
-        print(algorithm)
         switch algorithm {
             case WriteAlgorithm.auto:
-                print("xyzzy.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-b")
                 if ((shape == PixelShape.square) || (shape == PixelShape.inset) || ((scale - margin) < 6)) {
                     PixelMap._writeLegacy(
                         &pixels, pixelsWidth, pixelsHeight,
@@ -357,7 +355,6 @@ class PixelMap {
                         filter: filter)
                         return
                 }
-                print("xyzzy.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-c")
                 break
             case WriteAlgorithm.new:
                 break
@@ -395,7 +392,6 @@ class PixelMap {
                     filter: filter)
                 return
         }
-        print("xyzzy.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-d")
 
         let key = MaskKey(size: scale, shape: shape, margin: margin)
         guard let mask = PixelMap._masks[key] else {
@@ -443,7 +439,6 @@ class PixelMap {
                        margin: Int = 0,
                        filter: Pixel.FilterFunction? = nil)
     {
-        print("xyzzy.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-good")
         let marginThickness = (margin > 0 && scale >= FixedSettings.pixelSizeMarginMin && shape != .square) ? margin : 0
         let startX = x * scale
         let startY = y * scale
@@ -550,7 +545,6 @@ class PixelMap {
                              margin: Int = 0,
                              filter: Pixel.FilterFunction? = nil)
     {
-        print("xyzzy.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-legacy")
         var marginThickness: Int = 0
         if ((margin > 0) && (scale >= FixedSettings.pixelSizeMarginMin) && (shape != PixelShape.square)) {
             marginThickness = margin
@@ -657,12 +651,9 @@ class PixelMap {
             }
             if (additionalPixelsProbableCount > 0) {
                 for i in 0..<additionalPixelsProbableCount {
-                    print("xyzzy.producer.a")
                     if (!self._producer) {
-                        print("xyzzy.producer.break")
                         break
                     }
-                    print("xyzzy.producer.b")
                     var pixels: [UInt8] = [UInt8](repeating: 0, count: self._pixelsWidth * self._pixelsHeight * ScreenDepth)
                     PixelMap._randomize(&pixels, self._pixelsWidth, self._pixelsHeight,
                                         width: self.width, height: self.height,
