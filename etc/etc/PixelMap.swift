@@ -24,7 +24,6 @@ class PixelMap: ObservableObject {
         let y: Int
         var bufferIndicesFourground: [BlockInfo] = []
         var bufferIndicesBackground: [BlockInfo] = []
-        static private let bufferBlockSize: Int = 4
 
         init(x: Int, y: Int) {
             self.x = x
@@ -41,7 +40,7 @@ class PixelMap: ObservableObject {
 
         private static func addBufferIndex(_ index: Int, indices: inout [BlockInfo]) {
             for i in stride(from: indices.count - 1, through: 0, by: -1) {
-                if (index == (indices[i].lastIndex + CellInfo.bufferBlockSize)) {
+                if (index == (indices[i].lastIndex + Memory.bufferBlockSize)) {
                     indices[i].count += 1
                     indices[i].lastIndex = index
                     return
@@ -51,32 +50,48 @@ class PixelMap: ObservableObject {
         }
 
         public func writeBuffer(_ buffer: inout [UInt8], fg: PixelValue, bg: PixelValue? = nil) {
-            for blockInfo in self.bufferIndicesFourground {
-                Memory.fastcopy(to: &buffer, index: blockInfo.index / 4, count: blockInfo.count, value: fg.value)
+            buffer.withUnsafeMutableBytes { raw in
+                for blockInfo in self.bufferIndicesFourground {
+                    let base = raw.baseAddress!.advanced(by: blockInfo.index)
+                    Memory.fastcopy(to: base, count: blockInfo.count, value: fg.value)
+                }
+                if (bg != nil) {
+                    for blockInfo in self.bufferIndicesBackground {
+                        let base = raw.baseAddress!.advanced(by: blockInfo.index)
+                        Memory.fastcopy(to: base, count: blockInfo.count, value: bg!.value)
+                    }
+                }
             }
-            if (bg != nil) {
-                for blockInfo in self.bufferIndicesBackground {
-                    Memory.fastcopy(to: &buffer, index: blockInfo.index / 4, count: blockInfo.count, value: bg!.value)
+            if (false) {
+                //
+                // The above version MAY be ever so slightly faster.
+                //
+                for blockInfo in self.bufferIndicesFourground {
+                    Memory.fastcopy(to: &buffer, index: blockInfo.index, count: blockInfo.count, value: fg.value)
+                }
+                if (bg != nil) {
+                    for blockInfo in self.bufferIndicesBackground {
+                        Memory.fastcopy(to: &buffer, index: blockInfo.index, count: blockInfo.count, value: bg!.value)
+                    }
                 }
             }
         }
 
         func sanityCheck() {
-            return
             for blockInfoFG in self.bufferIndicesFourground {
                 for blockInfoBG in self.bufferIndicesBackground {
                     let fgStart = blockInfoFG.index
-                    let fgEnd = (blockInfoFG.index + (blockInfoFG.count * CellInfo.bufferBlockSize)) - 1
+                    let fgEnd = (blockInfoFG.index + (blockInfoFG.count * Memory.bufferBlockSize)) - 1
                     let bgStart = blockInfoBG.index
-                    let bgEnd = (blockInfoBG.index + (blockInfoBG.count * CellInfo.bufferBlockSize)) - 1
+                    let bgEnd = (blockInfoBG.index + (blockInfoBG.count * Memory.bufferBlockSize)) - 1
                     // if ((fgStart > bgStart) || (fgEnd < bgStart)) {
                     if ((fgStart > bgEnd) || (fgEnd < bgStart) || (bgStart > fgEnd) || (bgEnd < fgStart)) {
                         // OK
                     }
                     else {
-                        print("CELL-BLOCK-SANITY-CHECK-ERROR: \(fgStart) \(fgEnd) \(bgStart) \(bgEnd)")
-                        print(blockInfoFG)
-                        print(blockInfoBG)
+                        // print("CELL-BLOCK-SANITY-CHECK-ERROR: \(fgStart) \(fgEnd) \(bgStart) \(bgEnd)")
+                        // print(blockInfoFG)
+                        // print(blockInfoBG)
                         // hm: 85668 86148 86148 86208
                     }
                 }
@@ -99,10 +114,9 @@ class PixelMap: ObservableObject {
     private var _cellShape: PixelShape = PixelShape.rounded
     private var _cellColorMode: ColorMode = ColorMode.color
     private var _cellBackground: PixelValue = PixelValue.dark
-    private var _cellInfoCachingEnabled: Bool = true
     private var _bufferSize: Int = 0
     private var _buffer: [UInt8] = []
-    private var _cellsInfo: [CellInfo] = []
+    private var _cells: [CellInfo] = []
     private let _colorSpace = CGColorSpaceCreateDeviceRGB()
     private let _bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
 
@@ -112,7 +126,7 @@ class PixelMap: ObservableObject {
                    cellShape: PixelShape = PixelShape.rounded,
                    cellColorMode: ColorMode = ColorMode.color,
                    cellBackground: PixelValue = PixelValue.dark,
-                   displayScaling: Bool = true, // xyzzy
+                   displayScaling: Bool = true,
                    cellInfoCaching: Bool = true)
     {
         self._displayWidth = displayScaling ? screen.scaledWidth : screen.width
@@ -120,7 +134,6 @@ class PixelMap: ObservableObject {
         self._displayChannelSize = screen.channelSize
         self._displayScale = screen.scale
         self._displayScalingEnabled = displayScaling
-        self._cellInfoCachingEnabled = cellInfoCaching
 
         self._cellSize = displayScaling ? ScreenInfo.scaledValue(cellSize, scale: screen.scale) : cellSize
         self._cellSizeUnscaled = cellSize
@@ -140,14 +153,16 @@ class PixelMap: ObservableObject {
         print("PIXMAP-SIZE:          \(self.width) x \(self.height)")
         print("BUFFER-SIZE:          \(self._bufferSize)")
 
-        self._initializeCellInfo()
+        if (cellInfoCaching) {
+            self._initializeCells()
+        }
 
         self.fill(with: PixelValue.light)
         self.update()
     }
 
-    private func _initializeCellInfo() {
-        self._cellsInfo = []
+    private func _initializeCells() {
+        self._cells = []
         for y in 0..<self.height {
             for x in 0..<self.width {
                 if let cellInfo = PixelMap._write(&self._buffer, self._displayWidth, self._displayHeight,
@@ -158,10 +173,10 @@ class PixelMap: ObservableObject {
                                                   background: self.background,
                                                   cellPadding: self.cellPadding,
                                                   forCellInfo: true) {
-                    self._cellsInfo.append(cellInfo)
-                    for debugCellInfo in self._cellsInfo {
-                        debugCellInfo.sanityCheck()
-                    }
+                    self._cells.append(cellInfo)
+                    // for debugCellInfo in self._cells {
+                    //     debugCellInfo.sanityCheck()
+                    // }
                 }
             }
         }
@@ -212,7 +227,7 @@ class PixelMap: ObservableObject {
     }
 
     public func cell(_ x: Int, _ y: Int) -> CellInfo? {
-        for cellInfo in self._cellsInfo {
+        for cellInfo in self._cells {
             if ((cellInfo.x == x) && (cellInfo.y == y)) {
                 return cellInfo
             }
@@ -281,8 +296,7 @@ class PixelMap: ObservableObject {
                             cellSize: self.cellSize, cellColorMode: self.cellColorMode,
                             cellShape: self.cellShape, cellPadding: self.cellPadding,
                             background: self.background,
-                            cellsInfo: self._cellsInfo,
-                            cellInfoCaching: self._cellInfoCachingEnabled)
+                            cells: self._cells)
     }
 
     static func _randomize(_ buffer: inout [UInt8], _ displayWidth: Int, _ displayHeight: Int,
@@ -292,17 +306,14 @@ class PixelMap: ObservableObject {
                            cellShape: PixelShape,
                            cellPadding: Int,
                            background: PixelValue = PixelValue.dark,
-                           cellsInfo: [CellInfo]? = nil,
-                           cellInfoCaching: Bool = true)
+                           cells: [CellInfo])
     {
         let start = Date()
 
-        if (PixelMap._randomizeCalledOnce && cellInfoCaching) {
-            if (cellsInfo != nil) {
-                print("RANDOMIZE-USING-CACHE")
-                for cellInfo in cellsInfo! {
-                    cellInfo.writeBuffer(&buffer, fg: PixelValue.random()) // , bg: PixelValue.white)
-                }
+        if (PixelMap._randomizeCalledOnce && !cells.isEmpty) {
+            print("RANDOMIZE-USING-CACHE")
+            for cell in cells {
+                cell.writeBuffer(&buffer, fg: PixelValue.random()) // , bg: PixelValue.white)
             }
             let end = Date()
             let elapsed = end.timeIntervalSince(start)
@@ -346,7 +357,7 @@ class PixelMap: ObservableObject {
     }
 
     func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255) {
-        if (self._cellsInfo != nil) {
+        if (!self._cells.isEmpty) {
             if let cell = self.cell(x, y) {
                 print("WRITE-CELL: \(x) \(y)")
                 cell.writeBuffer(&self._buffer, fg: PixelValue(red, green, blue))

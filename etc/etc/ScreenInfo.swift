@@ -3,6 +3,7 @@ import SwiftUI
 @MainActor
 class ScreenInfo: ObservableObject
 {
+    static let depth: Int = 4
     static let shared = ScreenInfo()
 
     @Published private var _width: Int = Int(UIScreen.main.bounds.width)
