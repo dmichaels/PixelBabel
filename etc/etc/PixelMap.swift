@@ -206,25 +206,19 @@ class PixelMap: ObservableObject {
     }
 
     public func locate(_ screenPoint: CGPoint) -> CGPoint {
-
         let screenX = max(Int(screenPoint.x), 0)
         let screenY = max(Int(screenPoint.y), 0)
         return CGPoint(x: Int(screenX / self._cellSizeUnscaled), y: Int(screenY / self._cellSizeUnscaled))
-
-        // let unscaledCellSize: CGFloat = CGFloat(self._cellSize) / self.displayScale
-        // return CGPoint(x: Int(screenPoint.x / unscaledCellSize), y: Int(screenPoint.y / unscaledCellSize))
-
-        // return CGPoint(x: Int(screenPoint.x) / self._cellSizeUnscaled, y: Int(screenPoint.y) / self._cellSizeUnscaled)
-        // return self.locate(Int(screenPoint.x), Int(screenPoint.y))
     }
 
-    /*
-    public func locate(_ screenX: Int, _ screenY: Int) -> CGPoint {
-        let unscaledCellSize: CGFloat = CGFloat(self._cellSize) / self.displayScale
-        return CGPoint(x: screenX / CGFloat(unscaledCellSize), y: screenY / CGFloat(unscaledCellSize))
-        // return CGPoint(x: screenX / self._cellSizeUnscaled, y: screenY / self._cellSizeUnscaled)
+    public func cell(_ x: Int, _ y: Int) -> CellInfo? {
+        for cellInfo in self._cellsInfo {
+            if ((cellInfo.x == x) && (cellInfo.y == y)) {
+                return cellInfo
+            }
+        }
+        return nil
     }
-    */
 
     public func onDrag(_ location: CGPoint) {
         let clocation = self.locate(location)  
@@ -307,15 +301,6 @@ class PixelMap: ObservableObject {
             if (cellsInfo != nil) {
                 print("RANDOMIZE-USING-CACHE")
                 for cellInfo in cellsInfo! {
-                    /*
-                    var rgb = UInt32.random(in: 0...0xFFFFFF)
-                    let red = UInt8((rgb >> 16) & 0xFF)
-                    let green = UInt8((rgb >> 8) & 0xFF)
-                    let blue = UInt8(rgb & 0xFF)
-                    let transparency = UInt8(255)
-                    var fg: PixelValue = PixelValue(red, green, blue, alpha: transparency)
-                    var bg: PixelValue = PixelValue(background.red, background.green, background.blue, alpha: transparency)
-                    */
                     cellInfo.writeBuffer(&buffer, fg: PixelValue.random()) // , bg: PixelValue.white)
                 }
             }
@@ -362,12 +347,9 @@ class PixelMap: ObservableObject {
 
     func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255) {
         if (self._cellsInfo != nil) {
-            // TODO
-            for cellInfo in self._cellsInfo {
-                if ((cellInfo.x == x) && (cellInfo.y == y)) {
-                    print("WRITE-XYZZY: \(x) \(y)")
-                    cellInfo.writeBuffer(&self._buffer, fg: PixelValue(red, green, blue))
-                }
+            if let cell = self.cell(x, y) {
+                print("WRITE-CELL: \(x) \(y)")
+                cell.writeBuffer(&self._buffer, fg: PixelValue(red, green, blue))
             }
             return
         }
