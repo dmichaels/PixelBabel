@@ -3,11 +3,24 @@ import SwiftUI
 struct ContentView: View
 {
     @StateObject var pixelMap = PixelMap()
-    @State var text = "xyzzy"
 
     private let draggingThreshold: CGFloat = 3.0
     @State private var dragging: Bool = false
     @State private var draggingStart: CGPoint? = nil
+
+    @State private var autoTapping = false
+    @State private var autoTappingTimer: Timer?
+
+    func autoTappingStart() {
+        autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
+            pixelMap.onTap(CGPoint(x: 0.0, y: 0.0))
+        }
+    }
+
+    func autoTappingStop() {
+        autoTappingTimer?.invalidate()
+        autoTappingTimer = nil
+    }
 
     var body: some View
     {
@@ -22,7 +35,6 @@ struct ContentView: View
             .onAppear {
                 ScreenInfo.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
                 pixelMap.configure(screen: ScreenInfo.shared)
-                text = "Screen: \(ScreenInfo.shared.width) x \(ScreenInfo.shared.height) x \(ScreenInfo.shared.scale) | \(ScreenInfo.shared.bufferSize)"
             }
             .gesture(
                 DragGesture(minimumDistance: 0)
@@ -46,6 +58,18 @@ struct ContentView: View
                         draggingStart = nil
                         dragging = false
                     }
+            )
+            .simultaneousGesture(
+                LongPressGesture(minimumDuration: 1.0).onEnded { value in
+                    print("LONG-TAP: \(value)")
+                    autoTapping.toggle()
+                    if (autoTapping) {
+                        autoTappingStart()
+                    }
+                    else {
+                        autoTappingStop()
+                    }
+                }
             )
         }
         .ignoresSafeArea()

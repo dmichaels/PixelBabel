@@ -316,7 +316,7 @@ class PixelMap: ObservableObject {
                     var fg: PixelValue = PixelValue(red, green, blue, alpha: transparency)
                     var bg: PixelValue = PixelValue(background.red, background.green, background.blue, alpha: transparency)
                     */
-                    cellInfo.writeBuffer(&buffer, fg: PixelValue.random()) // , bg: background)
+                    cellInfo.writeBuffer(&buffer, fg: PixelValue.random()) // , bg: PixelValue.white)
                 }
             }
             let end = Date()
