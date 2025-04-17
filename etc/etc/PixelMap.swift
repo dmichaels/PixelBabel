@@ -77,16 +77,14 @@ class PixelMap: ObservableObject {
         }
     }
 
-    static var _randomizeCalledOnce: Bool = false
-
     @Published var image: CGImage? = nil
 
     private var _displayWidth: Int = 0
     private var _displayHeight: Int = 0
     private var _displayScale: CGFloat = 0.0
     private var _displayScaling: Bool = true
-    private var _cellSize: Int = 25 // 120 // 40
-    private var _cellSizeUnscaled: Int = 25
+    private var _cellSize: Int = 15 // 120 // 40
+    private var _cellSizeUnscaled: Int = 15
     private var _cellPadding: Int = 2
     private var _cellShape: PixelShape = PixelShape.rounded
     private var _cellColorMode: ColorMode = ColorMode.color
@@ -98,7 +96,7 @@ class PixelMap: ObservableObject {
     private let _bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
 
     func configure(screen: ScreenInfo,
-                   cellSize: Int = 25, // 120, // 40,
+                   cellSize: Int = 15, // 120, // 40,
                    cellPadding: Int = 2,
                    cellShape: PixelShape = PixelShape.rounded,
                    cellColorMode: ColorMode = ColorMode.color,
@@ -279,13 +277,13 @@ class PixelMap: ObservableObject {
     {
         let start = Date()
 
-        if (PixelMap._randomizeCalledOnce && !cells.isEmpty) {
+        if (!cells.isEmpty) {
             for cell in cells {
                 cell.write(&buffer, foreground: PixelValue.random(), background: background) // xyzzy/todo/optional-bg // new
             }
             let end = Date()
             let elapsed = end.timeIntervalSince(start)
-            print(String(format: "RANDOMIZE-CACHED-CELL-BLOCKS-TIME: %.5f seconds", elapsed))
+            print(String(format: "RANDOMIZE-OPTIMIZED-TIME: %.5f seconds", elapsed))
             return
         }
 
@@ -320,8 +318,6 @@ class PixelMap: ObservableObject {
         let end = Date()
         let elapsed = end.timeIntervalSince(start)
         print(String(format: "RANDOMIZE-TIME: %.5f seconds", elapsed))
-
-        PixelMap._randomizeCalledOnce = true
     }
 
     func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255) {
