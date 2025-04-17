@@ -15,11 +15,11 @@ class PixelMap: ObservableObject {
     struct CellInfo {
 
         class BlockInfo {
+            var background: Bool
+            var blend: Float
             var index: Int
             var count: Int
             var lindex: Int
-            var background: Bool
-            var blend: Float
             init(index: Int, count: Int, lindex: Int, background: Bool = false, blend: Float = 0.0) {
                 self.index = index
                 self.count = count
@@ -31,8 +31,6 @@ class PixelMap: ObservableObject {
 
         let x: Int
         let y: Int
-        var bufferIndicesFourground: [BlockInfo] = []
-        var bufferIndicesBackground: [BlockInfo] = []
         var blocks: [BlockInfo] = []
 
         init(x: Int, y: Int) {
@@ -40,63 +38,13 @@ class PixelMap: ObservableObject {
             self.y = y
         }
 
-        mutating public func addBufferIndexFourground(_ index: Int) {
-            CellInfo.addBufferIndex(indices: &self.bufferIndicesFourground, index: index)
-        }
-
-        mutating public func addBufferIndexBackground(_ index: Int) {
-            CellInfo.addBufferIndex(indices: &self.bufferIndicesBackground, index: index)
-        }
-
-        private static func addBufferIndex(indices: inout [BlockInfo], index: Int) {
-            for i in stride(from: indices.count - 1, through: 0, by: -1) {
-                if (index == (indices[i].lindex + Memory.bufferBlockSize)) {
-                    indices[i].count += 1
-                    indices[i].lindex = index
-                    return
-                }
-            }
-            indices.append(BlockInfo(index: index, count: 1, lindex: index))
-        }
-
-        mutating public func addBufferItem(_ index: Int, background: Bool, blend: Float = 0.0) {
-            for i in stride(from: self.blocks.count - 1, through: 0, by: -1) {
-                var block: BlockInfo = self.blocks[i]
-                if ((background == block.background) &&
-                    (blend == block.blend) && (index == (block.lindex + Memory.bufferBlockSize))) {
-                    block.count += 1
-                    block.lindex = index
-                    return
-                }
-            }
-            self.blocks.append(BlockInfo(index: index, count: 1, lindex: index, background: background))
-        }
-
-        public func writeBuffer(_ buffer: inout [UInt8], fg: PixelValue, bg: PixelValue? = nil) {
-            buffer.withUnsafeMutableBytes { raw in
-                for blockInfo in self.bufferIndicesFourground {
-                    let base = raw.baseAddress!.advanced(by: blockInfo.index)
-                    Memory.fastcopy(to: base, count: blockInfo.count, value: fg.value)
-                }
-                if (bg != nil) {
-                    for blockInfo in self.bufferIndicesBackground {
-                        let base = raw.baseAddress!.advanced(by: blockInfo.index)
-                        Memory.fastcopy(to: base, count: blockInfo.count, value: bg!.value)
-                    }
-                }
-            }
-            if (false) {
-                //
-                // The above version MAY be ever so slightly faster.
-                //
-                for blockInfo in self.bufferIndicesFourground {
-                    Memory.fastcopy(to: &buffer, index: blockInfo.index, count: blockInfo.count, value: fg.value)
-                }
-                if (bg != nil) {
-                    for blockInfo in self.bufferIndicesBackground {
-                        Memory.fastcopy(to: &buffer, index: blockInfo.index, count: blockInfo.count, value: bg!.value)
-                    }
-                }
+        mutating func addBufferItem(_ index: Int, background: Bool, blend: Float = 0.0) {
+            if let last = blocks.last, last.background == background, last.blend == blend,
+                          index == last.lindex + Memory.bufferBlockSize {
+                last.count += 1
+                last.lindex = index
+            } else {
+                blocks.append(BlockInfo(index: index, count: 1, lindex: index, background: background, blend: blend))
             }
         }
 
@@ -111,52 +59,19 @@ class PixelMap: ObservableObject {
                     else {
                         color = foreground
                         if (block.blend != 0.0) {
-                            // let blendedRed: UInt8 = CellInfo.blend(foreground.red, background.red, amount: block.blend)
-                            color = PixelValue(CellInfo.blend(foreground.red, background.red, amount: block.blend),
+                            color = PixelValue(CellInfo.blend(foreground.red,   background.red,   amount: block.blend),
                                                CellInfo.blend(foreground.green, background.green, amount: block.blend),
-                                               CellInfo.blend(foreground.blue, background.blue, amount: block.blend),
+                                               CellInfo.blend(foreground.blue,  background.blue,  amount: block.blend),
                                                alpha: foreground.alpha)
-                            /*
-                                               CellInfo.blend(foreground.red, background.green, blend),
-                                               CellInfo.blend(foreground.red, background.blue, blend), foreground.transparency)
-                            color = PixelValue(CellInfo.blend(foreground.red, background.red, blend),
-                                               CellInfo.blend(foreground.red, background.green, blend),
-                                               CellInfo.blend(foreground.red, background.blue, blend), foreground.transparency)
-                            */
                         }
                     }
                     Memory.fastcopy(to: base, count: block.count, value: color.value)
                 }
             }
-                            // let bred  = blend(a: red, b: background.red, t: coverage)
-                            // let bgreen = blend(a: green, b: background.green, t: coverage)
-                            // let bblue = blend(a: blue, b: background.blue, t: coverage)
-                            // let bpixel = PixelValue(bred, bgreen, bblue, alpha: transparency)
         }
 
         private static func blend(_ a: UInt8, _ b: UInt8, amount: Float) -> UInt8 {
             return UInt8(Float(a) * amount + Float(b) * (1 - amount))
-        }
-
-        func sanityCheck() {
-            for blockInfoFG in self.bufferIndicesFourground {
-                for blockInfoBG in self.bufferIndicesBackground {
-                    let fgStart = blockInfoFG.index
-                    let fgEnd = (blockInfoFG.index + (blockInfoFG.count * Memory.bufferBlockSize)) - 1
-                    let bgStart = blockInfoBG.index
-                    let bgEnd = (blockInfoBG.index + (blockInfoBG.count * Memory.bufferBlockSize)) - 1
-                    // if ((fgStart > bgStart) || (fgEnd < bgStart)) {
-                    if ((fgStart > bgEnd) || (fgEnd < bgStart) || (bgStart > fgEnd) || (bgEnd < fgStart)) {
-                        // OK
-                    }
-                    else {
-                        // print("CELL-BLOCK-SANITY-CHECK-ERROR: \(fgStart) \(fgEnd) \(bgStart) \(bgEnd)")
-                        // print(blockInfoFG)
-                        // print(blockInfoBG)
-                        // hm: 85668 86148 86148 86208
-                    }
-                }
-            }
         }
     }
 
@@ -168,8 +83,8 @@ class PixelMap: ObservableObject {
     private var _displayHeight: Int = 0
     private var _displayScale: CGFloat = 0.0
     private var _displayScaling: Bool = true
-    private var _cellSize: Int = 50 // 120 // 40
-    private var _cellSizeUnscaled: Int = 50
+    private var _cellSize: Int = 25 // 120 // 40
+    private var _cellSizeUnscaled: Int = 25
     private var _cellPadding: Int = 2
     private var _cellShape: PixelShape = PixelShape.rounded
     private var _cellColorMode: ColorMode = ColorMode.color
@@ -181,13 +96,13 @@ class PixelMap: ObservableObject {
     private let _bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
 
     func configure(screen: ScreenInfo,
-                   cellSize: Int = 50, // 120, // 40,
+                   cellSize: Int = 25, // 120, // 40,
                    cellPadding: Int = 2,
                    cellShape: PixelShape = PixelShape.rounded,
                    cellColorMode: ColorMode = ColorMode.color,
                    cellBackground: PixelValue = PixelValue.dark,
                    displayScaling: Bool = true,
-                   cellInfoCaching: Bool = false)
+                   cellInfoCaching: Bool = true)
     {
         self._displayWidth = displayScaling ? screen.scaledWidth : screen.width
         self._displayHeight = displayScaling ? screen.scaledHeight : screen.height
@@ -232,26 +147,9 @@ class PixelMap: ObservableObject {
                                                   cellPadding: self.cellPadding,
                                                   forCellInfo: true) {
                     self._cells.append(cellInfo)
-                    // for debugCellInfo in self._cells {
-                    //     debugCellInfo.sanityCheck()
-                    // }
                 }
             }
         }
-        /*
-        for cell in self._cells {
-            if cell.blocks.count == 0 {
-                print("ZERO!!!")
-            }
-            print("blocks: \(cell.x) \(cell.y) -> \(cell.blocks.count)")
-        }
-        for cell in self._cells {
-            if cell.blocks.count == 0 {
-                print("BZERO!!!")
-            }
-            print("bufferIndicesFourground: \(cell.x) \(cell.y) -> \(cell.bufferIndicesFourground.count)")
-        }
-        */
     }
 
     public var displayScale: CGFloat {
@@ -381,7 +279,7 @@ class PixelMap: ObservableObject {
 
         if (PixelMap._randomizeCalledOnce && !cells.isEmpty) {
             for cell in cells {
-                cell.writeBuffer(&buffer, fg: PixelValue.random(), bg: background) // xyzzy/todo/optional-bg
+                cell.write(&buffer, foreground: PixelValue.random(), background: background) // xyzzy/todo/optional-bg // new
             }
             let end = Date()
             let elapsed = end.timeIntervalSince(start)
@@ -427,7 +325,7 @@ class PixelMap: ObservableObject {
     func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255) {
         if (!self._cells.isEmpty) {
             if let cell = self.cell(x, y) {
-                cell.writeBuffer(&self._buffer, fg: PixelValue(red, green, blue))
+                cell.write(&self._buffer, foreground: PixelValue(red, green, blue), background: self.background)
             }
             return
         }
@@ -438,8 +336,7 @@ class PixelMap: ObservableObject {
                         cellPadding: self.cellPadding)
     }
 
-    // static func _write(_ buffer: inout [UInt8],
-    static func _writeLG(_ buffer: inout [UInt8],
+    static func _writeLEGACY(_ buffer: inout [UInt8],
                        _ displayWidth: Int,
                        _ displayHeight: Int,
                        x: Int,
@@ -521,7 +418,6 @@ class PixelMap: ObservableObject {
                 if ((i >= 0) && ((i + 3) < buffer.count)) {
                     if shouldWrite {
                         if (cellInfo != nil) {
-                            cellInfo!.addBufferIndexFourground(i)
                             cellInfo!.addBufferItem(i, background: false)
                         }
                         buffer[i] = red
@@ -530,7 +426,6 @@ class PixelMap: ObservableObject {
                         buffer[i + 3] = transparency
                     } else {
                         if (cellInfo != nil) {
-                            cellInfo!.addBufferIndexBackground(i)
                             cellInfo!.addBufferItem(i, background: true)
                         }
                         buffer[i] = background.red
@@ -544,7 +439,6 @@ class PixelMap: ObservableObject {
         return cellInfo
     }
 
-    // static func _writeAntialiasing(_ buffer: inout [UInt8],
     static func _write(_ buffer: inout [UInt8],
                        _ displayWidth: Int,
                        _ displayHeight: Int,
@@ -564,8 +458,8 @@ class PixelMap: ObservableObject {
             return nil
         }
 
-        // var cellInfo: CellInfo? = forCellInfo ? CellInfo(x: x, y: y) : nil
-        var cellInfo: CellInfo? = CellInfo(x: x, y: y)
+        var cellInfo: CellInfo? = forCellInfo ? CellInfo(x: x, y: y) : nil
+        // var cellInfo: CellInfo? = CellInfo(x: x, y: y)
 
         var cellPaddingThickness = 0
         if cellPadding > 0 && cellSize >= 6 && cellShape != .square {
@@ -589,8 +483,6 @@ class PixelMap: ObservableObject {
         func blend(a: UInt8, b: UInt8, t: Float) -> UInt8 {
             return UInt8(Float(a) * t + Float(b) * (1 - t))
         }
-
-        var debugDistinctPixelValues: [UInt32] = []
 
         for dy in 0..<cellSize {
             for dx in 0..<cellSize {
@@ -651,48 +543,32 @@ class PixelMap: ObservableObject {
                     let alpha = UInt8(Float(transparency) * coverage)
 
                     if coverage > 0 {
-                        if cellInfo != nil {
-                            cellInfo!.addBufferIndexFourground(i)
-                        }
 
-                        if (false) {
-                            let bred  = blend(a: red, b: background.red, t: coverage)
-                            let bgreen = blend(a: green, b: background.green, t: coverage)
-                            let bblue = blend(a: blue, b: background.blue, t: coverage)
-                            let bpixel = PixelValue(bred, bgreen, bblue, alpha: transparency)
-                            if (!debugDistinctPixelValues.contains(bpixel.value)) {
-                                debugDistinctPixelValues.append(bpixel.value)
-                            }
-                            if (cellInfo != nil) {
-                                // cellInfo!.addBufferItem(i, color: PixelValue(bred, bgreen, bblue, alpha: transparency))
-                                cellInfo!.addBufferItem(i, background: false, blend: coverage)
-                            }
+                        if (cellInfo != nil) {
+                            cellInfo!.addBufferItem(i, background: false, blend: coverage)
                         }
-
-                        buffer[i]     = blend(a: red, b: background.red, t: coverage)
-                        buffer[i + 1] = blend(a: green, b: background.green, t: coverage)
-                        buffer[i + 2] = blend(a: blue, b: background.blue, t: coverage)
-                        buffer[i + 3] = transparency
-                        // buffer[i + 3] = alpha // chatgpt gave me this but make antialiased area white-ish
+                        else {
+                            buffer[i]     = blend(a: red, b: background.red, t: coverage)
+                            buffer[i + 1] = blend(a: green, b: background.green, t: coverage)
+                            buffer[i + 2] = blend(a: blue, b: background.blue, t: coverage)
+                            buffer[i + 3] = transparency
+                            // buffer[i + 3] = alpha // chatgpt gave me this but make antialiased area white-ish
+                        }
 
                     } else {
                         if cellInfo != nil {
-                            cellInfo!.addBufferIndexBackground(i)
                             cellInfo!.addBufferItem(i, background: true)
                         }
-                        buffer[i]     = background.red
-                        buffer[i + 1] = background.green
-                        buffer[i + 2] = background.blue
-                        buffer[i + 3] = transparency
+                        else {
+                            buffer[i]     = background.red
+                            buffer[i + 1] = background.green
+                            buffer[i + 2] = background.blue
+                            buffer[i + 3] = transparency
+                        }
                     }
                 }
             }
         }
-        /*
-        if forCellInfo {
-            print("DISTINCT-CELL-PIXELS: \(debugDistinctPixelValues.count)")
-        }
-        */
         return cellInfo
     }
 }
