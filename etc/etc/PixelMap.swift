@@ -15,16 +15,16 @@ class PixelMap: ObservableObject {
     struct CellInfo {
 
         class BlockInfo {
-            var background: Bool
+            var foreground: Bool
             var blend: Float
             var index: Int
             var count: Int
             var lindex: Int
-            init(index: Int, count: Int, lindex: Int, background: Bool = false, blend: Float = 0.0) {
+            init(index: Int, count: Int, lindex: Int, foreground: Bool = true, blend: Float = 0.0) {
                 self.index = index
                 self.count = count
                 self.lindex = lindex
-                self.background = background
+                self.foreground = foreground
                 self.blend = blend
             }
         }
@@ -38,13 +38,13 @@ class PixelMap: ObservableObject {
             self.y = y
         }
 
-        mutating func addBufferItem(_ index: Int, background: Bool, blend: Float = 0.0) {
-            if let last = blocks.last, last.background == background, last.blend == blend,
+        mutating func addBufferItem(_ index: Int, foreground: Bool, blend: Float = 0.0) {
+            if let last = blocks.last, last.foreground == foreground, last.blend == blend,
                           index == last.lindex + Memory.bufferBlockSize {
                 last.count += 1
                 last.lindex = index
             } else {
-                blocks.append(BlockInfo(index: index, count: 1, lindex: index, background: background, blend: blend))
+                blocks.append(BlockInfo(index: index, count: 1, lindex: index, foreground: foreground, blend: blend))
             }
         }
 
@@ -53,17 +53,19 @@ class PixelMap: ObservableObject {
                 for block in self.blocks {
                     let base: UnsafeMutableRawPointer = raw.baseAddress!.advanced(by: block.index)
                     var color: PixelValue = PixelValue.black
-                    if (block.background) {
-                        color = background
-                    }
-                    else {
-                        color = foreground
+                    if (block.foreground) {
                         if (block.blend != 0.0) {
                             color = PixelValue(CellInfo.blend(foreground.red,   background.red,   amount: block.blend),
                                                CellInfo.blend(foreground.green, background.green, amount: block.blend),
                                                CellInfo.blend(foreground.blue,  background.blue,  amount: block.blend),
                                                alpha: foreground.alpha)
                         }
+                        else {
+                            color = foreground
+                        }
+                    }
+                    else {
+                        color = background
                     }
                     Memory.fastcopy(to: base, count: block.count, value: color.value)
                 }
@@ -336,7 +338,7 @@ class PixelMap: ObservableObject {
                         cellPadding: self.cellPadding)
     }
 
-    static func _writeLEGACY(_ buffer: inout [UInt8],
+    static func _write(_ buffer: inout [UInt8],
                        _ displayWidth: Int,
                        _ displayHeight: Int,
                        x: Int,
@@ -350,6 +352,134 @@ class PixelMap: ObservableObject {
                        background: PixelValue = PixelValue.dark,
                        cellPadding: Int = 0,
                        forCellInfo: Bool = false) -> CellInfo?
+    {
+        if x < 0 || y < 0 {
+            return nil
+        }
+
+        var cellInfo: CellInfo? = forCellInfo ? CellInfo(x: x, y: y) : nil
+        // var cellInfo: CellInfo? = CellInfo(x: x, y: y)
+
+        var cellPaddingThickness = 0
+        if cellPadding > 0 && cellSize >= 6 && cellShape != .square {
+            cellPaddingThickness = cellPadding
+        }
+
+        let startX = x * cellSize
+        let startY = y * cellSize
+        let endX = startX + cellSize
+        let endY = startY + cellSize
+        let adjustedScale = cellSize - 2 * cellPaddingThickness
+        let centerX = Float(startX + cellSize / 2)
+        let centerY = Float(startY + cellSize / 2)
+        let circleRadius = Float(adjustedScale) / 2.0
+        let radiusSquared = circleRadius * circleRadius
+        let fadeRange: Float = 0.6  // smaller -> smoother
+
+        func blend(a: UInt8, b: UInt8, t: Float) -> UInt8 {
+            return UInt8(Float(a) * t + Float(b) * (1 - t))
+        }
+
+        for dy in 0..<cellSize {
+            for dx in 0..<cellSize {
+                let ix = startX + dx
+                let iy = startY + dy
+                if ix >= displayWidth || iy >= displayHeight { continue }
+
+                let fx = Float(ix) + 0.5
+                let fy = Float(iy) + 0.5
+
+                var coverage: Float = 0.0
+
+                switch cellShape {
+                case .square, .inset:
+                    if dx >= cellPaddingThickness && dx < cellSize - cellPaddingThickness &&
+                       dy >= cellPaddingThickness && dy < cellSize - cellPaddingThickness {
+                        coverage = 1.0
+                    }
+
+                case .circle:
+                    let dxSq = (fx - centerX) * (fx - centerX)
+                    let dySq = (fy - centerY) * (fy - centerY)
+                    let dist = sqrt(dxSq + dySq)
+                    let d = circleRadius - dist
+                    coverage = max(0.0, min(1.0, d / fadeRange))
+
+                case .rounded:
+                    let cornerRadius = Float(adjustedScale) * 0.25
+                    let cr2 = cornerRadius * cornerRadius
+                    let minX = Float(startX + cellPaddingThickness)
+                    let minY = Float(startY + cellPaddingThickness)
+                    let maxX = Float(endX - cellPaddingThickness)
+                    let maxY = Float(endY - cellPaddingThickness)
+
+                    if fx >= minX + cornerRadius && fx <= maxX - cornerRadius {
+                        if fy >= minY && fy <= maxY {
+                            coverage = 1.0
+                        }
+                    } else if fy >= minY + cornerRadius && fy <= maxY - cornerRadius {
+                        if fx >= minX && fx <= maxX {
+                            coverage = 1.0
+                        }
+                    } else {
+                        let cx = fx < minX + cornerRadius ? minX + cornerRadius :
+                                 fx > maxX - cornerRadius ? maxX - cornerRadius : fx
+                        let cy = fy < minY + cornerRadius ? minY + cornerRadius :
+                                 fy > maxY - cornerRadius ? maxY - cornerRadius : fy
+                        let dx = fx - cx
+                        let dy = fy - cy
+                        let dist = sqrt(dx * dx + dy * dy)
+                        let d = cornerRadius - dist
+                        coverage = max(0.0, min(1.0, d / fadeRange))
+                    }
+                }
+
+                let i = (iy * displayWidth + ix) * 4
+                if i >= 0 && i + 3 < buffer.count {
+                    let alpha = UInt8(Float(transparency) * coverage)
+                    if coverage > 0 {
+                        if (cellInfo != nil) {
+                            // cellInfo!.addBufferItem(i, background: false, blend: coverage)
+                            cellInfo!.addBufferItem(i, foreground: true, blend: coverage)
+                        }
+                        else {
+                            buffer[i]     = blend(a: red, b: background.red, t: coverage)
+                            buffer[i + 1] = blend(a: green, b: background.green, t: coverage)
+                            buffer[i + 2] = blend(a: blue, b: background.blue, t: coverage)
+                            buffer[i + 3] = transparency
+                        }
+
+                    } else {
+                        if cellInfo != nil {
+                            cellInfo!.addBufferItem(i, foreground: false)
+                        }
+                        else {
+                            buffer[i]     = background.red
+                            buffer[i + 1] = background.green
+                            buffer[i + 2] = background.blue
+                            buffer[i + 3] = transparency
+                        }
+                    }
+                }
+            }
+        }
+        return cellInfo
+    }
+
+    static func _writeNoAntialiasing(_ buffer: inout [UInt8],
+                                     _ displayWidth: Int,
+                                     _ displayHeight: Int,
+                                     x: Int,
+                                     y: Int,
+                                     cellSize: Int,
+                                     red: UInt8,
+                                     green: UInt8,
+                                     blue: UInt8,
+                                     transparency: UInt8 = 255,
+                                     cellShape: PixelShape = .rounded,
+                                     background: PixelValue = PixelValue.dark,
+                                     cellPadding: Int = 0,
+                                     forCellInfo: Bool = false) -> CellInfo?
     {
         if ((x < 0) || (y < 0)) {
             return nil
@@ -418,7 +548,7 @@ class PixelMap: ObservableObject {
                 if ((i >= 0) && ((i + 3) < buffer.count)) {
                     if shouldWrite {
                         if (cellInfo != nil) {
-                            cellInfo!.addBufferItem(i, background: false)
+                            cellInfo!.addBufferItem(i, foreground: true)
                         }
                         buffer[i] = red
                         buffer[i + 1] = green
@@ -426,145 +556,12 @@ class PixelMap: ObservableObject {
                         buffer[i + 3] = transparency
                     } else {
                         if (cellInfo != nil) {
-                            cellInfo!.addBufferItem(i, background: true)
+                            cellInfo!.addBufferItem(i, foreground: false)
                         }
                         buffer[i] = background.red
                         buffer[i + 1] = background.green
                         buffer[i + 2] = background.blue
                         buffer[i + 3] = transparency
-                    }
-                }
-            }
-        }
-        return cellInfo
-    }
-
-    static func _write(_ buffer: inout [UInt8],
-                       _ displayWidth: Int,
-                       _ displayHeight: Int,
-                       x: Int,
-                       y: Int,
-                       cellSize: Int,
-                       red: UInt8,
-                       green: UInt8,
-                       blue: UInt8,
-                       transparency: UInt8 = 255,
-                       cellShape: PixelShape = .rounded,
-                       background: PixelValue = PixelValue.dark,
-                       cellPadding: Int = 0,
-                       forCellInfo: Bool = false) -> CellInfo?
-    {
-        if x < 0 || y < 0 {
-            return nil
-        }
-
-        var cellInfo: CellInfo? = forCellInfo ? CellInfo(x: x, y: y) : nil
-        // var cellInfo: CellInfo? = CellInfo(x: x, y: y)
-
-        var cellPaddingThickness = 0
-        if cellPadding > 0 && cellSize >= 6 && cellShape != .square {
-            cellPaddingThickness = cellPadding
-        }
-
-        let startX = x * cellSize
-        let startY = y * cellSize
-        let endX = startX + cellSize
-        let endY = startY + cellSize
-        let adjustedScale = cellSize - 2 * cellPaddingThickness
-        let centerX = Float(startX + cellSize / 2)
-        let centerY = Float(startY + cellSize / 2)
-        let circleRadius = Float(adjustedScale) / 2.0
-        let radiusSquared = circleRadius * circleRadius
-        // let fadeRange: Float = 1.5  // adjust for smoother/sharper edge
-        // let fadeRange: Float = 1.0  // adjust for smoother/sharper edge - pretty good
-        // let fadeRange: Float = 0.8  // adjust for smoother/sharper edge - even better good
-        let fadeRange: Float = 0.6  // adjust for smoother/sharper edge - very nice
-
-        func blend(a: UInt8, b: UInt8, t: Float) -> UInt8 {
-            return UInt8(Float(a) * t + Float(b) * (1 - t))
-        }
-
-        for dy in 0..<cellSize {
-            for dx in 0..<cellSize {
-                let ix = startX + dx
-                let iy = startY + dy
-                if ix >= displayWidth || iy >= displayHeight { continue }
-
-                let fx = Float(ix) + 0.5
-                let fy = Float(iy) + 0.5
-
-                var coverage: Float = 0.0
-
-                switch cellShape {
-                case .square, .inset:
-                    if dx >= cellPaddingThickness && dx < cellSize - cellPaddingThickness &&
-                       dy >= cellPaddingThickness && dy < cellSize - cellPaddingThickness {
-                        coverage = 1.0
-                    }
-
-                case .circle:
-                    let dxSq = (fx - centerX) * (fx - centerX)
-                    let dySq = (fy - centerY) * (fy - centerY)
-                    let dist = sqrt(dxSq + dySq)
-                    let d = circleRadius - dist
-                    coverage = max(0.0, min(1.0, d / fadeRange))
-
-                case .rounded:
-                    let cornerRadius = Float(adjustedScale) * 0.25
-                    let cr2 = cornerRadius * cornerRadius
-                    let minX = Float(startX + cellPaddingThickness)
-                    let minY = Float(startY + cellPaddingThickness)
-                    let maxX = Float(endX - cellPaddingThickness)
-                    let maxY = Float(endY - cellPaddingThickness)
-
-                    if fx >= minX + cornerRadius && fx <= maxX - cornerRadius {
-                        if fy >= minY && fy <= maxY {
-                            coverage = 1.0
-                        }
-                    } else if fy >= minY + cornerRadius && fy <= maxY - cornerRadius {
-                        if fx >= minX && fx <= maxX {
-                            coverage = 1.0
-                        }
-                    } else {
-                        let cx = fx < minX + cornerRadius ? minX + cornerRadius :
-                                 fx > maxX - cornerRadius ? maxX - cornerRadius : fx
-                        let cy = fy < minY + cornerRadius ? minY + cornerRadius :
-                                 fy > maxY - cornerRadius ? maxY - cornerRadius : fy
-                        let dx = fx - cx
-                        let dy = fy - cy
-                        let dist = sqrt(dx * dx + dy * dy)
-                        let d = cornerRadius - dist
-                        coverage = max(0.0, min(1.0, d / fadeRange))
-                    }
-                }
-
-                let i = (iy * displayWidth + ix) * 4
-                if i >= 0 && i + 3 < buffer.count {
-                    let alpha = UInt8(Float(transparency) * coverage)
-
-                    if coverage > 0 {
-
-                        if (cellInfo != nil) {
-                            cellInfo!.addBufferItem(i, background: false, blend: coverage)
-                        }
-                        else {
-                            buffer[i]     = blend(a: red, b: background.red, t: coverage)
-                            buffer[i + 1] = blend(a: green, b: background.green, t: coverage)
-                            buffer[i + 2] = blend(a: blue, b: background.blue, t: coverage)
-                            buffer[i + 3] = transparency
-                            // buffer[i + 3] = alpha // chatgpt gave me this but make antialiased area white-ish
-                        }
-
-                    } else {
-                        if cellInfo != nil {
-                            cellInfo!.addBufferItem(i, background: true)
-                        }
-                        else {
-                            buffer[i]     = background.red
-                            buffer[i + 1] = background.green
-                            buffer[i + 2] = background.blue
-                            buffer[i + 3] = transparency
-                        }
                     }
                 }
             }
