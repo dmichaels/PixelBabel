@@ -81,10 +81,10 @@ struct ContentView: View
             }
             .onAppear {
                 ScreenInfo.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
-                // pixelMap.configure(screen: ScreenInfo.shared, displayWidth: ScreenInfo.shared.width,
-                //                                               displayHeight: ScreenInfo.shared.height)
-                pixelMap.configure(screen: ScreenInfo.shared, displayWidth: 300,
-                                                              displayHeight: 700)
+                pixelMap.configure(screen: ScreenInfo.shared, displayWidth: ScreenInfo.shared.width,
+                                                              displayHeight: ScreenInfo.shared.height)
+                // pixelMap.configure(screen: ScreenInfo.shared, displayWidth: 300,
+                //                                               displayHeight: 700)
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
         }

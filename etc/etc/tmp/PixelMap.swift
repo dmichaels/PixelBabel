@@ -89,10 +89,15 @@ class PixelMap: ObservableObject {
         public static let displayScale: CGFloat = ScreenInfo.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt32 = 255
-        public static let marginX: Int = 20
-        public static let marginY: Int = 20
-        public static let cellSize: Int = 30
+        // public static let marginX: Int = 1
+        // public static let marginY: Int = 6
+        // public static let cellSize: Int = 21
+        public static let marginX: Int = 0
+        public static let marginY: Int = 0
+        public static let cellSize: Int = 41
+        public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 2
+        public static let cellBleeds: Bool = false
         public static let cellShape: PixelShape = PixelShape.rounded
         public static let cellColorMode: ColorMode = ColorMode.color
         public static let cellBackground: PixelValue = PixelValue.dark
@@ -111,7 +116,9 @@ class PixelMap: ObservableObject {
         public var marginX: Int = Defaults.marginX
         public var marginY: Int = Defaults.marginY
         public var cellSize: Int = Defaults.cellSize
+        public var cellSizeNeat: Bool = Defaults.cellSizeNeat
         public var cellPadding: Int = Defaults.cellPadding
+        public var cellBleeds: Bool = Defaults.cellBleeds
         public var cellShape: PixelShape = Defaults.cellShape
         public var cellColorMode: ColorMode = Defaults.cellColorMode
         public var cellBackground: PixelValue = Defaults.cellBackground
@@ -130,7 +137,9 @@ class PixelMap: ObservableObject {
     private var _marginX: Int = Defaults.marginX
     private var _marginY: Int = Defaults.marginY
     private var _cellSize: Int = Defaults.cellSize
+    private var _cellSizeNeat: Bool = Defaults.cellSizeNeat
     private var _cellPadding: Int = Defaults.cellPadding
+    private var _cellBleeds: Bool = Defaults.cellBleeds
     private var _cellShape: PixelShape = Defaults.cellShape
     private var _cellColorMode: ColorMode = Defaults.cellColorMode
     private var _cellBackground: PixelValue = Defaults.cellBackground
@@ -149,7 +158,9 @@ class PixelMap: ObservableObject {
                    marginX: Int = Defaults.marginX,
                    marginY: Int = Defaults.marginY,
                    cellSize: Int = Defaults.cellSize,
+                   cellSizeNeat: Bool = Defaults.cellSizeNeat,
                    cellPadding: Int = Defaults.cellPadding,
+                   cellBleeds: Bool = Defaults.cellBleeds,
                    cellShape: PixelShape = Defaults.cellShape,
                    cellColorMode: ColorMode = Defaults.cellColorMode,
                    cellBackground: PixelValue = Defaults.cellBackground,
@@ -158,27 +169,41 @@ class PixelMap: ObservableObject {
     {
         self._displayScale = screen.scale
         self._displayScaling = displayScaling
+        self._displayWidth = scaled(displayWidth)
+        self._displayHeight = scaled(displayHeight)
 
         self._marginX = scaled(marginX)
         self._marginY = scaled(marginY)
 
-        self._displayWidth = scaled(displayWidth) // ds ? ScreenInfo.scaledValue(displayWidth, scale: screen.scale) : self._displayWidthUnscaled
-        self._displayHeight = scaled(displayHeight) // ds ? ScreenInfo.scaledValue(self._displayHeightUnscaled, scale: screen.scale) : self._displayHeightUnscaled
-        // self._displayWidth -= self._marginX * 2
-        // self._displayHeight -= self._marginY * 2
-        // print("POST-MARGIN-DISPLAY-SIZE: \(self._displayWidth) \(self._displayHeight) | \(self._marginX) \(self._marginY) | \(self._marginXUnscaled) \(self._marginYUnscaled)")
-
-        self._cellSize = scaled(cellSize) // ds ? ScreenInfo.scaledValue(cellSize, scale: screen.scale) : cellSize
-        self._cellPadding = scaled(cellPadding) // ds ? ScreenInfo.scaledValue(cellPadding, scale: screen.scale) : cellPadding
+        self._cellSize = scaled(cellSize)
+        self._cellSizeNeat = cellSizeNeat
+        self._cellPadding = scaled(cellPadding)
+        self._cellBleeds = cellBleeds
         self._cellShape = cellShape
         self._cellColorMode = cellColorMode
         self._cellBackground = cellBackground
-        // self._bufferSize = displayScaling ? screen.scaledBufferSize : screen.bufferSize
         self._bufferSize = self._displayWidth * self._displayHeight * ScreenInfo.depth
         self._buffer = [UInt8](repeating: 0, count: self._bufferSize)
 
+        var neatCells = PixelMap._computeNeatCells(unscaled(self._displayWidth), unscaled(self._displayHeight))
+        print("NEAT-CELL-SIZES:")
+        for neatCells in neatCells {
+            print(neatCells)
+        }
+        if (self._cellSizeNeat) {
+            if let neatCell = PixelMap._closestNeatCell(in: neatCells, to: self._cellSize) {
+                print("xyzzy: \(neatCell.cellSize) \(neatCell.marginX) \(neatCell.marginY)")
+                self._cellSize = scaled(neatCell.cellSize)
+                self._marginX = scaled(neatCell.marginX)
+                self._marginY = scaled(neatCell.marginY)
+            }
+            else {
+                print("xyzzy.no-neat-cell")
+            }
+        }
+
         print("SCREEN-SCALE:       \(screen.scale)")
-        print("SCREEN-SIZE:        \(screen.scaledWidth) x \(screen.scaledHeight)")
+        print("SCREEN-SIZE:        \(scaled(screen.width)) x \(scaled(screen.height))")
         print("SCREEN-SIZE-US:     \(screen.width) x \(screen.height)")
         print("DISPLAY-SCALING:    \(displayScaling)")
         print("DISPLAY-SIZE:       \(self._displayWidth) x \(self._displayHeight)")
@@ -191,8 +216,6 @@ class PixelMap: ObservableObject {
         print("CELL-PADDING:       \(self.cellPadding)")
         print("CELL-PADDING-US:    \(unscaled(self.cellPadding))")
         print("BUFFER-SIZE:        \(self._bufferSize)")
-
-        var preferredCellSizes = PixelMap._computePreferredCellSizes(self._displayWidth, self._displayHeight)
 
         if (cellInfoCaching) {
             self._initializeCells()
@@ -226,7 +249,7 @@ class PixelMap: ObservableObject {
         }
     }
 
-    private static func _computePreferredCellSizes(_ displayWidth: Int, _ displayHeight: Int, maxExtraPadding: Int = 8) -> [(cellSize: Int, marginX: Int, marginY: Int)] {
+    private static func _computeNeatCells(_ displayWidth: Int, _ displayHeight: Int, maxExtraPadding: Int = 8) -> [(cellSize: Int, marginX: Int, marginY: Int)] {
         let minDimension = min(displayWidth, displayHeight)
         guard minDimension > 0 else { return [] }
         var results: [(cellSize: Int, marginX: Int, marginY: Int)] = []
@@ -243,8 +266,18 @@ class PixelMap: ObservableObject {
                 results.append((cellSize: cellSize, marginX: marginX, marginY: marginY))
             }
         }
-        print("PREFERRED-CELL-SIZES: \(results.map { "\($0.cellSize) \($0.marginX) \($0.marginX)" })")
         return results
+    }
+
+    private static func _closestNeatCell(
+        in list: [(cellSize: Int, marginX: Int, marginY: Int)],
+        to target: Int
+    ) -> (cellSize: Int, marginX: Int, marginY: Int)? {
+        return list.min(by: {
+            let d1 = abs($0.cellSize - target)
+            let d2 = abs($1.cellSize - target)
+            return (d1, $0.cellSize) < (d2, $1.cellSize)
+        })
     }
 
     public var displayScale: CGFloat {
@@ -263,14 +296,17 @@ class PixelMap: ObservableObject {
     // cell-size-sized cells that can fit across the width of the display.
     //
     public var width: Int {
-        (self._displayWidth + self._cellSize - 1) / self._cellSize
+        self._cellBleeds ? ((self._displayWidth + self._cellSize - 1) / self._cellSize)
+                         : (self._displayWidth / self._cellSize)
     }
 
     // Returns the logical height of this PixelMap, i.e. the number of
     // cell-size-sized cells that can fit down the height of the display.
     //
     public var height: Int {
-        (self._displayHeight + self._cellSize - 1) / self._cellSize
+        // (self._displayHeight + self._cellSize - 1) / self._cellSize
+        self._cellBleeds ? ((self._displayHeight + self._cellSize - 1) / self._cellSize)
+                         : (self._displayHeight / self._cellSize)
     }
 
     public var cellSize: Int {
