@@ -12,14 +12,18 @@ struct ContentView: View
     @State private var autoTappingTimer: Timer?
 
     func autoTappingStart() {
+        /*
         autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
             pixelMap.onTap(CGPoint(x: 0.0, y: 0.0))
         }
+        */
     }
 
     func autoTappingStop() {
+        /*
         autoTappingTimer?.invalidate()
         autoTappingTimer = nil
+        */
     }
 
     var body: some View {
