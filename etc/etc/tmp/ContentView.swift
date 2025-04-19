@@ -87,7 +87,8 @@ struct ContentView: View
                                                               cellBackground: background)
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
-            .background(background.color)
+            // .background(background.color)
+            .background(Color.red)
         }
         .ignoresSafeArea()
     }

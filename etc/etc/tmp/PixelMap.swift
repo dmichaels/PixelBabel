@@ -88,15 +88,12 @@ class PixelMap: ObservableObject {
         public static let displayHeight: Int = ScreenInfo.initialHeight
         public static let displayScale: CGFloat = ScreenInfo.initialScale
         public static let displayScaling: Bool = true
-        public static let displayTransparency: UInt32 = 255
-        public static let marginX: Int = 0
-        public static let marginY: Int = 0
-        // public static let cellSize: Int = 41
-        public static let cellSize: Int = 11
+        public static let displayTransparency: UInt8 = 255
+        public static let cellSize: Int = 21
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 2
         public static let cellBleeds: Bool = false
-        public static let cellShape: PixelShape = PixelShape.rounded
+        public static let cellShape: PixelShape = PixelShape.inset // PixelShape.rounded
         public static let cellColorMode: ColorMode = ColorMode.color
         public static let cellBackground: PixelValue = PixelValue.dark
         public static let cellAntialiasFade: Float = 0.6
@@ -110,9 +107,7 @@ class PixelMap: ObservableObject {
         public var displayHeight: Int = Defaults.displayWidth
         public var displayScale: CGFloat = Defaults.displayScale
         public var displayScaling: Bool = Defaults.displayScaling
-        public var displayTransparency: UInt32 = Defaults.displayTransparency
-        public var marginX: Int = Defaults.marginX
-        public var marginY: Int = Defaults.marginY
+        public var displayTransparency: UInt8 = Defaults.displayTransparency
         public var cellSize: Int = Defaults.cellSize
         public var cellSizeNeat: Bool = Defaults.cellSizeNeat
         public var cellPadding: Int = Defaults.cellPadding
@@ -132,8 +127,6 @@ class PixelMap: ObservableObject {
     private var _displayHeight: Int = ScreenInfo.initialHeight
     private var _displayScale: CGFloat = ScreenInfo.initialScale
     private var _displayScaling: Bool = Defaults.displayScaling
-    private var _marginX: Int = Defaults.marginX
-    private var _marginY: Int = Defaults.marginY
     private var _cellSize: Int = Defaults.cellSize
     private var _cellSizeNeat: Bool = Defaults.cellSizeNeat
     private var _cellPadding: Int = Defaults.cellPadding
@@ -164,12 +157,10 @@ class PixelMap: ObservableObject {
                    cellInfoCaching: Bool = Defaults.cellInfoCaching)
     {
         self._displayScale = screen.scale
-        self._displayScaling = displayScaling
+        // self._displayScaling = displayScaling
+        self._displayScaling = [PixelShape.square, PixelShape.inset].contains(cellShape) ? false : displayScaling
         self._displayWidth = scaled(displayWidth)
         self._displayHeight = scaled(displayHeight)
-
-        self._marginX = scaled(self._marginX)
-        self._marginY = scaled(self._marginY)
 
         self._cellSize = scaled(cellSize)
         self._cellSizeNeat = cellSizeNeat
@@ -181,44 +172,45 @@ class PixelMap: ObservableObject {
         self._bufferSize = self._displayWidth * self._displayHeight * ScreenInfo.depth
         self._buffer = [UInt8](repeating: 0, count: self._bufferSize)
 
+        let cellSizeGiven = self._cellSize // xyzzy
+
         var neatCells = PixelMap._computeNeatCells(unscaled(self._displayWidth), unscaled(self._displayHeight))
-        print("NEAT-CELL-SIZES:")
+        print("NEAT-CELL-SIZES-US:")
         for neatCells in neatCells {
             print(neatCells)
         }
         if (self._cellSizeNeat) {
-            if let neatCell = PixelMap._closestNeatCell(in: neatCells, to: self._cellSize) {
-                print("NEAT-CELL-CHOSEN-US: \(neatCell.cellSize) margin: \(neatCell.marginX) \(neatCell.marginY)")
+            // print("PMCM(\(unscaled(self._displayWidth)), \(unscaled(self._displayHeight)))")
+            // if let neatCell = PixelMap._closestNeatCell(in: neatCells, to: self._cellSize) CURLY
+            if let neatCell = PixelMap._closestNeatCell(in: neatCells, to: unscaled(self._cellSize)) {
                 let cellSizeUnchosen = self._cellSize
                 self._cellSize = scaled(neatCell.cellSize)
-                self._marginX = scaled(neatCell.marginX)
-                self._marginY = scaled(neatCell.marginY)
-                self._displayWidth -= self._marginX // xyzzy
-                self._displayHeight -= self._marginY // xyzzy
-                self._marginX = 0 // xyzzy
-                self._marginY = 0 // xyzzy
-                print("NEAT-CELL-CHOSEN: \(self._cellSize) margin: \(self._marginX) \(self._marginY)")
-                print("NEAT-CELL-UNCHOSEN: \(cellSizeUnchosen)")
+                self._displayWidth -= scaled(neatCell.marginX * 2)
+                self._displayHeight -= scaled(neatCell.marginY * 2)
+                print("CELL-SIZE-GIVEN:        \(cellSizeGiven)")
+                print("CELL-SIZE-GIVEN-US:     \(unscaled(cellSizeGiven))")
+                print("CELL-SIZE-NEAT:         \(self._cellSize)")
+                print("CELL-SIZE-NEAT-US:      \(unscaled(self._cellSize))")
+                print("CELL-SIZE-MARGIN-XY:    \(scaled(neatCell.marginX)) \(scaled(neatCell.marginY))")
+                print("CELL-SIZE-MARGIN-XY-US: \(neatCell.marginX) \(neatCell.marginY)")
             }
             else {
                 print("xyzzy.no-neat-cell")
             }
         }
 
-        print("SCREEN-SCALE:       \(screen.scale)")
-        print("SCREEN-SIZE:        \(scaled(screen.width)) x \(scaled(screen.height))")
-        print("SCREEN-SIZE-US:     \(screen.width) x \(screen.height)")
-        print("DISPLAY-SCALING:    \(displayScaling)")
-        print("DISPLAY-SIZE:       \(self._displayWidth) x \(self._displayHeight)")
-        print("DISPLAY-SIZE-US:    \(unscaled(self._displayWidth)) x \(unscaled(self._displayHeight))")
-        print("MARGIN-XY:          \(self._marginX) , \(self._marginY)")
-        print("MARGIN-XY-US:       \(unscaled(self._marginX)) , \(unscaled(self._marginY))")
-        print("CELL-MAP-SIZE:      \(self.width) x \(self.height)")
-        print("CELL-SIZE:          \(self.cellSize)")
-        print("CELL-SIZE-US:       \(unscaled(self._cellSize))")
-        print("CELL-PADDING:       \(self.cellPadding)")
-        print("CELL-PADDING-US:    \(unscaled(self.cellPadding))")
-        print("BUFFER-SIZE:        \(self._bufferSize)")
+        print("SCREEN-SCALE:           \(screen.scale)")
+        print("SCREEN-SIZE:            \(scaled(screen.width)) x \(scaled(screen.height))")
+        print("SCREEN-SIZE-US:         \(screen.width) x \(screen.height)")
+        print("DISPLAY-SCALING:        \(self._displayScaling)")
+        print("DISPLAY-SIZE:           \(self._displayWidth) x \(self._displayHeight)")
+        print("DISPLAY-SIZE-US:        \(unscaled(self._displayWidth)) x \(unscaled(self._displayHeight))")
+        print("CELL-MAP-SIZE:          \(self.width) x \(self.height)")
+        print("CELL-SIZE:              \(self.cellSize)")
+        print("CELL-SIZE-US:           \(unscaled(self._cellSize))")
+        print("CELL-PADDING:           \(self.cellPadding)")
+        print("CELL-PADDING-US:        \(unscaled(self.cellPadding))")
+        print("BUFFER-SIZE:            \(self._bufferSize)")
 
         if (cellInfoCaching) {
             self._initializeCells()
@@ -243,8 +235,6 @@ class PixelMap: ObservableObject {
                                                   cellShape: self.cellShape,
                                                   cellPadding: self.cellPadding,
                                                   background: self.background,
-                                                  marginX: self._marginX,
-                                                  marginY: self._marginY,
                                                   forCellInfo: true) {
                     self._cells.append(cellInfo)
                 }
@@ -252,7 +242,7 @@ class PixelMap: ObservableObject {
         }
     }
 
-    private static func _computeNeatCells(_ displayWidth: Int, _ displayHeight: Int, maxExtraPadding: Int = 8) -> [(cellSize: Int, marginX: Int, marginY: Int)] {
+    private static func _computeNeatCells(_ displayWidth: Int, _ displayHeight: Int, maxExtraPadding: Int = 30) -> [(cellSize: Int, marginX: Int, marginY: Int)] {
         let minDimension = min(displayWidth, displayHeight)
         guard minDimension > 0 else { return [] }
         var results: [(cellSize: Int, marginX: Int, marginY: Int)] = []
@@ -335,8 +325,8 @@ class PixelMap: ObservableObject {
     //
     public func locate(_ screenPoint: CGPoint) -> CGPoint? {
         print("LOCATE: \(screenPoint)")
-        var screenX: CGFloat = screenPoint.x - CGFloat(unscaled(self._marginX))
-        var screenY: CGFloat = screenPoint.y - CGFloat(unscaled(self._marginY))
+        var screenX: CGFloat = screenPoint.x
+        var screenY: CGFloat = screenPoint.y
         print("LOCATE-XY: \(screenX) , \(screenY)")
         if ((screenX < 0.0) || (screenY < 0.0) ||
             (screenX > CGFloat(unscaled(self._displayWidth))) ||
@@ -428,8 +418,6 @@ class PixelMap: ObservableObject {
                             cellShape: self.cellShape,
                             cellPadding: self.cellPadding,
                             background: self.background,
-                            marginX: self._marginX,
-                            marginY: self._marginY,
                             cells: self._cells)
     }
 
@@ -442,8 +430,6 @@ class PixelMap: ObservableObject {
                            cellShape: PixelShape,
                            cellPadding: Int,
                            background: PixelValue = PixelValue.dark,
-                           marginX: Int = 0,
-                           marginY: Int = 0,
                            cells: [CellInfo])
     {
         let start = Date()
@@ -471,9 +457,7 @@ class PixelMap: ObservableObject {
                                     red: value, green: value, blue: value,
                                     cellShape: cellShape,
                                     cellPadding: cellPadding,
-                                    background: background,
-                                    marginX: marginX,
-                                    marginY: marginY)
+                                    background: background)
                 }
                 else if (cellColorMode == ColorMode.grayscale) {
                     let value = UInt8.random(in: 0...255)
@@ -488,9 +472,7 @@ class PixelMap: ObservableObject {
                                     blue: value,
                                     cellShape: cellShape,
                                     cellPadding: cellPadding,
-                                    background: background,
-                                    marginX: marginX,
-                                    marginY: marginY)
+                                    background: background)
                 }
                 else {
                     var rgb = UInt32.random(in: 0...0xFFFFFF)
@@ -508,9 +490,7 @@ class PixelMap: ObservableObject {
                                     blue: blue,
                                     cellShape: cellShape,
                                     cellPadding: cellPadding,
-                                    background: background,
-                                    marginX: marginX,
-                                    marginY: marginY)
+                                    background: background)
                 }
             }
         }
@@ -519,7 +499,7 @@ class PixelMap: ObservableObject {
         print(String(format: "RANDOMIZE-TIME: %.5f seconds", elapsed))
     }
 
-    func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = 255) {
+    func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = PixelMap.Defaults.displayTransparency) {
         if (!self._cells.isEmpty) {
             if let cell = self.cell(x, y) {
                 cell.write(&self._buffer, foreground: PixelValue(red, green, blue), background: self.background, limit: Defaults.cellLimitUpdate)
@@ -538,9 +518,7 @@ class PixelMap: ObservableObject {
                         transparency: transparency,
                         cellShape: self.cellShape,
                         cellPadding: self.cellPadding,
-                        background: self.background,
-                        marginX: self._marginX,
-                        marginY: self._marginY)
+                        background: self.background)
     }
 
     static func _write(_ buffer: inout [UInt8],
@@ -552,12 +530,10 @@ class PixelMap: ObservableObject {
                        red: UInt8,
                        green: UInt8,
                        blue: UInt8,
-                       transparency: UInt8 = 255,
+                       transparency: UInt8 = PixelMap.Defaults.displayTransparency,
                        cellShape: PixelShape = .rounded,
                        cellPadding: Int = 0,
                        background: PixelValue = PixelValue.dark,
-                       marginX: Int = 0,
-                       marginY: Int = 0,
                        forCellInfo: Bool = false) -> CellInfo?
     {
         if ((x < 0) || (y < 0)) {
@@ -571,8 +547,8 @@ class PixelMap: ObservableObject {
             cellPaddingThickness = cellPadding
         }
 
-        let startX = marginX + (x * cellSize)
-        let startY = marginY + (y * cellSize)
+        let startX = x * cellSize
+        let startY = y * cellSize
         // let startX = (x * cellSize)
         // let startY = (y * cellSize)
         let endX = (startX + cellSize)
