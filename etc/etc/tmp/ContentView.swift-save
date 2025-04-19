@@ -11,8 +11,6 @@ struct ContentView: View
     @State private var autoTapping = false
     @State private var autoTappingTimer: Timer?
 
-    @State private var background: PixelValue = PixelMap.Defaults.cellBackground
-
     func autoTappingStart() {
         /*
         autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
@@ -31,6 +29,8 @@ struct ContentView: View
     var body: some View {
         GeometryReader { geometry in
             ZStack {
+                // Color.red.ignoresSafeArea()
+                // PixelMap.Defaults.cellBackground.color.ignoresSafeArea()
                 if let image = pixelMap.image {
                     Image(decorative: image, scale: pixelMap.displayScale)
                         .gesture(
@@ -82,12 +82,11 @@ struct ContentView: View
             }
             .onAppear {
                 ScreenInfo.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
-                pixelMap.configure(screen: ScreenInfo.shared, displayWidth: ScreenInfo.shared.width,
-                                                              displayHeight: ScreenInfo.shared.height,
-                                                              cellBackground: background)
+                pixelMap.configure(screen: ScreenInfo.shared, displayWidth: ScreenInfo.shared.width - 100,
+                                                              displayHeight: ScreenInfo.shared.height - 100)
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
-            .background(background.color)
+            .background(PixelMap.Defaults.cellBackground.color)
         }
         .ignoresSafeArea()
     }
