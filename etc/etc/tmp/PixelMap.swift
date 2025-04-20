@@ -11,7 +11,7 @@ class PixelMap: ObservableObject {
         public static let displayScale: CGFloat = ScreenInfo.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 25
+        public static let cellSize: Int = 35
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 2
         public static let cellBleeds: Bool = false
@@ -162,7 +162,7 @@ class PixelMap: ObservableObject {
 
     private static func _preferredCellSizes(_ displayWidth: Int,
                                             _ displayHeight: Int,
-                                            displaySizeVariationMax: Int = 10) -> [(cellSize: Int,
+                                            displaySizeVariationMax: Int = 25) -> [(cellSize: Int,
                                                                                     displayWidth: Int,
                                                                                     displayHeight: Int)] {
         let minDimension = min(displayWidth, displayHeight)

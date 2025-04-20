@@ -48,7 +48,7 @@ struct ContentView: View
         GeometryReader { geometry in
             ZStack {
                 // orientationChanged
-                Color.yellow.ignoresSafeArea()
+                // Color.yellow.ignoresSafeArea()
                 if let image = pixelMap.image {
                     Image(decorative: image, scale: pixelMap.displayScale)
                     // .onTapGesture { print("CONTENT-VIEW.ON-TAP") }
@@ -131,8 +131,7 @@ struct ContentView: View
             }
             */
             .frame(width: geometry.size.width, height: geometry.size.height)
-            // .background(background.color)
-            .background(Color.red)
+            .background(background.color)
         }
         .ignoresSafeArea()
     }

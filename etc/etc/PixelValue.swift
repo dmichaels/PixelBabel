@@ -124,4 +124,6 @@ struct PixelValue: Equatable {
         pixels[index + 1] = UInt8(clamping: Int(Double(pixels[index + 1]) - drop))
         pixels[index + 2] = UInt8(clamping: Int(Double(pixels[index + 2]) + boost))
     }
+
+    public static let null: PixelValue = PixelValue(0, 0, 0, alpha: 0)
 }
