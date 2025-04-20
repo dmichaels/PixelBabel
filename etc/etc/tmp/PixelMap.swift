@@ -332,7 +332,7 @@ class PixelMap: ObservableObject {
         let start = Date()
 
         if ((cells != nil) && cells!.caching) {
-            for cell in cells!._cells {
+            for cell in cells!.cells {
                 cell.write(&buffer, foreground: PixelValue.random(), background: background, limit: Defaults.cellLimitUpdate)
             }
             let end = Date()
@@ -429,13 +429,12 @@ class PixelMap: ObservableObject {
 
         for dy in 0..<cellSize {
             for dx in 0..<cellSize {
+
                 let ix = startX + dx
                 let iy = startY + dy
                 if ix >= displayWidth || iy >= displayHeight { continue }
-
                 let fx = Float(ix) + 0.5
                 let fy = Float(iy) + 0.5
-
                 var coverage: Float = 0.0
 
                 switch cellShape {
