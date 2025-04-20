@@ -15,6 +15,7 @@ struct ContentView: View
     @State private var autoTappingTimer: Timer?
 
     @State private var background: PixelValue = PixelMap.Defaults.cellBackground
+    @State private var image: CGImage? = nil
 
     func autoTappingStart() {
         /*
@@ -30,6 +31,7 @@ struct ContentView: View
         autoTappingTimer = nil
         */
     }
+
     private var orientationChanged: some View {
         EmptyView()
             .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
@@ -44,14 +46,18 @@ struct ContentView: View
             }
     }
 
+    private func refreshImage() {
+        self.image = pixelMap.image
+    }
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 // orientationChanged
                 // Color.yellow.ignoresSafeArea()
-                if let image = pixelMap.image {
+                if let image = image {
                     Image(decorative: image, scale: pixelMap.displayScale)
-                    // .onTapGesture { print("CONTENT-VIEW.ON-TAP") }
+                        // .onTapGesture { print("CONTENT-VIEW.ON-TAP") }
                         .gesture(
                             DragGesture(minimumDistance: 0)
                                 .onChanged { value in
@@ -63,15 +69,17 @@ struct ContentView: View
                                     if delta > draggingThreshold {
                                         dragging = true
                                         pixelMap.onDrag(value.location)
-                                        pixelMap.update()
+                                        refreshImage()
                                     }
                                 }
                                 .onEnded { value in
                                     // print("CONTENT-VIEW.DRAG-ON-ENDED: \(value.location)")
                                     if dragging {
                                         pixelMap.onDragEnd(value.location)
+                                        refreshImage()
                                     } else {
                                         pixelMap.onTap(value.location)
+                                        refreshImage()
                                     }
                                     draggingStart = nil
                                     dragging = false
@@ -113,6 +121,7 @@ struct ContentView: View
                 pixelMap.configure(screen: ScreenInfo.shared, displayWidth: ScreenInfo.shared.width,
                                                               displayHeight: ScreenInfo.shared.height,
                                                               cellBackground: background)
+                refreshImage()
             }
             .onChange(of: geometrySize) { previous, size in 
                 // print("XYZZY.onChange: \(previous) \(size) - \(geometrySize)")
