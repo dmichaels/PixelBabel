@@ -72,13 +72,14 @@ class PixelMap: ObservableObject {
         self._bufferSize = self._displayWidth * self._displayHeight * ScreenInfo.depth
         self._buffer = [UInt8](repeating: 0, count: self._bufferSize)
 
-        let neatCells = PixelMap._preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight))
+        // let neatCells = PixelMap._preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight))
+        let neatCells = Cells.preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight))
         print("NEAT-CELL-SIZES-US:")
         for neatCell in neatCells {
             print("NEAT-CELL-US: \(neatCell.cellSize) | \(neatCell.displayWidth) \(neatCell.displayHeight) | \(unscaled(self._displayWidth) - neatCell.displayWidth) \(unscaled(self._displayHeight) - neatCell.displayHeight)")
         }
         if (cellSizeNeat) {
-            if let neatCell = PixelMap._closestPreferredCellSize(in: neatCells, to: unscaled(self._cellSize)) {
+            if let neatCell = Cells.closestPreferredCellSize(in: neatCells, to: unscaled(self._cellSize)) {
                 print("ORIG-CELL-SIZE:            \(scaled(cellSize))")
                 print("ORIG-CELL-SIZE-US:         \(cellSize)")
                 print("NEAT-CELL-SIZE:            \(scaled(neatCell.cellSize))")
@@ -137,41 +138,6 @@ class PixelMap: ObservableObject {
             }
         }
         return cells
-    }
-
-    private static func _preferredCellSizes(_ displayWidth: Int,
-                                            _ displayHeight: Int,
-                                            displaySizeVariationMax: Int = 25) -> [(cellSize: Int,
-                                                                                    displayWidth: Int,
-                                                                                    displayHeight: Int)] {
-        let minDimension = min(displayWidth, displayHeight)
-        guard minDimension > 0 else { return [] }
-        var results: [(cellSize: Int, displayWidth: Int, displayHeight: Int)] = []
-        for cellSize in 1...minDimension {
-            let cellsX = displayWidth / cellSize
-            let cellsY = displayHeight / cellSize
-            let usedW = cellsX * cellSize
-            let usedH = cellsY * cellSize
-            let leftX = displayWidth - usedW
-            let leftY = displayHeight - usedH
-            if ((leftX <= displaySizeVariationMax) && (leftY <= displaySizeVariationMax)) {
-                let marginX: Int = leftX / 2
-                let marginY: Int = leftY / 2
-                results.append((cellSize: cellSize,
-                                displayWidth: displayWidth - (marginX * 2),
-                                displayHeight: displayHeight - (marginY * 2)))
-            }
-        }
-        return results
-    }
-
-    private static func _closestPreferredCellSize(in list: [(cellSize: Int, displayWidth: Int, displayHeight: Int)],
-                                                  to target: Int) -> (cellSize: Int, displayWidth: Int, displayHeight: Int)? {
-        return list.min(by: {
-            let a = abs($0.cellSize - target)
-            let b = abs($1.cellSize - target)
-            return (a, $0.cellSize) < (b, $1.cellSize)
-        })
     }
 
     public var displayScale: CGFloat {
@@ -419,8 +385,8 @@ class PixelMap: ObservableObject {
 
                 switch cellShape {
                 case .square, .inset:
-                    if dx >= cellPaddingThickness && dx < cellSize - cellPaddingThickness &&
-                       dy >= cellPaddingThickness && dy < cellSize - cellPaddingThickness {
+                    if ((dx >= cellPaddingThickness) && (dx < cellSize - cellPaddingThickness) &&
+                        (dy >= cellPaddingThickness) && (dy < cellSize - cellPaddingThickness)) {
                         coverage = 1.0
                     }
 
@@ -439,11 +405,11 @@ class PixelMap: ObservableObject {
                     let maxX = Float(endX - cellPaddingThickness)
                     let maxY = Float(endY - cellPaddingThickness)
 
-                    if fx >= minX + cornerRadius && fx <= maxX - cornerRadius {
+                    if ((fx >= minX + cornerRadius) && (fx <= maxX - cornerRadius)) {
                         if fy >= minY && fy <= maxY {
                             coverage = 1.0
                         }
-                    } else if fy >= minY + cornerRadius && fy <= maxY - cornerRadius {
+                    } else if ((fy >= minY + cornerRadius) && (fy <= maxY - cornerRadius)) {
                         if fx >= minX && fx <= maxX {
                             coverage = 1.0
                         }
@@ -475,7 +441,7 @@ class PixelMap: ObservableObject {
                         }
 
                     } else {
-                        if cells != nil {
+                        if (cells != nil) {
                             cells!.addBufferItem(i, foreground: false)
                         }
                         else {
