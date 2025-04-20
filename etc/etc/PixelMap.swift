@@ -24,27 +24,6 @@ class PixelMap: ObservableObject {
         public static let cellCaching: Bool = true
     }
 
-    struct Core {
-        public var displayWidth: Int = Defaults.displayWidth
-        public var displayHeight: Int = Defaults.displayWidth
-        public var displayScale: CGFloat = Defaults.displayScale
-        public var displayScaling: Bool = Defaults.displayScaling
-        public var displayTransparency: UInt8 = Defaults.displayTransparency
-        public var cellSize: Int = Defaults.cellSize
-        public var cellSizeNeat: Bool = Defaults.cellSizeNeat
-        public var cellPadding: Int = Defaults.cellPadding
-        public var cellBleeds: Bool = Defaults.cellBleeds
-        public var cellShape: PixelShape = Defaults.cellShape
-        public var cellColorMode: ColorMode = Defaults.cellColorMode
-        public var cellBackground: PixelValue = Defaults.cellBackground
-        public var cellAntialiasFade: Float = Defaults.cellAntialiasFade
-        public var cellRoundedRectangleRadius: Float = Defaults.cellRoundedRectangleRadius
-        public var cellLimitUpdate: Bool = Defaults.cellLimitUpdate
-        public var cellCaching: Bool = Defaults.cellCaching
-    }
-
-    @Published var image: CGImage? = nil
-
     private var _displayWidth: Int = ScreenInfo.initialWidth
     private var _displayHeight: Int = ScreenInfo.initialHeight
     private var _displayScale: CGFloat = ScreenInfo.initialScale
@@ -132,7 +111,7 @@ class PixelMap: ObservableObject {
         print("BUFFER-SIZE:            \(self._bufferSize)")
 
         self._cells = self._initializeCells()
-        self.fill(with: PixelValue.dark, update: true)
+        self.fill(with: PixelValue.dark)
     }
 
     private func _initializeCells() -> Cells {
@@ -254,7 +233,6 @@ class PixelMap: ObservableObject {
     public func onDragEnd(_ location: CGPoint) {
         let color = PixelValue.random()
         self.write(x: Int(location.x), y: Int(location.y), red: color.red, green: color.green, blue: color.blue)
-        self.update()
     }
 
     public func onTap(_ location: CGPoint) {
@@ -262,7 +240,6 @@ class PixelMap: ObservableObject {
         if let cell = self._cells.cell(location) {
             print("TAP: \(location) -> (\(cell.x), \(cell.y))")
             self.randomize()
-            self.update()
         }
     }
 
@@ -270,7 +247,7 @@ class PixelMap: ObservableObject {
         return self._cells.locate(location)
     }
 
-    func fill(with pixel: PixelValue = PixelValue.dark, update: Bool = false) {
+    func fill(with pixel: PixelValue = PixelValue.dark) {
         for y in 0..<self._displayHeight {
             for x in 0..<self._displayWidth {
                 let i = (y * self._displayWidth + x) * ScreenInfo.depth
@@ -280,12 +257,10 @@ class PixelMap: ObservableObject {
                 self._buffer[i + 3] = pixel.alpha
             }
         }
-        if (update) {
-            self.update()
-        }
     }
 
-    func update() {
+    public var image: CGImage? {
+        var image: CGImage?
         self._buffer.withUnsafeMutableBytes { rawBuffer in
             guard let baseAddress = rawBuffer.baseAddress else {
                 fatalError("Buffer has no base address")
@@ -299,9 +274,14 @@ class PixelMap: ObservableObject {
                 space: self._colorSpace,
                 bitmapInfo: self._bitmapInfo
             ) {
-                self.image = context.makeImage()
+                // image = context.makeImage()
+                let start = CFAbsoluteTimeGetCurrent()
+                image = context.makeImage()
+                let end = CFAbsoluteTimeGetCurrent()
+                print(String(format: "MAKE-IMAGE-TIME: %.5f ms", (end - start) * 1000))
             }
         }
+        return image
     }
 
     func randomize() {
