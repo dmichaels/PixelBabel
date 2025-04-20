@@ -4,7 +4,7 @@ struct ContentView: View
 {
     @StateObject var pixelMap = PixelMap()
     @State private var geometrySize: CGSize = .zero
-       @State private var orientation: UIDeviceOrientation = UIDevice.current.orientation
+   @State private var orientation: UIDeviceOrientation = UIDevice.current.orientation
 
 
     private let draggingThreshold: CGFloat = 3.0
@@ -36,11 +36,11 @@ struct ContentView: View
         EmptyView()
             .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
                 orientation = UIDevice.current.orientation
-                // print("Orientation changed to: \(orientation.rawValue)")
+                print("Orientation changed to: \(orientation.rawValue)")
                 ScreenInfo.shared.configure(size: geometrySize, scale: UIScreen.main.scale)
                 pixelMap.configure(screen: ScreenInfo.shared,
-                                   displayWidth: ScreenInfo.shared.width,
-                                   displayHeight: ScreenInfo.shared.height,
+                                   displayWidth: ScreenInfo.shared.height,
+                                   displayHeight: ScreenInfo.shared.width,
                                    cellBackground: background)
            
             }
@@ -112,10 +112,9 @@ struct ContentView: View
             }
             .statusBar(hidden: true)
             .onAppear {
-                // print("XYZZYSCREEN-INFO-ON-APPEAR: \(UIScreen.main.scale)")
-                // print("UIScreen.main.scale = \(UIScreen.main.scale)")
-                // print("UIScreen.main.bounds = \(UIScreen.main.bounds)")
-                // print("XYZZYSCREEN-INFO-ON-APPEAR-END: \(UIScreen.main.scale)")
+                print("ON-APPEAR-SCREEN-INFO: \(UIScreen.main.scale)")
+                print("ON-APPEAR-UIScreen.main.scale = \(UIScreen.main.scale)")
+                print("ON-APPEAR-UIScreen.main.bounds = \(UIScreen.main.bounds)")
                 geometrySize = geometry.size
                 ScreenInfo.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
                 pixelMap.configure(screen: ScreenInfo.shared, displayWidth: ScreenInfo.shared.width,
@@ -123,8 +122,11 @@ struct ContentView: View
                                                               cellBackground: background)
                 refreshImage()
             }
-            .onChange(of: geometrySize) { previous, size in 
-                // print("XYZZY.onChange: \(previous) \(size) - \(geometrySize)")
+            // .onChange(of: geometrySize) { previous, size in 
+            .onChange(of: geometry.size) { previous, size in 
+                print("ON-CHANGE: prev: \(previous) size: \(size) geometry-size: \(geometrySize)")
+                print("ON-CHANGE-UIScreen.main.scale = \(UIScreen.main.scale)")
+                print("ON-CHANGE-UIScreen.main.bounds = \(UIScreen.main.bounds)")
                 if (previous != size) {
                     // print("XYZZY.onChange.OK: \(previous) \(size) - \(geometrySize)")
                     geometrySize = geometry.size

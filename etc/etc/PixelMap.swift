@@ -252,10 +252,8 @@ class PixelMap: ObservableObject {
 
     func randomize() {
         PixelMap._randomize(&self._buffer,
-                            self._displayWidth,
-                            self._displayHeight,
-                            width: self.width,
-                            height: self.height,
+                            self._displayWidth, self._displayHeight,
+                            width: self.width, height: self.height,
                             cellSize: self.cellSize,
                             cellColorMode: self.cellColorMode,
                             cellShape: self.cellShape,
