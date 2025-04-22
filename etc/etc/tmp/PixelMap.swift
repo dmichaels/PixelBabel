@@ -11,7 +11,7 @@ class PixelMap: ObservableObject {
         public static let displayScale: CGFloat = ScreenInfo.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 35
+        public static let cellSize: Int = 37 // 35
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 2
         public static let cellBleeds: Bool = false
@@ -22,25 +22,6 @@ class PixelMap: ObservableObject {
         public static let cellRoundedRectangleRadius: Float = 0.25
         public static let cellLimitUpdate: Bool = true
         public static let cellCaching: Bool = true
-    }
-
-    struct Core {
-        public var displayWidth: Int = Defaults.displayWidth
-        public var displayHeight: Int = Defaults.displayWidth
-        public var displayScale: CGFloat = Defaults.displayScale
-        public var displayScaling: Bool = Defaults.displayScaling
-        public var displayTransparency: UInt8 = Defaults.displayTransparency
-        public var cellSize: Int = Defaults.cellSize
-        public var cellSizeNeat: Bool = Defaults.cellSizeNeat
-        public var cellPadding: Int = Defaults.cellPadding
-        public var cellBleeds: Bool = Defaults.cellBleeds
-        public var cellShape: PixelShape = Defaults.cellShape
-        public var cellColorMode: ColorMode = Defaults.cellColorMode
-        public var cellBackground: PixelValue = Defaults.cellBackground
-        public var cellAntialiasFade: Float = Defaults.cellAntialiasFade
-        public var cellRoundedRectangleRadius: Float = Defaults.cellRoundedRectangleRadius
-        public var cellLimitUpdate: Bool = Defaults.cellLimitUpdate
-        public var cellCaching: Bool = Defaults.cellCaching
     }
 
     private var _displayWidth: Int = ScreenInfo.initialWidth
@@ -63,6 +44,16 @@ class PixelMap: ObservableObject {
     private let _colorSpace = CGColorSpaceCreateDeviceRGB()
     private let _bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
 
+    /*
+    func rotateRight() {
+        swap(&self._displayWidth, &self._displayHeight)
+        self._cells.rotateRight()
+    }
+    */
+
+    init() {
+        print("PIXEL-MAP-CONSTRUCTOR!!!")
+    }
     func configure(screen: ScreenInfo,
                    displayWidth: Int = Defaults.displayWidth,
                    displayHeight: Int = Defaults.displayHeight,
@@ -76,6 +67,7 @@ class PixelMap: ObservableObject {
                    displayScaling: Bool = Defaults.displayScaling,
                    cellCaching: Bool = Defaults.cellCaching)
     {
+        print("PIXEL-MAP-CONFIGURE!!!")
         self._displayScale = screen.scale
         self._displayScaling = [PixelShape.square, PixelShape.inset].contains(cellShape) ? false : displayScaling
         self._displayWidth = scaled(displayWidth)
@@ -91,13 +83,16 @@ class PixelMap: ObservableObject {
         self._bufferSize = self._displayWidth * self._displayHeight * ScreenInfo.depth
         self._buffer = [UInt8](repeating: 0, count: self._bufferSize)
 
-        let neatCells = PixelMap._preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight))
+        // let neatCells = PixelMap._preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight))
+        let neatCells = Cells.preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight))
+        /*
         print("NEAT-CELL-SIZES-US:")
         for neatCell in neatCells {
             print("NEAT-CELL-US: \(neatCell.cellSize) | \(neatCell.displayWidth) \(neatCell.displayHeight) | \(unscaled(self._displayWidth) - neatCell.displayWidth) \(unscaled(self._displayHeight) - neatCell.displayHeight)")
         }
+        */
         if (cellSizeNeat) {
-            if let neatCell = PixelMap._closestPreferredCellSize(in: neatCells, to: unscaled(self._cellSize)) {
+            if let neatCell = Cells.closestPreferredCellSize(in: neatCells, to: unscaled(self._cellSize)) {
                 print("ORIG-CELL-SIZE:            \(scaled(cellSize))")
                 print("ORIG-CELL-SIZE-US:         \(cellSize)")
                 print("NEAT-CELL-SIZE:            \(scaled(neatCell.cellSize))")
@@ -158,39 +153,17 @@ class PixelMap: ObservableObject {
         return cells
     }
 
-    private static func _preferredCellSizes(_ displayWidth: Int,
-                                            _ displayHeight: Int,
-                                            displaySizeVariationMax: Int = 25) -> [(cellSize: Int,
-                                                                                    displayWidth: Int,
-                                                                                    displayHeight: Int)] {
-        let minDimension = min(displayWidth, displayHeight)
-        guard minDimension > 0 else { return [] }
-        var results: [(cellSize: Int, displayWidth: Int, displayHeight: Int)] = []
-        for cellSize in 1...minDimension {
-            let cellsX = displayWidth / cellSize
-            let cellsY = displayHeight / cellSize
-            let usedW = cellsX * cellSize
-            let usedH = cellsY * cellSize
-            let leftX = displayWidth - usedW
-            let leftY = displayHeight - usedH
-            if ((leftX <= displaySizeVariationMax) && (leftY <= displaySizeVariationMax)) {
-                let marginX: Int = leftX / 2
-                let marginY: Int = leftY / 2
-                results.append((cellSize: cellSize,
-                                displayWidth: displayWidth - (marginX * 2),
-                                displayHeight: displayHeight - (marginY * 2)))
-            }
-        }
-        return results
+    var displayOrientation: UIDeviceOrientation {
+        get { self._cells.displayOrientation }
+        set { self._cells.displayOrientation = newValue }
     }
 
-    private static func _closestPreferredCellSize(in list: [(cellSize: Int, displayWidth: Int, displayHeight: Int)],
-                                                  to target: Int) -> (cellSize: Int, displayWidth: Int, displayHeight: Int)? {
-        return list.min(by: {
-            let a = abs($0.cellSize - target)
-            let b = abs($1.cellSize - target)
-            return (a, $0.cellSize) < (b, $1.cellSize)
-        })
+    public var displayWidth: Int {
+        self._displayWidth
+    }
+
+    public var displayHeight: Int {
+        self._displayHeight
     }
 
     public var displayScale: CGFloat {
@@ -201,7 +174,7 @@ class PixelMap: ObservableObject {
         self._displayScaling ? Int(round(CGFloat(value) * self.displayScale)) : value
     }
 
-    private func unscaled(_ value: Int) -> Int {
+    public func unscaled(_ value: Int) -> Int {
         self._displayScaling ? Int(round(CGFloat(value) / self.displayScale)) : value
     }
 
@@ -241,29 +214,116 @@ class PixelMap: ObservableObject {
         self._cellBackground
     }
 
-    public func onDrag(_ location: CGPoint) {
-        if let cell = self._cells.cell(location) {
+    public func onDrag(_ location: CGPoint, orientation: UIDeviceOrientation = UIDeviceOrientation.portrait, previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) {
+        let normalizedLocation = self.normalizedLocation(location, orientation: orientation, previousOrientation: previousOrientation)
+        if let cell = self._cells.cell(normalizedLocation) {
+        // if let cell = self._cells.cell(location) {
             let color = PixelValue(255, 0, 0)
             self.write(x: cell.x, y: cell.y, red: color.red, green: color.green, blue: color.blue)
         }
         return
     }
 
-    public func onDragEnd(_ location: CGPoint) {
+    public func onDragEnd(_ location: CGPoint, orientation: UIDeviceOrientation = UIDeviceOrientation.portrait, previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) {
+        let normalizedLocation = self.normalizedLocation(location, orientation: orientation, previousOrientation: previousOrientation)
         let color = PixelValue.random()
-        self.write(x: Int(location.x), y: Int(location.y), red: color.red, green: color.green, blue: color.blue)
+        self.write(x: Int(normalizedLocation.x), y: Int(normalizedLocation.y), red: color.red, green: color.green, blue: color.blue)
+        // self.write(x: Int(location.x), y: Int(location.y), red: color.red, green: color.green, blue: color.blue)
     }
 
     public func onTap(_ location: CGPoint) {
         print("ON-TAP: \(location)")
         if let cell = self._cells.cell(location) {
             print("TAP: \(location) -> (\(cell.x), \(cell.y))")
+            // if cell.x == 2 && cell.y == 2 {
+                // self.rotateRight()
+            // }
             self.randomize()
         }
     }
 
     public func locate(_ location: CGPoint) -> Point? {
         return self._cells.locate(location)
+    }
+
+    public func locate2_bak(_ location: CGPoint,
+                         orientation: UIDeviceOrientation = UIDeviceOrientation.portrait,
+                         previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) -> Point? {
+        let x, y: CGFloat
+        switch orientation {
+        case .portrait:
+            x = location.x
+            y = location.y
+            print("NEW-LOCATE-PO: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
+        case .portraitUpsideDown:
+            if previousOrientation.isLandscape {
+                x = location.y
+                y = CGFloat(unscaled(self._displayHeight)) - 1 - location.x
+            }
+            else {
+                x = location.x
+                y = location.y
+            }
+            print("NEW-LOCATE-UD: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
+        case .landscapeRight:
+            x = location.y
+            y = CGFloat(unscaled(self._displayHeight)) - 1 - location.x
+            print("NEW-LOCATE-LR: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayHeight)) ih: \(unscaled(self._displayHeight))")
+        case .landscapeLeft:
+            x = CGFloat(unscaled(self._displayWidth)) - 1 - location.y
+            y = location.x
+            print("NEW-LOCATE-LL: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
+        default:
+            x = location.x
+            y = location.y
+            print("NEW-LOCATE-DEFAULT: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
+        }
+        let normalizedLocation = CGPoint(x: x, y: y)
+        print("NEW-LOCATE-NORMALIZED: \(location) \(normalizedLocation)")
+        return self._cells.locate(normalizedLocation)
+    }
+
+    public func locate2(_ location: CGPoint,
+                         orientation: UIDeviceOrientation = UIDeviceOrientation.portrait,
+                         previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) -> Point? {
+        let normalizedLocation = self.normalizedLocation(location, orientation: orientation, previousOrientation: previousOrientation)
+        print("NEW-LOCATE-NORMALIZED: \(location) \(normalizedLocation)")
+        return self._cells.locate(normalizedLocation)
+    }
+
+    public func normalizedLocation(_ location: CGPoint,
+                                   orientation: UIDeviceOrientation = UIDeviceOrientation.portrait,
+                                   previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) -> CGPoint {
+        let x, y: CGFloat
+        switch orientation {
+        case .portrait:
+            x = location.x
+            y = location.y
+            print("NEW-LOCATE-PO: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
+        case .portraitUpsideDown:
+            if previousOrientation.isLandscape {
+                x = location.y
+                y = CGFloat(unscaled(self._displayHeight)) - 1 - location.x
+            }
+            else {
+                x = location.x
+                y = location.y
+            }
+            print("NEW-LOCATE-UD: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
+        case .landscapeRight:
+            x = location.y
+            y = CGFloat(unscaled(self._displayHeight)) - 1 - location.x
+            print("NEW-LOCATE-LR: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayHeight)) ih: \(unscaled(self._displayHeight))")
+        case .landscapeLeft:
+            x = CGFloat(unscaled(self._displayWidth)) - 1 - location.y
+            y = location.x
+            print("NEW-LOCATE-LL: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
+        default:
+            x = location.x
+            y = location.y
+            print("NEW-LOCATE-DEFAULT: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
+        }
+        return CGPoint(x: x, y: y)
     }
 
     func fill(with pixel: PixelValue = PixelValue.dark) {
@@ -298,6 +358,7 @@ class PixelMap: ObservableObject {
                 image = context.makeImage()
                 let end = CFAbsoluteTimeGetCurrent()
                 print(String(format: "MAKE-IMAGE-TIME: %.5f ms", (end - start) * 1000))
+                print("MAKE-IMAGE-SIZE: \(image!.width) \(image!.height)")
             }
         }
         return image
@@ -305,10 +366,8 @@ class PixelMap: ObservableObject {
 
     func randomize() {
         PixelMap._randomize(&self._buffer,
-                            self._displayWidth,
-                            self._displayHeight,
-                            width: self.width,
-                            height: self.height,
+                            self._displayWidth, self._displayHeight,
+                            width: self.width, height: self.height,
                             cellSize: self.cellSize,
                             cellColorMode: self.cellColorMode,
                             cellShape: self.cellShape,
@@ -438,8 +497,8 @@ class PixelMap: ObservableObject {
 
                 switch cellShape {
                 case .square, .inset:
-                    if dx >= cellPaddingThickness && dx < cellSize - cellPaddingThickness &&
-                       dy >= cellPaddingThickness && dy < cellSize - cellPaddingThickness {
+                    if ((dx >= cellPaddingThickness) && (dx < cellSize - cellPaddingThickness) &&
+                        (dy >= cellPaddingThickness) && (dy < cellSize - cellPaddingThickness)) {
                         coverage = 1.0
                     }
 
@@ -458,11 +517,11 @@ class PixelMap: ObservableObject {
                     let maxX = Float(endX - cellPaddingThickness)
                     let maxY = Float(endY - cellPaddingThickness)
 
-                    if fx >= minX + cornerRadius && fx <= maxX - cornerRadius {
+                    if ((fx >= minX + cornerRadius) && (fx <= maxX - cornerRadius)) {
                         if fy >= minY && fy <= maxY {
                             coverage = 1.0
                         }
-                    } else if fy >= minY + cornerRadius && fy <= maxY - cornerRadius {
+                    } else if ((fy >= minY + cornerRadius) && (fy <= maxY - cornerRadius)) {
                         if fx >= minX && fx <= maxX {
                             coverage = 1.0
                         }
@@ -494,7 +553,7 @@ class PixelMap: ObservableObject {
                         }
 
                     } else {
-                        if cells != nil {
+                        if (cells != nil) {
                             cells!.addBufferItem(i, foreground: false)
                         }
                         else {

@@ -14,7 +14,7 @@ struct Memory
         let byteCount = count * Memory.bufferBlockSize
         guard byteIndex >= 0, byteIndex + byteCount <= buffer.count else {
             //
-            // Out of bounds
+            // Out of bounds.
             //
             return
         }
