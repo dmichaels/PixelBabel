@@ -3,32 +3,31 @@ import SwiftUI
 struct ContentView: View
 {
     @StateObject var pixelMap: PixelMap = PixelMap()
+    @State private var pixelMapConfigured: Bool = false
     @State private var geometrySize: CGSize = .zero
+    @State private var parentRelativeImagePosition: CGPoint = CGPoint.zero
     @State private var orientation: UIDeviceOrientation = UIDevice.current.orientation
     @State private var previousOrientation: UIDeviceOrientation = UIDevice.current.orientation
-    @State private var pixelMapConfigured: Bool = false
-    @State private var parentRelativeImagePosition: CGPoint = CGPoint.zero
+    @State private var background: PixelValue = PixelMap.Defaults.cellBackground
+    @State private var image: CGImage? = nil
 
-    private let draggingThreshold: CGFloat = 3.0
     @State private var dragging: Bool = false
     @State private var draggingStart: CGPoint? = nil
+    private let draggingThreshold: CGFloat = 3.0
 
     @State private var autoTapping: Bool = false
     @State private var autoTappingTimer: Timer?
 
-    @State private var background: PixelValue = PixelMap.Defaults.cellBackground
-    @State private var image: CGImage? = nil
-
     var body: some View {
         GeometryReader { geometry in
-            ZStack { // N.B. ZStack centers (horizontally/vertically) its children by default.
+            ZStack {
                 if let image = image {
-                    Image(decorative: image, scale: pixelMap.displayScale)
+                    Image(decorative: image, scale: self.pixelMap.displayScale)
                         .background( GeometryReader { geo in Color.clear
                             .onAppear {
-                                parentRelativeImagePosition = geo.frame(in: .named("zstack")).origin }
-                            .onChange(of: parentRelativeImagePosition) { value in
-                                parentRelativeImagePosition = value }
+                                self.parentRelativeImagePosition = geo.frame(in: .named("zstack")).origin }
+                            .onChange(of: self.parentRelativeImagePosition) { value in
+                                self.parentRelativeImagePosition = value }
                         })
                         .frame(width: geometry.size.width, height: geometry.size.height)
                         .rotationEffect(rotationAngle())
@@ -36,27 +35,27 @@ struct ContentView: View
                             DragGesture(minimumDistance: 0)
                                 .onChanged { value in
                                     let normalizedLocation = self.normalizedLocation(value.location)
-                                    if draggingStart == nil {
-                                        draggingStart = normalizedLocation
+                                    if (self.draggingStart == nil) {
+                                        self.draggingStart = normalizedLocation
                                     }
-                                    let delta = hypot(normalizedLocation.x - draggingStart!.x, normalizedLocation.y - draggingStart!.y)
-                                    if delta > draggingThreshold {
-                                        dragging = true
-                                        pixelMap.onDrag(normalizedLocation)
-                                        refreshImage()
+                                    let delta = hypot(normalizedLocation.x - self.draggingStart!.x, normalizedLocation.y - self.draggingStart!.y)
+                                    if (delta > self.draggingThreshold) {
+                                        self.dragging = true
+                                        self.pixelMap.onDrag(normalizedLocation)
+                                        self.refreshImage()
                                     }
                                 }
                                 .onEnded { value in
                                     let normalizedLocation = self.normalizedLocation(value.location)
-                                    if dragging {
-                                        pixelMap.onDragEnd(normalizedLocation)
-                                        refreshImage()
+                                    if (self.dragging) {
+                                        self.pixelMap.onDragEnd(normalizedLocation)
+                                        self.refreshImage()
                                     } else {
-                                        pixelMap.onTap(normalizedLocation)
-                                        refreshImage()
+                                        self.pixelMap.onTap(normalizedLocation)
+                                        self.refreshImage()
                                     }
-                                    draggingStart = nil
-                                    dragging = false
+                                    self.draggingStart = nil
+                                    self.dragging = false
                                 }
                         )
                         .simultaneousGesture(
@@ -67,13 +66,13 @@ struct ContentView: View
                                         case .second(true, let drag):
                                             if let location = drag?.location {
                                                 let normalizedLocation = self.normalizedLocation(location)
-                                                if pixelMap.locate(normalizedLocation) != nil {
-                                                    autoTapping.toggle()
-                                                    if (autoTapping) {
-                                                        autoTappingStart()
+                                                if (self.pixelMap.locate(normalizedLocation) != nil) {
+                                                    self.autoTapping.toggle()
+                                                    if (self.autoTapping) {
+                                                        self.autoTappingStart()
                                                     }
                                                     else {
-                                                        autoTappingStop()
+                                                        self.autoTappingStop()
                                                     }
                                                 }
                                             }
@@ -87,51 +86,50 @@ struct ContentView: View
             .onAppear {
                 UIDevice.current.beginGeneratingDeviceOrientationNotifications()
                 let orientation = UIDevice.current.orientation
-                if orientation.isValidInterfaceOrientation {
+                if (orientation.isValidInterfaceOrientation) {
                     self.orientation = orientation
-                    self.previousOrientation = orientation
+                    self.previousOrientation = .unknown
                 }
-                if (!pixelMapConfigured) {
-                    pixelMapConfigured = true
-                    geometrySize = geometry.size
+                if (!self.pixelMapConfigured) {
+                    self.pixelMapConfigured = true
+                    self.geometrySize = geometry.size
                     ScreenInfo.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
-                    //pixelMap.configure(screen: ScreenInfo.shared, displayWidth: ScreenInfo.shared.width,
-                                                                  //displayHeight: ScreenInfo.shared.height,
-                    pixelMap.configure(screen: ScreenInfo.shared, displayWidth: self.orientation.isLandscape ? ScreenInfo.shared.height : ScreenInfo.shared.width,
-                                                                  displayHeight: self.orientation.isLandscape ? ScreenInfo.shared.width : ScreenInfo.shared.height,
-                                                                  cellBackground: background)
+                    self.pixelMap.configure(
+                        screen: ScreenInfo.shared,
+                        displayWidth: self.orientation.isLandscape ?  ScreenInfo.shared.height : ScreenInfo.shared.width,
+                        displayHeight: self.orientation.isLandscape ?  ScreenInfo.shared.width : ScreenInfo.shared.height,
+                        cellBackground: self.background)
                 }
-                pixelMap.onTap(CGPoint(x: 100, y: 100))
-                refreshImage()
+                self.pixelMap.onTap(CGPoint(x: 100, y: 100))
+                self.refreshImage()
             }
             .onDisappear {
                 UIDevice.current.endGeneratingDeviceOrientationNotifications()
             }
             .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
                 let newOrientation = UIDevice.current.orientation
-                if newOrientation.isValidInterfaceOrientation {
-                    previousOrientation = orientation
-                    orientation = newOrientation
+                if (newOrientation.isValidInterfaceOrientation) {
+                    self.previousOrientation = orientation
+                    self.orientation = newOrientation
                 }
             }
-            .background(Color.yellow)
+            .background(self.background.color)
             .statusBar(hidden: true)
             .coordinateSpace(name: "zstack")
         }
-        .background(Color.green)
         .ignoresSafeArea()
     }
 
     func autoTappingStart() {
-        autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
-            pixelMap.onTap(CGPoint(x: 0.0, y: 0.0))
-            refreshImage()
+        self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
+            self.pixelMap.onTap(CGPoint(x: 0.0, y: 0.0))
+            self.refreshImage()
         }
     }
 
     func autoTappingStop() {
-        autoTappingTimer?.invalidate()
-        autoTappingTimer = nil
+        self.autoTappingTimer?.invalidate()
+        self.autoTappingTimer = nil
     }
 
     private func refreshImage() {
@@ -139,46 +137,58 @@ struct ContentView: View
     }
 
     private func rotationAngle() -> Angle {
+        print("ROTATION-ANGLE: \(self.previousOrientation.rawValue) -> \(self.orientation.rawValue) -> \(UIDevice.current.orientation.rawValue)")
+        let angle: Angle
         switch self.orientation {
         case .landscapeLeft:
-            return .degrees(-90)
+            angle = .degrees(-90)
         case .landscapeRight:
-            return .degrees(90)
+            angle = .degrees(90)
         case .portraitUpsideDown:
-            if self.previousOrientation.isLandscape {
-                return .degrees(90)
+            //
+            // All sorts of odd trouble with upside-down mode;
+            // going there from portrait yields portrait mode;
+            // going there from landscape yield upside-down mode.
+            // But still acts weird sometimes (e.g. iPhone SE from
+            // Jake and iPad simulator); best to just disable
+            // upside-down mode in project deployment-info.
+            //
+            if (self.previousOrientation.isLandscape) {
+                angle = .degrees(90)
             } else {
-                return .degrees(0)
+                angle = .degrees(0)
             }
         default:
-            return .degrees(0)
+            angle = .degrees(0)
         }
+        self.previousOrientation = self.orientation
+        return angle
     }
 
     public func normalizedLocation(_ location: CGPoint) -> CGPoint {
         let x, y: CGFloat
         switch self.orientation {
         case .portrait:
-            x = location.x - parentRelativeImagePosition.x
-            y = location.y - parentRelativeImagePosition.y
+            x = location.x - self.parentRelativeImagePosition.x
+            y = location.y - self.parentRelativeImagePosition.y
         case .portraitUpsideDown:
-            if self.previousOrientation.isLandscape {
-                x = location.y - parentRelativeImagePosition.x
-                y = CGFloat(pixelMap.displayHeightUnscaled) - 1 - (location.x - parentRelativeImagePosition.y)
+            if (self.previousOrientation.isLandscape) {
+                x = location.y - self.parentRelativeImagePosition.x
+                y = CGFloat(pixelMap.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
             }
             else {
-                x = location.x - parentRelativeImagePosition.x
-                y = location.y - parentRelativeImagePosition.y
+                x = location.x - self.parentRelativeImagePosition.x
+                y = location.y - self.parentRelativeImagePosition.y
             }
         case .landscapeRight:
-            x = location.y - parentRelativeImagePosition.x
-            y = CGFloat(pixelMap.displayHeightUnscaled) - 1 - (location.x - parentRelativeImagePosition.y)
+            x = location.y - self.parentRelativeImagePosition.x
+            y = CGFloat(pixelMap.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
         case .landscapeLeft:
-            x = CGFloat(pixelMap.displayWidthUnscaled) - 1 - (location.y - parentRelativeImagePosition.x)
-            y = location.x - parentRelativeImagePosition.y
+            x = CGFloat(pixelMap.displayWidthUnscaled) - 1 - (location.y - self.parentRelativeImagePosition.x)
+            y = location.x - self.parentRelativeImagePosition.y
         default:
-            x = location.x - parentRelativeImagePosition.x
-            y = location.y - parentRelativeImagePosition.y
+            x = location.x - self.parentRelativeImagePosition.x
+            y = location.y - self.parentRelativeImagePosition.y
         }
         return CGPoint(x: x, y: y)
     }
