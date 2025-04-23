@@ -44,16 +44,10 @@ class PixelMap: ObservableObject {
     private let _colorSpace = CGColorSpaceCreateDeviceRGB()
     private let _bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
 
-    /*
-    func rotateRight() {
-        swap(&self._displayWidth, &self._displayHeight)
-        self._cells.rotateRight()
-    }
-    */
-
     init() {
         print("PIXEL-MAP-CONSTRUCTOR!!!")
     }
+
     func configure(screen: ScreenInfo,
                    displayWidth: Int = Defaults.displayWidth,
                    displayHeight: Int = Defaults.displayHeight,
@@ -83,14 +77,11 @@ class PixelMap: ObservableObject {
         self._bufferSize = self._displayWidth * self._displayHeight * ScreenInfo.depth
         self._buffer = [UInt8](repeating: 0, count: self._bufferSize)
 
-        // let neatCells = PixelMap._preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight))
         let neatCells = Cells.preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight))
-        /*
-        print("NEAT-CELL-SIZES-US:")
+        /* print("NEAT-CELL-SIZES-US:")
         for neatCell in neatCells {
             print("NEAT-CELL-US: \(neatCell.cellSize) | \(neatCell.displayWidth) \(neatCell.displayHeight) | \(unscaled(self._displayWidth) - neatCell.displayWidth) \(unscaled(self._displayHeight) - neatCell.displayHeight)")
-        }
-        */
+        } */
         if (cellSizeNeat) {
             if let neatCell = Cells.closestPreferredCellSize(in: neatCells, to: unscaled(self._cellSize)) {
                 print("ORIG-CELL-SIZE:            \(scaled(cellSize))")
@@ -166,6 +157,14 @@ class PixelMap: ObservableObject {
         self._displayHeight
     }
 
+    public var displayWidthUnscaled: Int {
+        unscaled(self._displayWidth)
+    }
+
+    public var displayHeightUnscaled: Int {
+        unscaled(self._displayHeight)
+    }
+
     public var displayScale: CGFloat {
         self._displayScaling ? self._displayScale : 1
     }
@@ -234,9 +233,6 @@ class PixelMap: ObservableObject {
     public func onTap(_ location: CGPoint) {
         if let cell = self._cells.cell(location) {
             print("PIXELMAP-TAP: \(location) -> (\(cell.x), \(cell.y))")
-            // if cell.x == 2 && cell.y == 2 {
-                // self.rotateRight()
-            // }
             self.randomize()
         }
         print("PIXELMAP-ON-TAP: \(location) -> NOOP")
