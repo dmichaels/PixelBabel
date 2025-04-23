@@ -45,7 +45,7 @@ class PixelMap: ObservableObject {
     private let _bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
 
     init() {
-        print("PIXEL-MAP-CONSTRUCTOR!!!")
+        print("PIXELMAP-CONSTRUCTOR!!!")
     }
 
     func configure(screen: ScreenInfo,
@@ -61,7 +61,7 @@ class PixelMap: ObservableObject {
                    displayScaling: Bool = Defaults.displayScaling,
                    cellCaching: Bool = Defaults.cellCaching)
     {
-        print("PIXEL-MAP-CONFIGURE!!!")
+        print("PIXELMAP-CONFIGURE!!!")
         self._displayScale = screen.scale
         self._displayScaling = [PixelShape.square, PixelShape.inset].contains(cellShape) ? false : displayScaling
         self._displayWidth = scaled(displayWidth)
@@ -214,19 +214,14 @@ class PixelMap: ObservableObject {
     }
 
     public func onDrag(_ location: CGPoint, orientation: UIDeviceOrientation = UIDeviceOrientation.portrait, previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) {
-        // let normalizedLocation = self.normalizedLocation(location, orientation: orientation, previousOrientation: previousOrientation)
-        // if let cell = self._cells.cell(normalizedLocation) {
         if let cell = self._cells.cell(location) {
             let color = PixelValue(255, 0, 0)
             self.write(x: cell.x, y: cell.y, red: color.red, green: color.green, blue: color.blue)
         }
-        return
     }
 
     public func onDragEnd(_ location: CGPoint, orientation: UIDeviceOrientation = UIDeviceOrientation.portrait, previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) {
-        // let normalizedLocation = self.normalizedLocation(location, orientation: orientation, previousOrientation: previousOrientation)
         let color = PixelValue.random()
-        // self.write(x: Int(normalizedLocation.x), y: Int(normalizedLocation.y), red: color.red, green: color.green, blue: color.blue)
         self.write(x: Int(location.x), y: Int(location.y), red: color.red, green: color.green, blue: color.blue)
     }
 
