@@ -8,6 +8,7 @@ struct ContentView: View
     @State private var previousOrientation: UIDeviceOrientation = UIDevice.current.orientation
     @State private var pixelMapConfigured: Bool = false
     @State private var parentRelativeImagePosition: CGPoint = CGPoint.zero
+    @State private var trackingLocation: CGPoint = CGPoint.zero
 
     private let draggingThreshold: CGFloat = 3.0
     @State private var dragging: Bool = false
@@ -35,6 +36,9 @@ struct ContentView: View
     }
 
     private func rotationAngle(for orientation: UIDeviceOrientation) -> Angle {
+        let xorientation = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.interfaceOrientation
         switch orientation {
         case .landscapeLeft:
             print("ROTATION-ANGLE-LL: \(orientation) (was \(previousOrientation)) -> -90 degrees")
@@ -61,15 +65,34 @@ struct ContentView: View
     public func _normalizedLocation(_ location: CGPoint,
                                     orientation: UIDeviceOrientation = UIDeviceOrientation.portrait,
                                     previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) -> CGPoint {
-        let locationX: CGFloat = location.x - (orientation.isLandscape ? parentRelativeImagePosition.y : (previousOrientation.isLandscape ? parentRelativeImagePosition.y : parentRelativeImagePosition.x))
-        let locationY: CGFloat = location.y - (orientation.isLandscape ? parentRelativeImagePosition.x : (previousOrientation.isLandscape ? parentRelativeImagePosition.x : parentRelativeImagePosition.y))
-        // going from landscape to portrait needs special treatment
+        // let locationX: CGFloat = location.x - (orientation.isLandscape ? parentRelativeImagePosition.y : (previousOrientation.isLandscape ? parentRelativeImagePosition.y : parentRelativeImagePosition.x))
+        // let locationY: CGFloat = location.y - (orientation.isLandscape ? parentRelativeImagePosition.x : (previousOrientation.isLandscape ? parentRelativeImagePosition.x : parentRelativeImagePosition.y))
+
+        // SEEMS TO BE OK
+        // let locationX: CGFloat = location.x - (orientation.isLandscape ? parentRelativeImagePosition.y : (previousOrientation.isLandscape ? parentRelativeImagePosition.x : parentRelativeImagePosition.x))
+        // let locationY: CGFloat = location.y - (orientation.isLandscape ? parentRelativeImagePosition.x : (previousOrientation.isLandscape ? parentRelativeImagePosition.y : parentRelativeImagePosition.y))
+
+        // let locationX: CGFloat = location.x - (orientation.isLandscape ? parentRelativeImagePosition.y : (previousOrientation.isLandscape ? parentRelativeImagePosition.y : parentRelativeImagePosition.x))
+        // let locationY: CGFloat = location.y - (orientation.isLandscape ? parentRelativeImagePosition.x : (previousOrientation.isLandscape ? parentRelativeImagePosition.x : parentRelativeImagePosition.y))
+
+        // let locationX: CGFloat = location.x - (orientation.isLandscape ? parentRelativeImagePosition.y : parentRelativeImagePosition.x)
+        // let locationY: CGFloat = location.y - (orientation.isLandscape ? parentRelativeImagePosition.x : parentRelativeImagePosition.y)
+
+     // OK - but now it is off in upside-down mode if i got there from landscape ...
+     // let locationX: CGFloat = location.x - (orientation.isLandscape ? parentRelativeImagePosition.y : parentRelativeImagePosition.x)
+     // let locationY: CGFloat = location.y - (orientation.isLandscape ? parentRelativeImagePosition.x : parentRelativeImagePosition.y)
+
+        // TRY THIS AGAIN
+        let locationX: CGFloat = location.x - (orientation.isLandscape ? parentRelativeImagePosition.y : (orientation == .portraitUpsideDown && previousOrientation.isLandscape ? parentRelativeImagePosition.y : parentRelativeImagePosition.x))
+        let locationY: CGFloat = location.y - (orientation.isLandscape ? parentRelativeImagePosition.x : (orientation == .portraitUpsideDown && previousOrientation.isLandscape ? parentRelativeImagePosition.x : parentRelativeImagePosition.y))
+
+
         let x, y: CGFloat
         switch orientation {
         case .portrait:
             x = locationX
             y = locationY
-            print("NEW-LOCATE-PO: \(location) -> \(x), \(y) | iw: \(pixelMap.unscaled(pixelMap.displayWidth)) ih: \(pixelMap.unscaled(pixelMap.displayHeight))")
+            print("NORMALIZE-LOC-PO: \(location) -> \(x), \(y) | or: \(orientation.rawValue) por: \(previousOrientation.rawValue) iw: \(pixelMap.unscaled(pixelMap.displayWidth)) ih: \(pixelMap.unscaled(pixelMap.displayHeight))")
         case .portraitUpsideDown:
             if previousOrientation.isLandscape {
                 x = locationY
@@ -79,120 +102,20 @@ struct ContentView: View
                 x = locationX
                 y = locationY
             }
-            print("NEW-LOCATE-UD: \(location) -> \(x), \(y) | iw: \(pixelMap.unscaled(pixelMap.displayWidth)) ih: \(pixelMap.unscaled(pixelMap.displayHeight))")
+            print("NORMALIZE-LOC-UD: \(location) -> \(x), \(y) | or: \(orientation.rawValue) por: \(previousOrientation.rawValue) iw: \(pixelMap.unscaled(pixelMap.displayWidth)) ih: \(pixelMap.unscaled(pixelMap.displayHeight))")
         case .landscapeRight:
             x = locationY
             y = CGFloat(pixelMap.unscaled(pixelMap.displayHeight)) - 1 - locationX
-            print("NEW-LOCATE-LR: \(location) -> \(x), \(y) | iw: \(pixelMap.unscaled(pixelMap.displayHeight)) ih: \(pixelMap.unscaled(pixelMap.displayHeight))")
+            print("NORMALIZE-LOC-LR: \(location) -> \(x), \(y) | or: \(orientation.rawValue) por: \(previousOrientation.rawValue) iw: \(pixelMap.unscaled(pixelMap.displayWidth)) ih: \(pixelMap.unscaled(pixelMap.displayHeight))")
         case .landscapeLeft:
             x = CGFloat(pixelMap.unscaled(pixelMap.displayWidth)) - 1 - locationY
             y = locationX
-            print("NEW-LOCATE-LL: \(location) -> \(x), \(y) | iw: \(pixelMap.unscaled(pixelMap.displayWidth)) ih: \(pixelMap.unscaled(pixelMap.displayHeight))")
+            print("NORMALIZE-LOC-LL: \(location) -> \(x), \(y) | or: \(orientation.rawValue) por: \(previousOrientation.rawValue) iw: \(pixelMap.unscaled(pixelMap.displayWidth)) ih: \(pixelMap.unscaled(pixelMap.displayHeight))")
         default:
             x = locationX
             y = locationY
-            print("NEW-LOCATE-DEFAULT: \(location) -> \(x), \(y) | iw: \(pixelMap.unscaled(pixelMap.displayWidth)) ih: \(pixelMap.unscaled(pixelMap.displayHeight))")
+            print("NORMALIZE-LOC-DF: \(location) -> \(x), \(y) | or: \(orientation.rawValue) por: \(previousOrientation.rawValue) iw: \(pixelMap.unscaled(pixelMap.displayWidth)) ih: \(pixelMap.unscaled(pixelMap.displayHeight))")
         }
-        return CGPoint(x: x, y: y)
-    }
-
-    private func xxxmapToUpright(point: CGPoint, center: CGPoint, orientation: UIDeviceOrientation, imageSize: CGSize) -> CGPoint {
-        if orientation == .portrait {
-            return CGPoint(x: point.x, y: point.y)
-        }
-        let dx = point.x - center.x
-        let dy = point.y - center.y
-
-        let x, y: CGFloat
-
-        switch orientation {
-        case .portrait:
-            x = dx + imageSize.width / 2
-            y = dy + imageSize.height / 2
-        case .portraitUpsideDown:
-            if previousOrientation.isLandscape {
-                y = -dx + imageSize.height / 2
-                x = dy + imageSize.width / 2
-            }
-            else {
-                x = dx + imageSize.width / 2
-                y = dy + imageSize.height / 2
-            }
-        case .landscapeRight:
-            x = dy + imageSize.width / 2
-            y = -dx + imageSize.height / 2
-        case .landscapeLeft:
-            x = -dy + imageSize.width / 2
-            y = dx + imageSize.height / 2
-        default:
-            x = dx + imageSize.width / 2
-            y = dy + imageSize.height / 2
-        }
-
-        return CGPoint(x: x, y: y)
-    }
-    private func mapToUpright(point: CGPoint, center: CGPoint, orientation: UIDeviceOrientation, imageSize: CGSize) -> CGPoint {
-        if orientation == .portrait {
-            return CGPoint(x: point.x, y: point.y)
-        }
-        let dx = point.x - center.x
-        let dy = point.y - center.y
-
-        let x, y: CGFloat
-
-        switch orientation {
-        case .portrait:
-            return point
-            x = dx + imageSize.width / 2
-            y = dy + imageSize.height / 2
-        case .portraitUpsideDown:
-        /*
-            if previousOrientation.isLandscape {
-                y = -dx + imageSize.height / 2
-                x = dy + imageSize.width / 2
-            }
-            else {
-                x = dx + imageSize.width / 2
-                y = dy + imageSize.height / 2
-            }
-        */
-            if previousOrientation.isLandscape {
-                //y = (imageSize.width / 3.0) - 1 - point.x
-                //x = (imageSize.height / 3.0) - 1 - point.y
-                x = point.y
-                y = (imageSize.height / 3.0) - 1 - point.x
-            }
-            else {
-                x = point.x
-                y = point.y
-            }
-            //x = (imageSize.width / 3.0) - 1 - point.x
-            //y = (imageSize.height / 3.0) - 1 - point.y
-            // x = (imageSize.height / 3.0) - 1 - point.x
-            // y = (imageSize.width / 3.0) - 1 - point.y
-            // x = (imageSize.width / 3.0) - 1 - point.x
-            // y = (imageSize.height / 3.0) - 1 - point.y
-            print("xyzzy.TESTING.UD: \(point) -> \(x), \(y) | iw: \(imageSize.width / 3.0) ih: \(imageSize.height / 3.0)")
-            return CGPoint(x: x, y: y)
-        case .landscapeRight:
-            // x = dy + imageSize.width / 2
-            // y = -dx + imageSize.height / 2
-            x = point.y
-            y = (imageSize.height / 3.0) - 1 - point.x
-            print("xyzzy.testing.LR: \(point) -> \(x), \(y) | iw: \(imageSize.height / 3.0) ih: \(imageSize.height / 3.0)")
-            return CGPoint(x: x, y: y)
-        case .landscapeLeft:
-            // x = -dy + imageSize.width / 2
-            // y = dx + imageSize.height / 2
-            x = (imageSize.width / 3.0) - 1 - point.y
-            y = point.x
-            print("xyzzy.testing.LL: \(point) -> \(x), \(y) | iw: \(imageSize.width / 3.0) ih: \(imageSize.height / 3.0)")
-            return CGPoint(x: x, y: y)
-        default:
-            x = dx + imageSize.width / 2
-            y = dy + imageSize.height / 2
-        }
-
         return CGPoint(x: x, y: y)
     }
 
@@ -202,12 +125,16 @@ struct ContentView: View
             let screenCenter = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
             ZStack { // N.B. ZStack centers (horizontally/vertically) its children by default.
                 if let image = image {
+                    GeometryReader { geometryImage in
                     Image(decorative: image, scale: pixelMap.displayScale)
                         .background( GeometryReader { geo in Color.clear
                             .onAppear {
-                                parentRelativeImagePosition = geo.frame(in: .named("zstack")).origin
+                                let value = geo.frame(in: .named("zstack")).origin
+                                print("CONTENT-VIEW-IMAGE-BACKGROUND-ON-APPEAR: \(parentRelativeImagePosition) -> \(value)")
+                                parentRelativeImagePosition = value
                             }
                             .onChange(of: parentRelativeImagePosition) { value in
+                                print("CONTENT-VIEW-IMAGE-BACKGROUND-ON-CHANGE: \(parentRelativeImagePosition) -> \(value)")
                                 parentRelativeImagePosition = value }
                         })
                         .frame(width: geometry.size.width, height: geometry.size.height) // do i need this or not?
@@ -217,6 +144,8 @@ struct ContentView: View
                                 .onChanged { value in
                                     let normalizedLocation = self._normalizedLocation(value.location, orientation: orientation, previousOrientation: previousOrientation)
                                     // print("CONTENT-VIEW.DRAG-ON-CHANGED: \(value.location)")
+                                    print("CONTENT-VIEW.ON-CHANGE: \(value.location) -> \(normalizedLocation) geo: \(geometry.size) geoimage: \(geometryImage.size)")
+                                    print("CONTENT-VIEW.ON-CHANGE-MORE: or: \(orientation.rawValue) por: \(previousOrientation.rawValue) sc: \(screenCenter) is: \(image.width)x\(image.height) ip: \(geometry.frame(in: .named("zstack")).origin) rip: \(parentRelativeImagePosition)")
                                     if draggingStart == nil {
                                         // draggingStart = value.location
                                         draggingStart = normalizedLocation
@@ -232,28 +161,29 @@ struct ContentView: View
                                 }
                                 .onEnded { value in
                                     let normalizedLocation = self._normalizedLocation(value.location, orientation: orientation, previousOrientation: previousOrientation)
-                                    // print("CONTENT-VIEW.DRAG-ON-ENDED: \(value.location)")
+                                    print("CONTENT-VIEW.ON-END: \(value.location) -> \(normalizedLocation) geo: \(geometry.size) geoimage: \(geometryImage.size)")
+                                    print("CONTENT-VIEW.ON-END-MORE: or: \(orientation.rawValue) por: \(previousOrientation.rawValue) sc: \(screenCenter) is: \(image.width)x\(image.height) ip: \(geometry.frame(in: .named("zstack")).origin) rip: \(parentRelativeImagePosition)")
                                     if dragging {
                                         // pixelMap.onDragEnd(value.location, orientation: orientation, previousOrientation: previousOrientation)
-                                        pixelMap.onDragEnd(value.location)
+                                        // pixelMap.onDragEnd(value.location)
+                                        pixelMap.onDragEnd(normalizedLocation)
                                         refreshImage()
                                     } else {
-                                        print("CONTENT-VIEW.ON-TAP-POINT: \(value.location) sc: \(screenCenter) or: \(orientation) is: \(image.width)x\(image.height) gs: \(geometry.size)")
-                                        print(" - IMAGE-POSITION: \(geometry.frame(in: .named("zstack")).origin)")
-                                        print(" - IMAGE-POSITION-WORKS: \(parentRelativeImagePosition) or: \(orientation)")
                                         // let imagePositionX = (geometry.size.width - (CGFloat(image.width) / CGFloat(3.0))) / CGFloat(2.0)
                                         // let imagePositionY = (geometry.size.height - (CGFloat(image.height) / CGFloat(3.0))) / CGFloat(2.0)
                                         // print(" - IMAGE-REAL-POSITION: \(imagePositionX) , \(imagePositionY)")
                                         // let imageRelativeLocation = CGPoint(x: value.location.x - imagePositionX, y: value.location.y - imagePositionY)
                                         let imageRelativeLocation = ((orientation == .landscapeLeft) || (orientation == .landscapeRight)) ? CGPoint(x: value.location.x - parentRelativeImagePosition.y, y: value.location.y - parentRelativeImagePosition.x) : CGPoint(x: value.location.x - parentRelativeImagePosition.x, y: value.location.y - parentRelativeImagePosition.y)
-                                        print(" - IMAGE-RELATIVE-TAP-POINT: \(imageRelativeLocation)")
+                                        /*
                                         let local = mapToUpright(point: imageRelativeLocation,
                                                         center: screenCenter,
                                                         orientation: orientation,
                                                         imageSize: CGSize(width: image.width, height: image.height))
-                                        print(" - IMAGE-RELATIVE-TAP-POINT-LOCATE: \(pixelMap.locate(local))")
-                                        print(" - IMAGE-RELATIVE-TAP-POINT-LOCATE-NEW: \(pixelMap.locate2(value.location, orientation: orientation, previousOrientation: previousOrientation))")
-                                        pixelMap.onTap(local) // xyzzy/try
+                                        */
+                                        // print(" - IMAGE-RELATIVE-TAP-POINT-LOCATE: \(pixelMap.locate(local))")
+                                        // print(" - IMAGE-RELATIVE-TAP-POINT-LOCATE-NEW: \(pixelMap.locate2(value.location, orientation: orientation, previousOrientation: previousOrientation))")
+                                        // print(" - IMAGE-RELATIVE-TAP-POINT-LOCATE-NEW: \(pixelMap.locate2(value.location, orientation: orientation, previousOrientation: previousOrientation))")
+                                        pixelMap.onTap(normalizedLocation) // xyzzy/try
                                         // let local = mapToUpright(point: value.location,
                                         //let local = mapToUpright(point: imageRelativeLocation,
                                          //                        center: screenCenter,
@@ -268,6 +198,7 @@ struct ContentView: View
                                     dragging = false
                                 }
                         )
+                        /*
                         .simultaneousGesture(
                             LongPressGesture(minimumDuration: 1.0)
                                 .sequenced(before: DragGesture(minimumDistance: 0))
@@ -294,9 +225,11 @@ struct ContentView: View
                                     }
                                 }
                         )
-                        Text("XX: \(image.width) x \(image.height) \(orientation.rawValue)")
-                            .fontWeight(.bold)
-                            .foregroundColor(.yellow)
+                        */
+                        //Text("\(image.width) x \(image.height) \(orientation.rawValue) [\(previousOrientation.rawValue)]")
+                         //   .fontWeight(.bold)
+                          //  .foregroundColor(.yellow)
+                    }
                 }
             }
             .onAppear {

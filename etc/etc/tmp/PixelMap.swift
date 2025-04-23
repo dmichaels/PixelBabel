@@ -215,9 +215,9 @@ class PixelMap: ObservableObject {
     }
 
     public func onDrag(_ location: CGPoint, orientation: UIDeviceOrientation = UIDeviceOrientation.portrait, previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) {
-        let normalizedLocation = self.normalizedLocation(location, orientation: orientation, previousOrientation: previousOrientation)
-        if let cell = self._cells.cell(normalizedLocation) {
-        // if let cell = self._cells.cell(location) {
+        // let normalizedLocation = self.normalizedLocation(location, orientation: orientation, previousOrientation: previousOrientation)
+        // if let cell = self._cells.cell(normalizedLocation) {
+        if let cell = self._cells.cell(location) {
             let color = PixelValue(255, 0, 0)
             self.write(x: cell.x, y: cell.y, red: color.red, green: color.green, blue: color.blue)
         }
@@ -225,105 +225,25 @@ class PixelMap: ObservableObject {
     }
 
     public func onDragEnd(_ location: CGPoint, orientation: UIDeviceOrientation = UIDeviceOrientation.portrait, previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) {
-        let normalizedLocation = self.normalizedLocation(location, orientation: orientation, previousOrientation: previousOrientation)
+        // let normalizedLocation = self.normalizedLocation(location, orientation: orientation, previousOrientation: previousOrientation)
         let color = PixelValue.random()
-        self.write(x: Int(normalizedLocation.x), y: Int(normalizedLocation.y), red: color.red, green: color.green, blue: color.blue)
-        // self.write(x: Int(location.x), y: Int(location.y), red: color.red, green: color.green, blue: color.blue)
+        // self.write(x: Int(normalizedLocation.x), y: Int(normalizedLocation.y), red: color.red, green: color.green, blue: color.blue)
+        self.write(x: Int(location.x), y: Int(location.y), red: color.red, green: color.green, blue: color.blue)
     }
 
     public func onTap(_ location: CGPoint) {
-        print("ON-TAP: \(location)")
         if let cell = self._cells.cell(location) {
-            print("TAP: \(location) -> (\(cell.x), \(cell.y))")
+            print("PIXELMAP-TAP: \(location) -> (\(cell.x), \(cell.y))")
             // if cell.x == 2 && cell.y == 2 {
                 // self.rotateRight()
             // }
             self.randomize()
         }
+        print("PIXELMAP-ON-TAP: \(location) -> NOOP")
     }
 
     public func locate(_ location: CGPoint) -> Point? {
         return self._cells.locate(location)
-    }
-
-    public func locate2_bak(_ location: CGPoint,
-                         orientation: UIDeviceOrientation = UIDeviceOrientation.portrait,
-                         previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) -> Point? {
-        let x, y: CGFloat
-        switch orientation {
-        case .portrait:
-            x = location.x
-            y = location.y
-            print("NEW-LOCATE-PO: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
-        case .portraitUpsideDown:
-            if previousOrientation.isLandscape {
-                x = location.y
-                y = CGFloat(unscaled(self._displayHeight)) - 1 - location.x
-            }
-            else {
-                x = location.x
-                y = location.y
-            }
-            print("NEW-LOCATE-UD: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
-        case .landscapeRight:
-            x = location.y
-            y = CGFloat(unscaled(self._displayHeight)) - 1 - location.x
-            print("NEW-LOCATE-LR: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayHeight)) ih: \(unscaled(self._displayHeight))")
-        case .landscapeLeft:
-            x = CGFloat(unscaled(self._displayWidth)) - 1 - location.y
-            y = location.x
-            print("NEW-LOCATE-LL: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
-        default:
-            x = location.x
-            y = location.y
-            print("NEW-LOCATE-DEFAULT: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
-        }
-        let normalizedLocation = CGPoint(x: x, y: y)
-        print("NEW-LOCATE-NORMALIZED: \(location) \(normalizedLocation)")
-        return self._cells.locate(normalizedLocation)
-    }
-
-    public func locate2(_ location: CGPoint,
-                         orientation: UIDeviceOrientation = UIDeviceOrientation.portrait,
-                         previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) -> Point? {
-        let normalizedLocation = self.normalizedLocation(location, orientation: orientation, previousOrientation: previousOrientation)
-        print("NEW-LOCATE-NORMALIZED: \(location) \(normalizedLocation)")
-        return self._cells.locate(normalizedLocation)
-    }
-
-    public func normalizedLocation(_ location: CGPoint,
-                                   orientation: UIDeviceOrientation = UIDeviceOrientation.portrait,
-                                   previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) -> CGPoint {
-        let x, y: CGFloat
-        switch orientation {
-        case .portrait:
-            x = location.x
-            y = location.y
-            print("NEW-LOCATE-PO: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
-        case .portraitUpsideDown:
-            if previousOrientation.isLandscape {
-                x = location.y
-                y = CGFloat(unscaled(self._displayHeight)) - 1 - location.x
-            }
-            else {
-                x = location.x
-                y = location.y
-            }
-            print("NEW-LOCATE-UD: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
-        case .landscapeRight:
-            x = location.y
-            y = CGFloat(unscaled(self._displayHeight)) - 1 - location.x
-            print("NEW-LOCATE-LR: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayHeight)) ih: \(unscaled(self._displayHeight))")
-        case .landscapeLeft:
-            x = CGFloat(unscaled(self._displayWidth)) - 1 - location.y
-            y = location.x
-            print("NEW-LOCATE-LL: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
-        default:
-            x = location.x
-            y = location.y
-            print("NEW-LOCATE-DEFAULT: \(location) -> \(x), \(y) | iw: \(unscaled(self._displayWidth)) ih: \(unscaled(self._displayHeight))")
-        }
-        return CGPoint(x: x, y: y)
     }
 
     func fill(with pixel: PixelValue = PixelValue.dark) {
@@ -357,8 +277,8 @@ class PixelMap: ObservableObject {
                 let start = CFAbsoluteTimeGetCurrent()
                 image = context.makeImage()
                 let end = CFAbsoluteTimeGetCurrent()
-                print(String(format: "MAKE-IMAGE-TIME: %.5f ms", (end - start) * 1000))
-                print("MAKE-IMAGE-SIZE: \(image!.width) \(image!.height)")
+                print(String(format: "MAKE-IMAGE-TIME: %.5f ms | \(image!.width) \(image!.height)", (end - start) * 1000))
+                // print("MAKE-IMAGE-SIZE: \(image!.width) \(image!.height)")
             }
         }
         return image
