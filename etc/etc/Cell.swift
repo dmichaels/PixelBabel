@@ -4,7 +4,7 @@ struct Cell {
 
     let x: Int
     let y: Int
-    var parent: Cells
+    let parent: Cells
 
     init(x: Int, y: Int, parent: Cells) {
         self.x = x

@@ -24,17 +24,28 @@ class Cells {
         }
     }
 
-    private let _displayWidth: Int
-    private let _displayHeight: Int
+    private var _displayWidth: Int // let
+    private var _displayHeight: Int // let
     private let _displayScale: CGFloat
     private let _displayScaling: Bool
+    private var _displayOrientation: UIDeviceOrientation = UIDevice.current.orientation
     private let _cellSize: Int
-    private let _displayWidthUnscaled: Int
-    private let _displayHeightUnscaled: Int
+    private var _displayWidthUnscaled: Int // let
+    private var _displayHeightUnscaled: Int // let
     private let _cellSizeUnscaled: Int
     private var _cellBufferBlocks: [BufferBlock] = []
     private var _cells: [Cell] = []
     public static let null: Cells = Cells(displayWidth: 0, displayHeight: 0, displayScale: 0.0, displayScaling: false, cellSize: 0)
+
+    func rotateRight() {
+        var cells: [Cell] = []
+        for cell in self._cells {
+            cells.append(Cell(x: cell.y, y: self.cellWidth - 1 - cell.x, parent: self))
+        }
+        self._cells = cells
+        swap(&self._displayWidth, &self._displayHeight)
+        swap(&self._displayWidthUnscaled, &self._displayHeightUnscaled)
+    }
 
     init(displayWidth: Int, displayHeight: Int, displayScale: CGFloat, displayScaling: Bool, cellSize: Int) {
 
@@ -60,17 +71,50 @@ class Cells {
         self._cellBufferBlocks.count > 0
     }
 
+    var displayOrientation: UIDeviceOrientation {
+        get { self._displayOrientation }
+        set { self._displayOrientation = newValue }
+    }
+
     // Returns the cell coordinate for the given display input coordinates,
     // which (the display input coordinates) are always in unscaled units.
     //
     public func locate(_ screenPoint: CGPoint) -> Point? {
         let point = Point(screenPoint)
         print("LOCATE: \(screenPoint) -> point: (\(point.x), \(point.y))")
-        if ((point.x < 0) || (point.y < 0) ||
-            (point.x >= self._displayWidthUnscaled) || (point.y >= self._displayHeightUnscaled)) {
-            return nil
+        if (self._displayOrientation == .landscapeRight) {
+            // let xscreenPoint = CGPoint(x: screenPoint.y, y: CGFloat(self._displayWidth) - screenPoint.x)
+            let xscreenPoint = CGPoint(x: screenPoint.y, y: CGFloat(self._displayWidth + (self._displayWidth / 2)) - screenPoint.x)
+            let xpoint = Point(xscreenPoint)
+            print("LOCATE-LANDSCAPE-RIGHT-DISPLAY: \(self._displayWidth) x \(self._displayHeight) | unscaled: \(self._displayWidthUnscaled) x \(self._displayHeightUnscaled) ")
+            print("LOCATE-LANDSCAPE-RIGHT: \(screenPoint) -> \(xscreenPoint) | (\(point.x),\(point.y)) -> (\(xpoint.x),\(xpoint.y))")
+            if ((xpoint.x < 0) || (xpoint.y < 0) ||
+                (xpoint.x >= self._displayWidthUnscaled) || (xpoint.y >= self._displayHeightUnscaled)) {
+                print("LOCATE-LANDSCAPE-RIGHT: NIL")
+                return nil
+            }
+            print("LOCATE-LANDSCAPE-RIGHT-END: \(xpoint.x / self._cellSizeUnscaled) \(xpoint.y / self._cellSizeUnscaled)")
+            return Point(xpoint.x / self._cellSizeUnscaled, xpoint.y / self._cellSizeUnscaled)
+            /*
+            let x = point.y
+            let y = self._displayHeightUnscaled - point.x
+            print("LOCATE-LANDSCAPE-RIGHT: \(point.x) \(point.y) -> \(x) \(y)")
+            if ((x < 0) || (y < 0) ||
+                (x >= self._displayWidthUnscaled) || (y >= self._displayHeightUnscaled)) {
+                print("LOCATE-LANDSCAPE-RIGHT: NIL")
+                return nil
+            }
+            print("LOCATE-LANDSCAPE-RIGHT-END: \(x / self._cellSizeUnscaled) \(y / self._cellSizeUnscaled)")
+            return Point(x / self._cellSizeUnscaled, y / self._cellSizeUnscaled)
+            */
         }
-        return Point(point.x / self._cellSizeUnscaled, point.y / self._cellSizeUnscaled)
+        else {
+            if ((point.x < 0) || (point.y < 0) ||
+                (point.x >= self._displayWidthUnscaled) || (point.y >= self._displayHeightUnscaled)) {
+                return nil
+            }
+            return Point(point.x / self._cellSizeUnscaled, point.y / self._cellSizeUnscaled)
+        }
     }
 
     public func cell(_ screenPoint: CGPoint) -> Cell? {
@@ -82,12 +126,20 @@ class Cells {
     }
 
     public func cell(_ x: Int, _ y: Int) -> Cell? {
-        for cell in self._cells { // TODO: array-of-array
+        for cell in self._cells { // TODO: array-of-array is probably better here
             if ((cell.x == x) && (cell.y == y)) {
                 return cell
             }
         }
         return nil
+    }
+
+    var cellWidth: Int {
+        self._displayWidth / self._cellSize
+    }
+
+    var cellHeight: Int {
+        self._displayHeight / self._cellSize
     }
 
     func defineCell(x: Int, y: Int) -> Cell {
