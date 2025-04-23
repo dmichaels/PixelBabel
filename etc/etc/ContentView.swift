@@ -19,6 +19,109 @@ struct ContentView: View
     @State private var background: PixelValue = PixelMap.Defaults.cellBackground
     @State private var image: CGImage? = nil
 
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack { // N.B. ZStack centers (horizontally/vertically) its children by default.
+                if let image = image {
+                    Image(decorative: image, scale: pixelMap.displayScale)
+                        .background( GeometryReader { geo in Color.clear
+                            .onAppear {
+                                parentRelativeImagePosition = geo.frame(in: .named("zstack")).origin }
+                            .onChange(of: parentRelativeImagePosition) { value in
+                                parentRelativeImagePosition = value }
+                        })
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .rotationEffect(rotationAngle())
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    let normalizedLocation = self.normalizedLocation(value.location)
+                                    if draggingStart == nil {
+                                        draggingStart = normalizedLocation
+                                    }
+                                    let delta = hypot(normalizedLocation.x - draggingStart!.x, normalizedLocation.y - draggingStart!.y)
+                                    if delta > draggingThreshold {
+                                        dragging = true
+                                        pixelMap.onDrag(normalizedLocation)
+                                        refreshImage()
+                                    }
+                                }
+                                .onEnded { value in
+                                    let normalizedLocation = self.normalizedLocation(value.location)
+                                    if dragging {
+                                        pixelMap.onDragEnd(normalizedLocation)
+                                        refreshImage()
+                                    } else {
+                                        pixelMap.onTap(normalizedLocation)
+                                        refreshImage()
+                                    }
+                                    draggingStart = nil
+                                    dragging = false
+                                }
+                        )
+                        .simultaneousGesture(
+                            LongPressGesture(minimumDuration: 1.0)
+                                .sequenced(before: DragGesture(minimumDistance: 0))
+                                .onEnded { value in
+                                    switch value {
+                                        case .second(true, let drag):
+                                            if let location = drag?.location {
+                                                let normalizedLocation = self.normalizedLocation(location)
+                                                if pixelMap.locate(normalizedLocation) != nil {
+                                                    autoTapping.toggle()
+                                                    if (autoTapping) {
+                                                        autoTappingStart()
+                                                    }
+                                                    else {
+                                                        autoTappingStop()
+                                                    }
+                                                }
+                                            }
+                                        default:
+                                            break
+                                    }
+                                }
+                        )
+                }
+            }
+            .onAppear {
+                UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+                let orientation = UIDevice.current.orientation
+                if orientation.isValidInterfaceOrientation {
+                    self.orientation = orientation
+                    self.previousOrientation = orientation
+                }
+                if (!pixelMapConfigured) {
+                    pixelMapConfigured = true
+                    geometrySize = geometry.size
+                    ScreenInfo.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
+                    //pixelMap.configure(screen: ScreenInfo.shared, displayWidth: ScreenInfo.shared.width,
+                                                                  //displayHeight: ScreenInfo.shared.height,
+                    pixelMap.configure(screen: ScreenInfo.shared, displayWidth: self.orientation.isLandscape ? ScreenInfo.shared.height : ScreenInfo.shared.width,
+                                                                  displayHeight: self.orientation.isLandscape ? ScreenInfo.shared.width : ScreenInfo.shared.height,
+                                                                  cellBackground: background)
+                }
+                pixelMap.onTap(CGPoint(x: 100, y: 100))
+                refreshImage()
+            }
+            .onDisappear {
+                UIDevice.current.endGeneratingDeviceOrientationNotifications()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+                let newOrientation = UIDevice.current.orientation
+                if newOrientation.isValidInterfaceOrientation {
+                    previousOrientation = orientation
+                    orientation = newOrientation
+                }
+            }
+            .background(Color.yellow)
+            .statusBar(hidden: true)
+            .coordinateSpace(name: "zstack")
+        }
+        .background(Color.green)
+        .ignoresSafeArea()
+    }
+
     func autoTappingStart() {
         autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
             pixelMap.onTap(CGPoint(x: 0.0, y: 0.0))
@@ -35,14 +138,14 @@ struct ContentView: View
         self.image = pixelMap.image
     }
 
-    private func rotationAngle(_ orientation: UIDeviceOrientation) -> Angle {
-        switch orientation {
+    private func rotationAngle() -> Angle {
+        switch self.orientation {
         case .landscapeLeft:
             return .degrees(-90)
         case .landscapeRight:
             return .degrees(90)
         case .portraitUpsideDown:
-            if previousOrientation.isLandscape {
+            if self.previousOrientation.isLandscape {
                 return .degrees(90)
             } else {
                 return .degrees(0)
@@ -78,106 +181,6 @@ struct ContentView: View
             y = location.y - parentRelativeImagePosition.y
         }
         return CGPoint(x: x, y: y)
-    }
-
-    var body: some View {
-        GeometryReader { geometry in
-            ZStack { // N.B. ZStack centers (horizontally/vertically) its children by default.
-                if let image = image {
-                    Image(decorative: image, scale: pixelMap.displayScale)
-                        .background( GeometryReader { geo in Color.clear
-                            .onAppear {
-                                parentRelativeImagePosition = geo.frame(in: .named("zstack")).origin }
-                            .onChange(of: parentRelativeImagePosition) { value in
-                                parentRelativeImagePosition = value }
-                        })
-                        .frame(width: geometry.size.width, height: geometry.size.height) // do i need this or not?
-                        .rotationEffect(rotationAngle(orientation))
-                        .gesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged { value in
-                                    let normalizedLocation = self.normalizedLocation(value.location)
-                                    if draggingStart == nil {
-                                        draggingStart = normalizedLocation
-                                    }
-                                    let delta = hypot(normalizedLocation.x - draggingStart!.x, normalizedLocation.y - draggingStart!.y)
-                                    if delta > draggingThreshold {
-                                        dragging = true
-                                        pixelMap.onDrag(normalizedLocation)
-                                        refreshImage()
-                                    }
-                                }
-                                .onEnded { value in
-                                    let normalizedLocation = self.normalizedLocation(value.location)
-                                    if dragging {
-                                        pixelMap.onDragEnd(normalizedLocation)
-                                        refreshImage()
-                                    } else {
-                                        let imageRelativeLocation = ((orientation == .landscapeLeft) || (orientation == .landscapeRight)) ? CGPoint(x: value.location.x - parentRelativeImagePosition.y, y: value.location.y - parentRelativeImagePosition.x) : CGPoint(x: value.location.x - parentRelativeImagePosition.x, y: value.location.y - parentRelativeImagePosition.y)
-                                        pixelMap.onTap(normalizedLocation)
-                                        refreshImage()
-                                    }
-                                    draggingStart = nil
-                                    dragging = false
-                                }
-                        )
-                        .simultaneousGesture(
-                            LongPressGesture(minimumDuration: 1.0)
-                                .sequenced(before: DragGesture(minimumDistance: 0))
-                                .onEnded { value in
-                                    switch value {
-                                        case .second(true, let drag):
-                                            if let location = drag?.location {
-                                                let normalizedLocation = self.normalizedLocation(location)
-                                                if pixelMap.locate(normalizedLocation) != nil {
-                                                    autoTapping.toggle()
-                                                    if (autoTapping) {
-                                                        autoTappingStart()
-                                                    }
-                                                    else {
-                                                        autoTappingStop()
-                                                    }
-                                                }
-                                            }
-                                        default:
-                                            break
-                                    }
-                                }
-                        )
-                }
-            }
-            .onAppear {
-                UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-                print("ON-APPEAR-UIScreen.main.scale = \(UIScreen.main.scale)")
-                print("ON-APPEAR-UIScreen.main.bounds = \(UIScreen.main.bounds)")
-                print("ON-APPEAR.geometry.size = \(geometry.size)")
-                print("ON-APPEAR.PIXELMAP-CONFIGURED: \(pixelMapConfigured)")
-                if (!pixelMapConfigured) {
-                    pixelMapConfigured = true
-                    geometrySize = geometry.size
-                    ScreenInfo.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
-                    pixelMap.configure(screen: ScreenInfo.shared, displayWidth: ScreenInfo.shared.width,
-                                                                  displayHeight: ScreenInfo.shared.height,
-                                                                  cellBackground: background)
-                }
-                refreshImage()
-            }
-            .onDisappear {
-                UIDevice.current.endGeneratingDeviceOrientationNotifications()
-            }
-            .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
-                let newOrientation = UIDevice.current.orientation
-                if newOrientation.isValidInterfaceOrientation {
-                    previousOrientation = orientation
-                    orientation = newOrientation
-                }
-            }
-            .background(Color.yellow)
-            .statusBar(hidden: true)
-            .coordinateSpace(name: "zstack")
-        }
-        .background(Color.green)
-        .ignoresSafeArea()
     }
 }
 

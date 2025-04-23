@@ -11,7 +11,7 @@ class PixelMap: ObservableObject {
         public static let displayScale: CGFloat = ScreenInfo.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 37 // 35
+        public static let cellSize: Int = 43 // 37 // 35
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 2
         public static let cellBleeds: Bool = false
@@ -222,10 +222,8 @@ class PixelMap: ObservableObject {
 
     public func onTap(_ location: CGPoint) {
         if let cell = self._cells.cell(location) {
-            print("PIXELMAP-TAP: \(location) -> (\(cell.x), \(cell.y))")
             self.randomize()
         }
-        print("PIXELMAP-ON-TAP: \(location) -> NOOP")
     }
 
     public func locate(_ location: CGPoint) -> Point? {
@@ -259,12 +257,10 @@ class PixelMap: ObservableObject {
                 space: self._colorSpace,
                 bitmapInfo: self._bitmapInfo
             ) {
-                // image = context.makeImage()
                 let start = CFAbsoluteTimeGetCurrent()
                 image = context.makeImage()
                 let end = CFAbsoluteTimeGetCurrent()
                 print(String(format: "MAKE-IMAGE-TIME: %.5f ms | \(image!.width) \(image!.height)", (end - start) * 1000))
-                // print("MAKE-IMAGE-SIZE: \(image!.width) \(image!.height)")
             }
         }
         return image
