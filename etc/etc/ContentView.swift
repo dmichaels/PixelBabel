@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContentView: View
 {
-    @StateObject var orientationObserver = OrientationObserver() // TODO: test
+    @StateObject var orientation = OrientationObserver()
 
     @EnvironmentObject var pixelMap: PixelMap
     @EnvironmentObject var settings: Settings
@@ -10,8 +10,6 @@ struct ContentView: View
     @State private var pixelMapConfigured: Bool = false
     @State private var geometrySize: CGSize = .zero
     @State private var parentRelativeImagePosition: CGPoint = CGPoint.zero
-    @State private var orientation: UIDeviceOrientation = Orientation.current
-    @State private var previousOrientation: UIDeviceOrientation = Orientation.current
     @State private var background: PixelValue = PixelMap.Defaults.cellBackground
     @State private var image: CGImage? = nil
     @State private var imageAngle: Angle = Angle.zero
@@ -30,17 +28,15 @@ struct ContentView: View
                 ZStack {
                     if let image = image {
                         Image(decorative: image, scale: self.pixelMap.displayScale)
-                            .background( GeometryReader { geo in Color.clear
+                            .background(GeometryReader { geo in Color.clear
                                 .onAppear {
-                                    let zstackOrigin = geo.frame(in: .named("zstack")).origin
-                                    self.parentRelativeImagePosition = orientation.isLandscape ?
-                                                                       CGPoint(x: zstackOrigin.y, y: zstackOrigin.x) :
-                                                                       zstackOrigin
-                                    print("BG-ON-APPEAR: zo: \(zstackOrigin) ip: \(parentRelativeImagePosition) ia: \(imageAngle.degrees) or: \(orientation) por: \(previousOrientation) o: \(Orientation.current)")
+                                    let parentOrigin = geo.frame(in: .named("zstack")).origin
+                                    self.parentRelativeImagePosition = self.orientation.current.isLandscape ?
+                                                                       CGPoint(x: parentOrigin.y, y: parentOrigin.x) :
+                                                                       parentOrigin
                                 }
                                 .onChange(of: self.parentRelativeImagePosition) { value in
                                     self.parentRelativeImagePosition = value
-                                    print("BG-ON-CHANGE: ip: \(parentRelativeImagePosition) ia: \(imageAngle.degrees) or: \(orientation) por: \(previousOrientation) o: \(Orientation.current)")
                                  }
                             })
                             .frame(width: geometry.size.width, height: geometry.size.height)
@@ -64,9 +60,9 @@ struct ContentView: View
                                         let normalizedLocation = self.normalizedLocation(value.location)
                                         if value.translation.width < -100 { // Swipe left
                                             print("SWIPE-LEFT")
-                                            //withAnimation {
-                                                //showSettingsView = true
-                                            //}
+                                            // withAnimation {
+                                            //     showSettingsView = true
+                                            // }
                                         }
                                         else if (value.translation.width > 100) { // Swipe right
                                             print("SWIPE-RIGHT")
@@ -75,7 +71,6 @@ struct ContentView: View
                                             self.pixelMap.onDragEnd(normalizedLocation)
                                             self.refreshImage()
                                         } else {
-                                            print("ON-TAP: IP: \(parentRelativeImagePosition) O: \(orientation.rawValue) | \(UIDevice.current.orientation.rawValue) PO: \(previousOrientation.rawValue) IA: \(String(format: "%.2f", imageAngle.degrees))")
                                             self.pixelMap.onTap(normalizedLocation)
                                             self.refreshImage()
                                         }
@@ -114,33 +109,20 @@ struct ContentView: View
                     }
                 }
                 .onAppear {
-                    Orientation.beginNotifications()
-                    let orientation: UIDeviceOrientation = Orientation.current
                     if (!self.pixelMapConfigured) {
                         self.pixelMapConfigured = true
                         self.geometrySize = geometry.size
                         ScreenInfo.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
+                        let landscape = self.orientation.current.isLandscape
                         self.pixelMap.configure(
                             screen: ScreenInfo.shared,
-                            displayWidth: self.orientation.isLandscape ?  ScreenInfo.shared.height : ScreenInfo.shared.width,
-                            displayHeight: self.orientation.isLandscape ?  ScreenInfo.shared.width : ScreenInfo.shared.height,
+                            displayWidth: landscape ? ScreenInfo.shared.height : ScreenInfo.shared.width,
+                            displayHeight: landscape ? ScreenInfo.shared.width : ScreenInfo.shared.height,
                             cellBackground: self.background)
                     }
                     self.pixelMap.onTap(CGPoint(x: 100, y: 100))
                     self.refreshImage()
                     self.rotateImage()
-                    print("ON-APPEAR: ip: \(parentRelativeImagePosition) ia: \(imageAngle.degrees) or: \(orientation) por: \(previousOrientation) o: \(Orientation.current)")
-                }
-                .onDisappear {
-                    Orientation.endNotifications()
-                    print("XYZZY-ON-DISAPPEAR")
-                }
-                .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
-                    let newOrientation: UIDeviceOrientation = Orientation.current
-                    self.previousOrientation = orientation
-                    self.orientation = newOrientation
-                    self.rotateImage()
-                    print("ON-RECEIVE: ip: \(parentRelativeImagePosition) ia: \(imageAngle.degrees) or: \(orientation) por: \(previousOrientation) o: \(Orientation.current)")
                 }
                 .navigationTitle("Home")
                 .navigationBarHidden(true)
@@ -151,22 +133,20 @@ struct ContentView: View
             .ignoresSafeArea()
         }
         .onAppear {
-            Orientation.beginNotifications()
-            print("NAV-ON-APPEAR: ip: \(parentRelativeImagePosition) ia: \(imageAngle.degrees) or: \(orientation) por: \(previousOrientation) o: \(Orientation.current)")
+            orientation.callback = self.onChangeOrientation
         }
         .navigationViewStyle(.stack)
     }
 
     func autoTappingStart() {
-                                    withAnimation {
-                                        self.showSettingsView = true
-                                    }
-        /*
-        self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
+        // TODO: QUICK TESTING SettingsView ...
+        withAnimation {
+            self.showSettingsView = true
+        }
+        /* self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
             self.pixelMap.onTap(CGPoint(x: 0.0, y: 0.0))
             self.refreshImage()
-        }
-        */
+        } */
     }
 
     func autoTappingStop() {
@@ -179,8 +159,7 @@ struct ContentView: View
     }
 
     private func rotateImage() {
-        print("ROTATE-ANGLE: \(self.previousOrientation.rawValue) -> \(self.orientation.rawValue) -> \(UIDevice.current.orientation.rawValue)")
-        switch self.orientation {
+        switch self.orientation.current {
         case .landscapeLeft:
             self.imageAngle = Angle.degrees(-90)
         case .landscapeRight:
@@ -194,9 +173,8 @@ struct ContentView: View
             // Jake and iPad simulator); best to just disable
             // upside-down mode in project deployment-info.
             //
-            if (self.previousOrientation.isLandscape) {
+            if (self.orientation.previous.isLandscape) {
                 self.imageAngle = Angle.degrees(90)
-                print("XYZZY-A: \(self.imageAngle)")
             } else {
                 self.imageAngle = .degrees(0)
             }
@@ -207,12 +185,12 @@ struct ContentView: View
 
     public func normalizedLocation(_ location: CGPoint) -> CGPoint {
         let x, y: CGFloat
-        switch self.orientation {
+        switch self.orientation.current {
         case .portrait:
             x = location.x - self.parentRelativeImagePosition.x
             y = location.y - self.parentRelativeImagePosition.y
         case .portraitUpsideDown:
-            if (self.previousOrientation.isLandscape) {
+            if (self.orientation.previous.isLandscape) {
                 x = location.y - self.parentRelativeImagePosition.x
                 y = CGFloat(pixelMap.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
             }
@@ -231,6 +209,10 @@ struct ContentView: View
             y = location.y - self.parentRelativeImagePosition.y
         }
         return CGPoint(x: x, y: y)
+    }
+
+    private func onChangeOrientation(_ current: UIDeviceOrientation, _ previous: UIDeviceOrientation) {
+        self.rotateImage()
     }
 }
 
