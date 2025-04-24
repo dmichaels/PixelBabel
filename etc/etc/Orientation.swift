@@ -31,10 +31,10 @@ class Orientation {
         let orientation: UIInterfaceOrientation = UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .first?.interfaceOrientation ?? .unknown
-        return Orientation._device(orientation)
+        return Orientation._deviceOrientation(orientation)
     }
 
-    private static func _device(_ interfaceOrientation: UIInterfaceOrientation) -> UIDeviceOrientation {
+    private static func _deviceOrientation(_ interfaceOrientation: UIInterfaceOrientation) -> UIDeviceOrientation {
         switch interfaceOrientation {
         case .portrait:
             return .portrait
