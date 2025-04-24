@@ -40,7 +40,7 @@ struct ContentView: View
                                  }
                             })
                             .frame(width: geometry.size.width, height: geometry.size.height)
-                            .rotationEffect(imageAngle)
+                            .rotationEffect(self.imageAngle)
                             .gesture(
                                 DragGesture(minimumDistance: 0)
                                     .onChanged { value in
@@ -155,7 +155,7 @@ struct ContentView: View
     }
 
     private func refreshImage() {
-        self.image = pixelMap.image
+        self.image = self.pixelMap.image
     }
 
     private func rotateImage() {
@@ -192,7 +192,7 @@ struct ContentView: View
         case .portraitUpsideDown:
             if (self.orientation.previous.isLandscape) {
                 x = location.y - self.parentRelativeImagePosition.x
-                y = CGFloat(pixelMap.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
+                y = CGFloat(self.pixelMap.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
             }
             else {
                 x = location.x - self.parentRelativeImagePosition.x
@@ -200,9 +200,9 @@ struct ContentView: View
             }
         case .landscapeRight:
             x = location.y - self.parentRelativeImagePosition.x
-            y = CGFloat(pixelMap.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
+            y = CGFloat(self.pixelMap.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
         case .landscapeLeft:
-            x = CGFloat(pixelMap.displayWidthUnscaled) - 1 - (location.y - self.parentRelativeImagePosition.x)
+            x = CGFloat(self.pixelMap.displayWidthUnscaled) - 1 - (location.y - self.parentRelativeImagePosition.x)
             y = location.x - self.parentRelativeImagePosition.y
         default:
             x = location.x - self.parentRelativeImagePosition.x
