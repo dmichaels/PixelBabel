@@ -1,8 +1,6 @@
 import SwiftUI
 import Combine
 
-// Have not yet tried this (suggestion from ChatGPT).
-//
 class OrientationObserver: ObservableObject {
 
     @Published var current: UIDeviceOrientation = Orientation.current
