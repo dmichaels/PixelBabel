@@ -11,7 +11,7 @@ class PixelMap: ObservableObject {
         public static let displayScale: CGFloat = ScreenInfo.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 43 // 37 // 35
+        public static let cellSize: Int = 32 // 8 // 83 // 43 // 37 // 35
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 2
         public static let cellBleeds: Bool = false
@@ -20,6 +20,7 @@ class PixelMap: ObservableObject {
         public static let cellBackground: PixelValue = PixelValue.dark
         public static let cellAntialiasFade: Float = 0.6
         public static let cellRoundedRectangleRadius: Float = 0.25
+        public static var cellPreferredSizeMarginMax: Int   = 30
         public static let cellLimitUpdate: Bool = true
         public static let cellCaching: Bool = true
     }
@@ -36,8 +37,9 @@ class PixelMap: ObservableObject {
     private var _cellBackground: PixelValue = Defaults.cellBackground
     private var _cellAntialiasFade: Float = Defaults.cellAntialiasFade
     private var _cellRoundedRectangleRadius: Float = Defaults.cellRoundedRectangleRadius
-    private var _cellLimitUpdate: Bool = Defaults.cellLimitUpdate
+    private var _cellPreferredSizeMarginMax: Int = Defaults.cellPreferredSizeMarginMax
     private var _cellCaching: Bool = Defaults.cellCaching
+    private var _cellLimitUpdate: Bool = Defaults.cellLimitUpdate
     private var _bufferSize: Int = 0
     private var _buffer: [UInt8] = []
     private var _cells: Cells = Cells.null
@@ -77,11 +79,11 @@ class PixelMap: ObservableObject {
         self._bufferSize = self._displayWidth * self._displayHeight * ScreenInfo.depth
         self._buffer = [UInt8](repeating: 0, count: self._bufferSize)
 
-        let neatCells = Cells.preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight))
-        /* print("NEAT-CELL-SIZES-US:")
+        let neatCells = Cells.preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight), cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
+        print("NEAT-CELL-SIZES-US:")
         for neatCell in neatCells {
             print("NEAT-CELL-US: \(neatCell.cellSize) | \(neatCell.displayWidth) \(neatCell.displayHeight) | \(unscaled(self._displayWidth) - neatCell.displayWidth) \(unscaled(self._displayHeight) - neatCell.displayHeight)")
-        } */
+        }
         if (cellSizeNeat) {
             if let neatCell = Cells.closestPreferredCellSize(in: neatCells, to: unscaled(self._cellSize)) {
                 print("ORIG-CELL-SIZE:            \(scaled(cellSize))")

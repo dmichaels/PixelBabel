@@ -160,7 +160,7 @@ class Cells {
 
     public static func preferredCellSizes(_ displayWidth: Int,
                                           _ displayHeight: Int,
-                                          displaySizeVariationMax: Int = 25) -> [(cellSize: Int,
+                                          cellPreferredSizeMarginMax: Int = 25) -> [(cellSize: Int,
                                                                                   displayWidth: Int,
                                                                                   displayHeight: Int)] {
         let minDimension = min(displayWidth, displayHeight)
@@ -173,7 +173,7 @@ class Cells {
             let usedH = cellsY * cellSize
             let leftX = displayWidth - usedW
             let leftY = displayHeight - usedH
-            if ((leftX <= displaySizeVariationMax) && (leftY <= displaySizeVariationMax)) {
+            if ((leftX <= cellPreferredSizeMarginMax) && (leftY <= cellPreferredSizeMarginMax)) {
                 let marginX: Int = leftX / 2
                 let marginY: Int = leftY / 2
                 results.append((cellSize: cellSize,
