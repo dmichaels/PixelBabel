@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ContentView: View
 {
+    @StateObject var orientationObserver = OrientationObserver() // TODO: test
+
     @EnvironmentObject var pixelMap: PixelMap
     @EnvironmentObject var settings: Settings
 
