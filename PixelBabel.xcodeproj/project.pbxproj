@@ -28,6 +28,7 @@
 		98F98D0A2DBB6D7F003FF91D /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D092DBB6D7F003FF91D /* Feedback.swift */; };
 		98F98D0C2DBBA696003FF91D /* GridPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D0B2DBBA696003FF91D /* GridPoint.swift */; };
 		98F98D0E2DBBACD1003FF91D /* LifeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D0D2DBBACD1003FF91D /* LifeCell.swift */; };
+		98F98D102DBBB823003FF91D /* LifeCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D0F2DBBB823003FF91D /* LifeCells.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 		98F98D092DBB6D7F003FF91D /* Feedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feedback.swift; sourceTree = "<group>"; };
 		98F98D0B2DBBA696003FF91D /* GridPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridPoint.swift; sourceTree = "<group>"; };
 		98F98D0D2DBBACD1003FF91D /* LifeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeCell.swift; sourceTree = "<group>"; };
+		98F98D0F2DBBB823003FF91D /* LifeCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeCells.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +133,7 @@
 				98F98D092DBB6D7F003FF91D /* Feedback.swift */,
 				98F98D0B2DBBA696003FF91D /* GridPoint.swift */,
 				98F98D0D2DBBACD1003FF91D /* LifeCell.swift */,
+				98F98D0F2DBBB823003FF91D /* LifeCells.swift */,
 				9801C8212DA7EC9800AB409F /* Memory.swift */,
 				98F98CFF2DBB6C49003FF91D /* Orientation.swift */,
 				98F98D002DBB6C49003FF91D /* OrientationObserver.swift */,
@@ -305,6 +308,7 @@
 				9828577A2DA17A1700770B45 /* SettingsView.swift in Sources */,
 				984AE83B2D9904ED00DBCEDA /* ContentView.swift in Sources */,
 				98F98D032DBB6C49003FF91D /* Cells.swift in Sources */,
+				98F98D102DBBB823003FF91D /* LifeCells.swift in Sources */,
 				98F98D052DBB6C49003FF91D /* OrientationObserver.swift in Sources */,
 				98F98D062DBB6C49003FF91D /* PixelValue.swift in Sources */,
 				98F98D072DBB6C49003FF91D /* Orientation.swift in Sources */,
