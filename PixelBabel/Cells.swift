@@ -24,8 +24,8 @@ class Cells {
         }
     }
 
-    private var _displayWidth: Int // let
-    private var _displayHeight: Int // let
+    private let _displayWidth: Int // let
+    private let _displayHeight: Int // let
     private let _displayScale: CGFloat
     private let _displayScaling: Bool
     private let _cellSize: Int
@@ -35,16 +35,6 @@ class Cells {
     private var _cellBufferBlocks: [BufferBlock] = []
     private var _cells: [Cell] = []
     public static let null: Cells = Cells(displayWidth: 0, displayHeight: 0, displayScale: 0.0, displayScaling: false, cellSize: 0)
-
-    func rotateRight() {
-        var cells: [Cell] = []
-        for cell in self._cells {
-            cells.append(Cell(parent: self, x: cell.y, y: self.cellWidth - 1 - cell.x))
-        }
-        self._cells = cells
-        swap(&self._displayWidth, &self._displayHeight)
-        swap(&self._displayWidthUnscaled, &self._displayHeightUnscaled)
-    }
 
     init(displayWidth: Int, displayHeight: Int, displayScale: CGFloat, displayScaling: Bool, cellSize: Int) {
 
@@ -90,12 +80,10 @@ class Cells {
     }
 
     public func cell(_ x: Int, _ y: Int) -> Cell? {
-        for cell in self._cells { // TODO: array-of-array is probably better here
-            if ((cell.x == x) && (cell.y == y)) {
-                return cell
-            }
+        guard x >= 0, y >= 0, x < self.cellWidth, y < self.cellHeight else {
+            return nil
         }
-        return nil
+        return self._cells[y * self.cellWidth + x]
     }
 
     var cellWidth: Int {
