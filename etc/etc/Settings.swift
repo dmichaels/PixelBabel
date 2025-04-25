@@ -21,6 +21,7 @@ class DefaultSettings
     public static let automationSpeed: Double           = 0.1
 
     public static let draggingThreshold: CGFloat        = 3.0
+    public static let swipeDistance: CGFloat            = 100
     public static let updateMode: Bool                  = false
 }
 

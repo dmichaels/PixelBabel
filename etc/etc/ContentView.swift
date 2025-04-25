@@ -58,14 +58,20 @@ struct ContentView: View
                                     }
                                     .onEnded { value in
                                         let normalizedLocation = self.normalizedLocation(value.location)
-                                        if value.translation.width < -100 { // Swipe left
-                                            print("SWIPE-LEFT")
-                                            // withAnimation {
-                                            //     showSettingsView = true
-                                            // }
+                                        let swipeDistance = (self.orientation.current == .portraitUpsideDown) ?
+                                                             value.translation.height : value.translation.width
+                                        if (swipeDistance < -DefaultSettings.swipeDistance) {
+                                            //
+                                            // Swipe left.
+                                            //
+                                            withAnimation {
+                                                showSettingsView = true
+                                            }
                                         }
-                                        else if (value.translation.width > 100) { // Swipe right
-                                            print("SWIPE-RIGHT")
+                                        else if (swipeDistance > DefaultSettings.swipeDistance) {
+                                            //
+                                            // Swipe right.
+                                            //
                                         }
                                         if (self.dragging) {
                                             self.pixelMap.onDragEnd(normalizedLocation)
@@ -119,10 +125,10 @@ struct ContentView: View
                             displayWidth: landscape ? ScreenInfo.shared.height : ScreenInfo.shared.width,
                             displayHeight: landscape ? ScreenInfo.shared.width : ScreenInfo.shared.height,
                             cellBackground: self.background)
+                        self.pixelMap.randomize()
+                        self.refreshImage()
+                        self.rotateImage()
                     }
-                    self.pixelMap.onTap(CGPoint(x: 100, y: 100))
-                    self.refreshImage()
-                    self.rotateImage()
                 }
                 .navigationTitle("Home")
                 .navigationBarHidden(true)
@@ -139,14 +145,10 @@ struct ContentView: View
     }
 
     func autoTappingStart() {
-        // TODO: QUICK TESTING SettingsView ...
-        withAnimation {
-            self.showSettingsView = true
-        }
-        /* self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
+        self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
             self.pixelMap.onTap(CGPoint(x: 0.0, y: 0.0))
             self.refreshImage()
-        } */
+        }
     }
 
     func autoTappingStop() {
