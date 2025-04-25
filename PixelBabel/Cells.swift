@@ -9,6 +9,8 @@ import SwiftUI
 //
 class Cells {
 
+    typealias CellFactory = (_ parent: Cells, _ x: Int, _ y: Int) -> Cell
+
     class BufferBlock {
         var index: Int
         var foreground: Bool
@@ -24,19 +26,22 @@ class Cells {
         }
     }
 
-    private let _displayWidth: Int // let
-    private let _displayHeight: Int // let
+    private let _displayWidth: Int
+    private let _displayHeight: Int
     private let _displayScale: CGFloat
     private let _displayScaling: Bool
     private let _cellSize: Int
-    private var _displayWidthUnscaled: Int // let
-    private var _displayHeightUnscaled: Int // let
+    private let _displayWidthUnscaled: Int // let
+    private let _displayHeightUnscaled: Int // let
     private let _cellSizeUnscaled: Int
     private var _cellBufferBlocks: [BufferBlock] = []
+    private let _cellFactory: CellFactory?
     private var _cells: [Cell] = []
     public static let null: Cells = Cells(displayWidth: 0, displayHeight: 0, displayScale: 0.0, displayScaling: false, cellSize: 0)
 
-    init(displayWidth: Int, displayHeight: Int, displayScale: CGFloat, displayScaling: Bool, cellSize: Int) {
+    init(displayWidth: Int, displayHeight: Int,
+         displayScale: CGFloat, displayScaling: Bool,
+         cellSize: Int, cellFactory: CellFactory? = nil) {
 
         func unscaled(_ value: Int) -> Int {
             return displayScaling ? Int(round(CGFloat(value) / displayScale)) : value
@@ -50,6 +55,7 @@ class Cells {
         self._displayWidthUnscaled = unscaled(displayWidth)
         self._displayHeightUnscaled = unscaled(displayHeight)
         self._cellSizeUnscaled = unscaled(cellSize)
+        self._cellFactory = cellFactory
     }
 
     var cells: [Cell] {
@@ -94,10 +100,9 @@ class Cells {
         self._displayHeight / self._cellSize
     }
 
-    func defineCell(x: Int, y: Int) -> Cell {
-        let cell: Cell = Cell(parent: self, x: x, y: y)
+    func defineCell(x: Int, y: Int) {
+        let cell: Cell = (self._cellFactory != nil) ? self._cellFactory!(self, x, y) : Cell(parent: self, x: x, y: y)
         self._cells.append(cell)
-        return cell
     }
 
     func addBufferItem(_ index: Int, foreground: Bool, blend: Float = 0.0) {
