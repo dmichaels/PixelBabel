@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum PixelShape: String, CaseIterable, Identifiable {
+enum CellShape: String, CaseIterable, Identifiable {
     case square = "Square"
     case inset = "Inset"
     case rounded = "Rounded"

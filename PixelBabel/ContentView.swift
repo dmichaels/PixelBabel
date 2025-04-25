@@ -4,13 +4,13 @@ struct ContentView: View
 {
     @StateObject var orientation = OrientationObserver()
 
-    @EnvironmentObject var pixelMap: PixelMap
+    @EnvironmentObject var pixelMap: CellGrid
     @EnvironmentObject var settings: Settings
 
     @State private var pixelMapConfigured: Bool = false
     @State private var geometrySize: CGSize = .zero
     @State private var parentRelativeImagePosition: CGPoint = CGPoint.zero
-    @State private var background: PixelValue = PixelMap.Defaults.cellBackground
+    @State private var background: CellColor = CellGrid.Defaults.cellBackground
     @State private var image: CGImage? = nil
     @State private var imageAngle: Angle = Angle.zero
 
@@ -229,7 +229,7 @@ struct ContentView: View
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static let pixelMap = PixelMap(cellFactory: LifeCell.define)
+    static let pixelMap = CellGrid(cellFactory: LifeCell.define)
     static let settings = Settings()
     static var previews: some View {
         ContentView()

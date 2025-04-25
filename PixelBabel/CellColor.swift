@@ -3,7 +3,7 @@ import SwiftUI
 // This is actually only currently used for the background color of the screen/image,
 // i.e. for the backgound color if the inset margin is greater than zero.
 //
-struct PixelValue: Equatable {
+struct CellColor: Equatable {
 
     var _red: UInt8
     var _green: UInt8
@@ -79,35 +79,35 @@ struct PixelValue: Equatable {
         get { return Color(red: Double(self.red) / 255.0, green: Double(self.green) / 255.0, blue: Double(self.blue) / 255.0) }
     }
 
-    public static let black: PixelValue = PixelValue(0, 0, 0)
-    public static let white: PixelValue = PixelValue(255, 255, 255)
-    public static let dark: PixelValue = PixelValue(50, 50, 50)
-    public static let light: PixelValue = PixelValue(200, 200, 200)
+    public static let black: CellColor = CellColor(0, 0, 0)
+    public static let white: CellColor = CellColor(255, 255, 255)
+    public static let dark: CellColor = CellColor(50, 50, 50)
+    public static let light: CellColor = CellColor(200, 200, 200)
 
-    public static func random(mode: ColorMode = ColorMode.color) -> PixelValue {
+    public static func random(mode: ColorMode = ColorMode.color) -> CellColor {
         if (mode == ColorMode.monochrome) {
             let value: UInt8 = UInt8.random(in: 0...1) * 255
-            return PixelValue(value, value, value)
+            return CellColor(value, value, value)
         }
         else if (mode == ColorMode.grayscale) {
             let value = UInt8.random(in: 0...255)
-            return PixelValue(value, value, value)
+            return CellColor(value, value, value)
         }
         else {
             var rgb = UInt32.random(in: 0...0xFFFFFF)
-            return PixelValue(UInt8((rgb >> 16) & 0xFF), UInt8((rgb >> 8) & 0xFF), UInt8(rgb & 0xFF))
+            return CellColor(UInt8((rgb >> 16) & 0xFF), UInt8((rgb >> 8) & 0xFF), UInt8(rgb & 0xFF))
         }
     }
 
     typealias FilterFunction = (inout [UInt8], Int) -> Void
 
-    public func tintedRed(by amount: CGFloat) -> PixelValue {
+    public func tintedRed(by amount: CGFloat) -> CellColor {
         let clampedAmount = min(max(amount, 0), 1)
         let newRed = UInt8(clampedAmount * 255 + (1 - clampedAmount) * CGFloat(self.red))
         let newGreen = UInt8((1 - clampedAmount) * CGFloat(self.green))
         let newBlue = UInt8((1 - clampedAmount) * CGFloat(self.blue))
-        return PixelValue(newRed, newGreen, newBlue, alpha: self.alpha)
+        return CellColor(newRed, newGreen, newBlue, alpha: self.alpha)
     }
 
-    public static let null: PixelValue = PixelValue(0, 0, 0, alpha: 0)
+    public static let null: CellColor = CellColor(0, 0, 0, alpha: 0)
 }

@@ -3,20 +3,20 @@ import SwiftUI
 
 class DefaultSettings
 {
-    public static let displayScaling: Bool              = PixelMap.Defaults.displayScaling
+    public static let displayScaling: Bool              = CellGrid.Defaults.displayScaling
 
-    public static let cellSize: Int                     = PixelMap.Defaults.cellSize
-    public static let cellSizeNeat: Bool                = PixelMap.Defaults.cellSizeNeat
-    public static let cellPadding: Int                  = PixelMap.Defaults.cellPadding
-    public static let cellBleeds: Bool                  = PixelMap.Defaults.cellBleeds
-    public static let cellShape: PixelShape             = PixelMap.Defaults.cellShape
-    public static let cellColorMode: ColorMode          = PixelMap.Defaults.cellColorMode
-    public static let cellBackground: PixelValue        = PixelMap.Defaults.cellBackground
-    public static let cellAntialiasFade: Float          = PixelMap.Defaults.cellAntialiasFade
-    public static let cellRoundedRectangleRadius: Float = PixelMap.Defaults.cellRoundedRectangleRadius
-    public static let cellPreferredSizeMarginMax: Int   = PixelMap.Defaults.cellPreferredSizeMarginMax
-    public static let cellCaching: Bool                 = PixelMap.Defaults.cellCaching
-    public static let cellLimitUpdate: Bool             = PixelMap.Defaults.cellLimitUpdate
+    public static let cellSize: Int                     = CellGrid.Defaults.cellSize
+    public static let cellSizeNeat: Bool                = CellGrid.Defaults.cellSizeNeat
+    public static let cellPadding: Int                  = CellGrid.Defaults.cellPadding
+    public static let cellBleeds: Bool                  = CellGrid.Defaults.cellBleeds
+    public static let cellShape: CellShape             = CellGrid.Defaults.cellShape
+    public static let cellColorMode: ColorMode          = CellGrid.Defaults.cellColorMode
+    public static let cellBackground: CellColor        = CellGrid.Defaults.cellBackground
+    public static let cellAntialiasFade: Float          = CellGrid.Defaults.cellAntialiasFade
+    public static let cellRoundedRectangleRadius: Float = CellGrid.Defaults.cellRoundedRectangleRadius
+    public static let cellPreferredSizeMarginMax: Int   = CellGrid.Defaults.cellPreferredSizeMarginMax
+    public static let cellCaching: Bool                 = CellGrid.Defaults.cellCaching
+    public static let cellLimitUpdate: Bool             = CellGrid.Defaults.cellLimitUpdate
     public static let automationEnabled: Bool           = true
     public static let automationSpeed: Double           = 0.1
     public static let soundEnabled: Bool                = true
@@ -35,9 +35,9 @@ class Settings: ObservableObject
     @Published var cellSizeNeat: Bool                = DefaultSettings.cellSizeNeat
     @Published var cellPadding: Int                  = DefaultSettings.cellPadding
     @Published var cellBleeds: Bool                  = DefaultSettings.cellBleeds
-    @Published var cellShape: PixelShape             = DefaultSettings.cellShape
+    @Published var cellShape: CellShape             = DefaultSettings.cellShape
     @Published var cellColorMode: ColorMode          = DefaultSettings.cellColorMode
-    @Published var cellBackground: PixelValue        = DefaultSettings.cellBackground
+    @Published var cellBackground: CellColor        = DefaultSettings.cellBackground
     @Published var cellAntialiasFade: Float          = DefaultSettings.cellAntialiasFade
     @Published var cellRoundedRectangleRadius: Float = DefaultSettings.cellRoundedRectangleRadius
     @Published var cellPreferredSizeMarginMax: Int   = DefaultSettings.cellPreferredSizeMarginMax

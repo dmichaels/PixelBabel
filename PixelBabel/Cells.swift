@@ -71,13 +71,13 @@ class Cells {
     // Returns the cell coordinate for the given display input coordinates,
     // which (the display input coordinates) are always in unscaled units.
     //
-    public func locate(_ screenPoint: CGPoint) -> GridPoint? {
-        let point = GridPoint(screenPoint)
+    public func locate(_ screenPoint: CGPoint) -> CellGridPoint? {
+        let point = CellGridPoint(screenPoint)
         if ((point.x < 0) || (point.y < 0) ||
             (point.x >= self._displayWidthUnscaled) || (point.y >= self._displayHeightUnscaled)) {
             return nil
         }
-        return GridPoint(point.x / self._cellSizeUnscaled, point.y / self._cellSizeUnscaled)
+        return CellGridPoint(point.x / self._cellSizeUnscaled, point.y / self._cellSizeUnscaled)
     }
 
     public func cell(_ screenPoint: CGPoint) -> Cell? {
@@ -117,15 +117,15 @@ class Cells {
         }
     }
 
-    public func write(_ buffer: inout [UInt8], x: Int, y: Int, foreground: PixelValue, background: PixelValue, limit: Bool = false) {
+    public func write(_ buffer: inout [UInt8], x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
         let offset: Int = ((self._cellSize * x) + (self._cellSize * self._displayWidth * y)) * ScreenInfo.depth
         buffer.withUnsafeMutableBytes { raw in
             for block in self._cellBufferBlocks {
                 let base: UnsafeMutableRawPointer = raw.baseAddress!.advanced(by: block.index + offset)
-                var color: PixelValue = PixelValue.black
+                var color: CellColor = CellColor.black
                 if (block.foreground) {
                     if (block.blend != 0.0) {
-                        color = PixelValue(Cells.blend(foreground.red,   background.red,   amount: block.blend),
+                        color = CellColor(Cells.blend(foreground.red,   background.red,   amount: block.blend),
                                            Cells.blend(foreground.green, background.green, amount: block.blend),
                                            Cells.blend(foreground.blue,  background.blue,  amount: block.blend),
                                            alpha: foreground.alpha)

@@ -4,7 +4,7 @@ class LifeCell: Cell {
 
     public var _alive: Bool
 
-    init(parent: Cells, x: Int, y: Int,  foreground: PixelValue? = nil, background: PixelValue? = nil, alive: Bool = false) {
+    init(parent: Cells, x: Int, y: Int,  foreground: CellColor? = nil, background: CellColor? = nil, alive: Bool = false) {
         self._alive = alive
         super.init(parent: parent, x: x, y: y, foreground: foreground, background: background)
     }

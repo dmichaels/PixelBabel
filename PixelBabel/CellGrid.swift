@@ -3,7 +3,7 @@ import Foundation
 import SwiftUI
 
 @MainActor
-class PixelMap: ObservableObject {
+class CellGrid: ObservableObject {
 
     struct Defaults {
         public static let displayWidth: Int = ScreenInfo.initialWidth
@@ -15,9 +15,9 @@ class PixelMap: ObservableObject {
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 2
         public static let cellBleeds: Bool = false
-        public static let cellShape: PixelShape = PixelShape.rounded // PixelShape.rounded
+        public static let cellShape: CellShape = CellShape.rounded // CellShape.rounded
         public static let cellColorMode: ColorMode = ColorMode.color
-        public static let cellBackground: PixelValue = PixelValue.dark
+        public static let cellBackground: CellColor = CellColor.dark
         public static let cellAntialiasFade: Float = 0.6
         public static let cellRoundedRectangleRadius: Float = 0.25
         public static var cellPreferredSizeMarginMax: Int   = 30
@@ -32,9 +32,9 @@ class PixelMap: ObservableObject {
     private var _cellSize: Int = Defaults.cellSize
     private var _cellPadding: Int = Defaults.cellPadding
     private var _cellBleeds: Bool = Defaults.cellBleeds
-    private var _cellShape: PixelShape = Defaults.cellShape
+    private var _cellShape: CellShape = Defaults.cellShape
     private var _cellColorMode: ColorMode = Defaults.cellColorMode
-    private var _cellBackground: PixelValue = Defaults.cellBackground
+    private var _cellBackground: CellColor = Defaults.cellBackground
     private var _cellAntialiasFade: Float = Defaults.cellAntialiasFade
     private var _cellRoundedRectangleRadius: Float = Defaults.cellRoundedRectangleRadius
     private var _cellPreferredSizeMarginMax: Int = Defaults.cellPreferredSizeMarginMax
@@ -61,15 +61,15 @@ class PixelMap: ObservableObject {
                    cellSizeNeat: Bool = Defaults.cellSizeNeat,
                    cellPadding: Int = Defaults.cellPadding,
                    cellBleeds: Bool = Defaults.cellBleeds,
-                   cellShape: PixelShape = Defaults.cellShape,
+                   cellShape: CellShape = Defaults.cellShape,
                    cellColorMode: ColorMode = Defaults.cellColorMode,
-                   cellBackground: PixelValue = Defaults.cellBackground,
+                   cellBackground: CellColor = Defaults.cellBackground,
                    displayScaling: Bool = Defaults.displayScaling,
                    cellCaching: Bool = Defaults.cellCaching)
     {
         print("PIXELMAP-CONFIGURE!!!")
         self._displayScale = screen.scale
-        self._displayScaling = [PixelShape.square, PixelShape.inset].contains(cellShape) ? false : displayScaling
+        self._displayScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : displayScaling
         self._displayWidth = scaled(displayWidth)
         self._displayHeight = scaled(displayHeight)
 
@@ -122,7 +122,7 @@ class PixelMap: ObservableObject {
         print("BUFFER-SIZE:            \(self._bufferSize)")
 
         self._cells = self._initializeCells()
-        self.fill(with: PixelValue.dark)
+        self.fill(with: CellColor.dark)
     }
 
     private func _initializeCells() -> Cells {
@@ -133,7 +133,7 @@ class PixelMap: ObservableObject {
                           cellSize: self._cellSize,
                           cellFactory: self._cellFactory)
         if (self._cellCaching) {
-            PixelMap._write(&self._buffer,
+            CellGrid._write(&self._buffer,
                             self._displayWidth, self._displayHeight,
                             x: 0, y: 0,
                             cellSize: self.cellSize,
@@ -203,7 +203,7 @@ class PixelMap: ObservableObject {
         self._cellPadding
     }
 
-    public var cellShape: PixelShape {
+    public var cellShape: CellShape {
         self._cellShape
     }
 
@@ -211,7 +211,7 @@ class PixelMap: ObservableObject {
         self._cellColorMode
     }
 
-    public var background: PixelValue {
+    public var background: CellColor {
         self._cellBackground
     }
 
@@ -230,7 +230,7 @@ class PixelMap: ObservableObject {
 
     public func onDragEnd(_ location: CGPoint) {
         self._dragCell = nil
-        let color = PixelValue.random()
+        let color = CellColor.random()
         self.write(x: Int(location.x), y: Int(location.y), red: color.red, green: color.green, blue: color.blue)
     }
 
@@ -240,11 +240,11 @@ class PixelMap: ObservableObject {
         }
     }
 
-    public func locate(_ location: CGPoint) -> GridPoint? {
+    public func locate(_ location: CGPoint) -> CellGridPoint? {
         return self._cells.locate(location)
     }
 
-    func fill(with pixel: PixelValue = PixelValue.dark) {
+    func fill(with pixel: CellColor = CellColor.dark) {
         for y in 0..<self._displayHeight {
             for x in 0..<self._displayWidth {
                 let i = (y * self._displayWidth + x) * ScreenInfo.depth
@@ -281,7 +281,7 @@ class PixelMap: ObservableObject {
     }
 
     func randomize() {
-        PixelMap._randomize(&self._buffer,
+        CellGrid._randomize(&self._buffer,
                             self._displayWidth, self._displayHeight,
                             width: self.width, height: self.height,
                             cellSize: self.cellSize,
@@ -298,16 +298,16 @@ class PixelMap: ObservableObject {
                            width: Int, height: Int,
                            cellSize: Int,
                            cellColorMode: ColorMode,
-                           cellShape: PixelShape,
+                           cellShape: CellShape,
                            cellPadding: Int,
-                           background: PixelValue = PixelValue.dark,
+                           background: CellColor = CellColor.dark,
                            cells: Cells? = nil)
     {
         let start = Date()
 
         if ((cells != nil) && cells!.caching) {
             for cell in cells!.cells {
-                cell.write(&buffer, foreground: PixelValue.random(), background: background, limit: Defaults.cellLimitUpdate)
+                cell.write(&buffer, foreground: CellColor.random(), background: background, limit: Defaults.cellLimitUpdate)
             }
             let end = Date()
             let elapsed = end.timeIntervalSince(start)
@@ -319,7 +319,7 @@ class PixelMap: ObservableObject {
             for x in 0..<width {
                 if (cellColorMode == ColorMode.monochrome) {
                     let value: UInt8 = UInt8.random(in: 0...1) * 255
-                    PixelMap._write(&buffer,
+                    CellGrid._write(&buffer,
                                     displayWidth, displayHeight,
                                     x: x, y: y,
                                     cellSize: cellSize,
@@ -330,7 +330,7 @@ class PixelMap: ObservableObject {
                 }
                 else if (cellColorMode == ColorMode.grayscale) {
                     let value = UInt8.random(in: 0...255)
-                    PixelMap._write(&buffer,
+                    CellGrid._write(&buffer,
                                     displayWidth, displayHeight,
                                     x: x, y: y,
                                     cellSize: cellSize,
@@ -344,7 +344,7 @@ class PixelMap: ObservableObject {
                     let red = UInt8((rgb >> 16) & 0xFF)
                     let green = UInt8((rgb >> 8) & 0xFF)
                     let blue = UInt8(rgb & 0xFF)
-                    PixelMap._write(&buffer,
+                    CellGrid._write(&buffer,
                                     displayWidth, displayHeight,
                                     x: x, y: y,
                                     cellSize: cellSize,
@@ -360,13 +360,13 @@ class PixelMap: ObservableObject {
         print(String(format: "RANDOMIZE-TIME: %.5f sec", elapsed))
     }
 
-    func writeCell(_ cell: Cell, _ foreground: PixelValue, limit: Bool = true) {
+    func writeCell(_ cell: Cell, _ foreground: CellColor, limit: Bool = true) {
         cell.write(&self._buffer, foreground: foreground, background: self.background, limit: limit)
     }
 
-    func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = PixelMap.Defaults.displayTransparency) {
+    func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = CellGrid.Defaults.displayTransparency) {
         if let cell = self._cells.cell(x, y) {
-            cell.write(&self._buffer, foreground: PixelValue(red, green, blue), background: self.background, limit: Defaults.cellLimitUpdate)
+            cell.write(&self._buffer, foreground: CellColor(red, green, blue), background: self.background, limit: Defaults.cellLimitUpdate)
         }
     }
 
@@ -375,10 +375,10 @@ class PixelMap: ObservableObject {
                        x: Int, y: Int,
                        cellSize: Int,
                        red: UInt8, green: UInt8, blue: UInt8,
-                       transparency: UInt8 = PixelMap.Defaults.displayTransparency,
-                       cellShape: PixelShape = .rounded,
+                       transparency: UInt8 = CellGrid.Defaults.displayTransparency,
+                       cellShape: CellShape = .rounded,
                        cellPadding: Int = 0,
-                       background: PixelValue = PixelValue.dark,
+                       background: CellColor = CellColor.dark,
                        cells: Cells? = nil)
     {
         if ((x < 0) || (y < 0)) {

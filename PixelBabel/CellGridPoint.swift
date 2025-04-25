@@ -1,6 +1,6 @@
 import Foundation
 
-struct GridPoint: Equatable {
+struct CellGridPoint: Equatable {
 
     public let x: Int
     public let y: Int
