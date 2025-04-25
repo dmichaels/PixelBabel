@@ -9,7 +9,7 @@ import SwiftUI
 
 @main
 struct PixelBabelApp: App {
-    @StateObject var pixelMap: PixelMap = PixelMap()
+    @StateObject var pixelMap: PixelMap = PixelMap(cellFactory: LifeCell.define)
     @StateObject var settings: Settings = Settings()
     var body: some Scene {
         WindowGroup {

@@ -31,13 +31,15 @@ class Cells {
     private let _displayScale: CGFloat
     private let _displayScaling: Bool
     private let _cellSize: Int
-    private let _displayWidthUnscaled: Int // let
-    private let _displayHeightUnscaled: Int // let
+    private let _displayWidthUnscaled: Int
+    private let _displayHeightUnscaled: Int
     private let _cellSizeUnscaled: Int
     private var _cellBufferBlocks: [BufferBlock] = []
     private let _cellFactory: CellFactory?
     private var _cells: [Cell] = []
-    public static let null: Cells = Cells(displayWidth: 0, displayHeight: 0, displayScale: 0.0, displayScaling: false, cellSize: 0)
+
+    public static let null: Cells = Cells(displayWidth: 0, displayHeight: 0,
+                                          displayScale: 0.0, displayScaling: false, cellSize: 0)
 
     init(displayWidth: Int, displayHeight: Int,
          displayScale: CGFloat, displayScaling: Bool,

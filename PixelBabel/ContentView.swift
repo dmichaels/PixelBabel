@@ -229,7 +229,7 @@ struct ContentView: View
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static let pixelMap = PixelMap()
+    static let pixelMap = PixelMap(cellFactory: LifeCell.define)
     static let settings = Settings()
     static var previews: some View {
         ContentView()

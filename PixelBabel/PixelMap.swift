@@ -43,12 +43,14 @@ class PixelMap: ObservableObject {
     private var _bufferSize: Int = 0
     private var _buffer: [UInt8] = []
     private var _cells: Cells = Cells.null
+    private var _cellFactory: Cells.CellFactory?
     private let _colorSpace = CGColorSpaceCreateDeviceRGB()
     private let _bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
 
     private var _dragCell: Cell? = nil
 
-    init() {
+    init(cellFactory: Cells.CellFactory? = nil) {
+        self._cellFactory = cellFactory
         print("PIXELMAP-CONSTRUCTOR!!!")
     }
 
@@ -128,7 +130,8 @@ class PixelMap: ObservableObject {
                           displayHeight: self._displayHeight,
                           displayScale: self._displayScale,
                           displayScaling: self._displayScaling,
-                          cellSize: self._cellSize)
+                          cellSize: self._cellSize,
+                          cellFactory: self._cellFactory)
         if (self._cellCaching) {
             PixelMap._write(&self._buffer,
                             self._displayWidth, self._displayHeight,
