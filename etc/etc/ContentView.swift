@@ -15,10 +15,8 @@ struct ContentView: View
     @State private var imageAngle: Angle = Angle.zero
 
     @State private var showSettingsView = false
-
     @State private var dragging: Bool = false
     @State private var draggingStart: CGPoint? = nil
-
     @State private var autoTapping: Bool = false
     @State private var autoTappingTimer: Timer?
 
@@ -144,18 +142,6 @@ struct ContentView: View
         .navigationViewStyle(.stack)
     }
 
-    func autoTappingStart() {
-        self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
-            self.pixelMap.onTap(CGPoint(x: 0.0, y: 0.0))
-            self.refreshImage()
-        }
-    }
-
-    func autoTappingStop() {
-        self.autoTappingTimer?.invalidate()
-        self.autoTappingTimer = nil
-    }
-
     private func refreshImage() {
         self.image = self.pixelMap.image
     }
@@ -222,6 +208,18 @@ struct ContentView: View
 
     private func onChangeOrientation(_ current: UIDeviceOrientation, _ previous: UIDeviceOrientation) {
         self.rotateImage()
+    }
+
+    private func autoTappingStart() {
+        self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
+            self.pixelMap.onTap(CGPoint(x: 0.0, y: 0.0))
+            self.refreshImage()
+        }
+    }
+
+    private func autoTappingStop() {
+        self.autoTappingTimer?.invalidate()
+        self.autoTappingTimer = nil
     }
 }
 
