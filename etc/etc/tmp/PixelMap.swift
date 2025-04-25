@@ -11,7 +11,7 @@ class PixelMap: ObservableObject {
         public static let displayScale: CGFloat = ScreenInfo.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 37 // 35
+        public static let cellSize: Int = 43 // 32 // 8 // 83 // 43 // 37 // 35
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 2
         public static let cellBleeds: Bool = false
@@ -20,6 +20,7 @@ class PixelMap: ObservableObject {
         public static let cellBackground: PixelValue = PixelValue.dark
         public static let cellAntialiasFade: Float = 0.6
         public static let cellRoundedRectangleRadius: Float = 0.25
+        public static var cellPreferredSizeMarginMax: Int   = 30
         public static let cellLimitUpdate: Bool = true
         public static let cellCaching: Bool = true
     }
@@ -36,13 +37,16 @@ class PixelMap: ObservableObject {
     private var _cellBackground: PixelValue = Defaults.cellBackground
     private var _cellAntialiasFade: Float = Defaults.cellAntialiasFade
     private var _cellRoundedRectangleRadius: Float = Defaults.cellRoundedRectangleRadius
-    private var _cellLimitUpdate: Bool = Defaults.cellLimitUpdate
+    private var _cellPreferredSizeMarginMax: Int = Defaults.cellPreferredSizeMarginMax
     private var _cellCaching: Bool = Defaults.cellCaching
+    private var _cellLimitUpdate: Bool = Defaults.cellLimitUpdate
     private var _bufferSize: Int = 0
     private var _buffer: [UInt8] = []
     private var _cells: Cells = Cells.null
     private let _colorSpace = CGColorSpaceCreateDeviceRGB()
     private let _bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
+
+    private var _dragCell: Cell? = nil
 
     init() {
         print("PIXELMAP-CONSTRUCTOR!!!")
@@ -77,11 +81,11 @@ class PixelMap: ObservableObject {
         self._bufferSize = self._displayWidth * self._displayHeight * ScreenInfo.depth
         self._buffer = [UInt8](repeating: 0, count: self._bufferSize)
 
-        let neatCells = Cells.preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight))
-        /* print("NEAT-CELL-SIZES-US:")
+        let neatCells = Cells.preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight), cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
+        print("NEAT-CELL-SIZES-US:")
         for neatCell in neatCells {
             print("NEAT-CELL-US: \(neatCell.cellSize) | \(neatCell.displayWidth) \(neatCell.displayHeight) | \(unscaled(self._displayWidth) - neatCell.displayWidth) \(unscaled(self._displayHeight) - neatCell.displayHeight)")
-        } */
+        }
         if (cellSizeNeat) {
             if let neatCell = Cells.closestPreferredCellSize(in: neatCells, to: unscaled(self._cellSize)) {
                 print("ORIG-CELL-SIZE:            \(scaled(cellSize))")
@@ -142,11 +146,6 @@ class PixelMap: ObservableObject {
             }
         }
         return cells
-    }
-
-    var displayOrientation: UIDeviceOrientation {
-        get { self._cells.displayOrientation }
-        set { self._cells.displayOrientation = newValue }
     }
 
     public var displayWidth: Int {
@@ -213,24 +212,28 @@ class PixelMap: ObservableObject {
         self._cellBackground
     }
 
-    public func onDrag(_ location: CGPoint, orientation: UIDeviceOrientation = UIDeviceOrientation.portrait, previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) {
+    public func onDrag(_ location: CGPoint) {
         if let cell = self._cells.cell(location) {
-            let color = PixelValue(255, 0, 0)
-            self.write(x: cell.x, y: cell.y, red: color.red, green: color.green, blue: color.blue)
+            if ((self._dragCell == nil) || (self._dragCell!.location != cell.location)) {
+                let color = cell.foreground.tintedRed(by: 0.65)
+                self.write(x: cell.x, y: cell.y, red: color.red, green: color.green, blue: color.blue)
+                self._dragCell = cell
+            }
+            // let color = PixelValue(255, 255, 0)
+            // self.write(x: cell.x, y: cell.y, red: color.red, green: color.green, blue: color.blue)
         }
     }
 
-    public func onDragEnd(_ location: CGPoint, orientation: UIDeviceOrientation = UIDeviceOrientation.portrait, previousOrientation: UIDeviceOrientation = UIDeviceOrientation.portrait) {
+    public func onDragEnd(_ location: CGPoint) {
+        self._dragCell = nil
         let color = PixelValue.random()
         self.write(x: Int(location.x), y: Int(location.y), red: color.red, green: color.green, blue: color.blue)
     }
 
     public func onTap(_ location: CGPoint) {
         if let cell = self._cells.cell(location) {
-            print("PIXELMAP-TAP: \(location) -> (\(cell.x), \(cell.y))")
             self.randomize()
         }
-        print("PIXELMAP-ON-TAP: \(location) -> NOOP")
     }
 
     public func locate(_ location: CGPoint) -> Point? {
@@ -264,12 +267,10 @@ class PixelMap: ObservableObject {
                 space: self._colorSpace,
                 bitmapInfo: self._bitmapInfo
             ) {
-                // image = context.makeImage()
                 let start = CFAbsoluteTimeGetCurrent()
                 image = context.makeImage()
                 let end = CFAbsoluteTimeGetCurrent()
                 print(String(format: "MAKE-IMAGE-TIME: %.5f ms | \(image!.width) \(image!.height)", (end - start) * 1000))
-                // print("MAKE-IMAGE-SIZE: \(image!.width) \(image!.height)")
             }
         }
         return image
@@ -306,7 +307,7 @@ class PixelMap: ObservableObject {
             }
             let end = Date()
             let elapsed = end.timeIntervalSince(start)
-            print(String(format: "NEW-RANDOMIZE-OPTIMIZED-TIME: %.5f seconds", elapsed))
+            print(String(format: "NEW-RANDOMIZE-OPTIMIZED-TIME: %.5f sec", elapsed))
             return
         }
 
@@ -352,7 +353,7 @@ class PixelMap: ObservableObject {
         }
         let end = Date()
         let elapsed = end.timeIntervalSince(start)
-        print(String(format: "RANDOMIZE-TIME: %.5f seconds", elapsed))
+        print(String(format: "RANDOMIZE-TIME: %.5f sec", elapsed))
     }
 
     func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = PixelMap.Defaults.displayTransparency) {
@@ -362,14 +363,10 @@ class PixelMap: ObservableObject {
     }
 
     static func _write(_ buffer: inout [UInt8],
-                       _ displayWidth: Int,
-                       _ displayHeight: Int,
-                       x: Int,
-                       y: Int,
+                       _ displayWidth: Int, _ displayHeight: Int,
+                       x: Int, y: Int,
                        cellSize: Int,
-                       red: UInt8,
-                       green: UInt8,
-                       blue: UInt8,
+                       red: UInt8, green: UInt8, blue: UInt8,
                        transparency: UInt8 = PixelMap.Defaults.displayTransparency,
                        cellShape: PixelShape = .rounded,
                        cellPadding: Int = 0,
@@ -380,7 +377,7 @@ class PixelMap: ObservableObject {
             return
         }
 
-        var cellPaddingThickness = 0
+        var cellPaddingThickness: Int = 0
         if ((cellPadding > 0) && (cellSize >= 6) && (cellShape != .square)) {
             cellPaddingThickness = cellPadding
         }

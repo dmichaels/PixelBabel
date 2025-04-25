@@ -101,28 +101,12 @@ struct PixelValue: Equatable {
 
     typealias FilterFunction = (inout [UInt8], Int) -> Void
 
-    static func tintRed(pixels: inout [UInt8], index: Int, amount: Double = 0.2) {
-        let boost = amount * 255.0
-        let drop  = boost / 2
-        pixels[index]     = UInt8(clamping: Int(Double(pixels[index]) + boost))
-        pixels[index + 1] = UInt8(clamping: Int(Double(pixels[index + 1]) - drop))
-        pixels[index + 2] = UInt8(clamping: Int(Double(pixels[index + 2]) - drop))
-    }
-
-    static func tintGreen(pixels: inout [UInt8], index: Int, amount: Double = 0.2) {
-        let boost = amount * 255.0
-        let drop  = boost / 2
-        pixels[index]     = UInt8(clamping: Int(Double(pixels[index]) - drop))
-        pixels[index + 1] = UInt8(clamping: Int(Double(pixels[index + 1]) + boost))
-        pixels[index + 2] = UInt8(clamping: Int(Double(pixels[index + 2]) - drop))
-    }
-
-    static func tintBlue(pixels: inout [UInt8], index: Int, amount: Double = 0.2) {
-        let boost = amount * 255.0
-        let drop  = boost / 2
-        pixels[index]     = UInt8(clamping: Int(Double(pixels[index]) - drop))
-        pixels[index + 1] = UInt8(clamping: Int(Double(pixels[index + 1]) - drop))
-        pixels[index + 2] = UInt8(clamping: Int(Double(pixels[index + 2]) + boost))
+    public func tintedRed(by amount: CGFloat) -> PixelValue {
+        let clampedAmount = min(max(amount, 0), 1)
+        let newRed = UInt8(clampedAmount * 255 + (1 - clampedAmount) * CGFloat(self.red))
+        let newGreen = UInt8((1 - clampedAmount) * CGFloat(self.green))
+        let newBlue = UInt8((1 - clampedAmount) * CGFloat(self.blue))
+        return PixelValue(newRed, newGreen, newBlue, alpha: self.alpha)
     }
 
     public static let null: PixelValue = PixelValue(0, 0, 0, alpha: 0)

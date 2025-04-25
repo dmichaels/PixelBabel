@@ -1,6 +1,6 @@
 import Foundation
 
-struct Point {
+struct Point: Equatable {
 
     public let x: Int
     public let y: Int
