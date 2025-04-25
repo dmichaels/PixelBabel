@@ -1,9 +1,9 @@
 import SwiftUI
 
 @MainActor
-class ScreenInfo: ObservableObject
+public class ScreenInfo: ObservableObject
 {
-    static let shared = ScreenInfo()
+    public static let shared = ScreenInfo()
 
     // These initial values are technically just guesses as the real info should be
     // be obtained via the onAppear event of the main view within a GeometryReader;
@@ -16,7 +16,7 @@ class ScreenInfo: ObservableObject
     // This depth (aka channels) is the number of byte (UInt8) elements in
     // a pixel i.e. one byte each for red, blue, green, and alpha, aka RGBA.
     //
-    static let depth: Int = 4
+    public static let depth: Int = 4
 
     var _width: Int = initialWidth
     var _height: Int = initialHeight
@@ -43,7 +43,7 @@ class ScreenInfo: ObservableObject
         self._scale 
     }
 
-    func configure(size: CGSize, scale: CGFloat) {
+    public func configure(size: CGSize, scale: CGFloat) {
         //
         // N.B. This should be called from within
         // the onAppear within the main ContentView.

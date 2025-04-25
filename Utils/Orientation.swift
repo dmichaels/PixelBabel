@@ -1,6 +1,6 @@
 import SwiftUI
 
-class Orientation {
+public class Orientation {
 
     public static var current: UIDeviceOrientation {
         var orientation: UIDeviceOrientation = UIDevice.current.orientation

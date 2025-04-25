@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import Utils
 
 // A main purpose of this (as first created) is for keeping track of the backing pixel buffer
 // indices for the (canonical) cell; for the purpose of being able to write the values very fast
@@ -126,9 +127,9 @@ class Cells {
                 if (block.foreground) {
                     if (block.blend != 0.0) {
                         color = CellColor(Cells.blend(foreground.red,   background.red,   amount: block.blend),
-                                           Cells.blend(foreground.green, background.green, amount: block.blend),
-                                           Cells.blend(foreground.blue,  background.blue,  amount: block.blend),
-                                           alpha: foreground.alpha)
+                                          Cells.blend(foreground.green, background.green, amount: block.blend),
+                                          Cells.blend(foreground.blue,  background.blue,  amount: block.blend),
+                                          alpha: foreground.alpha)
                     }
                     else {
                         color = foreground
@@ -162,10 +163,10 @@ class Cells {
         guard minDimension > 0 else { return [] }
         var results: [(cellSize: Int, displayWidth: Int, displayHeight: Int)] = []
         for cellSize in 1...minDimension {
-            let cellsX = displayWidth / cellSize
-            let cellsY = displayHeight / cellSize
-            let usedW = cellsX * cellSize
-            let usedH = cellsY * cellSize
+            let ncols = displayWidth / cellSize
+            let nrows = displayHeight / cellSize
+            let usedW = ncols * cellSize
+            let usedH = nrows * cellSize
             let leftX = displayWidth - usedW
             let leftY = displayHeight - usedH
             if ((leftX <= cellPreferredSizeMarginMax) && (leftY <= cellPreferredSizeMarginMax)) {

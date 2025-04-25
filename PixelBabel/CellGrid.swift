@@ -1,6 +1,7 @@
 import CoreGraphics
 import Foundation
 import SwiftUI
+import Utils
 
 @MainActor
 class CellGrid: ObservableObject {
@@ -16,7 +17,7 @@ class CellGrid: ObservableObject {
         public static let cellPadding: Int = 2
         public static let cellBleeds: Bool = false
         public static let cellShape: CellShape = CellShape.rounded // CellShape.rounded
-        public static let cellColorMode: ColorMode = ColorMode.color
+        public static let cellColorMode: CellColorMode = CellColorMode.color
         public static let cellBackground: CellColor = CellColor.dark
         public static let cellAntialiasFade: Float = 0.6
         public static let cellRoundedRectangleRadius: Float = 0.25
@@ -33,7 +34,7 @@ class CellGrid: ObservableObject {
     private var _cellPadding: Int = Defaults.cellPadding
     private var _cellBleeds: Bool = Defaults.cellBleeds
     private var _cellShape: CellShape = Defaults.cellShape
-    private var _cellColorMode: ColorMode = Defaults.cellColorMode
+    private var _cellColorMode: CellColorMode = Defaults.cellColorMode
     private var _cellBackground: CellColor = Defaults.cellBackground
     private var _cellAntialiasFade: Float = Defaults.cellAntialiasFade
     private var _cellRoundedRectangleRadius: Float = Defaults.cellRoundedRectangleRadius
@@ -62,7 +63,7 @@ class CellGrid: ObservableObject {
                    cellPadding: Int = Defaults.cellPadding,
                    cellBleeds: Bool = Defaults.cellBleeds,
                    cellShape: CellShape = Defaults.cellShape,
-                   cellColorMode: ColorMode = Defaults.cellColorMode,
+                   cellColorMode: CellColorMode = Defaults.cellColorMode,
                    cellBackground: CellColor = Defaults.cellBackground,
                    displayScaling: Bool = Defaults.displayScaling,
                    cellCaching: Bool = Defaults.cellCaching)
@@ -207,7 +208,7 @@ class CellGrid: ObservableObject {
         self._cellShape
     }
 
-    public var cellColorMode: ColorMode {
+    public var cellColorMode: CellColorMode {
         self._cellColorMode
     }
 
@@ -297,7 +298,7 @@ class CellGrid: ObservableObject {
                            _ displayHeight: Int,
                            width: Int, height: Int,
                            cellSize: Int,
-                           cellColorMode: ColorMode,
+                           cellColorMode: CellColorMode,
                            cellShape: CellShape,
                            cellPadding: Int,
                            background: CellColor = CellColor.dark,
@@ -317,7 +318,7 @@ class CellGrid: ObservableObject {
 
         for y in 0..<height {
             for x in 0..<width {
-                if (cellColorMode == ColorMode.monochrome) {
+                if (cellColorMode == CellColorMode.monochrome) {
                     let value: UInt8 = UInt8.random(in: 0...1) * 255
                     CellGrid._write(&buffer,
                                     displayWidth, displayHeight,
@@ -328,7 +329,7 @@ class CellGrid: ObservableObject {
                                     cellPadding: cellPadding,
                                     background: background)
                 }
-                else if (cellColorMode == ColorMode.grayscale) {
+                else if (cellColorMode == CellColorMode.grayscale) {
                     let value = UInt8.random(in: 0...255)
                     CellGrid._write(&buffer,
                                     displayWidth, displayHeight,

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import Utils
 
 class DefaultSettings
 {
@@ -9,9 +10,9 @@ class DefaultSettings
     public static let cellSizeNeat: Bool                = CellGrid.Defaults.cellSizeNeat
     public static let cellPadding: Int                  = CellGrid.Defaults.cellPadding
     public static let cellBleeds: Bool                  = CellGrid.Defaults.cellBleeds
-    public static let cellShape: CellShape             = CellGrid.Defaults.cellShape
-    public static let cellColorMode: ColorMode          = CellGrid.Defaults.cellColorMode
-    public static let cellBackground: CellColor        = CellGrid.Defaults.cellBackground
+    public static let cellShape: CellShape              = CellGrid.Defaults.cellShape
+    public static let cellColorMode: CellColorMode      = CellGrid.Defaults.cellColorMode
+    public static let cellBackground: CellColor         = CellGrid.Defaults.cellBackground
     public static let cellAntialiasFade: Float          = CellGrid.Defaults.cellAntialiasFade
     public static let cellRoundedRectangleRadius: Float = CellGrid.Defaults.cellRoundedRectangleRadius
     public static let cellPreferredSizeMarginMax: Int   = CellGrid.Defaults.cellPreferredSizeMarginMax
@@ -35,9 +36,9 @@ class Settings: ObservableObject
     @Published var cellSizeNeat: Bool                = DefaultSettings.cellSizeNeat
     @Published var cellPadding: Int                  = DefaultSettings.cellPadding
     @Published var cellBleeds: Bool                  = DefaultSettings.cellBleeds
-    @Published var cellShape: CellShape             = DefaultSettings.cellShape
-    @Published var cellColorMode: ColorMode          = DefaultSettings.cellColorMode
-    @Published var cellBackground: CellColor        = DefaultSettings.cellBackground
+    @Published var cellShape: CellShape              = DefaultSettings.cellShape
+    @Published var cellColorMode: CellColorMode      = DefaultSettings.cellColorMode
+    @Published var cellBackground: CellColor         = DefaultSettings.cellBackground
     @Published var cellAntialiasFade: Float          = DefaultSettings.cellAntialiasFade
     @Published var cellRoundedRectangleRadius: Float = DefaultSettings.cellRoundedRectangleRadius
     @Published var cellPreferredSizeMarginMax: Int   = DefaultSettings.cellPreferredSizeMarginMax

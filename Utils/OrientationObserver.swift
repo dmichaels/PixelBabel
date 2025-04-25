@@ -1,19 +1,19 @@
 import SwiftUI
 import Combine
 
-class OrientationObserver: ObservableObject {
+public class OrientationObserver: ObservableObject {
 
-    @Published var current: UIDeviceOrientation = Orientation.current
-    @Published var previous: UIDeviceOrientation = Orientation.current
+    @Published public var current: UIDeviceOrientation = Orientation.current
+    @Published public var previous: UIDeviceOrientation = Orientation.current
 
     public let ipad: Bool = (UIDevice.current.userInterfaceIdiom == .pad)
 
-    typealias Callback = (_ current: UIDeviceOrientation, _ previous: UIDeviceOrientation) -> Void
+    public typealias Callback = (_ current: UIDeviceOrientation, _ previous: UIDeviceOrientation) -> Void
 
     private var _callback: Callback?
     private var _cancellable: AnyCancellable?
 
-    init(callback: Callback? = nil) {
+    public init(callback: Callback? = nil) {
         UIDevice.current.beginGeneratingDeviceOrientationNotifications()
         self.current = Orientation.current
         self.previous = self.current

@@ -84,12 +84,12 @@ struct CellColor: Equatable {
     public static let dark: CellColor = CellColor(50, 50, 50)
     public static let light: CellColor = CellColor(200, 200, 200)
 
-    public static func random(mode: ColorMode = ColorMode.color) -> CellColor {
-        if (mode == ColorMode.monochrome) {
+    public static func random(mode: CellColorMode = CellColorMode.color) -> CellColor {
+        if (mode == CellColorMode.monochrome) {
             let value: UInt8 = UInt8.random(in: 0...1) * 255
             return CellColor(value, value, value)
         }
-        else if (mode == ColorMode.grayscale) {
+        else if (mode == CellColorMode.grayscale) {
             let value = UInt8.random(in: 0...255)
             return CellColor(value, value, value)
         }

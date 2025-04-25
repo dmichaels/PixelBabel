@@ -52,6 +52,17 @@
                ReferencedContainer = "container:PixelBabel.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "98F98D212DBBCB81003FF91D"
+               BuildableName = "UtilsTests.xctest"
+               BlueprintName = "UtilsTests"
+               ReferencedContainer = "container:PixelBabel.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

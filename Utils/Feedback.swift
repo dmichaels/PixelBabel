@@ -5,10 +5,12 @@ import AVFoundation
 
 struct Feedback
 {
-    private var _settings: Settings
+    private var _soundsEnabled: Bool = false
+    private var _hapticsEnabled: Bool = false
 
-    init(_ settings: Settings) {
-        self._settings = settings
+    init(sounds: Bool = false, haptics: Bool = false) {
+        self._soundsEnabled = sounds
+        self._hapticsEnabled = haptics
     }
     
     func triggerTapSound() {
@@ -29,10 +31,10 @@ struct Feedback
     }
 
     func trigger() {
-        if (self._settings.soundEnabled) {
+        if (self._soundsEnabled) {
             self.triggerTapSound()
         }
-        if (self._settings.hapticEnabled) {
+        if (self._hapticsEnabled) {
             self.triggerHaptic()
         }
     }

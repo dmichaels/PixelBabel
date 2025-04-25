@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-enum ColorMode: String, CaseIterable, Identifiable {
+enum CellColorMode: String, CaseIterable, Identifiable {
     case monochrome = "Monochrome"
     case grayscale = "Grayscale"
     case color = "Color"
