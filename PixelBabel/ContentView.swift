@@ -216,7 +216,8 @@ struct ContentView: View
 
     private func autoTappingStart() {
         self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
-            self.pixelMap.onTap(CGPoint(x: 0.0, y: 0.0))
+            // self.pixelMap.onTap(CGPoint(x: 0.0, y: 0.0))
+            self.pixelMap.randomize()
             self.updateImage()
         }
     }

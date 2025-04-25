@@ -19,6 +19,8 @@ class DefaultSettings
     public static let cellLimitUpdate: Bool             = PixelMap.Defaults.cellLimitUpdate
     public static let automationEnabled: Bool           = true
     public static let automationSpeed: Double           = 0.1
+    public static let soundEnabled: Bool                = true
+    public static let hapticEnabled: Bool               = true
 
     public static let draggingThreshold: CGFloat        = 3.0
     public static let swipeDistance: CGFloat            = 100
@@ -43,6 +45,8 @@ class Settings: ObservableObject
     @Published var cellLimitUpdate: Bool             = DefaultSettings.cellLimitUpdate
     @Published var automationEnabled: Bool           = DefaultSettings.automationEnabled
     @Published var automationSpeed: Double           = DefaultSettings.automationSpeed
+    @Published var soundEnabled: Bool                = DefaultSettings.soundEnabled
+    @Published var hapticEnabled: Bool               = DefaultSettings.hapticEnabled
 
     @Published var updateMode: Bool                  = DefaultSettings.updateMode
 }
