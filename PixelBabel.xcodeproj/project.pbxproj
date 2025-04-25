@@ -21,12 +21,12 @@
 		984AE8562D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8552D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift */; };
 		98DF05902DAD9C4100A24923 /* ScreenInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98DF058F2DAD9C4100A24923 /* ScreenInfo.swift */; };
 		98F98D032DBB6C49003FF91D /* Cells.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98CFE2DBB6C49003FF91D /* Cells.swift */; };
-		98F98D042DBB6C49003FF91D /* Point.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D022DBB6C49003FF91D /* Point.swift */; };
 		98F98D052DBB6C49003FF91D /* OrientationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D002DBB6C49003FF91D /* OrientationObserver.swift */; };
 		98F98D062DBB6C49003FF91D /* PixelValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D012DBB6C49003FF91D /* PixelValue.swift */; };
 		98F98D072DBB6C49003FF91D /* Orientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98CFF2DBB6C49003FF91D /* Orientation.swift */; };
 		98F98D082DBB6C49003FF91D /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98CFD2DBB6C49003FF91D /* Cell.swift */; };
 		98F98D0A2DBB6D7F003FF91D /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D092DBB6D7F003FF91D /* Feedback.swift */; };
+		98F98D0C2DBBA696003FF91D /* GridPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D0B2DBBA696003FF91D /* GridPoint.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,8 +68,8 @@
 		98F98CFF2DBB6C49003FF91D /* Orientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Orientation.swift; sourceTree = "<group>"; };
 		98F98D002DBB6C49003FF91D /* OrientationObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrientationObserver.swift; sourceTree = "<group>"; };
 		98F98D012DBB6C49003FF91D /* PixelValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelValue.swift; sourceTree = "<group>"; };
-		98F98D022DBB6C49003FF91D /* Point.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Point.swift; sourceTree = "<group>"; };
 		98F98D092DBB6D7F003FF91D /* Feedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feedback.swift; sourceTree = "<group>"; };
+		98F98D0B2DBBA696003FF91D /* GridPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridPoint.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,6 +127,7 @@
 				982857752DA1796A00770B45 /* ColorMode.swift */,
 				984AE83A2D9904ED00DBCEDA /* ContentView.swift */,
 				98F98D092DBB6D7F003FF91D /* Feedback.swift */,
+				98F98D0B2DBBA696003FF91D /* GridPoint.swift */,
 				9801C8212DA7EC9800AB409F /* Memory.swift */,
 				98F98CFF2DBB6C49003FF91D /* Orientation.swift */,
 				98F98D002DBB6C49003FF91D /* OrientationObserver.swift */,
@@ -134,7 +135,6 @@
 				9828577B2DA17A5900770B45 /* PixelMap.swift */,
 				9801C8272DA8BB2A00AB409F /* PixelShape.swift */,
 				98F98D012DBB6C49003FF91D /* PixelValue.swift */,
-				98F98D022DBB6C49003FF91D /* Point.swift */,
 				98DF058F2DAD9C4100A24923 /* ScreenInfo.swift */,
 				982857772DA179C800770B45 /* Settings.swift */,
 				982857792DA17A1700770B45 /* SettingsView.swift */,
@@ -295,12 +295,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				98F98D0C2DBBA696003FF91D /* GridPoint.swift in Sources */,
 				9801C8222DA7EC9800AB409F /* Memory.swift in Sources */,
 				98DF05902DAD9C4100A24923 /* ScreenInfo.swift in Sources */,
 				9828577A2DA17A1700770B45 /* SettingsView.swift in Sources */,
 				984AE83B2D9904ED00DBCEDA /* ContentView.swift in Sources */,
 				98F98D032DBB6C49003FF91D /* Cells.swift in Sources */,
-				98F98D042DBB6C49003FF91D /* Point.swift in Sources */,
 				98F98D052DBB6C49003FF91D /* OrientationObserver.swift in Sources */,
 				98F98D062DBB6C49003FF91D /* PixelValue.swift in Sources */,
 				98F98D072DBB6C49003FF91D /* Orientation.swift in Sources */,

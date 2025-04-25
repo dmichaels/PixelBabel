@@ -63,13 +63,13 @@ class Cells {
     // Returns the cell coordinate for the given display input coordinates,
     // which (the display input coordinates) are always in unscaled units.
     //
-    public func locate(_ screenPoint: CGPoint) -> Point? {
-        let point = Point(screenPoint)
+    public func locate(_ screenPoint: CGPoint) -> GridPoint? {
+        let point = GridPoint(screenPoint)
         if ((point.x < 0) || (point.y < 0) ||
             (point.x >= self._displayWidthUnscaled) || (point.y >= self._displayHeightUnscaled)) {
             return nil
         }
-        return Point(point.x / self._cellSizeUnscaled, point.y / self._cellSizeUnscaled)
+        return GridPoint(point.x / self._cellSizeUnscaled, point.y / self._cellSizeUnscaled)
     }
 
     public func cell(_ screenPoint: CGPoint) -> Cell? {

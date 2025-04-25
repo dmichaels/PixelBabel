@@ -16,8 +16,8 @@ class Cell {
         self._y
     }
 
-    public var location: Point {
-        Point(self._x, self._y)
+    public var location: GridPoint {
+        GridPoint(self._x, self._y)
     }
 
     public var foreground: PixelValue {

@@ -237,7 +237,7 @@ class PixelMap: ObservableObject {
         }
     }
 
-    public func locate(_ location: CGPoint) -> Point? {
+    public func locate(_ location: CGPoint) -> GridPoint? {
         return self._cells.locate(location)
     }
 
