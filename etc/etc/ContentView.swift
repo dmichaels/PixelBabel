@@ -173,13 +173,16 @@ struct ContentView: View
             // Jake and iPad simulator); best to just disable
             // upside-down mode in project deployment-info.
             //
-            if (self.orientation.previous.isLandscape) {
+            if (orientation.ipad) {
+                self.imageAngle = Angle.degrees(180)
+            }
+            else if (self.orientation.previous.isLandscape) {
                 self.imageAngle = Angle.degrees(90)
             } else {
-                self.imageAngle = .degrees(0)
+                self.imageAngle = Angle.degrees(0)
             }
         default:
-            self.imageAngle = .degrees(0)
+            self.imageAngle = Angle.degrees(0)
         }
     }
 
@@ -190,7 +193,11 @@ struct ContentView: View
             x = location.x - self.parentRelativeImagePosition.x
             y = location.y - self.parentRelativeImagePosition.y
         case .portraitUpsideDown:
-            if (self.orientation.previous.isLandscape) {
+            if (orientation.ipad) {
+                x = CGFloat(self.pixelMap.displayWidthUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.x)
+                y = CGFloat(self.pixelMap.displayHeightUnscaled) - 1 - (location.y - self.parentRelativeImagePosition.y)
+            }
+            else if (self.orientation.previous.isLandscape) {
                 x = location.y - self.parentRelativeImagePosition.x
                 y = CGFloat(self.pixelMap.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
             }

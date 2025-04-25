@@ -6,6 +6,8 @@ class OrientationObserver: ObservableObject {
     @Published var current: UIDeviceOrientation = Orientation.current
     @Published var previous: UIDeviceOrientation = Orientation.current
 
+    public let ipad: Bool = (UIDevice.current.userInterfaceIdiom == .pad)
+
     typealias Callback = (_ current: UIDeviceOrientation, _ previous: UIDeviceOrientation) -> Void
 
     private var _callback: Callback?
