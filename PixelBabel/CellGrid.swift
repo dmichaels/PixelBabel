@@ -47,8 +47,6 @@ class CellGrid: ObservableObject {
     private var _cellFactory: Cells.CellFactory?
     private var _dragCell: Cell? = nil
 
-    internal var _buffer: [UInt8] = []
-
     init(cellFactory: Cells.CellFactory? = nil) {
         self._cellFactory = cellFactory
         print("PIXELMAP-CONSTRUCTOR!!!")
@@ -81,8 +79,6 @@ class CellGrid: ObservableObject {
         self._cellBackground = cellBackground
         self._cellCaching = cellCaching
 
-        let bufferSize = self._displayWidth * self._displayHeight * ScreenInfo.depth
-        self._buffer = [UInt8](repeating: 0, count: bufferSize)
 
         let neatCells = Cells.preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight), cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
         // print("NEAT-CELL-SIZES-US:")
@@ -120,7 +116,6 @@ class CellGrid: ObservableObject {
         print("CELL-SIZE-US:           \(unscaled(self._cellSize))")
         print("CELL-PADDING:           \(self.cellPadding)")
         print("CELL-PADDING-US:        \(unscaled(self.cellPadding))")
-        print("BUFFER-SIZE:            \(bufferSize)")
 
         self._cells = self._configureCells()
 
@@ -128,24 +123,15 @@ class CellGrid: ObservableObject {
     }
 
     private func _configureCells() -> Cells {
-        var cells = Cells(parent: self,
-                          displayWidth: self._displayWidth,
+        let cells = Cells(displayWidth: self._displayWidth,
                           displayHeight: self._displayHeight,
                           displayScale: self._displayScale,
                           displayScaling: self._displayScaling,
                           cellSize: self._cellSize,
+                          cellPadding: self._cellPadding,
+                          cellShape: self._cellShape,
+                          cellTransparency: Defaults.displayTransparency,
                           cellFactory: self._cellFactory)
-        if (self._cellCaching) {
-            CellGrid._write(&self._buffer,
-                            self._displayWidth, self._displayHeight,
-                            x: 0, y: 0,
-                            cellSize: self.cellSize,
-                            red: 0, green: 0, blue: 0,
-                            cellShape: self.cellShape,
-                            cellPadding: self.cellPadding,
-                            background: self.background,
-                            cells: cells)
-        }
         for y in 0..<self.height {
             for x in 0..<self.width {
                 cells.defineCell(x: x, y: y)
@@ -222,24 +208,22 @@ class CellGrid: ObservableObject {
         if let cell = self._cells?.cell(location) {
             if ((self._dragCell == nil) || (self._dragCell!.location != cell.location)) {
                 let color = cell.foreground.tintedRed(by: 0.60)
-                // self.write(x: cell.x, y: cell.y, red: color.red, green: color.green, blue: color.blue)
-                self.writeCell(cell, color)
+                cell.write(foreground: color, background: self.background, limit: true)
                 self._dragCell = cell
             }
-            // let color = PixelValue(255, 255, 0)
-            // self.write(x: cell.x, y: cell.y, red: color.red, green: color.green, blue: color.blue)
         }
     }
 
     public func onDragEnd(_ location: CGPoint) {
-        self._dragCell = nil
-        let color = CellColor.random()
-        self.write(x: Int(location.x), y: Int(location.y), red: color.red, green: color.green, blue: color.blue,
-                   limit: self._cellLimitUpdate)
+        if let cell = self._cells?.cell(location) {
+            self._dragCell = nil
+            let color = CellColor.random()
+            cell.write(foreground: color, background: self.background, limit: true)
+        }
     }
 
     public func onTap(_ location: CGPoint) {
-        if let cell = self._cells?.cell(location) {
+        if let _ = self._cells?.cell(location) {
             self.randomize()
         }
     }
@@ -250,48 +234,15 @@ class CellGrid: ObservableObject {
 
     func fill(with color: CellColor, limit: Bool = true) {
         if let cells = self._cells {
-            if (cells.caching) {
-                for cell in cells.cells {
-                    print("OKOKOKOKOKOKOK: \(limit)")
-                    cell.write(&self._buffer, foreground: color, background: self._cellBackground, limit: limit)
-                    // cell.write(foreground: color, background: self._cellBackground, limit: limit) // xyzzy
-                }
-            }
-            else {
-                for cell in cells.cells {
-                    self.writeCell(cell, color, limit: limit)
-                }
+            for cell in cells.cells {
+                cell.write(foreground: color, background: self._cellBackground, limit: limit) // xyzzy
             }
         }
-    }
-
-    public var image: CGImage? {
-        var image: CGImage?
-        self._buffer.withUnsafeMutableBytes { rawBuffer in
-            guard let baseAddress = rawBuffer.baseAddress else {
-                fatalError("Buffer has no base address")
-            }
-            if let context = CGContext(
-                data: baseAddress,
-                width: self._displayWidth,
-                height: self._displayHeight,
-                bitsPerComponent: 8,
-                bytesPerRow: self._displayWidth * ScreenInfo.depth,
-                space: Defaults.colorSpace,
-                bitmapInfo: Defaults.bitmapInfo
-            ) {
-                let start = CFAbsoluteTimeGetCurrent()
-                image = context.makeImage()
-                let end = CFAbsoluteTimeGetCurrent()
-                print(String(format: "MAKE-IMAGE-TIME: %.5f ms | \(image!.width) \(image!.height)", (end - start) * 1000))
-            }
-        }
-        return image
     }
 
     func randomize() {
-        CellGrid._randomize(&self._buffer,
-                            self._displayWidth, self._displayHeight,
+        CellGrid._randomize(displayWidth: self._displayWidth,
+                            displayHeight: self._displayHeight,
                             width: self.width, height: self.height,
                             cellSize: self.cellSize,
                             cellColorMode: self.cellColorMode,
@@ -302,9 +253,8 @@ class CellGrid: ObservableObject {
                             cells: self._cells)
     }
 
-    static func _randomize(_ buffer: inout [UInt8],
-                           _ displayWidth: Int,
-                           _ displayHeight: Int,
+    static func _randomize(displayWidth: Int,
+                           displayHeight: Int,
                            width: Int, height: Int,
                            cellSize: Int,
                            cellColorMode: CellColorMode,
@@ -316,185 +266,22 @@ class CellGrid: ObservableObject {
     {
         let start = Date()
 
-        if ((cells != nil) && cells!.caching) {
+        if (cells != nil) {
             for cell in cells!.cells {
-                cell.write(&buffer, foreground: CellColor.random(), background: background, limit: cellLimitUpdate)
-                // cell.write(foreground: CellColor.random(), background: background, limit: cellLimitUpdate) // xyzzyxyzzy
+                cell.write(foreground: CellColor.random(), background: background, limit: cellLimitUpdate) // xyzzyxyzzy
             }
             let end = Date()
             let elapsed = end.timeIntervalSince(start)
             print(String(format: "CACHED-RANDOMIZE-TIME: %.5f sec | \(cellLimitUpdate)", elapsed))
             return
         }
-
-        for y in 0..<height {
-            for x in 0..<width {
-                if (cellColorMode == CellColorMode.monochrome) {
-                    let value: UInt8 = UInt8.random(in: 0...1) * 255
-                    CellGrid._write(&buffer,
-                                    displayWidth, displayHeight,
-                                    x: x, y: y,
-                                    cellSize: cellSize,
-                                    red: value, green: value, blue: value,
-                                    cellShape: cellShape,
-                                    cellPadding: cellPadding,
-                                    background: background)
-                }
-                else if (cellColorMode == CellColorMode.grayscale) {
-                    let value = UInt8.random(in: 0...255)
-                    CellGrid._write(&buffer,
-                                    displayWidth, displayHeight,
-                                    x: x, y: y,
-                                    cellSize: cellSize,
-                                    red: value, green: value, blue: value,
-                                    cellShape: cellShape,
-                                    cellPadding: cellPadding,
-                                    background: background)
-                }
-                else {
-                    var rgb = UInt32.random(in: 0...0xFFFFFF)
-                    let red = UInt8((rgb >> 16) & 0xFF)
-                    let green = UInt8((rgb >> 8) & 0xFF)
-                    let blue = UInt8(rgb & 0xFF)
-                    CellGrid._write(&buffer,
-                                    displayWidth, displayHeight,
-                                    x: x, y: y,
-                                    cellSize: cellSize,
-                                    red: red, green: green, blue: blue,
-                                    cellShape: cellShape,
-                                    cellPadding: cellPadding,
-                                    background: background)
-                }
-            }
-        }
-        let end = Date()
-        let elapsed = end.timeIntervalSince(start)
-        print(String(format: "RANDOMIZE-TIME: %.5f sec", elapsed))
     }
 
     func writeCell(_ cell: Cell, _ color: CellColor, limit: Bool = true) {
-        cell.write(&self._buffer, foreground: color, background: self.background, limit: limit)
-        // cell.write(foreground: color, background: self.background, limit: limit) // xyzzy
+        cell.write(foreground: color, background: self.background, limit: limit) // xyzzy
     }
 
-    func write(x: Int, y: Int, red: UInt8, green: UInt8, blue: UInt8, transparency: UInt8 = CellGrid.Defaults.displayTransparency, limit: Bool = true) {
-        if let cell = self._cells?.cell(x, y) {
-            cell.write(&self._buffer, foreground: CellColor(red, green, blue), background: self.background, limit: limit)
-            // cell.write(foreground: CellColor(red, green, blue), background: self.background, limit: limit) // xyzzy
-        }
-    }
-
-    static func _write(_ buffer: inout [UInt8],
-                       _ displayWidth: Int, _ displayHeight: Int,
-                       x: Int, y: Int,
-                       cellSize: Int,
-                       red: UInt8, green: UInt8, blue: UInt8,
-                       transparency: UInt8 = CellGrid.Defaults.displayTransparency,
-                       cellShape: CellShape = .rounded,
-                       cellPadding: Int = 0,
-                       background: CellColor,
-                       cells: Cells? = nil)
-    {
-        if ((x < 0) || (y < 0)) {
-            return
-        }
-
-        var cellPaddingThickness: Int = 0
-        if ((cellPadding > 0) && (cellSize >= 6) && (cellShape != .square)) {
-            cellPaddingThickness = cellPadding
-        }
-
-        let startX = x * cellSize
-        let startY = y * cellSize
-        let endX = (startX + cellSize)
-        let endY = (startY + cellSize)
-        let adjustedScale = cellSize - 2 * cellPaddingThickness
-        let centerX = Float(startX + cellSize / 2)
-        let centerY = Float(startY + cellSize / 2)
-        let circleRadius = Float(adjustedScale) / 2.0
-        let radiusSquared = circleRadius * circleRadius
-        let fadeRange: Float = 0.6  // smaller -> smoother
-
-        for dy in 0..<cellSize {
-            for dx in 0..<cellSize {
-
-                let ix = startX + dx
-                let iy = startY + dy
-                if ix >= displayWidth || iy >= displayHeight { continue }
-                let fx = Float(ix) + 0.5
-                let fy = Float(iy) + 0.5
-                var coverage: Float = 0.0
-
-                switch cellShape {
-                case .square, .inset:
-                    if ((dx >= cellPaddingThickness) && (dx < cellSize - cellPaddingThickness) &&
-                        (dy >= cellPaddingThickness) && (dy < cellSize - cellPaddingThickness)) {
-                        coverage = 1.0
-                    }
-
-                case .circle:
-                    let dxSq = (fx - centerX) * (fx - centerX)
-                    let dySq = (fy - centerY) * (fy - centerY)
-                    let dist = sqrt(dxSq + dySq)
-                    let d = circleRadius - dist
-                    coverage = max(0.0, min(1.0, d / fadeRange))
-
-                case .rounded:
-                    let cornerRadius = Float(adjustedScale) * 0.25
-                    let cr2 = cornerRadius * cornerRadius
-                    let minX = Float(startX + cellPaddingThickness)
-                    let minY = Float(startY + cellPaddingThickness)
-                    let maxX = Float(endX - cellPaddingThickness)
-                    let maxY = Float(endY - cellPaddingThickness)
-
-                    if ((fx >= minX + cornerRadius) && (fx <= maxX - cornerRadius)) {
-                        if fy >= minY && fy <= maxY {
-                            coverage = 1.0
-                        }
-                    } else if ((fy >= minY + cornerRadius) && (fy <= maxY - cornerRadius)) {
-                        if fx >= minX && fx <= maxX {
-                            coverage = 1.0
-                        }
-                    } else {
-                        let cx = fx < minX + cornerRadius ? minX + cornerRadius :
-                                 fx > maxX - cornerRadius ? maxX - cornerRadius : fx
-                        let cy = fy < minY + cornerRadius ? minY + cornerRadius :
-                                 fy > maxY - cornerRadius ? maxY - cornerRadius : fy
-                        let dx = fx - cx
-                        let dy = fy - cy
-                        let dist = sqrt(dx * dx + dy * dy)
-                        let d = cornerRadius - dist
-                        coverage = max(0.0, min(1.0, d / fadeRange))
-                    }
-                }
-
-                let i = (iy * displayWidth + ix) * 4
-                if i >= 0 && i + 3 < buffer.count {
-                    let alpha = UInt8(Float(transparency) * coverage)
-                    if coverage > 0 {
-                        if (cells != nil) {
-                            cells!.addBufferItem(i, foreground: true, blend: coverage)
-                        }
-                        else {
-                            buffer[i]     = Cells.blend(red, background.red, amount: coverage)
-                            buffer[i + 1] = Cells.blend(green, background.green, amount: coverage)
-                            buffer[i + 2] = Cells.blend(blue, background.blue, amount: coverage)
-                            buffer[i + 3] = transparency
-                        }
-
-                    } else {
-                        if (cells != nil) {
-                            cells!.addBufferItem(i, foreground: false)
-                        }
-                        else {
-                            buffer[i]     = background.red
-                            buffer[i + 1] = background.green
-                            buffer[i + 2] = background.blue
-                            buffer[i + 3] = transparency
-                        }
-                    }
-                }
-            }
-        }
+    public var image: CGImage? {
+        self._cells?.image
     }
 }
