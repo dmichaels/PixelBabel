@@ -53,6 +53,7 @@ class Cells {
     private let _cellPadding: Int
     private let _cellShape: CellShape
     private let _cellTransparency: UInt8
+    private let _cellBleed: Bool
     private let _cellFactory: CellFactory?
     private var _cells: [Cell]
     private var _buffer: [UInt8]
@@ -66,6 +67,7 @@ class Cells {
          cellPadding: Int,
          cellShape: CellShape,
          cellTransparency: UInt8,
+         cellBleed: Bool,
          cellFactory: CellFactory? = nil) {
 
         func unscaled(_ value: Int) -> Int {
@@ -83,6 +85,7 @@ class Cells {
         self._cellPadding = cellPadding
         self._cellShape = cellShape
         self._cellTransparency = cellTransparency
+        self._cellBleed = cellBleed
         self._cellFactory = cellFactory
         self._cells = []
         self._buffer = [UInt8](repeating: 0, count: self._displayWidth * self._displayHeight * ScreenInfo.depth)
@@ -93,6 +96,11 @@ class Cells {
                                                       cellPadding: self._cellPadding,
                                                       cellShape: self._cellShape,
                                                       cellTransparency: self._cellTransparency)
+        for y in 0..<self.nrows {
+            for x in 0..<self.ncolumns {
+                self.defineCell(x: x, y: y)
+            }
+        }
     }
 
     var cells: [Cell] {
@@ -119,17 +127,17 @@ class Cells {
     }
 
     public func cell(_ x: Int, _ y: Int) -> Cell? {
-        guard x >= 0, y >= 0, x < self.cellWidth, y < self.cellHeight else {
+        guard x >= 0, y >= 0, x < self.ncolumns, y < self.nrows else {
             return nil
         }
-        return self._cells[y * self.cellWidth + x]
+        return self._cells[y * self.ncolumns + x]
     }
 
-    var cellWidth: Int {
+    private var ncolumns: Int {
         self._displayWidth / self._cellSize
     }
 
-    var cellHeight: Int {
+    private var nrows: Int {
         self._displayHeight / self._cellSize
     }
 
@@ -207,30 +215,26 @@ class Cells {
                                            cellTransparency: UInt8) -> BufferBlocks
     {
         var bufferBlocks: BufferBlocks = BufferBlocks()
-        let x: Int = 0
-        let y: Int = 0
 
         var cellPaddingThickness: Int = 0
         if ((cellPadding > 0) && (cellSize >= 6) && (cellShape != .square)) {
             cellPaddingThickness = cellPadding
         }
 
-        let startX = x * cellSize
-        let startY = y * cellSize
-        let endX = (startX + cellSize)
-        let endY = (startY + cellSize)
-        let adjustedSize = cellSize - (2 * cellPaddingThickness)
-        let centerX = Float(startX + (cellSize / 2))
-        let centerY = Float(startY + (cellSize / 2))
-        let circleRadius = Float(adjustedSize) / 2.0
+        let endX = cellSize
+        let endY = cellSize
+        let cellSizeAdjusted = cellSize - (2 * cellPaddingThickness)
+        let centerX = Float(cellSize / 2)
+        let centerY = Float(cellSize / 2)
+        let circleRadius = Float(cellSizeAdjusted) / 2.0
         let radiusSquared = circleRadius * circleRadius
         let fadeRange: Float = 0.6 // smaller is smoother
 
         for dy in 0..<cellSize {
             for dx in 0..<cellSize {
 
-                let ix = startX + dx
-                let iy = startY + dy
+                let ix = dx
+                let iy = dy
                 if ix >= displayWidth || iy >= displayHeight { continue }
                 let fx = Float(ix) + 0.5
                 let fy = Float(iy) + 0.5
@@ -244,20 +248,19 @@ class Cells {
                     }
 
                 case .circle:
-                    let dxSq = (fx - centerX) * (fx - centerX)
-                    let dySq = (fy - centerY) * (fy - centerY)
-                    let dist = sqrt(dxSq + dySq)
+                    let dxsq = (fx - centerX) * (fx - centerX)
+                    let dysq = (fy - centerY) * (fy - centerY)
+                    let dist = sqrt(dxsq + dysq)
                     let d = circleRadius - dist
                     coverage = max(0.0, min(1.0, d / fadeRange))
 
                 case .rounded:
-                    let cornerRadius = Float(adjustedSize) * 0.25
+                    let cornerRadius = Float(cellSizeAdjusted) * 0.25
                     let cr2 = cornerRadius * cornerRadius
-                    let minX = Float(startX + cellPaddingThickness)
-                    let minY = Float(startY + cellPaddingThickness)
+                    let minX = Float(cellPaddingThickness)
+                    let minY = Float(cellPaddingThickness)
                     let maxX = Float(endX - cellPaddingThickness)
                     let maxY = Float(endY - cellPaddingThickness)
-
                     if ((fx >= minX + cornerRadius) && (fx <= maxX - cornerRadius)) {
                         if fy >= minY && fy <= maxY {
                             coverage = 1.0
@@ -279,7 +282,7 @@ class Cells {
                     }
                 }
 
-                let i = (iy * displayWidth + ix) * 4
+                let i = (iy * displayWidth + ix) * ScreenInfo.depth
                 if ((i >= 0) && ((i + 3) < bufferSize)) {
                     let alpha = UInt8(Float(cellTransparency) * coverage)
                     if coverage > 0 {

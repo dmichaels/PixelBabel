@@ -9,7 +9,7 @@ class DefaultSettings
     public static let cellSize: Int                     = CellGrid.Defaults.cellSize
     public static let cellSizeNeat: Bool                = CellGrid.Defaults.cellSizeNeat
     public static let cellPadding: Int                  = CellGrid.Defaults.cellPadding
-    public static let cellBleeds: Bool                  = CellGrid.Defaults.cellBleeds
+    public static let cellBleed: Bool                   = CellGrid.Defaults.cellBleed
     public static let cellShape: CellShape              = CellGrid.Defaults.cellShape
     public static let cellColorMode: CellColorMode      = CellGrid.Defaults.cellColorMode
     public static let cellBackground: CellColor         = CellGrid.Defaults.cellBackground
@@ -34,7 +34,7 @@ class Settings: ObservableObject
     @Published var cellSize: Int                     = DefaultSettings.cellSize
     @Published var cellSizeNeat: Bool                = DefaultSettings.cellSizeNeat
     @Published var cellPadding: Int                  = DefaultSettings.cellPadding
-    @Published var cellBleeds: Bool                  = DefaultSettings.cellBleeds
+    @Published var cellBleed: Bool                   = DefaultSettings.cellBleed
     @Published var cellShape: CellShape              = DefaultSettings.cellShape
     @Published var cellColorMode: CellColorMode      = DefaultSettings.cellColorMode
     @Published var cellBackground: CellColor         = DefaultSettings.cellBackground

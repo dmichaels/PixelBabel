@@ -15,7 +15,7 @@ class CellGrid: ObservableObject {
         public static let cellSize: Int = 43 // 32 // 8 // 83 // 43 // 37 // 35
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 2
-        public static let cellBleeds: Bool = false
+        public static let cellBleed: Bool = false
         public static let cellShape: CellShape = CellShape.rounded // CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color
         public static let cellBackground: CellColor = CellColor.dark
@@ -33,7 +33,7 @@ class CellGrid: ObservableObject {
     private var _displayScaling: Bool = Defaults.displayScaling
     private var _cellSize: Int = Defaults.cellSize
     private var _cellPadding: Int = Defaults.cellPadding
-    private var _cellBleeds: Bool = Defaults.cellBleeds
+    private var _cellBleed: Bool = Defaults.cellBleed
     private var _cellShape: CellShape = Defaults.cellShape
     private var _cellColorMode: CellColorMode = Defaults.cellColorMode
     private var _cellBackground: CellColor = Defaults.cellBackground
@@ -56,7 +56,7 @@ class CellGrid: ObservableObject {
                    cellSize: Int = Defaults.cellSize,
                    cellSizeNeat: Bool = Defaults.cellSizeNeat,
                    cellPadding: Int = Defaults.cellPadding,
-                   cellBleeds: Bool = Defaults.cellBleeds,
+                   cellBleed: Bool = Defaults.cellBleed,
                    cellShape: CellShape = Defaults.cellShape,
                    cellColorMode: CellColorMode = Defaults.cellColorMode,
                    cellBackground: CellColor = Defaults.cellBackground,
@@ -70,7 +70,7 @@ class CellGrid: ObservableObject {
 
         self._cellSize = scaled(cellSize)
         self._cellPadding = scaled(cellPadding)
-        self._cellBleeds = cellBleeds
+        self._cellBleed = cellBleed
         self._cellShape = cellShape
         self._cellColorMode = cellColorMode
         self._cellBackground = cellBackground
@@ -99,6 +99,8 @@ class CellGrid: ObservableObject {
             }
         }
 
+        self._cells = self._configureCells()
+
         print("SCREEN-SCALE-INITIAL:   \(ScreenInfo.initialScale)")
         print("SCREEN-SCALE:           \(screen.scale)")
         print("SCREEN-SIZE:            \(scaled(screen.width)) x \(scaled(screen.height))")
@@ -106,13 +108,10 @@ class CellGrid: ObservableObject {
         print("DISPLAY-SCALING:        \(self._displayScaling)")
         print("DISPLAY-SIZE:           \(self._displayWidth) x \(self._displayHeight)")
         print("DISPLAY-SIZE-US:        \(unscaled(self._displayWidth)) x \(unscaled(self._displayHeight))")
-        print("CELL-MAP-SIZE:          \(self.width) x \(self.height)")
         print("CELL-SIZE:              \(self.cellSize)")
         print("CELL-SIZE-US:           \(unscaled(self._cellSize))")
         print("CELL-PADDING:           \(self.cellPadding)")
         print("CELL-PADDING-US:        \(unscaled(self.cellPadding))")
-
-        self._cells = self._configureCells()
 
         // self.fill(with: self._cellBackground)
     }
@@ -126,21 +125,9 @@ class CellGrid: ObservableObject {
                           cellPadding: self._cellPadding,
                           cellShape: self._cellShape,
                           cellTransparency: Defaults.displayTransparency,
+                          cellBleed: Defaults.cellBleed,
                           cellFactory: self._cellFactory)
-        for y in 0..<self.height {
-            for x in 0..<self.width {
-                cells.defineCell(x: x, y: y)
-            }
-        }
         return cells
-    }
-
-    public var displayWidth: Int {
-        self._displayWidth
-    }
-
-    public var displayHeight: Int {
-        self._displayHeight
     }
 
     public var displayWidthUnscaled: Int {
@@ -161,22 +148,6 @@ class CellGrid: ObservableObject {
 
     public func unscaled(_ value: Int) -> Int {
         self._displayScaling ? Int(round(CGFloat(value) / self.displayScale)) : value
-    }
-
-    // Returns the logical width of this PixelMap, i.e. the number of
-    // cell-size-sized cells that can fit across the width of the display.
-    //
-    public var width: Int {
-        self._cellBleeds ? ((self._displayWidth + self._cellSize - 1) / self._cellSize)
-                         : (self._displayWidth / self._cellSize)
-    }
-
-    // Returns the logical height of this PixelMap, i.e. the number of
-    // cell-size-sized cells that can fit down the height of the display.
-    //
-    public var height: Int {
-        self._cellBleeds ? ((self._displayHeight + self._cellSize - 1) / self._cellSize)
-                         : (self._displayHeight / self._cellSize)
     }
 
     public var cellSize: Int {
@@ -238,7 +209,6 @@ class CellGrid: ObservableObject {
     func randomize() {
         CellGrid._randomize(displayWidth: self._displayWidth,
                             displayHeight: self._displayHeight,
-                            width: self.width, height: self.height,
                             cellSize: self.cellSize,
                             cellColorMode: self.cellColorMode,
                             cellShape: self.cellShape,
@@ -250,7 +220,6 @@ class CellGrid: ObservableObject {
 
     static func _randomize(displayWidth: Int,
                            displayHeight: Int,
-                           width: Int, height: Int,
                            cellSize: Int,
                            cellColorMode: CellColorMode,
                            cellShape: CellShape,

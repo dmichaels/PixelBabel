@@ -179,12 +179,12 @@
 		984AE8372D9904ED00DBCEDA /* PixelBabel */ = {
 			isa = PBXGroup;
 			children = (
-				98F98D422DBBE58D003FF91D /* CellColorMode.swift */,
 				98C0FC672DAA859E004D5C43 /* Preview Content */,
 				984AE83C2D9904EE00DBCEDA /* Assets.xcassets */,
 				98F98CFD2DBB6C49003FF91D /* Cell.swift */,
 				98F98CFE2DBB6C49003FF91D /* Cells.swift */,
 				98F98D012DBB6C49003FF91D /* CellColor.swift */,
+				98F98D422DBBE58D003FF91D /* CellColorMode.swift */,
 				9828577B2DA17A5900770B45 /* CellGrid.swift */,
 				98F98D0B2DBBA696003FF91D /* CellGridPoint.swift */,
 				98F98D112DBBC964003FF91D /* CellShape.swift */,
