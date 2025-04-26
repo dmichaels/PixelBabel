@@ -16,7 +16,6 @@ class DefaultSettings
     public static let cellAntialiasFade: Float          = CellGrid.Defaults.cellAntialiasFade
     public static let cellRoundedRectangleRadius: Float = CellGrid.Defaults.cellRoundedRectangleRadius
     public static let cellPreferredSizeMarginMax: Int   = CellGrid.Defaults.cellPreferredSizeMarginMax
-    public static let cellCaching: Bool                 = CellGrid.Defaults.cellCaching
     public static let cellLimitUpdate: Bool             = CellGrid.Defaults.cellLimitUpdate
     public static let automationEnabled: Bool           = true
     public static let automationSpeed: Double           = 0.1
@@ -42,7 +41,6 @@ class Settings: ObservableObject
     @Published var cellAntialiasFade: Float          = DefaultSettings.cellAntialiasFade
     @Published var cellRoundedRectangleRadius: Float = DefaultSettings.cellRoundedRectangleRadius
     @Published var cellPreferredSizeMarginMax: Int   = DefaultSettings.cellPreferredSizeMarginMax
-    @Published var cellCaching: Bool                 = DefaultSettings.cellCaching
     @Published var cellLimitUpdate: Bool             = DefaultSettings.cellLimitUpdate
     @Published var automationEnabled: Bool           = DefaultSettings.automationEnabled
     @Published var automationSpeed: Double           = DefaultSettings.automationSpeed

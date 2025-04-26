@@ -23,7 +23,6 @@ class CellGrid: ObservableObject {
         public static let cellRoundedRectangleRadius: Float = 0.25
         public static var cellPreferredSizeMarginMax: Int   = 30
         public static let cellLimitUpdate: Bool = true
-        public static let cellCaching: Bool = true
         public static let colorSpace = CGColorSpaceCreateDeviceRGB()
         public static let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
     }
@@ -41,7 +40,6 @@ class CellGrid: ObservableObject {
     private var _cellAntialiasFade: Float = Defaults.cellAntialiasFade
     private var _cellRoundedRectangleRadius: Float = Defaults.cellRoundedRectangleRadius
     private var _cellPreferredSizeMarginMax: Int = Defaults.cellPreferredSizeMarginMax
-    private var _cellCaching: Bool = Defaults.cellCaching
     private var _cellLimitUpdate: Bool = Defaults.cellLimitUpdate
     private var _cells: Cells? = nil
     private var _cellFactory: Cells.CellFactory?
@@ -62,8 +60,7 @@ class CellGrid: ObservableObject {
                    cellShape: CellShape = Defaults.cellShape,
                    cellColorMode: CellColorMode = Defaults.cellColorMode,
                    cellBackground: CellColor = Defaults.cellBackground,
-                   displayScaling: Bool = Defaults.displayScaling,
-                   cellCaching: Bool = Defaults.cellCaching)
+                   displayScaling: Bool = Defaults.displayScaling)
     {
         print("PIXELMAP-CONFIGURE!!!")
         self._displayScale = screen.scale
@@ -77,8 +74,6 @@ class CellGrid: ObservableObject {
         self._cellShape = cellShape
         self._cellColorMode = cellColorMode
         self._cellBackground = cellBackground
-        self._cellCaching = cellCaching
-
 
         let neatCells = Cells.preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight), cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
         // print("NEAT-CELL-SIZES-US:")
