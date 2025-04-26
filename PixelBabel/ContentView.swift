@@ -11,7 +11,6 @@ struct ContentView: View
     @State private var pixelMapConfigured: Bool = false
     @State private var geometrySize: CGSize = .zero
     @State private var parentRelativeImagePosition: CGPoint = CGPoint.zero
-    @State private var background: CellColor = CellGrid.Defaults.cellBackground
     @State private var image: CGImage? = nil
     @State private var imageAngle: Angle = Angle.zero
 
@@ -122,16 +121,16 @@ struct ContentView: View
                         self.pixelMap.configure(
                             screen: ScreenInfo.shared,
                             displayWidth: landscape ? ScreenInfo.shared.height : ScreenInfo.shared.width,
-                            displayHeight: landscape ? ScreenInfo.shared.width : ScreenInfo.shared.height,
-                            cellBackground: self.background)
+                            displayHeight: landscape ? ScreenInfo.shared.width : ScreenInfo.shared.height)
                         self.pixelMap.randomize()
+                        self.pixelMap.fill(with: CellColor(0, 255, 255))
                         self.updateImage()
                         self.rotateImage()
                     }
                 }
                 .navigationTitle("Home")
                 .navigationBarHidden(true)
-                .background(self.background.color)
+                .background(self.pixelMap.background.color) // xyzzy
                 .statusBar(hidden: true)
                 .coordinateSpace(name: "zstack")
             }
@@ -217,7 +216,6 @@ struct ContentView: View
 
     private func autoTappingStart() {
         self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
-            // self.pixelMap.onTap(CGPoint(x: 0.0, y: 0.0))
             self.pixelMap.randomize()
             self.updateImage()
         }

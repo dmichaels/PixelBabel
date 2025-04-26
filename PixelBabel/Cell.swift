@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 class Cell {
 
     private let _parent: Cells
@@ -36,9 +37,15 @@ class Cell {
         self._parent.addBufferItem(index, foreground: foreground, blend: blend)
     }
 
+    public func write(foreground: CellColor, background: CellColor, limit: Bool = false) {
+        self._foreground = foreground
+        self._background = background
+        self._parent.write(x: self.x, y: self.y, foreground: foreground, background: background, limit: limit)
+    }
+
     public func write(_ buffer: inout [UInt8], foreground: CellColor, background: CellColor, limit: Bool = false) {
         self._foreground = foreground
         self._background = background
-        self._parent.write(&buffer, x: self.x, y: self.y, foreground: foreground, background: background, limit: limit)
+        self._parent.write(buffer: &buffer, x: self.x, y: self.y, foreground: foreground, background: background, limit: limit)
     }
 }

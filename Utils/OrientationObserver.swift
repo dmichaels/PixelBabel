@@ -1,6 +1,8 @@
 import SwiftUI
 import Combine
 
+// Full disclosure: This idea was mostly from ChatGPT.
+//
 public class OrientationObserver: ObservableObject {
 
     @Published public var current: UIDeviceOrientation = Orientation.current
@@ -14,7 +16,7 @@ public class OrientationObserver: ObservableObject {
     private var _cancellable: AnyCancellable?
 
     public init(callback: Callback? = nil) {
-        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+        Orientation.beginNotifications()
         self.current = Orientation.current
         self.previous = self.current
         self._callback = callback
@@ -38,7 +40,7 @@ public class OrientationObserver: ObservableObject {
     }
 
     deinit {
-        UIDevice.current.endGeneratingDeviceOrientationNotifications()
+        Orientation.endNotifications()
         self._cancellable?.cancel()
     }
 }

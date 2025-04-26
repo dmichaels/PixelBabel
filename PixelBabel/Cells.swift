@@ -8,6 +8,7 @@ import Utils
 // called with indices which are monotonically increasing, and are not duplicated or out of order
 // or anything weird; assume called from the buffer setting loop in the PixelMap._write method.
 //
+@MainActor
 class Cells {
 
     typealias CellFactory = (_ parent: Cells, _ x: Int, _ y: Int) -> Cell
@@ -27,6 +28,7 @@ class Cells {
         }
     }
 
+    private let _parent: CellGrid?
     private let _displayWidth: Int
     private let _displayHeight: Int
     private let _displayScale: CGFloat
@@ -39,10 +41,8 @@ class Cells {
     private let _cellFactory: CellFactory?
     private var _cells: [Cell] = []
 
-    public static let null: Cells = Cells(displayWidth: 0, displayHeight: 0,
-                                          displayScale: 0.0, displayScaling: false, cellSize: 0)
-
-    init(displayWidth: Int, displayHeight: Int,
+    init(parent: CellGrid?,
+         displayWidth: Int, displayHeight: Int,
          displayScale: CGFloat, displayScaling: Bool,
          cellSize: Int, cellFactory: CellFactory? = nil) {
 
@@ -50,6 +50,7 @@ class Cells {
             return displayScaling ? Int(round(CGFloat(value) / displayScale)) : value
         }
 
+        self._parent = parent
         self._displayWidth = displayWidth
         self._displayHeight = displayHeight
         self._displayScale = displayScale
@@ -118,7 +119,21 @@ class Cells {
         }
     }
 
-    public func write(_ buffer: inout [UInt8], x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
+    public func write(x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
+        if let parent = self._parent {
+            // var foo = parent._buffer // BUG HERE: Thread 1: Simultaneous accesses to 0x600003000350, but modification requires exclusive access
+            /*
+                parent._buffer.withUnsafeMutableBytes { rawBuffer in
+                    var rawBuffer = rawBuffer
+                    self.write(buffer: rawBuffer, x: x, y: y, foreground: foreground, background: background, limit: limit)
+                }
+            */
+            // self.write(buffer: &foo, x: x, y: y, foreground: foreground, background: background, limit: limit)
+            self.write(buffer: &parent._buffer, x: x, y: y, foreground: foreground, background: background, limit: limit)
+        }
+    }
+
+    public func write(buffer: inout [UInt8], x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
         let offset: Int = ((self._cellSize * x) + (self._cellSize * self._displayWidth * y)) * ScreenInfo.depth
         buffer.withUnsafeMutableBytes { raw in
             for block in self._cellBufferBlocks {
