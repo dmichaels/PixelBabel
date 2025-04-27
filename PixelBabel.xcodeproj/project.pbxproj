@@ -9,24 +9,20 @@
 /* Begin PBXBuildFile section */
 		982857782DA179C800770B45 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857772DA179C800770B45 /* Settings.swift */; };
 		9828577A2DA17A1700770B45 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982857792DA17A1700770B45 /* SettingsView.swift */; };
-		9828577C2DA17A5900770B45 /* CellGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9828577B2DA17A5900770B45 /* CellGrid.swift */; };
 		984AE8392D9904ED00DBCEDA /* PixelBabelApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8382D9904ED00DBCEDA /* PixelBabelApp.swift */; };
 		984AE83B2D9904ED00DBCEDA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE83A2D9904ED00DBCEDA /* ContentView.swift */; };
 		984AE83D2D9904EE00DBCEDA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 984AE83C2D9904EE00DBCEDA /* Assets.xcassets */; };
 		984AE84A2D9904EE00DBCEDA /* PixelBabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8492D9904EE00DBCEDA /* PixelBabelTests.swift */; };
 		984AE8542D9904EE00DBCEDA /* PixelBabelUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8532D9904EE00DBCEDA /* PixelBabelUITests.swift */; };
 		984AE8562D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8552D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift */; };
-		98F98D032DBB6C49003FF91D /* Cells.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98CFE2DBB6C49003FF91D /* Cells.swift */; };
-		98F98D062DBB6C49003FF91D /* CellColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D012DBB6C49003FF91D /* CellColor.swift */; };
-		98F98D082DBB6C49003FF91D /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98CFD2DBB6C49003FF91D /* Cell.swift */; };
-		98F98D0C2DBBA696003FF91D /* CellGridPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D0B2DBBA696003FF91D /* CellGridPoint.swift */; };
 		98F98D0E2DBBACD1003FF91D /* LifeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D0D2DBBACD1003FF91D /* LifeCell.swift */; };
 		98F98D102DBBB823003FF91D /* LifeCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D0F2DBBB823003FF91D /* LifeCells.swift */; };
-		98F98D122DBBC964003FF91D /* CellShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D112DBBC964003FF91D /* CellShape.swift */; };
 		98F98D232DBBCB81003FF91D /* Utils.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98F98D182DBBCB81003FF91D /* Utils.framework */; };
 		98F98D2D2DBBCB81003FF91D /* Utils.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98F98D182DBBCB81003FF91D /* Utils.framework */; };
 		98F98D2E2DBBCB81003FF91D /* Utils.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 98F98D182DBBCB81003FF91D /* Utils.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		98F98D432DBBE58D003FF91D /* CellColorMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D422DBBE58D003FF91D /* CellColorMode.swift */; };
+		98FFBFDC2DBEBDD400C161DB /* CellGrid.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98FFBFD12DBEBDD400C161DB /* CellGrid.framework */; };
+		98FFBFE62DBEBDD400C161DB /* CellGrid.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98FFBFD12DBEBDD400C161DB /* CellGrid.framework */; };
+		98FFBFE72DBEBDD400C161DB /* CellGrid.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 98FFBFD12DBEBDD400C161DB /* CellGrid.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +61,27 @@
 			remoteGlobalIDString = 98F98D172DBBCB81003FF91D;
 			remoteInfo = Utils;
 		};
+		98FFBFDD2DBEBDD400C161DB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 984AE82D2D9904ED00DBCEDA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 98FFBFD02DBEBDD400C161DB;
+			remoteInfo = CellGrid;
+		};
+		98FFBFDF2DBEBDD400C161DB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 984AE82D2D9904ED00DBCEDA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 984AE8342D9904ED00DBCEDA;
+			remoteInfo = PixelBabel;
+		};
+		98FFBFE42DBEBDD400C161DB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 984AE82D2D9904ED00DBCEDA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 98FFBFD02DBEBDD400C161DB;
+			remoteInfo = CellGrid;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -74,6 +91,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				98FFBFE72DBEBDD400C161DB /* CellGrid.framework in Embed Frameworks */,
 				98F98D2E2DBBCB81003FF91D /* Utils.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -84,7 +102,6 @@
 /* Begin PBXFileReference section */
 		982857772DA179C800770B45 /* Settings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		982857792DA17A1700770B45 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		9828577B2DA17A5900770B45 /* CellGrid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellGrid.swift; sourceTree = "<group>"; };
 		984AE8352D9904ED00DBCEDA /* PixelBabel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PixelBabel.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		984AE8382D9904ED00DBCEDA /* PixelBabelApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBabelApp.swift; sourceTree = "<group>"; };
 		984AE83A2D9904ED00DBCEDA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -94,21 +111,48 @@
 		984AE84F2D9904EE00DBCEDA /* PixelBabelUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PixelBabelUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		984AE8532D9904EE00DBCEDA /* PixelBabelUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBabelUITests.swift; sourceTree = "<group>"; };
 		984AE8552D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBabelUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		98F98CFD2DBB6C49003FF91D /* Cell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
-		98F98CFE2DBB6C49003FF91D /* Cells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cells.swift; sourceTree = "<group>"; };
-		98F98D012DBB6C49003FF91D /* CellColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellColor.swift; sourceTree = "<group>"; };
-		98F98D0B2DBBA696003FF91D /* CellGridPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellGridPoint.swift; sourceTree = "<group>"; };
 		98F98D0D2DBBACD1003FF91D /* LifeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeCell.swift; sourceTree = "<group>"; };
 		98F98D0F2DBBB823003FF91D /* LifeCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeCells.swift; sourceTree = "<group>"; };
-		98F98D112DBBC964003FF91D /* CellShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellShape.swift; sourceTree = "<group>"; };
 		98F98D182DBBCB81003FF91D /* Utils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Utils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		98F98D222DBBCB81003FF91D /* UtilsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UtilsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		98F98D422DBBE58D003FF91D /* CellColorMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellColorMode.swift; sourceTree = "<group>"; };
+		98FFBFD12DBEBDD400C161DB /* CellGrid.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CellGrid.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		98FFBFDB2DBEBDD400C161DB /* CellGridTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CellGridTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		98FFBFEE2DBEBDF400C161DB /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Cell.swift,
+				CellColor.swift,
+				CellColorMode.swift,
+				CellGrid.swift,
+				CellGridPoint.swift,
+				Cells.swift,
+				CellShape.swift,
+			);
+			target = 984AE8342D9904ED00DBCEDA /* PixelBabel */;
+		};
+		98FFBFEF2DBEBDF400C161DB /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Cell.swift,
+				CellColor.swift,
+				CellColorMode.swift,
+				CellGrid.swift,
+				CellGridPoint.swift,
+				Cells.swift,
+				CellShape.swift,
+			);
+			target = 98FFBFD02DBEBDD400C161DB /* CellGrid */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		98F98D192DBBCB81003FF91D /* Utils */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Utils; sourceTree = "<group>"; };
 		98F98D282DBBCB81003FF91D /* UtilsTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = UtilsTests; sourceTree = "<group>"; };
+		98FFBFD22DBEBDD400C161DB /* CellGrid */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (98FFBFEE2DBEBDF400C161DB /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 98FFBFEF2DBEBDF400C161DB /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = CellGrid; sourceTree = "<group>"; };
+		98FFBFE12DBEBDD400C161DB /* CellGridTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = CellGridTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,6 +160,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				98FFBFE62DBEBDD400C161DB /* CellGrid.framework in Frameworks */,
 				98F98D2D2DBBCB81003FF91D /* Utils.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -149,6 +194,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		98FFBFCE2DBEBDD400C161DB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		98FFBFD82DBEBDD400C161DB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				98FFBFDC2DBEBDD400C161DB /* CellGrid.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -160,6 +220,8 @@
 				984AE8522D9904EE00DBCEDA /* PixelBabelUITests */,
 				98F98D192DBBCB81003FF91D /* Utils */,
 				98F98D282DBBCB81003FF91D /* UtilsTests */,
+				98FFBFD22DBEBDD400C161DB /* CellGrid */,
+				98FFBFE12DBEBDD400C161DB /* CellGridTests */,
 				984AE8362D9904ED00DBCEDA /* Products */,
 			);
 			sourceTree = "<group>";
@@ -172,6 +234,8 @@
 				984AE84F2D9904EE00DBCEDA /* PixelBabelUITests.xctest */,
 				98F98D182DBBCB81003FF91D /* Utils.framework */,
 				98F98D222DBBCB81003FF91D /* UtilsTests.xctest */,
+				98FFBFD12DBEBDD400C161DB /* CellGrid.framework */,
+				98FFBFDB2DBEBDD400C161DB /* CellGridTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -181,13 +245,6 @@
 			children = (
 				98C0FC672DAA859E004D5C43 /* Preview Content */,
 				984AE83C2D9904EE00DBCEDA /* Assets.xcassets */,
-				98F98CFD2DBB6C49003FF91D /* Cell.swift */,
-				98F98CFE2DBB6C49003FF91D /* Cells.swift */,
-				98F98D012DBB6C49003FF91D /* CellColor.swift */,
-				98F98D422DBBE58D003FF91D /* CellColorMode.swift */,
-				9828577B2DA17A5900770B45 /* CellGrid.swift */,
-				98F98D0B2DBBA696003FF91D /* CellGridPoint.swift */,
-				98F98D112DBBC964003FF91D /* CellShape.swift */,
 				984AE83A2D9904ED00DBCEDA /* ContentView.swift */,
 				98F98D0D2DBBACD1003FF91D /* LifeCell.swift */,
 				98F98D0F2DBBB823003FF91D /* LifeCells.swift */,
@@ -232,6 +289,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		98FFBFCC2DBEBDD400C161DB /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -248,6 +312,7 @@
 			);
 			dependencies = (
 				98F98D2C2DBBCB81003FF91D /* PBXTargetDependency */,
+				98FFBFE52DBEBDD400C161DB /* PBXTargetDependency */,
 			);
 			name = PixelBabel;
 			productName = PixelBabel;
@@ -337,6 +402,53 @@
 			productReference = 98F98D222DBBCB81003FF91D /* UtilsTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		98FFBFD02DBEBDD400C161DB /* CellGrid */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 98FFBFEC2DBEBDD400C161DB /* Build configuration list for PBXNativeTarget "CellGrid" */;
+			buildPhases = (
+				98FFBFCC2DBEBDD400C161DB /* Headers */,
+				98FFBFCD2DBEBDD400C161DB /* Sources */,
+				98FFBFCE2DBEBDD400C161DB /* Frameworks */,
+				98FFBFCF2DBEBDD400C161DB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				98FFBFD22DBEBDD400C161DB /* CellGrid */,
+			);
+			name = CellGrid;
+			packageProductDependencies = (
+			);
+			productName = CellGrid;
+			productReference = 98FFBFD12DBEBDD400C161DB /* CellGrid.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		98FFBFDA2DBEBDD400C161DB /* CellGridTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 98FFBFED2DBEBDD400C161DB /* Build configuration list for PBXNativeTarget "CellGridTests" */;
+			buildPhases = (
+				98FFBFD72DBEBDD400C161DB /* Sources */,
+				98FFBFD82DBEBDD400C161DB /* Frameworks */,
+				98FFBFD92DBEBDD400C161DB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				98FFBFDE2DBEBDD400C161DB /* PBXTargetDependency */,
+				98FFBFE02DBEBDD400C161DB /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				98FFBFE12DBEBDD400C161DB /* CellGridTests */,
+			);
+			name = CellGridTests;
+			packageProductDependencies = (
+			);
+			productName = CellGridTests;
+			productReference = 98FFBFDB2DBEBDD400C161DB /* CellGridTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -365,6 +477,13 @@
 						CreatedOnToolsVersion = 16.3;
 						TestTargetID = 984AE8342D9904ED00DBCEDA;
 					};
+					98FFBFD02DBEBDD400C161DB = {
+						CreatedOnToolsVersion = 16.3;
+					};
+					98FFBFDA2DBEBDD400C161DB = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = 984AE8342D9904ED00DBCEDA;
+					};
 				};
 			};
 			buildConfigurationList = 984AE8302D9904ED00DBCEDA /* Build configuration list for PBXProject "PixelBabel" */;
@@ -385,6 +504,8 @@
 				984AE84E2D9904EE00DBCEDA /* PixelBabelUITests */,
 				98F98D172DBBCB81003FF91D /* Utils */,
 				98F98D212DBBCB81003FF91D /* UtilsTests */,
+				98FFBFD02DBEBDD400C161DB /* CellGrid */,
+				98FFBFDA2DBEBDD400C161DB /* CellGridTests */,
 			);
 		};
 /* End PBXProject section */
@@ -426,6 +547,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		98FFBFCF2DBEBDD400C161DB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		98FFBFD92DBEBDD400C161DB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -433,18 +568,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				98F98D0C2DBBA696003FF91D /* CellGridPoint.swift in Sources */,
 				98F98D0E2DBBACD1003FF91D /* LifeCell.swift in Sources */,
 				9828577A2DA17A1700770B45 /* SettingsView.swift in Sources */,
 				984AE83B2D9904ED00DBCEDA /* ContentView.swift in Sources */,
-				98F98D432DBBE58D003FF91D /* CellColorMode.swift in Sources */,
-				98F98D032DBB6C49003FF91D /* Cells.swift in Sources */,
-				98F98D122DBBC964003FF91D /* CellShape.swift in Sources */,
 				98F98D102DBBB823003FF91D /* LifeCells.swift in Sources */,
-				98F98D062DBB6C49003FF91D /* CellColor.swift in Sources */,
-				98F98D082DBB6C49003FF91D /* Cell.swift in Sources */,
 				984AE8392D9904ED00DBCEDA /* PixelBabelApp.swift in Sources */,
-				9828577C2DA17A5900770B45 /* CellGrid.swift in Sources */,
 				982857782DA179C800770B45 /* Settings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -480,6 +608,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		98FFBFCD2DBEBDD400C161DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		98FFBFD72DBEBDD400C161DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -507,6 +649,21 @@
 			isa = PBXTargetDependency;
 			target = 98F98D172DBBCB81003FF91D /* Utils */;
 			targetProxy = 98F98D2B2DBBCB81003FF91D /* PBXContainerItemProxy */;
+		};
+		98FFBFDE2DBEBDD400C161DB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 98FFBFD02DBEBDD400C161DB /* CellGrid */;
+			targetProxy = 98FFBFDD2DBEBDD400C161DB /* PBXContainerItemProxy */;
+		};
+		98FFBFE02DBEBDD400C161DB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 984AE8342D9904ED00DBCEDA /* PixelBabel */;
+			targetProxy = 98FFBFDF2DBEBDD400C161DB /* PBXContainerItemProxy */;
+		};
+		98FFBFE52DBEBDD400C161DB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 98FFBFD02DBEBDD400C161DB /* CellGrid */;
+			targetProxy = 98FFBFE42DBEBDD400C161DB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -699,7 +856,6 @@
 		984AE85D2D9904EE00DBCEDA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -719,7 +875,6 @@
 		984AE85E2D9904EE00DBCEDA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -739,7 +894,6 @@
 		984AE8602D9904EE00DBCEDA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = N76S683655;
@@ -757,7 +911,6 @@
 		984AE8612D9904EE00DBCEDA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = N76S683655;
@@ -880,6 +1033,114 @@
 			};
 			name = Release;
 		};
+		98FFBFE82DBEBDD400C161DB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N76S683655;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmichaels.prufrock.CellGrid;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		98FFBFE92DBEBDD400C161DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N76S683655;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmichaels.prufrock.CellGrid;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		98FFBFEA2DBEBDD400C161DB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N76S683655;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmichaels.prufrock.CellGridTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PixelBabel.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PixelBabel";
+			};
+			name = Debug;
+		};
+		98FFBFEB2DBEBDD400C161DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N76S683655;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmichaels.prufrock.CellGridTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PixelBabel.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PixelBabel";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -933,6 +1194,24 @@
 			buildConfigurations = (
 				98F98D342DBBCB81003FF91D /* Debug */,
 				98F98D352DBBCB81003FF91D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		98FFBFEC2DBEBDD400C161DB /* Build configuration list for PBXNativeTarget "CellGrid" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				98FFBFE82DBEBDD400C161DB /* Debug */,
+				98FFBFE92DBEBDD400C161DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		98FFBFED2DBEBDD400C161DB /* Build configuration list for PBXNativeTarget "CellGridTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				98FFBFEA2DBEBDD400C161DB /* Debug */,
+				98FFBFEB2DBEBDD400C161DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
