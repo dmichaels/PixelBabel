@@ -1,13 +1,13 @@
 import SwiftUI
 
 @MainActor
-public class ScreenInfo: ObservableObject
+public class Screen: ObservableObject
 {
-    public static let shared = ScreenInfo()
+    public static let shared = Screen()
 
     // These initial values are technically just guesses as the real info should be
     // be obtained via the onAppear event of the main view within a GeometryReader;
-    // from which should be ScreenInfo.configure.
+    // from which should be Screen.configure.
     //
     public static let initialWidth: Int = Int(UIScreen.main.bounds.width)
     public static let initialHeight: Int = Int(UIScreen.main.bounds.height)

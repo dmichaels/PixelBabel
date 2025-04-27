@@ -116,12 +116,12 @@ struct ContentView: View
                     if (!self.pixelMapConfigured) {
                         self.pixelMapConfigured = true
                         self.geometrySize = geometry.size
-                        ScreenInfo.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
+                        Screen.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
                         let landscape = self.orientation.current.isLandscape
                         self.pixelMap.configure(
-                            screen: ScreenInfo.shared,
-                            displayWidth: landscape ? ScreenInfo.shared.height : ScreenInfo.shared.width,
-                            displayHeight: landscape ? ScreenInfo.shared.width : ScreenInfo.shared.height)
+                            screen: Screen.shared,
+                            displayWidth: landscape ? Screen.shared.height : Screen.shared.width,
+                            displayHeight: landscape ? Screen.shared.width : Screen.shared.height)
                         self.pixelMap.randomize()
                         self.pixelMap.fill(with: CellColor(0, 255, 255))
                         self.updateImage()

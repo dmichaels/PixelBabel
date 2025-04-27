@@ -92,7 +92,7 @@ class Cells
         self._cellBleed = cellBleed
         self._cellFactory = cellFactory
         self._cells = []
-        self._buffer = [UInt8](repeating: 0, count: self._displayWidth * self._displayHeight * ScreenInfo.depth)
+        self._buffer = [UInt8](repeating: 0, count: self._displayWidth * self._displayHeight * Screen.depth)
         self._bufferBlocks = Cells.createBufferBlocks(bufferSize: self._buffer.count,
                                                       displayWidth: self._displayWidth,
                                                       displayHeight: self._displayHeight,
@@ -155,7 +155,7 @@ class Cells
     }
 
     public func writeCell(buffer: inout [UInt8], x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
-        let offset: Int = ((self._cellSize * x) + (self._cellSize * self._displayWidth * y)) * ScreenInfo.depth
+        let offset: Int = ((self._cellSize * x) + (self._cellSize * self._displayWidth * y)) * Screen.depth
         buffer.withUnsafeMutableBytes { raw in
             for block in self._bufferBlocks.blocks {
                 let base: UnsafeMutableRawPointer = raw.baseAddress!.advanced(by: block.index + offset)
@@ -197,7 +197,7 @@ class Cells
                 width: self._displayWidth,
                 height: self._displayHeight,
                 bitsPerComponent: 8,
-                bytesPerRow: self._displayWidth * ScreenInfo.depth,
+                bytesPerRow: self._displayWidth * Screen.depth,
                 space: CellGrid.Defaults.colorSpace,
                 bitmapInfo: CellGrid.Defaults.bitmapInfo
             ) {
@@ -286,7 +286,7 @@ class Cells
                     }
                 }
 
-                let i = (iy * displayWidth + ix) * ScreenInfo.depth
+                let i = (iy * displayWidth + ix) * Screen.depth
                 if ((i >= 0) && ((i + 3) < bufferSize)) {
                     let alpha = UInt8(Float(cellTransparency) * coverage)
                     if coverage > 0 {

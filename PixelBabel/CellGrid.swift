@@ -7,9 +7,9 @@ import Utils
 class CellGrid: ObservableObject
 {
     struct Defaults {
-        public static let displayWidth: Int = ScreenInfo.initialWidth
-        public static let displayHeight: Int = ScreenInfo.initialHeight
-        public static let displayScale: CGFloat = ScreenInfo.initialScale
+        public static let displayWidth: Int = Screen.initialWidth
+        public static let displayHeight: Int = Screen.initialHeight
+        public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
         public static let cellSize: Int = 32 // 43 // 32 // 8 // 83 // 43 // 37 // 35
@@ -27,11 +27,11 @@ class CellGrid: ObservableObject
         public static let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
     }
 
-    private var _displayWidth: Int = ScreenInfo.initialWidth
-    private var _displayHeight: Int = ScreenInfo.initialHeight
-    private var _displayWidthUnscaled: Int = ScreenInfo.initialWidth
-    private var _displayHeightUnscaled: Int = ScreenInfo.initialHeight
-    private var _displayScale: CGFloat = ScreenInfo.initialScale
+    private var _displayWidth: Int = Screen.initialWidth
+    private var _displayHeight: Int = Screen.initialHeight
+    private var _displayWidthUnscaled: Int = Screen.initialWidth
+    private var _displayHeightUnscaled: Int = Screen.initialHeight
+    private var _displayScale: CGFloat = Screen.initialScale
     private var _displayScaling: Bool = Defaults.displayScaling
     private var _cellSize: Int = Defaults.cellSize
     private var _cellSizeUnscaled: Int = Defaults.cellSize
@@ -53,7 +53,7 @@ class CellGrid: ObservableObject
         print("PIXELMAP-CONSTRUCTOR!!!")
     }
 
-    func configure(screen: ScreenInfo,
+    func configure(screen: Screen,
                    displayWidth: Int = Defaults.displayWidth,
                    displayHeight: Int = Defaults.displayHeight,
                    cellSize: Int = Defaults.cellSize,
@@ -120,7 +120,7 @@ class CellGrid: ObservableObject
 
         self._cells = self._configureCells()
 
-        print("SCREEN-SCALE-INITIAL:   \(ScreenInfo.initialScale)")
+        print("SCREEN-SCALE-INITIAL:   \(Screen.initialScale)")
         print("SCREEN-SCALE:           \(screen.scale)")
         print("SCREEN-SIZE:            \(scaled(screen.width)) x \(scaled(screen.height))")
         print("SCREEN-SIZE-US:         \(screen.width) x \(screen.height)")
