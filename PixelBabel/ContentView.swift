@@ -215,10 +215,10 @@ struct ContentView: View
     }
 
     private func autoTappingStart() {
-        self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
+        /* self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
             self.pixelMap.randomize()
             self.updateImage()
-        }
+        } */
     }
 
     private func autoTappingStop() {

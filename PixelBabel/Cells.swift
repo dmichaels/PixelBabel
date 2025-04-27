@@ -201,10 +201,7 @@ class Cells
                 space: CellGrid.Defaults.colorSpace,
                 bitmapInfo: CellGrid.Defaults.bitmapInfo
             ) {
-                let start = CFAbsoluteTimeGetCurrent()
                 image = context.makeImage()
-                let end = CFAbsoluteTimeGetCurrent()
-                print(String(format: "MAKE-IMAGE-TIME: %.5f ms | \(image!.width) \(image!.height)", (end - start) * 1000))
             }
         }
         return image
@@ -306,6 +303,9 @@ class Cells
         return UInt8(Float(a) * amount + Float(b) * (1 - amount))
     }
 
+    // Returns a list of preferred sizes for the cell size, such that the fit evenly without bleeding out past the end.
+    // The given dimensions, as well as the returned ones, are assumed to unscaled values;
+    //
     public static func preferredCellSizes(_ displayWidth: Int,
                                           _ displayHeight: Int,
                                           cellPreferredSizeMarginMax: Int = CellGrid.Defaults.cellPreferredSizeMarginMax)

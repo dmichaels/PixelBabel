@@ -12,7 +12,7 @@ class CellGrid: ObservableObject
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 32 // 43 // 32 // 8 // 83 // 43 // 37 // 35
+        public static let cellSize: Int = 78 // 32 // 43 // 32 // 8 // 83 // 43 // 37 // 35
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 2
         public static let cellBleed: Bool = false
@@ -93,7 +93,6 @@ class CellGrid: ObservableObject
         self._cellColorMode = cellColorMode
         self._cellBackground = cellBackground
 
-        // let neatCells = Cells.preferredCellSizes(self._displayWidthUnscaled, self._displayHeightUnscaled, cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
         let neatCells = Cells.preferredCellSizes(self._displayWidthUnscaled, self._displayHeightUnscaled, cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
         // print("NEAT-CELL-SIZES-US:")
         // for neatCell in neatCells {
@@ -112,9 +111,8 @@ class CellGrid: ObservableObject
                 self._cellSize = scaled(neatCell.cellSize)
                 self._displayWidth = scaled(neatCell.displayWidth)
                 self._displayHeight = scaled(neatCell.displayHeight)
-            }
-            else {
-                print("xyzzy.no-neat-cell")
+                self._displayWidthUnscaled = neatCell.displayWidth
+                self._displayHeightUnscaled = neatCell.displayHeight
             }
         }
 
