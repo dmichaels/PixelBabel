@@ -12,7 +12,7 @@ class CellGrid: ObservableObject {
         public static let displayScale: CGFloat = ScreenInfo.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 43 // 32 // 8 // 83 // 43 // 37 // 35
+        public static let cellSize: Int = 32 // 43 // 32 // 8 // 83 // 43 // 37 // 35
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 2
         public static let cellBleed: Bool = false
@@ -29,9 +29,12 @@ class CellGrid: ObservableObject {
 
     private var _displayWidth: Int = ScreenInfo.initialWidth
     private var _displayHeight: Int = ScreenInfo.initialHeight
+    private var _displayWidthUnscaled: Int = ScreenInfo.initialWidth
+    private var _displayHeightUnscaled: Int = ScreenInfo.initialHeight
     private var _displayScale: CGFloat = ScreenInfo.initialScale
     private var _displayScaling: Bool = Defaults.displayScaling
     private var _cellSize: Int = Defaults.cellSize
+    private var _cellSizeUnscaled: Int = Defaults.cellSize
     private var _cellPadding: Int = Defaults.cellPadding
     private var _cellBleed: Bool = Defaults.cellBleed
     private var _cellShape: CellShape = Defaults.cellShape
@@ -62,23 +65,36 @@ class CellGrid: ObservableObject {
                    cellBackground: CellColor = Defaults.cellBackground,
                    displayScaling: Bool = Defaults.displayScaling)
     {
+
+        func scaled(_ value: Int) -> Int {
+            displayScaling ? Int(round(CGFloat(value) * displayScale)) : value
+        }
+
+        func unscaled(_ value: Int) -> Int {
+            displayScaling ? Int(round(CGFloat(value) / displayScale)) : value
+        }
+
         print("PIXELMAP-CONFIGURE!!!")
         self._displayScale = screen.scale
         self._displayScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : displayScaling
         self._displayWidth = scaled(displayWidth)
         self._displayHeight = scaled(displayHeight)
+        self._displayWidthUnscaled = displayWidth
+        self._displayHeightUnscaled = displayHeight
 
         self._cellSize = scaled(cellSize)
+        self._cellSizeUnscaled = cellSize
         self._cellPadding = scaled(cellPadding)
         self._cellBleed = cellBleed
         self._cellShape = cellShape
         self._cellColorMode = cellColorMode
         self._cellBackground = cellBackground
 
-        let neatCells = Cells.preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight), cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
+        // let neatCells = Cells.preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight), cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
+        let neatCells = Cells.preferredCellSizes(self._displayWidthUnscaled, self._displayHeightUnscaled, cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
         // print("NEAT-CELL-SIZES-US:")
         // for neatCell in neatCells {
-        //     print("NEAT-CELL-US: \(neatCell.cellSize) | \(neatCell.displayWidth) \(neatCell.displayHeight) | \(unscaled(self._displayWidth) - neatCell.displayWidth) \(unscaled(self._displayHeight) - neatCell.displayHeight)")
+        //     print("NEAT-CELL-US: \(neatCell.cellSize) | \(neatCell.displayWidth) \(neatCell.displayHeight) | \(self._displayWidthUnscaled - neatCell.displayWidth) \(self._displayHeightUnscaled - neatCell.displayHeight)")
         // }
         if (cellSizeNeat) {
             if let neatCell = Cells.closestPreferredCellSize(in: neatCells, to: unscaled(self._cellSize)) {
@@ -89,7 +105,7 @@ class CellGrid: ObservableObject {
                 print("NEAT-DISPLAY-SIZE:         \(scaled(neatCell.displayWidth)) x \(scaled(neatCell.displayHeight))")
                 print("NEAT-DISPLAY-SIZE-US:      \(neatCell.displayWidth) x \(neatCell.displayHeight)")
                 print("NEAT-DISPLAY-MARGIN-XY:    \(self._displayWidth - scaled(neatCell.displayWidth)) , \(self._displayHeight - scaled(neatCell.displayHeight))")
-                print("NEAT-DISPLAY-MARGIN-XY-US: \(unscaled(self._displayWidth) - neatCell.displayWidth) , \(unscaled(self._displayHeight) - neatCell.displayHeight)")
+                print("NEAT-DISPLAY-MARGIN-XY-US: \(self._displayWidthUnscaled - neatCell.displayWidth) , \(self._displayHeightUnscaled - neatCell.displayHeight)")
                 self._cellSize = scaled(neatCell.cellSize)
                 self._displayWidth = scaled(neatCell.displayWidth)
                 self._displayHeight = scaled(neatCell.displayHeight)
@@ -107,7 +123,7 @@ class CellGrid: ObservableObject {
         print("SCREEN-SIZE-US:         \(screen.width) x \(screen.height)")
         print("DISPLAY-SCALING:        \(self._displayScaling)")
         print("DISPLAY-SIZE:           \(self._displayWidth) x \(self._displayHeight)")
-        print("DISPLAY-SIZE-US:        \(unscaled(self._displayWidth)) x \(unscaled(self._displayHeight))")
+        print("DISPLAY-SIZE-US:        \(self._displayWidthUnscaled) x \(self._displayHeightUnscaled)")
         print("CELL-SIZE:              \(self.cellSize)")
         print("CELL-SIZE-US:           \(unscaled(self._cellSize))")
         print("CELL-PADDING:           \(self.cellPadding)")
@@ -131,23 +147,15 @@ class CellGrid: ObservableObject {
     }
 
     public var displayWidthUnscaled: Int {
-        unscaled(self._displayWidth)
+        self._displayWidthUnscaled
     }
 
     public var displayHeightUnscaled: Int {
-        unscaled(self._displayHeight)
+        self._displayHeightUnscaled
     }
 
     public var displayScale: CGFloat {
         self._displayScaling ? self._displayScale : 1
-    }
-
-    private func scaled(_ value: Int) -> Int {
-        self._displayScaling ? Int(round(CGFloat(value) * self.displayScale)) : value
-    }
-
-    public func unscaled(_ value: Int) -> Int {
-        self._displayScaling ? Int(round(CGFloat(value) / self.displayScale)) : value
     }
 
     public var cellSize: Int {
