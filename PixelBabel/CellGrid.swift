@@ -12,11 +12,11 @@ class CellGrid: ObservableObject
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 78 // 32 // 43 // 32 // 8 // 83 // 43 // 37 // 35
+        public static let cellSize: Int = 28 // 43 // 32 // 8 // 83 // 43 // 37 // 35
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 2
         public static let cellBleed: Bool = false
-        public static let cellShape: CellShape = CellShape.rounded // CellShape.rounded
+        public static let cellShape: CellShape = CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color
         public static let cellBackground: CellColor = CellColor.dark
         public static let cellAntialiasFade: Float = 0.6
