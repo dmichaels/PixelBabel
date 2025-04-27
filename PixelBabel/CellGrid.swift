@@ -65,6 +65,9 @@ class CellGrid: ObservableObject {
                    cellBackground: CellColor = Defaults.cellBackground,
                    displayScaling: Bool = Defaults.displayScaling)
     {
+        // Given argument values are assumed always unscaled; we scale, i.e. logical-to-physical-pixel,
+        // e.g. one-to-three on iPhone 15, by default, but only if rending rounded rectangles are
+        // circles for smoother curves; no need for squares (inset or not).
 
         func scaled(_ value: Int) -> Int {
             displayScaling ? Int(round(CGFloat(value) * displayScale)) : value
@@ -90,14 +93,14 @@ class CellGrid: ObservableObject {
         self._cellColorMode = cellColorMode
         self._cellBackground = cellBackground
 
-        // let neatCells = Cells.preferredCellSizes(unscaled(self._displayWidth), unscaled(self._displayHeight), cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
+        // let neatCells = Cells.preferredCellSizes(self._displayWidthUnscaled, self._displayHeightUnscaled, cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
         let neatCells = Cells.preferredCellSizes(self._displayWidthUnscaled, self._displayHeightUnscaled, cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
         // print("NEAT-CELL-SIZES-US:")
         // for neatCell in neatCells {
         //     print("NEAT-CELL-US: \(neatCell.cellSize) | \(neatCell.displayWidth) \(neatCell.displayHeight) | \(self._displayWidthUnscaled - neatCell.displayWidth) \(self._displayHeightUnscaled - neatCell.displayHeight)")
         // }
         if (cellSizeNeat) {
-            if let neatCell = Cells.closestPreferredCellSize(in: neatCells, to: unscaled(self._cellSize)) {
+            if let neatCell = Cells.closestPreferredCellSize(in: neatCells, to: self._cellSizeUnscaled) {
                 print("ORIG-CELL-SIZE:            \(scaled(cellSize))")
                 print("ORIG-CELL-SIZE-US:         \(cellSize)")
                 print("NEAT-CELL-SIZE:            \(scaled(neatCell.cellSize))")
@@ -125,7 +128,7 @@ class CellGrid: ObservableObject {
         print("DISPLAY-SIZE:           \(self._displayWidth) x \(self._displayHeight)")
         print("DISPLAY-SIZE-US:        \(self._displayWidthUnscaled) x \(self._displayHeightUnscaled)")
         print("CELL-SIZE:              \(self.cellSize)")
-        print("CELL-SIZE-US:           \(unscaled(self._cellSize))")
+        print("CELL-SIZE-US:           \(self._cellSizeUnscaled)")
         print("CELL-PADDING:           \(self.cellPadding)")
         print("CELL-PADDING-US:        \(unscaled(self.cellPadding))")
 

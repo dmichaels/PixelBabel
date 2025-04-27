@@ -70,6 +70,10 @@ class Cells {
          cellBleed: Bool,
          cellFactory: CellFactory? = nil) {
 
+        // Here (unlike in CellGrid) we assume given argument are already scaled as appropriate;
+        // and that displayScaling is set correspondingly correctly; we only need to unscale
+        // to map screen input (tap etc) locations since these are always unscaled.
+
         func unscaled(_ value: Int) -> Int {
             return displayScaling ? Int(round(CGFloat(value) / displayScale)) : value
         }
