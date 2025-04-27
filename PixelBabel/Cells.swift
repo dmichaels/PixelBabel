@@ -9,8 +9,8 @@ import Utils
 // or anything weird; assume called from the buffer setting loop in the PixelMap._write method.
 //
 @MainActor
-class Cells {
-
+class Cells
+{
     typealias CellFactory = (_ parent: Cells, _ x: Int, _ y: Int) -> Cell
     typealias CellPreferredSize = (cellSize: Int, displayWidth: Int, displayHeight: Int)
 
@@ -145,7 +145,7 @@ class Cells {
         self._displayHeight / self._cellSize
     }
 
-    func defineCell(x: Int, y: Int) {
+    private func defineCell(x: Int, y: Int) {
         let cell: Cell = (self._cellFactory != nil) ? self._cellFactory!(self, x, y) : Cell(parent: self, x: x, y: y)
         self._cells.append(cell)
     }

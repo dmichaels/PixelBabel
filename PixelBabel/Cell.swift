@@ -1,8 +1,8 @@
 import Foundation
 
 @MainActor
-class Cell {
-
+class Cell
+{
     private let _parent: Cells
     private let _x: Int
     private let _y: Int

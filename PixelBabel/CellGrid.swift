@@ -4,8 +4,8 @@ import SwiftUI
 import Utils
 
 @MainActor
-class CellGrid: ObservableObject {
-
+class CellGrid: ObservableObject
+{
     struct Defaults {
         public static let displayWidth: Int = ScreenInfo.initialWidth
         public static let displayHeight: Int = ScreenInfo.initialHeight
