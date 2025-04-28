@@ -14,7 +14,7 @@ struct ContentView: View
     @State private var parentRelativeImagePosition: CGPoint = CGPoint.zero
     @State private var image: CGImage? = nil
     @State private var imageAngle: Angle = Angle.zero
-    @State private var timerInterval: Double = 0.1
+    @State private var timerInterval: Double = DefaultSettings.timerInterval
 
     @State private var showSettingsView = false
     @State private var dragging: Bool = false
