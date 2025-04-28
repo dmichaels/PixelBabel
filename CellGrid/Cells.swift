@@ -126,18 +126,11 @@ class Cells
         return CellGridPoint(point.x / self._cellSizeUnscaled, point.y / self._cellSizeUnscaled)
     }
 
-    public func cell(_ screenPoint: CGPoint) -> Cell? {
+    public func cell<T: Cell>(_ screenPoint: CGPoint) -> T? {
         if let clocation = self.locate(screenPoint) {
             return self.cell(clocation.x, clocation.y)
         }
         return nil
-    }
-
-    public func xcell(_ x: Int, _ y: Int) -> Cell? {
-        guard x >= 0, y >= 0, x < self.ncolumns, y < self.nrows else {
-            return nil
-        }
-        return self._cells[y * self.ncolumns + x]
     }
 
     public func cell<T: Cell>(_ x: Int, _ y: Int) -> T? {

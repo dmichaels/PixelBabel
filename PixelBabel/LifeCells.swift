@@ -2,25 +2,11 @@ import SwiftUI
 
 extension Cells {
 
-    func lifeCell(_ screenPoint: CGPoint) -> LifeCell? {
-        guard let cell = self.cell(screenPoint) as? LifeCell else {
-            return nil
-        }
-        return cell
-    }
-
-    func lifeCell(_ x: Int, _ y: Int) -> LifeCell? {
-        guard let cell = self.cell(x, y) as? LifeCell else {
-            return nil
-        }
-        return cell
-    }
-
-    func advanceGeneration() {
+    func nextGeneration() {
         var states: [[Bool]] = Array(repeating: Array(repeating: false, count: self.ncolumns), count: self.nrows)
         for row in 0..<self.nrows {
             for column in 0..<self.ncolumns {
-                if let cell = self.lifeCell(column, row) {
+                if let cell: LifeCell = self.cell(column, row) {
                     let liveNeighbors: Int = self.activeNeighbors(cell)
                     if cell.active {
                         states[row][column] = ((liveNeighbors == 2) || (liveNeighbors == 3))
@@ -32,7 +18,7 @@ extension Cells {
         }
         for row in 0..<self.nrows {
             for column in 0..<self.ncolumns {
-                if let cell = self.lifeCell(column, row) {
+                if let cell: LifeCell = self.cell(column, row) {
                     if (states[row][column]) {
                         cell.activate()
                     }
@@ -53,7 +39,7 @@ extension Cells {
                 }
                 let nx = (cell.x + dx + self.ncolumns) % self.ncolumns
                 let ny = (cell.y + dy + self.nrows) % self.nrows
-                if let cell = self.lifeCell(nx, ny) {
+                if let cell: LifeCell = self.cell(nx, ny) {
                     if (cell.active) {
                         count += 1
                     }
