@@ -12,14 +12,14 @@ class CellGrid: ObservableObject
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 28 // 43 // 32 // 8 // 83 // 43 // 37 // 35
+        public static let cellSize: Int = 18 // 43 // 32 // 8 // 83 // 43 // 37 // 35
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 2
         public static let cellBleed: Bool = false
         public static let cellShape: CellShape = CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color
         public static let cellForeground: CellColor = CellColor.black
-        public static let cellBackground: CellColor = CellColor.white
+        public static let cellBackground: CellColor = CellColor(Color.gray)
         public static let cellAntialiasFade: Float = 0.6
         public static let cellRoundedRectangleRadius: Float = 0.25
         public static var cellPreferredSizeMarginMax: Int   = 30
@@ -201,7 +201,7 @@ class CellGrid: ObservableObject
                 let color = cell.foreground.tintedRed(by: 0.60)
                 // cell.write(foreground: color, background: self.background, limit: true)
                 if let lifeCell = cell as? LifeCell {
-                    lifeCell.activate()
+                    lifeCell.toggle()
                 }
                 self._dragCell = cell
             }
@@ -209,20 +209,31 @@ class CellGrid: ObservableObject
     }
 
     public func onDragEnd(_ location: CGPoint) {
+        /*
         if let cell = self._cells?.cell(location) {
             self._dragCell = nil
             let color = CellColor.random()
             // cell.write(foreground: color, background: self.background, limit: true)
-            if let lifeCell = cell as? LifeCell {
-                lifeCell.activate()
-            }
         }
+        */
+        self.onDrag(location)
+        self._dragCell = nil
+        /*
+        if let cell = self._cells?.lifeCell(location) {
+            cell.toggle()
+        }
+        */
     }
 
     public func onTap(_ location: CGPoint) {
+        if let cell = self._cells?.lifeCell(location) {
+            cell.toggle()
+        }
+        /*
         if let _ = self._cells?.cell(location) {
             self.randomize()
         }
+        */
     }
 
     public func locate(_ location: CGPoint) -> CellGridPoint? {
@@ -241,19 +252,8 @@ class CellGrid: ObservableObject
         if let cells = self._cells {
             for cell in cells.cells {
                 if let lifeCell = cell as? LifeCell {
-                    // lifeCell.deactivate()
-                    // lifeCell.write(foreground: CellColor(Color.blue), background: self._cellBackground, limit: true)
                     lifeCell.deactivate()
-                    /*
-                    if ((lifeCell.x % 2 == 0) && (lifeCell.y % 2 == 0)) {
-                        lifeCell.write(foreground: CellColor.black, background: self._cellBackground, limit: true)
-                        lifeCell.activate()
-                    }
-                    else {
-                        lifeCell.write(foreground: CellColor.white, background: self._cellBackground, limit: true)
-                        lifeCell.deactivate()
-                    }
-                    */
+                    lifeCell.write()
                 }
             }
         }
@@ -261,11 +261,7 @@ class CellGrid: ObservableObject
 
     func testingLife() {
         if let cells = self._cells {
-            for cell in cells.cells {
-                if let lifeCell = cell as? LifeCell {
-                    lifeCell.toggle()
-                }
-            }
+            cells.advanceGeneration()
         }
     }
 

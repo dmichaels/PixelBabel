@@ -140,11 +140,11 @@ class Cells
         return self._cells[y * self.ncolumns + x]
     }
 
-    private var ncolumns: Int {
+    var ncolumns: Int {
         self._displayWidth / self._cellSize
     }
 
-    private var nrows: Int {
+    var nrows: Int {
         self._displayHeight / self._cellSize
     }
 
