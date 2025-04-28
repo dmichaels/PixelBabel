@@ -4,6 +4,7 @@ import Utils
 
 class DefaultSettings
 {
+    public static let ignoreSafeArea: Bool              = true
     public static let displayScaling: Bool              = CellGrid.Defaults.displayScaling
 
     public static let cellSize: Int                     = CellGrid.Defaults.cellSize

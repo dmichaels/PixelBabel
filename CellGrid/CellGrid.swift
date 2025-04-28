@@ -19,10 +19,10 @@ class CellGrid: ObservableObject
         public static let cellShape: CellShape = CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color
         public static let cellForeground: CellColor = CellColor.black
-        public static let cellBackground: CellColor = CellColor(Color.gray)
+        public static let cellBackground: CellColor = CellColor(40, 40, 40)
         public static let cellAntialiasFade: Float = 0.6
         public static let cellRoundedRectangleRadius: Float = 0.25
-        public static var cellPreferredSizeMarginMax: Int   = 30
+        public static var cellPreferredSizeMarginMax: Int = 30
         public static let cellLimitUpdate: Bool = true
         public static let colorSpace = CGColorSpaceCreateDeviceRGB()
         public static let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue

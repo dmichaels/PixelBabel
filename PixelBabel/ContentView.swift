@@ -8,11 +8,13 @@ struct ContentView: View
     @EnvironmentObject var cellGrid: CellGrid
     @EnvironmentObject var settings: Settings
 
+    @State private var ignoreSafeArea: Bool = DefaultSettings.ignoreSafeArea
     @State private var cellGridConfigured: Bool = false
     @State private var geometrySize: CGSize = .zero
     @State private var parentRelativeImagePosition: CGPoint = CGPoint.zero
     @State private var image: CGImage? = nil
     @State private var imageAngle: Angle = Angle.zero
+    @State private var timerInterval: Double = 0.1
 
     @State private var showSettingsView = false
     @State private var dragging: Bool = false
@@ -143,12 +145,19 @@ struct ContentView: View
             // TODO: Almost working without this; margins
             // off a bit; would be nice if it did as an option.
             //
-            .ignoresSafeArea()
+            // .ignoresSafeArea()
+            .conditionalModifier(ignoreSafeArea) { view in
+                view.ignoresSafeArea()
+            }
         }
         .onAppear {
             orientation.callback = self.onChangeOrientation
         }
+        // .conditionalModifier(ignoreSafeArea) { view in
+            // view.ignoresSafeArea()
+        // }
         .navigationViewStyle(.stack)
+        // .ignoresSafeArea()
     }
 
     private func updateImage() {
@@ -220,7 +229,7 @@ struct ContentView: View
     }
 
     private func autoTappingStart() {
-        self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
+        self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: self.timerInterval, repeats: true) { _ in
             // self.cellGrid.randomize()
             self.cellGrid.testingLife()
             self.updateImage()

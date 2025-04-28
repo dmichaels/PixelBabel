@@ -133,11 +133,18 @@ class Cells
         return nil
     }
 
-    public func cell(_ x: Int, _ y: Int) -> Cell? {
+    public func xcell(_ x: Int, _ y: Int) -> Cell? {
         guard x >= 0, y >= 0, x < self.ncolumns, y < self.nrows else {
             return nil
         }
         return self._cells[y * self.ncolumns + x]
+    }
+
+    public func cell<T: Cell>(_ x: Int, _ y: Int) -> T? {
+        guard x >= 0, y >= 0, x < self.ncolumns, y < self.nrows else {
+            return nil
+        }
+        return self._cells[y * self.ncolumns + x] as? T
     }
 
     var ncolumns: Int {
