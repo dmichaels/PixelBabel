@@ -18,7 +18,8 @@ class CellGrid: ObservableObject
         public static let cellBleed: Bool = false
         public static let cellShape: CellShape = CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color
-        public static let cellBackground: CellColor = CellColor.dark
+        public static let cellForeground: CellColor = CellColor.black
+        public static let cellBackground: CellColor = CellColor.white
         public static let cellAntialiasFade: Float = 0.6
         public static let cellRoundedRectangleRadius: Float = 0.25
         public static var cellPreferredSizeMarginMax: Int   = 30
@@ -45,10 +46,10 @@ class CellGrid: ObservableObject
     private var _cellPreferredSizeMarginMax: Int = Defaults.cellPreferredSizeMarginMax
     private var _cellLimitUpdate: Bool = Defaults.cellLimitUpdate
     private var _cells: Cells? = nil
-    private var _cellFactory: Cells.CellFactory?
+    private var _cellFactory: Cell.Factory?
     private var _dragCell: Cell? = nil
 
-    init(cellFactory: Cells.CellFactory? = nil) {
+    init(cellFactory: Cell.Factory? = nil) {
         self._cellFactory = cellFactory
         print("PIXELMAP-CONSTRUCTOR!!!")
     }
@@ -62,6 +63,7 @@ class CellGrid: ObservableObject
                    cellBleed: Bool = Defaults.cellBleed,
                    cellShape: CellShape = Defaults.cellShape,
                    cellColorMode: CellColorMode = Defaults.cellColorMode,
+                   cellForeground: CellColor = Defaults.cellForeground,
                    cellBackground: CellColor = Defaults.cellBackground,
                    displayScaling: Bool = Defaults.displayScaling)
     {
@@ -116,7 +118,19 @@ class CellGrid: ObservableObject
             }
         }
 
-        self._cells = self._configureCells()
+        // self._cells = self._configureCells()
+        self._cells = Cells(displayWidth: self._displayWidth,
+                            displayHeight: self._displayHeight,
+                            displayScale: self._displayScale,
+                            displayScaling: self._displayScaling,
+                            cellSize: self._cellSize,
+                            cellPadding: self._cellPadding,
+                            cellShape: self._cellShape,
+                            cellTransparency: Defaults.displayTransparency,
+                            cellBleed: Defaults.cellBleed,
+                            cellForeground: cellForeground,
+                            cellBackground: self._cellBackground,
+                            cellFactory: self._cellFactory)
 
         print("SCREEN-SCALE-INITIAL:   \(Screen.initialScale)")
         print("SCREEN-SCALE:           \(screen.scale)")
@@ -133,6 +147,7 @@ class CellGrid: ObservableObject
         // self.fill(with: self._cellBackground)
     }
 
+/*
     private func _configureCells() -> Cells {
         let cells = Cells(displayWidth: self._displayWidth,
                           displayHeight: self._displayHeight,
@@ -146,6 +161,7 @@ class CellGrid: ObservableObject
                           cellFactory: self._cellFactory)
         return cells
     }
+*/
 
     public var displayWidthUnscaled: Int {
         self._displayWidthUnscaled
@@ -183,7 +199,10 @@ class CellGrid: ObservableObject
         if let cell = self._cells?.cell(location) {
             if ((self._dragCell == nil) || (self._dragCell!.location != cell.location)) {
                 let color = cell.foreground.tintedRed(by: 0.60)
-                cell.write(foreground: color, background: self.background, limit: true)
+                // cell.write(foreground: color, background: self.background, limit: true)
+                if let lifeCell = cell as? LifeCell {
+                    lifeCell.activate()
+                }
                 self._dragCell = cell
             }
         }
@@ -193,7 +212,10 @@ class CellGrid: ObservableObject
         if let cell = self._cells?.cell(location) {
             self._dragCell = nil
             let color = CellColor.random()
-            cell.write(foreground: color, background: self.background, limit: true)
+            // cell.write(foreground: color, background: self.background, limit: true)
+            if let lifeCell = cell as? LifeCell {
+                lifeCell.activate()
+            }
         }
     }
 
@@ -210,7 +232,39 @@ class CellGrid: ObservableObject
     func fill(with color: CellColor, limit: Bool = true) {
         if let cells = self._cells {
             for cell in cells.cells {
-                cell.write(foreground: color, background: self._cellBackground, limit: limit) // xyzzy
+                cell.write(foreground: color, background: self._cellBackground, limit: limit)
+            }
+        }
+    }
+
+    func testingLifeSetup() {
+        if let cells = self._cells {
+            for cell in cells.cells {
+                if let lifeCell = cell as? LifeCell {
+                    // lifeCell.deactivate()
+                    // lifeCell.write(foreground: CellColor(Color.blue), background: self._cellBackground, limit: true)
+                    lifeCell.deactivate()
+                    /*
+                    if ((lifeCell.x % 2 == 0) && (lifeCell.y % 2 == 0)) {
+                        lifeCell.write(foreground: CellColor.black, background: self._cellBackground, limit: true)
+                        lifeCell.activate()
+                    }
+                    else {
+                        lifeCell.write(foreground: CellColor.white, background: self._cellBackground, limit: true)
+                        lifeCell.deactivate()
+                    }
+                    */
+                }
+            }
+        }
+    }
+
+    func testingLife() {
+        if let cells = self._cells {
+            for cell in cells.cells {
+                if let lifeCell = cell as? LifeCell {
+                    lifeCell.toggle()
+                }
             }
         }
     }
@@ -224,7 +278,7 @@ class CellGrid: ObservableObject
                             cellPadding: self.cellPadding,
                             cellLimitUpdate: self._cellLimitUpdate,
                             background: self.background,
-                            cells: self._cells)
+                            cells: self._cells!)
     }
 
     static func _randomize(displayWidth: Int,
@@ -235,23 +289,19 @@ class CellGrid: ObservableObject
                            cellPadding: Int,
                            cellLimitUpdate: Bool,
                            background: CellColor,
-                           cells: Cells? = nil)
+                           cells: Cells)
     {
         let start = Date()
-
-        if (cells != nil) {
-            for cell in cells!.cells {
-                cell.write(foreground: CellColor.random(), background: background, limit: cellLimitUpdate) // xyzzyxyzzy
-            }
-            let end = Date()
-            let elapsed = end.timeIntervalSince(start)
-            print(String(format: "CACHED-RANDOMIZE-TIME: %.5f sec | \(cellLimitUpdate)", elapsed))
-            return
+        for cell in cells.cells {
+            cell.write(foreground: CellColor.random(), background: background, limit: cellLimitUpdate)
         }
+        let end = Date()
+        let elapsed = end.timeIntervalSince(start)
+        print(String(format: "CACHED-RANDOMIZE-TIME: %.5f sec | \(cellLimitUpdate)", elapsed))
     }
 
     func writeCell(_ cell: Cell, _ color: CellColor, limit: Bool = true) {
-        cell.write(foreground: color, background: self.background, limit: limit) // xyzzy
+        cell.write(foreground: color, background: self.background, limit: limit)
     }
 
     public var image: CGImage? {

@@ -11,8 +11,7 @@ import Utils
 @MainActor
 class Cells
 {
-    typealias CellFactory = (_ parent: Cells, _ x: Int, _ y: Int) -> Cell
-    typealias CellPreferredSize = (cellSize: Int, displayWidth: Int, displayHeight: Int)
+    typealias PreferredSize = (cellSize: Int, displayWidth: Int, displayHeight: Int)
 
     private class BufferBlock {
         let index: Int
@@ -54,7 +53,8 @@ class Cells
     private let _cellShape: CellShape
     private let _cellTransparency: UInt8
     private let _cellBleed: Bool
-    private let _cellFactory: CellFactory?
+    private let _cellBackground: CellColor
+    private let _cellFactory: Cell.Factory?
     private var _cells: [Cell]
     private var _buffer: [UInt8]
     private let _bufferBlocks: BufferBlocks
@@ -68,7 +68,9 @@ class Cells
          cellShape: CellShape,
          cellTransparency: UInt8,
          cellBleed: Bool,
-         cellFactory: CellFactory? = nil) {
+         cellForeground: CellColor,
+         cellBackground: CellColor,
+         cellFactory: Cell.Factory? = nil) {
 
         // Here (unlike in CellGrid) we assume given argument are already scaled as appropriate;
         // and that displayScaling is set correspondingly correctly; we only need to unscale
@@ -90,6 +92,7 @@ class Cells
         self._cellShape = cellShape
         self._cellTransparency = cellTransparency
         self._cellBleed = cellBleed
+        self._cellBackground = cellBackground
         self._cellFactory = cellFactory
         self._cells = []
         self._buffer = [UInt8](repeating: 0, count: self._displayWidth * self._displayHeight * Screen.depth)
@@ -102,7 +105,7 @@ class Cells
                                                       cellTransparency: self._cellTransparency)
         for y in 0..<self.nrows {
             for x in 0..<self.ncolumns {
-                self.defineCell(x: x, y: y)
+                self.defineCell(x: x, y: y, foreground: cellForeground, background: self._cellBackground)
             }
         }
     }
@@ -145,8 +148,10 @@ class Cells
         self._displayHeight / self._cellSize
     }
 
-    private func defineCell(x: Int, y: Int) {
-        let cell: Cell = (self._cellFactory != nil) ? self._cellFactory!(self, x, y) : Cell(parent: self, x: x, y: y)
+    private func defineCell(x: Int, y: Int, foreground: CellColor, background: CellColor) {
+        let cell: Cell = (self._cellFactory != nil)
+                         ? self._cellFactory!(self, x, y, foreground, background)
+                         : Cell(parent: self, x: x, y: y, foreground: foreground, background: background)
         self._cells.append(cell)
     }
 
@@ -159,7 +164,7 @@ class Cells
         buffer.withUnsafeMutableBytes { raw in
             for block in self._bufferBlocks.blocks {
                 let base: UnsafeMutableRawPointer = raw.baseAddress!.advanced(by: block.index + offset)
-                var color: CellColor = CellColor.black
+                var color: CellColor
                 if (block.foreground) {
                     if (block.blend != 0.0) {
                         color = CellColor(Cells.blend(foreground.red,   background.red,   amount: block.blend),
@@ -309,7 +314,7 @@ class Cells
     public static func preferredCellSizes(_ displayWidth: Int,
                                           _ displayHeight: Int,
                                           cellPreferredSizeMarginMax: Int = CellGrid.Defaults.cellPreferredSizeMarginMax)
-                                          -> [CellPreferredSize] {
+                                          -> [PreferredSize] {
         let mindim = min(displayWidth, displayHeight)
         guard mindim > 0 else { return [] }
         var results: [(cellSize: Int, displayWidth: Int, displayHeight: Int)] = []
@@ -331,7 +336,7 @@ class Cells
         return results
     }
 
-    public static func closestPreferredCellSize(in list: [CellPreferredSize], to target: Int) -> CellPreferredSize? {
+    public static func closestPreferredCellSize(in list: [PreferredSize], to target: Int) -> PreferredSize? {
         return list.min(by: {
             let a = abs($0.cellSize - target)
             let b = abs($1.cellSize - target)

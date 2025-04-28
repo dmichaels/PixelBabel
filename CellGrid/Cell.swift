@@ -3,6 +3,8 @@ import Foundation
 @MainActor
 class Cell
 {
+    typealias Factory = (_ parent: Cells, _ x: Int, _ y: Int, _ foreground: CellColor, _ background: CellColor) -> Cell
+
     private let _parent: Cells
     private let _x: Int
     private let _y: Int
@@ -29,12 +31,12 @@ class Cell
         self._background
     }
 
-    init(parent: Cells, x: Int, y: Int,  foreground: CellColor? = nil, background: CellColor? = nil) {
+    init(parent: Cells, x: Int, y: Int, foreground: CellColor, background: CellColor) {
         self._parent = parent
         self._x = x
         self._y = y
-        self._foreground = foreground ?? CellColor.black
-        self._background = background ?? CellColor.white
+        self._foreground = foreground
+        self._background = background
     }
 
     public func write(foreground: CellColor, background: CellColor, limit: Bool = false) {

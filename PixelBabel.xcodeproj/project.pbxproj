@@ -23,6 +23,7 @@
 		98FFBFDC2DBEBDD400C161DB /* CellGrid.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98FFBFD12DBEBDD400C161DB /* CellGrid.framework */; };
 		98FFBFE62DBEBDD400C161DB /* CellGrid.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98FFBFD12DBEBDD400C161DB /* CellGrid.framework */; };
 		98FFBFE72DBEBDD400C161DB /* CellGrid.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 98FFBFD12DBEBDD400C161DB /* CellGrid.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		98FFBFF52DBFB96800C161DB /* LifeSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98FFBFF42DBFB96800C161DB /* LifeSettings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -117,6 +118,7 @@
 		98F98D222DBBCB81003FF91D /* UtilsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UtilsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		98FFBFD12DBEBDD400C161DB /* CellGrid.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CellGrid.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		98FFBFDB2DBEBDD400C161DB /* CellGridTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CellGridTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		98FFBFF42DBFB96800C161DB /* LifeSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeSettings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -248,6 +250,7 @@
 				984AE83A2D9904ED00DBCEDA /* ContentView.swift */,
 				98F98D0D2DBBACD1003FF91D /* LifeCell.swift */,
 				98F98D0F2DBBB823003FF91D /* LifeCells.swift */,
+				98FFBFF42DBFB96800C161DB /* LifeSettings.swift */,
 				984AE8382D9904ED00DBCEDA /* PixelBabelApp.swift */,
 				982857772DA179C800770B45 /* Settings.swift */,
 				982857792DA17A1700770B45 /* SettingsView.swift */,
@@ -572,6 +575,7 @@
 				9828577A2DA17A1700770B45 /* SettingsView.swift in Sources */,
 				984AE83B2D9904ED00DBCEDA /* ContentView.swift in Sources */,
 				98F98D102DBBB823003FF91D /* LifeCells.swift in Sources */,
+				98FFBFF52DBFB96800C161DB /* LifeSettings.swift in Sources */,
 				984AE8392D9904ED00DBCEDA /* PixelBabelApp.swift in Sources */,
 				982857782DA179C800770B45 /* Settings.swift in Sources */,
 			);

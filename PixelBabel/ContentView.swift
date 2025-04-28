@@ -5,10 +5,10 @@ struct ContentView: View
 {
     @StateObject var orientation = OrientationObserver()
 
-    @EnvironmentObject var pixelMap: CellGrid
+    @EnvironmentObject var cellGrid: CellGrid
     @EnvironmentObject var settings: Settings
 
-    @State private var pixelMapConfigured: Bool = false
+    @State private var cellGridConfigured: Bool = false
     @State private var geometrySize: CGSize = .zero
     @State private var parentRelativeImagePosition: CGPoint = CGPoint.zero
     @State private var image: CGImage? = nil
@@ -25,7 +25,7 @@ struct ContentView: View
             GeometryReader { geometry in
                 ZStack {
                     if let image = image {
-                        Image(decorative: image, scale: self.pixelMap.displayScale)
+                        Image(decorative: image, scale: self.cellGrid.displayScale)
                             .background(GeometryReader { geo in Color.clear
                                 .onAppear {
                                     let parentOrigin = geo.frame(in: .named("zstack")).origin
@@ -50,7 +50,7 @@ struct ContentView: View
                                                           normalizedLocation.y - self.draggingStart!.y)
                                         if (delta > DefaultSettings.draggingThreshold) {
                                             self.dragging = true
-                                            self.pixelMap.onDrag(normalizedLocation)
+                                            self.cellGrid.onDrag(normalizedLocation)
                                             self.updateImage()
                                         }
                                     }
@@ -72,10 +72,10 @@ struct ContentView: View
                                             //
                                         }
                                         if (self.dragging) {
-                                            self.pixelMap.onDragEnd(normalizedLocation)
+                                            self.cellGrid.onDragEnd(normalizedLocation)
                                             self.updateImage()
                                         } else {
-                                            self.pixelMap.onTap(normalizedLocation)
+                                            self.cellGrid.onTap(normalizedLocation)
                                             self.updateImage()
                                         }
                                         self.draggingStart = nil
@@ -90,7 +90,7 @@ struct ContentView: View
                                             case .second(true, let drag):
                                                 if let location = drag?.location {
                                                     let normalizedLocation = self.normalizedLocation(location)
-                                                    if (self.pixelMap.locate(normalizedLocation) != nil) {
+                                                    if (self.cellGrid.locate(normalizedLocation) != nil) {
                                                         self.autoTapping.toggle()
                                                         if (self.autoTapping) {
                                                             self.autoTappingStart()
@@ -113,24 +113,29 @@ struct ContentView: View
                     }
                 }
                 .onAppear {
-                    if (!self.pixelMapConfigured) {
-                        self.pixelMapConfigured = true
+                    if (!self.cellGridConfigured) {
+                        self.cellGridConfigured = true
                         self.geometrySize = geometry.size
                         Screen.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
                         let landscape = self.orientation.current.isLandscape
-                        self.pixelMap.configure(
+                        self.cellGrid.configure(
                             screen: Screen.shared,
                             displayWidth: landscape ? Screen.shared.height : Screen.shared.width,
-                            displayHeight: landscape ? Screen.shared.width : Screen.shared.height)
-                        self.pixelMap.randomize()
-                        self.pixelMap.fill(with: CellColor(0, 255, 255))
+                            displayHeight: landscape ? Screen.shared.width : Screen.shared.height,
+                            cellSize: DefaultSettings.cellSize,
+                            cellPadding: DefaultSettings.cellPadding,
+                            cellShape: DefaultSettings.cellShape,
+                            cellColorMode: DefaultSettings.cellColorMode,
+                            cellBackground: DefaultSettings.cellBackground)
+                        // self.cellGrid.randomize()
+                        self.cellGrid.testingLifeSetup()
                         self.updateImage()
                         self.rotateImage()
                     }
                 }
                 .navigationTitle("Home")
                 .navigationBarHidden(true)
-                .background(self.pixelMap.background.color) // xyzzy
+                .background(self.cellGrid.background.color) // xyzzy
                 .statusBar(hidden: true)
                 .coordinateSpace(name: "zstack")
             }
@@ -147,7 +152,7 @@ struct ContentView: View
     }
 
     private func updateImage() {
-        self.image = self.pixelMap.image
+        self.image = self.cellGrid.image
     }
 
     private func rotateImage() {
@@ -186,12 +191,12 @@ struct ContentView: View
             y = location.y - self.parentRelativeImagePosition.y
         case .portraitUpsideDown:
             if (orientation.ipad) {
-                x = CGFloat(self.pixelMap.displayWidthUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.x)
-                y = CGFloat(self.pixelMap.displayHeightUnscaled) - 1 - (location.y - self.parentRelativeImagePosition.y)
+                x = CGFloat(self.cellGrid.displayWidthUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.x)
+                y = CGFloat(self.cellGrid.displayHeightUnscaled) - 1 - (location.y - self.parentRelativeImagePosition.y)
             }
             else if (self.orientation.previous.isLandscape) {
                 x = location.y - self.parentRelativeImagePosition.x
-                y = CGFloat(self.pixelMap.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
+                y = CGFloat(self.cellGrid.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
             }
             else {
                 x = location.x - self.parentRelativeImagePosition.x
@@ -199,9 +204,9 @@ struct ContentView: View
             }
         case .landscapeRight:
             x = location.y - self.parentRelativeImagePosition.x
-            y = CGFloat(self.pixelMap.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
+            y = CGFloat(self.cellGrid.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
         case .landscapeLeft:
-            x = CGFloat(self.pixelMap.displayWidthUnscaled) - 1 - (location.y - self.parentRelativeImagePosition.x)
+            x = CGFloat(self.cellGrid.displayWidthUnscaled) - 1 - (location.y - self.parentRelativeImagePosition.x)
             y = location.x - self.parentRelativeImagePosition.y
         default:
             x = location.x - self.parentRelativeImagePosition.x
@@ -215,10 +220,11 @@ struct ContentView: View
     }
 
     private func autoTappingStart() {
-        /* self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
-            self.pixelMap.randomize()
+        self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
+            // self.cellGrid.randomize()
+            self.cellGrid.testingLife()
             self.updateImage()
-        } */
+        }
     }
 
     private func autoTappingStop() {
@@ -228,11 +234,13 @@ struct ContentView: View
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static let pixelMap = CellGrid(cellFactory: LifeCell.define)
+    static let cellFactory = LifeCell.factory(activeColor: DefaultLifeSettings.cellActiveColor,
+                                              inactiveColor: DefaultLifeSettings.cellInactiveColor)
+    static let cellGrid = CellGrid(cellFactory: cellFactory)
     static let settings = Settings()
     static var previews: some View {
         ContentView()
-            .environmentObject(pixelMap)
+            .environmentObject(cellGrid)
             .environmentObject(settings)
     }
 }

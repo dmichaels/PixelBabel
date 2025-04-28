@@ -12,6 +12,7 @@ class DefaultSettings
     public static let cellBleed: Bool                   = CellGrid.Defaults.cellBleed
     public static let cellShape: CellShape              = CellGrid.Defaults.cellShape
     public static let cellColorMode: CellColorMode      = CellGrid.Defaults.cellColorMode
+    public static let cellForeground: CellColor         = CellGrid.Defaults.cellForeground
     public static let cellBackground: CellColor         = CellGrid.Defaults.cellBackground
     public static let cellAntialiasFade: Float          = CellGrid.Defaults.cellAntialiasFade
     public static let cellRoundedRectangleRadius: Float = CellGrid.Defaults.cellRoundedRectangleRadius
