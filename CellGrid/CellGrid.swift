@@ -12,9 +12,9 @@ class CellGrid: ObservableObject
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 18 // 43 // 32 // 8 // 83 // 43 // 37 // 35
+        public static let cellSize: Int = 43 // 18 // 43 // 32 // 8 // 83 // 43 // 37 // 35
         public static let cellSizeNeat: Bool = true
-        public static let cellPadding: Int = 2
+        public static let cellPadding: Int = 1
         public static let cellBleed: Bool = false
         public static let cellShape: CellShape = CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color
@@ -138,6 +138,8 @@ class CellGrid: ObservableObject
         print("DISPLAY-SCALING:        \(self._displayScaling)")
         print("DISPLAY-SIZE:           \(self._displayWidth) x \(self._displayHeight)")
         print("DISPLAY-SIZE-US:        \(self._displayWidthUnscaled) x \(self._displayHeightUnscaled)")
+        print("CELL-COLS:              \(self._cells!.ncolumns)")
+        print("CELL-ROWS:              \(self._cells!.nrows)")
         print("CELL-SIZE:              \(self.cellSize)")
         print("CELL-SIZE-US:           \(self._cellSizeUnscaled)")
         print("CELL-PADDING:           \(self.cellPadding)")
@@ -235,7 +237,15 @@ class CellGrid: ObservableObject
         if let cells = self._cells {
             for case let cell as LifeCell in cells.cells {
                 cell.deactivate()
-                cell.write()
+                if ((cell.x == 0) && (cell.y == 0)) {
+                    cell.write(foreground: CellColor(Color.red))
+                }
+                else if ((cell.x == cells.ncolumns - 1) && (cell.y == cells.nrows - 1)) {
+                    cell.write(foreground: CellColor(Color.green))
+                }
+                else {
+                    cell.write()
+                }
             }
         }
     }

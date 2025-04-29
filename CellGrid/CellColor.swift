@@ -35,6 +35,10 @@ struct CellColor: Equatable {
         }
     }
 
+    public var hex: String {
+        String(format: "%02X", self.value)
+    }
+
     init(_ red: UInt8, _ green: UInt8, _ blue: UInt8, alpha: UInt8 = 255) {
         self._red = red
         self._green = green

@@ -159,21 +159,126 @@ class Cells
         self.writeCell(buffer: &self._buffer, x: x, y: y, foreground: foreground, background: background, limit: limit)
     }
 
+public func nwriteCell(
+    buffer: inout [UInt8],
+    x: Int,
+    y: Int,
+    foreground: CellColor,
+    background: CellColor,
+    limit: Bool = false,
+    shiftX: Int = 200, // Positive = right, negative = left
+    shiftY: Int = 200  // Positive = down, negative = up
+) {
+    let bytesPerPixel = Screen.depth
+    let bufferWidth = self._displayWidth
+    let bufferHeight = self._displayHeight
+    let bufferSize = buffer.count
+
+    buffer.withUnsafeMutableBytes { raw in
+        guard let baseAddress = raw.baseAddress else { return }
+
+        for block in self._bufferBlocks.blocks {
+            let originalIndex = block.index
+            let blockStartX = (originalIndex / bytesPerPixel) % self._cellSize
+            let blockStartY = (originalIndex / bytesPerPixel) / self._cellSize
+
+            // Calculate absolute pixel position in the buffer
+            let absX = x * self._cellSize + blockStartX + shiftX
+            let absY = y * self._cellSize + blockStartY + shiftY
+
+            // Skip this block if it's entirely off-screen
+            if absX < 0 || absX + block.count > bufferWidth || absY < 0 || absY >= bufferHeight {
+                continue
+            }
+
+            let pixelOffset = (absY * bufferWidth + absX) * bytesPerPixel
+            if pixelOffset < 0 || pixelOffset + block.count * bytesPerPixel > bufferSize {
+                continue
+            }
+
+            let base = baseAddress.advanced(by: pixelOffset)
+            let color: CellColor
+
+            if block.foreground {
+                if block.blend != 0.0 {
+                    color = CellColor(
+                        Cells.blend(foreground.red, background.red, amount: block.blend),
+                        Cells.blend(foreground.green, background.green, amount: block.blend),
+                        Cells.blend(foreground.blue, background.blue, amount: block.blend),
+                        alpha: foreground.alpha
+                    )
+                } else {
+                    color = foreground
+                }
+            } else if limit {
+                continue
+            } else {
+                color = background
+            }
+
+            Memory.fastcopy(to: base, count: block.count, value: color.value)
+        }
+    }
+}
+
     public func writeCell(buffer: inout [UInt8], x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
-        let offset: Int = ((self._cellSize * x) + (self._cellSize * self._displayWidth * y)) * Screen.depth
+        print("WRITE-CELL: [\(x), \(y)] | dw: \(self._displayWidth) | cs: \(self._cellSize) | color: \(foreground.hex)")
+        var nskips = 0
+        let size = buffer.count
+        // let offset: Int = ((self._cellSize * x) + (self._cellSize * self._displayWidth * y)) * Screen.depth
+        let shiftx = 0 // 24 * 3
+        let shifty = 0 // 24 * 3
+        let offset = ((self._cellSize * x) + shiftx + (self._cellSize * self._displayWidth * y + shifty * self._displayWidth)) * Screen.depth
+        var fg = foreground
+        if x == 8 {
+            fg = CellColor(Color.blue)
+        }
+        if x == 7 {
+            fg = CellColor(Color.yellow)
+        }
         buffer.withUnsafeMutableBytes { raw in
+            guard let bufferAddress = raw.baseAddress else { return } // xyzzy
+            var blockNumber = -1
+            var blockFirstStart = 0
             for block in self._bufferBlocks.blocks {
-                let base: UnsafeMutableRawPointer = raw.baseAddress!.advanced(by: block.index + offset)
+                blockNumber += 1
+                if blockNumber == 0 {
+                    blockFirstStart = offset + block.index
+                }
+                //xyzzy
+                var count = block.count
+                var start = offset + block.index
+                let nbytes = count * Memory.bufferBlockSize
+                let end = start + nbytes
+                //xyzzy
+                if (y == 0) && ((x == 0) || (x == 7)) {
+                    print("WRITE-CELL-BLOCK(\(x)): start: \(start) nbytes: \(nbytes) end: \(end) size: \(size) block-count: \(block.count)")
+                }
+                //xyzzy2
+                if ((shiftx > 0) && ((start - ((start / self._displayWidth) * self._displayWidth)) < shiftx)) {
+                    // print("SKIP-ITEM: start: \(start) offset: \(offset) fg: \(foreground.hex) hm: \((start - ((start / self._displayWidth) * self._displayWidth))) | y: \(start / self._displayWidth))")
+                    // start += shiftx
+                    // count -= shiftx
+                }
+                //xyzzy2
+                guard start >= 0, end <= size else {
+                    nskips += 1
+                    // print("⚠️ Skipping write: Out-of-bounds write attempt (\(start)..<\(end)), buffer size: \(size)")
+                    continue
+                }
+                let base = bufferAddress.advanced(by: start)
+                //xyzzy
+                // xyzzy let base: UnsafeMutableRawPointer = raw.baseAddress!.advanced(by: block.index + offset) // xyzzy
                 var color: CellColor
                 if (block.foreground) {
                     if (block.blend != 0.0) {
-                        color = CellColor(Cells.blend(foreground.red,   background.red,   amount: block.blend),
-                                          Cells.blend(foreground.green, background.green, amount: block.blend),
-                                          Cells.blend(foreground.blue,  background.blue,  amount: block.blend),
-                                          alpha: foreground.alpha)
+                        color = CellColor(Cells.blend(fg.red,   background.red,   amount: block.blend),
+                                          Cells.blend(fg.green, background.green, amount: block.blend),
+                                          Cells.blend(fg.blue,  background.blue,  amount: block.blend),
+                                          alpha: fg.alpha)
                     }
                     else {
-                        color = foreground
+                        color = fg
                     }
                 }
                 else if (limit) {
@@ -186,9 +291,22 @@ class Cells
                 else {
                     color = background
                 }
-                Memory.fastcopy(to: base, count: block.count, value: color.value)
+                if (((x == 0) || (x == 1) || (x == 2)) && ((y == 0) || (y == 1) || (y == 2))) {
+                    let cw = self._displayWidth * self._cellSize * Screen.depth
+                    let cy = start / cw
+                    // let cx = start - (cy * cw)
+                    // let cx = (start - (cy * cw)) / self._cellSize
+                    // let cx = ((start - (cy * cw)) / self._cellSize) / 36 
+                    // let cx = ((blockFirstStart - (cy * cw)) / self._cellSize) / 36 
+                    // let cx = blockFirstStart - (cy * cw)
+                    // let cx = (blockFirstStart - (cy * cw)) / 129 / 4
+                    let cx = (blockFirstStart - (cy * cw)) / (self._cellSize * Screen.depth)
+                    print("WR: [\(x),\(y)] block: \(blockNumber) block-first-start: \(blockFirstStart) offset: \(offset) start: \(start) count: \(count) color: \(color.hex) cx: \(cx) cy: \(cy)")
+                }
+                Memory.fastcopy(to: base, count: count, value: color.value)
             }
         }
+        print("WRITE-CELL-DONE: [\(x), \(y)] | skips: \(nskips)")
     }
 
     public var image: CGImage? {
@@ -242,6 +360,7 @@ class Cells
                 let ix = dx
                 let iy = dy
                 if ix >= displayWidth || iy >= displayHeight { continue }
+                if ix < 0 || iy < 0 { continue }
                 let fx = Float(ix) + 0.5
                 let fy = Float(iy) + 0.5
                 var coverage: Float = 0.0
@@ -289,7 +408,7 @@ class Cells
                 }
 
                 let i = (iy * displayWidth + ix) * Screen.depth
-                if ((i >= 0) && ((i + 3) < bufferSize)) {
+                if ((i >= 0) && ((i + (Screen.depth - 1)) < bufferSize)) {
                     let alpha = UInt8(Float(cellTransparency) * coverage)
                     if coverage > 0 {
                         bufferBlocks.append(index: i, foreground: true, blend: coverage)
