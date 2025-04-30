@@ -16,7 +16,7 @@ class CellGrid: ObservableObject
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 1 // 1
         public static let cellBleed: Bool = false
-        public static let cellShape: CellShape = CellShape.rounded
+        public static let cellShape: CellShape = CellShape.rounded // CellShape.square // CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color
         public static let cellForeground: CellColor = CellColor.black
         public static let cellBackground: CellColor = CellColor(40, 40, 40)
