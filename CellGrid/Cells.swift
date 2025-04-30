@@ -174,7 +174,7 @@ class Cells
         var blockCount: Int = 0
         var lblock: BufferBlock?
         var shiftxThis: Int = 0
-        var shiftxLeft: Int = 0
+        var shiftxTodo: Int = 0
         buffer.withUnsafeMutableBytes { raw in
             guard let bufferAddress = raw.baseAddress else { return } // xyzzy
             for block in self._bufferBlocks.blocks {
@@ -190,15 +190,15 @@ class Cells
                         if ((shiftx > 0) && (x == (self.ncolumns - 1))) { print("NEW-CONTIGUOUS-BLOCK") }
                         blockCount = block.count
                         shiftxThis = shiftx
-                        shiftxLeft = shiftx
+                        shiftxTodo = shiftx
                     }
-                    if (shiftxLeft < block.count) {
-                        shiftxThis = shiftxLeft
+                    if (shiftxTodo < block.count) {
+                        shiftxThis = shiftxTodo
                     }
                     else {
                         shiftxThis = block.count
                     }
-                    shiftxLeft -= shiftxThis
+                    shiftxTodo -= shiftxThis
                     lblock = block
                 }
                 let base: UnsafeMutableRawPointer = bufferAddress.advanced(by: start)
@@ -226,12 +226,18 @@ class Cells
                 }
                 // if ((shiftx > 0) && (x == 8)) {
                 if ((shiftx > 0) && (x == (self.ncolumns - 1))) {
-                    print("WR[\(x),\(y)]: sx: \(shiftx) \(block.foreground)-\((block.blend * 10).rounded() / 10)" +
-                          " bi: \(block.index) bc: \(block.count) cbc: \(blockCount) mc: \(block.count - shiftx) shiftxThis: \(shiftxThis) shiftxLeft: \(shiftxLeft)")
-                    // let count = block.count - shiftx
                     let count = block.count - shiftxThis
+                    print("WR[\(x),\(y)]: sx: \(shiftx) \(block.foreground)-\((block.blend * 10).rounded() / 10)" +
+                          " bi: \(block.index) bc: \(block.count) cbc: \(blockCount) mc: \(count) shiftxThis: \(shiftxThis) shiftxTodo: \(shiftxTodo)")
+                    // let count = block.count - shiftx
                     if (count > 0) {
-                        Memory.fastcopy(to: base, count: count, value: color.value)
+                        if blockCount >= 96 && blockCount <= 101 {
+                            Memory.fastcopy(to: base, count: count, value: CellColor(Color.blue).value)
+                        }
+                        else {
+                            Memory.fastcopy(to: base, count: count, value: color.value)
+                        }
+                        // Memory.fastcopy(to: base, count: count, value: color.value)
                     }
                 }
                 else {
