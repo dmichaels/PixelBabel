@@ -222,12 +222,17 @@ public func nwriteCell(
 }
 
     public func writeCell(buffer: inout [UInt8], x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
-        print("WRITE-CELL: [\(x), \(y)] | dw: \(self._displayWidth) | cs: \(self._cellSize) | color: \(foreground.hex)")
+
+        func scaled(_ value: Int) -> Int {
+            CellGrid.Defaults.displayScaling ? Int(round(CGFloat(value) * CGFloat(3.0))) : value
+        }
+
+        // print("WRITE-CELL: [\(x), \(y)] | dw: \(self._displayWidth) | cs: \(self._cellSize) | color: \(foreground.hex)")
         var nskips = 0
         let size = buffer.count
         // let offset: Int = ((self._cellSize * x) + (self._cellSize * self._displayWidth * y)) * Screen.depth
-        let shiftx = 0 // 24 * 3
-        let shifty = 0 // 24 * 3
+        let shiftx = scaled(24)
+        let shifty = 0 // (10 * 3)
         let offset = ((self._cellSize * x) + shiftx + (self._cellSize * self._displayWidth * y + shifty * self._displayWidth)) * Screen.depth
         var fg = foreground
         if x == 8 {
@@ -251,9 +256,11 @@ public func nwriteCell(
                 let nbytes = count * Memory.bufferBlockSize
                 let end = start + nbytes
                 //xyzzy
+                /*
                 if (y == 0) && ((x == 0) || (x == 7)) {
                     print("WRITE-CELL-BLOCK(\(x)): start: \(start) nbytes: \(nbytes) end: \(end) size: \(size) block-count: \(block.count)")
                 }
+                */
                 //xyzzy2
                 if ((shiftx > 0) && ((start - ((start / self._displayWidth) * self._displayWidth)) < shiftx)) {
                     // print("SKIP-ITEM: start: \(start) offset: \(offset) fg: \(foreground.hex) hm: \((start - ((start / self._displayWidth) * self._displayWidth))) | y: \(start / self._displayWidth))")
@@ -291,6 +298,7 @@ public func nwriteCell(
                 else {
                     color = background
                 }
+                /*
                 if (((x == 0) || (x == 1) || (x == 2)) && ((y == 0) || (y == 1) || (y == 2))) {
                     let cw = self._displayWidth * self._cellSize * Screen.depth
                     let cy = start / cw
@@ -301,12 +309,52 @@ public func nwriteCell(
                     // let cx = blockFirstStart - (cy * cw)
                     // let cx = (blockFirstStart - (cy * cw)) / 129 / 4
                     let cx = (blockFirstStart - (cy * cw)) / (self._cellSize * Screen.depth)
-                    print("WR: [\(x),\(y)] block: \(blockNumber) block-first-start: \(blockFirstStart) offset: \(offset) start: \(start) count: \(count) color: \(color.hex) cx: \(cx) cy: \(cy)")
+                    let cxs = ((offset + block.index) - (cy * cw))
+                    print("WR: [\(x),\(y)] block: \(blockNumber) block-first-start: \(blockFirstStart) offset: \(offset) start: \(start) count: \(count) color: \(color.hex) cx: \(cx) cy: \(cy) | cxs: \(cxs)")
                 }
-                Memory.fastcopy(to: base, count: count, value: color.value)
+                */
+
+                if (x == 8) {
+                    let cw = self._displayWidth * self._cellSize * Screen.depth
+                    let cy = start / cw
+                    let cx = (blockFirstStart - (cy * cw)) / (self._cellSize * Screen.depth)
+                    let cxs = ((offset + block.index) - (cy * cw))
+                    let t = start - (cy * cw)
+                    if block.index == 0 {
+                        // color = CellColor(Color.green)
+                    }
+                    print("WR: [\(x),\(y)] offset: \(offset) block: \(blockNumber) block-index: \(block.index) start: \(start) count: \(count) color: \(color.hex) cy: \(cy) | T: \(t)")
+                    // print("WR: [\(x),\(y)] block: \(blockNumber) block-first-start: \(blockFirstStart) offset: \(offset) start: \(start) count: \(count) color: \(color.hex) cx: \(cx) cy: \(cy) | cxs: \(cxs)")
+                }
+                if x == 8 && block.index == 0 {
+                    print("FOOY")
+
+                    // let b = bufferAddress.advanced(by: start + 100)
+                    // Memory.fastcopy(to: base, count: count - 69, value: CellColor(Color.green).value) // ok for shiftx = 24 * 3 with scaling = true
+                    // Memory.fastcopy(to: base, count: count - 72, value: CellColor(Color.green).value) // ok for shiftx = 25 * 3 with scaling = true
+                    // Memory.fastcopy(to: base, count: count - 27, value: CellColor(Color.green).value) // ok for shiftx = 10 * 3 with scaling = true
+                    // Memory.fastcopy(to: base, count: count - 0, value: CellColor(Color.green).value) // ok for shiftx = 1 * 3 with scaling = true
+                    // Memory.fastcopy(to: base, count: count - 117, value: CellColor(Color.green).value) // ok for shiftx = 40 * 3 with scaling = true
+                    // Memory.fastcopy(to: base, count: count - 117, value: CellColor(Color.green).value) // ok for shiftx = 40 * 3 with scaling = true
+                    // Memory.fastcopy(to: base, count: count - (shiftx - scaled(1)), value: CellColor(Color.green).value) // ok for shiftx = 40 * 3 with scaling = true
+                    // Memory.fastcopy(to: base, count: count - (shiftx - scaled(1)), value: CellColor(Color.green).value) // ok for shiftx = 40 * 3 with scaling = true
+
+                    // Memory.fastcopy(to: base, count: count - 69, value: CellColor(Color.green).value) // not ok at all for shiftx = 24 * 3 with scaling = false
+                    // Memory.fastcopy(to: base, count: count - 2, value: CellColor(Color.green).value) // ok for shiftx = 1 * 3 with scaling = false
+                    // Memory.fastcopy(to: base, count: count - (shiftx - scaled(1)), value: CellColor(Color.green).value) // ok for shiftx = 40 * 3 with scaling = false
+
+                    // POST FIX PREFERRED SIZE TO RETURN USED-WH ...
+                    // OK for shiftx =  1 with scaling = true
+                    // OK for shiftx =  1 with scaling = false
+                    // OK for shiftx = 24 with scaling = true
+                    Memory.fastcopy(to: base, count: count - shiftx, value: CellColor(Color.green).value)
+                }
+                else {
+                    Memory.fastcopy(to: base, count: count, value: color.value) // okay
+                }
             }
         }
-        print("WRITE-CELL-DONE: [\(x), \(y)] | skips: \(nskips)")
+        // print("WRITE-CELL-DONE: [\(x), \(y)] | skips: \(nskips)")
     }
 
     public var image: CGImage? {
@@ -325,6 +373,7 @@ public func nwriteCell(
                 bitmapInfo: CellGrid.Defaults.bitmapInfo
             ) {
                 image = context.makeImage()
+                print("MADE-IMAGE: \(image!.width) x \(image!.height)")
             }
         }
         return image
@@ -445,11 +494,17 @@ public func nwriteCell(
             let leftx = displayWidth - usedw
             let lefty = displayHeight - usedh
             if ((leftx <= cellPreferredSizeMarginMax) && (lefty <= cellPreferredSizeMarginMax)) {
+                results.append((cellSize: cellSize, displayWidth: usedw, displayHeight: usedh))
+                /*
                 let marginx: Int = leftx / 2
                 let marginy: Int = lefty / 2
+                if cellSize == 43 {
+                    print("DEBUG-PREF: margin-xy: \(marginx) \(marginy) left-xy: \(leftx) \(lefty) used-wh: \(usedw) \(usedh)")
+                }
                 results.append((cellSize: cellSize,
                                 displayWidth: displayWidth - (marginx * 2),
                                 displayHeight: displayHeight - (marginy * 2)))
+                */
             }
         }
         return results

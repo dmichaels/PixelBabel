@@ -7,7 +7,7 @@ public struct Memory
     // Copies (fast) the given (UInt32) value to the given (UInt8 array) buffer starting
     // at the given byte index, successively up to the given count times, into the buffer.
     // Note the units: The buffer is bytes; the index is in bytes; the count refers to the
-    // number 4-byte (UInt32 - not byte) values; and value is a 4-byte (UInt32) value.
+    // number of 4-byte (UInt32 - NOT byte) values; and value is a 4-byte (UInt32) value.
     //
     public static func fastcopy(to buffer: inout [UInt8], index: Int, count: Int, value: UInt32) {
         let byteIndex = index

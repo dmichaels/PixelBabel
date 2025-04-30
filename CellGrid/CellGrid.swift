@@ -14,7 +14,7 @@ class CellGrid: ObservableObject
         public static let displayTransparency: UInt8 = 255
         public static let cellSize: Int = 43 // 18 // 43 // 32 // 8 // 83 // 43 // 37 // 35
         public static let cellSizeNeat: Bool = true
-        public static let cellPadding: Int = 1
+        public static let cellPadding: Int = 1 // 1
         public static let cellBleed: Bool = false
         public static let cellShape: CellShape = CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color
@@ -97,10 +97,12 @@ class CellGrid: ObservableObject
 
         let neatCells = Cells.preferredCellSizes(self._displayWidthUnscaled, self._displayHeightUnscaled, cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
         // print("NEAT-CELL-SIZES-US:")
-        // for neatCell in neatCells {
-        //     print("NEAT-CELL-US: \(neatCell.cellSize) | \(neatCell.displayWidth) \(neatCell.displayHeight) | \(self._displayWidthUnscaled - neatCell.displayWidth) \(self._displayHeightUnscaled - neatCell.displayHeight)")
-        // }
+        for neatCell in neatCells {
+            print("NEAT-CELL-US: \(neatCell.cellSize) | \(neatCell.displayWidth) \(neatCell.displayHeight) | \(self._displayWidthUnscaled - neatCell.displayWidth) \(self._displayHeightUnscaled - neatCell.displayHeight)")
+        }
         if (cellSizeNeat) {
+            print("INITIAL-DISPLAY-SIZE:           \(self._displayWidth) x \(self._displayHeight)")
+            print("INITIAL-DISPLAY-SIZE-US:        \(self._displayWidthUnscaled) x \(self._displayHeightUnscaled)")
             if let neatCell = Cells.closestPreferredCellSize(in: neatCells, to: self._cellSizeUnscaled) {
                 print("ORIG-CELL-SIZE:            \(scaled(cellSize))")
                 print("ORIG-CELL-SIZE-US:         \(cellSize)")
