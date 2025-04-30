@@ -77,8 +77,8 @@ WR[8,0]: col: BG-N/A bi:  15648 bc:   1 cbc:  43 off:  1416 sta:  17064 mmc:   1
 WR[8,0]: col: BG-N/A BI:  17028 bc:   1 cbc:   1 off:  1416 sta:  18444 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9 -
 WR[8,0]: col: FG-1.0 bi:  17032 bc:  41 cbc:  42 off:  1416 sta:  18448 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0 x ok
 WR[8,0]: col: BG-N/A bi:  17196 bc:   1 cbc:  43 off:  1416 sta:  18612 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x notok bingo
-WR[8,0]: col: BG-N/A BI:  18576 bc:   1 cbc:   1 off:  1416 sta:  19992 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
-WR[8,0]: col: FG-1.0 bi:  18580 bc:  41 cbc:  42 off:  1416 sta:  19996 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  18576 bc:   1 cbc:   1 off:  1416 sta:  19992 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9 -
+WR[8,0]: col: FG-1.0 bi:  18580 bc:  41 cbc:  42 off:  1416 sta:  19996 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0 x ok
 WR[8,0]: col: BG-N/A bi:  18744 bc:   1 cbc:  43 off:  1416 sta:  20160 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
 WR[8,0]: col: BG-N/A BI:  20124 bc:   1 cbc:   1 off:  1416 sta:  21540 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
 WR[8,0]: col: FG-1.0 bi:  20128 bc:  41 cbc:  42 off:  1416 sta:  21544 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0

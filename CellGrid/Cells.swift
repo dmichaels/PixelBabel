@@ -110,6 +110,19 @@ class Cells
         }
     }
 
+    public func fill(_ color: CellColor) {
+        self.fill(color.color)
+    }
+
+    public func fill(_ color: Color) {
+        let pixel: CellColor = CellColor(color)
+        let count = self._buffer.count / Screen.depth
+        self._buffer.withUnsafeMutableBytes { raw in
+            guard let buffer = raw.baseAddress else { return }
+            Memory.fastcopy(to: buffer, count: count, value: pixel.value)
+        }
+    }
+
     var cells: [Cell] {
         self._cells
     }
@@ -301,7 +314,7 @@ class Cells
                 bitmapInfo: CellGrid.Defaults.bitmapInfo
             ) {
                 image = context.makeImage()
-                // print("MADE-IMAGE: \(image!.width) x \(image!.height)")
+                print("MADE-IMAGE: \(self._displayWidth) x \(self._displayHeight) -> \(image!.width) x \(image!.height)")
             }
         }
         return image

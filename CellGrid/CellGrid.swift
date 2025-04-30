@@ -158,6 +158,8 @@ class CellGrid: ObservableObject
         print("CELL-PADDING-US:        \(unscaled(self.cellPadding))")
 
         // self.fill(with: self._cellBackground)
+        // self._cells!.fill(Color.green)
+        self._cells!.fill(self._cellBackground)
     }
 
     public var displayWidthUnscaled: Int {

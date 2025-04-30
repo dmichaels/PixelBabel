@@ -118,6 +118,7 @@ struct ContentView: View
                     if (!self.cellGridConfigured) {
                         self.cellGridConfigured = true
                         self.geometrySize = geometry.size
+                        print("ON-APPEAR: geosize: \(geometrySize.width) x \(geometrySize.height)")
                         Screen.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
                         let landscape = self.orientation.current.isLandscape
                         self.cellGrid.configure(
@@ -138,6 +139,7 @@ struct ContentView: View
                 .navigationTitle("Home")
                 .navigationBarHidden(true)
                 .background(self.cellGrid.background.color) // xyzzy
+                // .background(Color.yellow) // xyzzy
                 .statusBar(hidden: true)
                 .coordinateSpace(name: "zstack")
             }
