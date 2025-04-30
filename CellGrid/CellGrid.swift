@@ -25,7 +25,16 @@ class CellGrid: ObservableObject
         public static var cellPreferredSizeMarginMax: Int = 30
         public static let cellLimitUpdate: Bool = true
         public static let colorSpace = CGColorSpaceCreateDeviceRGB()
-        public static let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
+        // public static let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
+        // public static let bitmapInfo: UInt32 = CFByteOrderGetCurrent() == CFByteOrderBigEndian.rawValue ?
+        //                                        CGBitmapInfo.byteOrder32Big.union(.premultipliedLast).rawValue :
+        //                                        CGBitmapInfo.byteOrder32Little.union(.premultipliedFirst).rawValue
+        public static let alphaInfo = CGImageAlphaInfo.premultipliedFirst
+        public static let byteOrder = CFByteOrderGetCurrent() == CFByteOrderBigEndian.rawValue ?
+                                      CGBitmapInfo.byteOrder32Big :
+                                      CGBitmapInfo.byteOrder32Little
+        public static let bitmapInfo = CellGrid.Defaults.byteOrder.union(CGBitmapInfo(rawValue:
+                                           CellGrid.Defaults.alphaInfo.rawValue)).rawValue
     }
 
     private var _displayWidth: Int = Screen.initialWidth

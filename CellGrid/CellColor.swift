@@ -43,12 +43,14 @@ struct CellColor: Equatable {
         self._red = red
         self._green = green
         self._blue = blue
+        self._alpha = alpha
     }
 
     init(_ red: Int, _ green: Int, _ blue: Int, alpha: Int = 255) {
         self._red = UInt8(red)
         self._green = UInt8(green)
         self._blue = UInt8(blue)
+        self._alpha = UInt8(alpha)
     }
 
     init(_ color: Color) {
@@ -64,6 +66,7 @@ struct CellColor: Equatable {
             self._red = UInt8(red * 255)
             self._green = UInt8(green * 255)
             self._blue = UInt8(blue * 255)
+            self._alpha = UInt8(alpha * 255)
         }
         else {
             self._red = 0

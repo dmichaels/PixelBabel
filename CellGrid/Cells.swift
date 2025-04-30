@@ -170,7 +170,6 @@ class Cells
         let size: Int = buffer.count
         // let offset: Int = ((self._cellSize * x) + (self._cellSize * self._displayWidth * y)) * Screen.depth
         let offset: Int = ((self._cellSize * x) + shiftx + (self._cellSize * self._displayWidth * y + shifty * self._displayWidth)) * Screen.depth
-        var fg: CellColor = true ? foreground : (x == 8 ? CellColor(Color.blue) : foreground)
         var blockCount: Int = 0
         var lblock: BufferBlock?
         var shiftxThis: Int = 0
@@ -205,13 +204,13 @@ class Cells
                 var color: CellColor
                 if (block.foreground) {
                     if (block.blend != 0.0) {
-                        color = CellColor(Cells.blend(fg.red,   background.red,   amount: block.blend),
-                                          Cells.blend(fg.green, background.green, amount: block.blend),
-                                          Cells.blend(fg.blue,  background.blue,  amount: block.blend),
-                                          alpha: fg.alpha)
+                        color = CellColor(Cells.blend(foreground.red,   background.red,   amount: block.blend),
+                                          Cells.blend(foreground.green, background.green, amount: block.blend),
+                                          Cells.blend(foreground.blue,  background.blue,  amount: block.blend),
+                                          alpha: foreground.alpha)
                     }
                     else {
-                        color = fg
+                        color = foreground
                     }
                 }
                 else if (limit) {
@@ -228,16 +227,15 @@ class Cells
                 if ((shiftx > 0) && (x == (self.ncolumns - 1))) {
                     let count = block.count - shiftxThis
                     print("WR[\(x),\(y)]: sx: \(shiftx) \(block.foreground)-\((block.blend * 10).rounded() / 10)" +
-                          " bi: \(block.index) bc: \(block.count) cbc: \(blockCount) mc: \(count) shiftxThis: \(shiftxThis) shiftxTodo: \(shiftxTodo)")
+                          " bi: \(block.index) bc: \(block.count) cbc: \(blockCount) mc: \(count) shiftxThis: \(shiftxThis) shiftxTodo: \(shiftxTodo) col: \(color.hex)")
                     // let count = block.count - shiftx
                     if (count > 0) {
-                        if blockCount >= 96 && blockCount <= 101 {
-                            Memory.fastcopy(to: base, count: count, value: CellColor(Color.blue).value)
-                        }
-                        else {
-                            Memory.fastcopy(to: base, count: count, value: color.value)
-                        }
-                        // Memory.fastcopy(to: base, count: count, value: color.value)
+                        Memory.fastcopy(to: base, count: count, value: color.value)
+                    }
+                    else {
+                        // adding this corrects the antialiasing on the far right cell and does not seem to affect the extraneous pixels on the far left
+                        // confirmed extraneous pixels on the far left are not do to this.
+                        // Memory.fastcopy(to: base, count: block.count, value: color.value)
                     }
                 }
                 else {
