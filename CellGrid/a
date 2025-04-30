@@ -1,0 +1,190 @@
+PIXELMAP-CONSTRUCTOR!!!
+PIXELMAP-CONFIGURE!!!
+INITIAL-DISPLAY-SIZE:           402 x 874
+INITIAL-DISPLAY-SIZE-US:        402 x 874
+ORIG-CELL-SIZE:            43
+ORIG-CELL-SIZE-US:         43
+NEAT-CELL-SIZE:            43
+NEAT-CELL-SIZE-US:         43
+NEAT-DISPLAY-SIZE:         387 x 860
+NEAT-DISPLAY-SIZE-US:      387 x 860
+NEAT-DISPLAY-MARGIN-XY:    15 , 14
+NEAT-DISPLAY-MARGIN-XY-US: 15 , 14
+SCREEN-SCALE-INITIAL:   3.0
+SCREEN-SCALE:           3.0
+SCREEN-SIZE:            402 x 874
+SCREEN-SIZE-US:         402 x 874
+DISPLAY-SCALING:        false
+DISPLAY-SIZE:           387 x 860
+DISPLAY-SIZE-US:        387 x 860
+CELL-COLS:              9
+CELL-ROWS:              20
+CELL-SIZE:              43
+CELL-SIZE-US:           43
+CELL-PADDING:           1
+CELL-PADDING-US:        1
+WR[8,0]: col: BG-N/A BI:      0 bc:  43 cbc:  43 off:  1376 sta:   1376 mmc:  43
+WR[8,0]: col: BG-N/A BI:   1548 bc:   8 cbc:   8 off:  1376 sta:   2924 mmc:   8
+WR[8,0]: col: FG-0.2 BI:   1580 bc:   1 cbc:   1 off:  1376 sta:   2956 mmc:   1
+WR[8,0]: col: FG-0.6 BI:   1584 bc:   1 cbc:   1 off:  1376 sta:   2960 mmc:   1
+WR[8,0]: col: FG-0.8 BI:   1588 bc:   1 cbc:   1 off:  1376 sta:   2964 mmc:   1
+WR[8,0]: col: FG-1.0 BI:   1592 bc:  21 cbc:  21 off:  1376 sta:   2968 mmc:  21
+WR[8,0]: col: FG-0.8 BI:   1676 bc:   1 cbc:   1 off:  1376 sta:   3052 mmc:   1
+WR[8,0]: col: FG-0.6 BI:   1680 bc:   1 cbc:   1 off:  1376 sta:   3056 mmc:   1
+WR[8,0]: col: FG-0.2 BI:   1684 bc:   1 cbc:   1 off:  1376 sta:   3060 mmc:   1
+WR[8,0]: col: BG-N/A BI:   1688 bc:   8 cbc:   8 off:  1376 sta:   3064 mmc:   8
+WR[8,0]: col: BG-N/A BI:   3096 bc:   6 cbc:   6 off:  1376 sta:   4472 mmc:   6
+WR[8,0]: col: FG-0.5 BI:   3120 bc:   1 cbc:   1 off:  1376 sta:   4496 mmc:   1
+WR[8,0]: col: FG-1.0 BI:   3124 bc:  29 cbc:  29 off:  1376 sta:   4500 mmc:  29
+WR[8,0]: col: FG-0.5 BI:   3240 bc:   1 cbc:   1 off:  1376 sta:   4616 mmc:   1
+WR[8,0]: col: BG-N/A BI:   3244 bc:   6 cbc:   6 off:  1376 sta:   4620 mmc:   6
+WR[8,0]: col: BG-N/A BI:   4644 bc:   5 cbc:   5 off:  1376 sta:   6020 mmc:   5
+WR[8,0]: col: FG-1.0 BI:   4664 bc:   1 cbc:   1 off:  1376 sta:   6040 mmc:   1
+WR[8,0]: col: FG-1.0 BI:   4668 bc:  31 cbc:  31 off:  1376 sta:   6044 mmc:  31
+WR[8,0]: col: FG-1.0 BI:   4792 bc:   1 cbc:   1 off:  1376 sta:   6168 mmc:   1
+WR[8,0]: col: BG-N/A BI:   4796 bc:   5 cbc:   5 off:  1376 sta:   6172 mmc:   5
+WR[8,0]: col: BG-N/A BI:   6192 bc:   4 cbc:   4 off:  1376 sta:   7568 mmc:   4
+WR[8,0]: col: FG-1.0 BI:   6208 bc:  35 cbc:  35 off:  1376 sta:   7584 mmc:  35
+WR[8,0]: col: BG-N/A BI:   6348 bc:   4 cbc:   4 off:  1376 sta:   7724 mmc:   4
+WR[8,0]: col: BG-N/A BI:   7740 bc:   3 cbc:   3 off:  1376 sta:   9116 mmc:   3
+WR[8,0]: col: FG-1.0 BI:   7752 bc:   1 cbc:   1 off:  1376 sta:   9128 mmc:   1
+WR[8,0]: col: FG-1.0 BI:   7756 bc:  35 cbc:  35 off:  1376 sta:   9132 mmc:  35
+WR[8,0]: col: FG-1.0 BI:   7896 bc:   1 cbc:   1 off:  1376 sta:   9272 mmc:   1
+WR[8,0]: col: BG-N/A BI:   7900 bc:   3 cbc:   3 off:  1376 sta:   9276 mmc:   3
+WR[8,0]: col: BG-N/A BI:   9288 bc:   2 cbc:   2 off:  1376 sta:  10664 mmc:   2
+WR[8,0]: col: FG-0.5 BI:   9296 bc:   1 cbc:   1 off:  1376 sta:  10672 mmc:   1
+WR[8,0]: col: FG-1.0 BI:   9300 bc:  37 cbc:  37 off:  1376 sta:  10676 mmc:  37
+WR[8,0]: col: FG-0.5 BI:   9448 bc:   1 cbc:   1 off:  1376 sta:  10824 mmc:   1
+WR[8,0]: col: BG-N/A BI:   9452 bc:   2 cbc:   2 off:  1376 sta:  10828 mmc:   2
+WR[8,0]: col: BG-N/A BI:  10836 bc:   2 cbc:   2 off:  1376 sta:  12212 mmc:   2
+WR[8,0]: col: FG-1.0 BI:  10844 bc:  39 cbc:  39 off:  1376 sta:  12220 mmc:  39
+WR[8,0]: col: BG-N/A BI:  11000 bc:   2 cbc:   2 off:  1376 sta:  12376 mmc:   2
+WR[8,0]: col: BG-N/A BI:  12384 bc:   1 cbc:   1 off:  1376 sta:  13760 mmc:   1
+WR[8,0]: col: FG-0.2 BI:  12388 bc:   1 cbc:   1 off:  1376 sta:  13764 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  12392 bc:  39 cbc:  39 off:  1376 sta:  13768 mmc:  39
+WR[8,0]: col: FG-0.2 BI:  12548 bc:   1 cbc:   1 off:  1376 sta:  13924 mmc:   1
+WR[8,0]: col: BG-N/A BI:  12552 bc:   1 cbc:   1 off:  1376 sta:  13928 mmc:   1
+WR[8,0]: col: BG-N/A BI:  13932 bc:   1 cbc:   1 off:  1376 sta:  15308 mmc:   1
+WR[8,0]: col: FG-0.6 BI:  13936 bc:   1 cbc:   1 off:  1376 sta:  15312 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  13940 bc:  39 cbc:  39 off:  1376 sta:  15316 mmc:  39
+WR[8,0]: col: FG-0.6 BI:  14096 bc:   1 cbc:   1 off:  1376 sta:  15472 mmc:   1
+WR[8,0]: col: BG-N/A BI:  14100 bc:   1 cbc:   1 off:  1376 sta:  15476 mmc:   1
+WR[8,0]: col: BG-N/A BI:  15480 bc:   1 cbc:   1 off:  1376 sta:  16856 mmc:   1
+WR[8,0]: col: FG-0.8 BI:  15484 bc:   1 cbc:   1 off:  1376 sta:  16860 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  15488 bc:  39 cbc:  39 off:  1376 sta:  16864 mmc:  39
+WR[8,0]: col: FG-0.8 BI:  15644 bc:   1 cbc:   1 off:  1376 sta:  17020 mmc:   1
+WR[8,0]: col: BG-N/A BI:  15648 bc:   1 cbc:   1 off:  1376 sta:  17024 mmc:   1
+WR[8,0]: col: BG-N/A BI:  17028 bc:   1 cbc:   1 off:  1376 sta:  18404 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  17032 bc:  41 cbc:  41 off:  1376 sta:  18408 mmc:  41
+WR[8,0]: col: BG-N/A BI:  17196 bc:   1 cbc:   1 off:  1376 sta:  18572 mmc:   1
+WR[8,0]: col: BG-N/A BI:  18576 bc:   1 cbc:   1 off:  1376 sta:  19952 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  18580 bc:  41 cbc:  41 off:  1376 sta:  19956 mmc:  41
+WR[8,0]: col: BG-N/A BI:  18744 bc:   1 cbc:   1 off:  1376 sta:  20120 mmc:   1
+WR[8,0]: col: BG-N/A BI:  20124 bc:   1 cbc:   1 off:  1376 sta:  21500 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  20128 bc:  41 cbc:  41 off:  1376 sta:  21504 mmc:  41
+WR[8,0]: col: BG-N/A BI:  20292 bc:   1 cbc:   1 off:  1376 sta:  21668 mmc:   1
+WR[8,0]: col: BG-N/A BI:  21672 bc:   1 cbc:   1 off:  1376 sta:  23048 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  21676 bc:  41 cbc:  41 off:  1376 sta:  23052 mmc:  41
+WR[8,0]: col: BG-N/A BI:  21840 bc:   1 cbc:   1 off:  1376 sta:  23216 mmc:   1
+WR[8,0]: col: BG-N/A BI:  23220 bc:   1 cbc:   1 off:  1376 sta:  24596 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  23224 bc:  41 cbc:  41 off:  1376 sta:  24600 mmc:  41
+WR[8,0]: col: BG-N/A BI:  23388 bc:   1 cbc:   1 off:  1376 sta:  24764 mmc:   1
+WR[8,0]: col: BG-N/A BI:  24768 bc:   1 cbc:   1 off:  1376 sta:  26144 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  24772 bc:  41 cbc:  41 off:  1376 sta:  26148 mmc:  41
+WR[8,0]: col: BG-N/A BI:  24936 bc:   1 cbc:   1 off:  1376 sta:  26312 mmc:   1
+WR[8,0]: col: BG-N/A BI:  26316 bc:   1 cbc:   1 off:  1376 sta:  27692 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  26320 bc:  41 cbc:  41 off:  1376 sta:  27696 mmc:  41
+WR[8,0]: col: BG-N/A BI:  26484 bc:   1 cbc:   1 off:  1376 sta:  27860 mmc:   1
+WR[8,0]: col: BG-N/A BI:  27864 bc:   1 cbc:   1 off:  1376 sta:  29240 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  27868 bc:  41 cbc:  41 off:  1376 sta:  29244 mmc:  41
+WR[8,0]: col: BG-N/A BI:  28032 bc:   1 cbc:   1 off:  1376 sta:  29408 mmc:   1
+WR[8,0]: col: BG-N/A BI:  29412 bc:   1 cbc:   1 off:  1376 sta:  30788 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  29416 bc:  41 cbc:  41 off:  1376 sta:  30792 mmc:  41
+WR[8,0]: col: BG-N/A BI:  29580 bc:   1 cbc:   1 off:  1376 sta:  30956 mmc:   1
+WR[8,0]: col: BG-N/A BI:  30960 bc:   1 cbc:   1 off:  1376 sta:  32336 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  30964 bc:  41 cbc:  41 off:  1376 sta:  32340 mmc:  41
+WR[8,0]: col: BG-N/A BI:  31128 bc:   1 cbc:   1 off:  1376 sta:  32504 mmc:   1
+WR[8,0]: col: BG-N/A BI:  32508 bc:   1 cbc:   1 off:  1376 sta:  33884 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  32512 bc:  41 cbc:  41 off:  1376 sta:  33888 mmc:  41
+WR[8,0]: col: BG-N/A BI:  32676 bc:   1 cbc:   1 off:  1376 sta:  34052 mmc:   1
+WR[8,0]: col: BG-N/A BI:  34056 bc:   1 cbc:   1 off:  1376 sta:  35432 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  34060 bc:  41 cbc:  41 off:  1376 sta:  35436 mmc:  41
+WR[8,0]: col: BG-N/A BI:  34224 bc:   1 cbc:   1 off:  1376 sta:  35600 mmc:   1
+WR[8,0]: col: BG-N/A BI:  35604 bc:   1 cbc:   1 off:  1376 sta:  36980 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  35608 bc:  41 cbc:  41 off:  1376 sta:  36984 mmc:  41
+WR[8,0]: col: BG-N/A BI:  35772 bc:   1 cbc:   1 off:  1376 sta:  37148 mmc:   1
+WR[8,0]: col: BG-N/A BI:  37152 bc:   1 cbc:   1 off:  1376 sta:  38528 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  37156 bc:  41 cbc:  41 off:  1376 sta:  38532 mmc:  41
+WR[8,0]: col: BG-N/A BI:  37320 bc:   1 cbc:   1 off:  1376 sta:  38696 mmc:   1
+WR[8,0]: col: BG-N/A BI:  38700 bc:   1 cbc:   1 off:  1376 sta:  40076 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  38704 bc:  41 cbc:  41 off:  1376 sta:  40080 mmc:  41
+WR[8,0]: col: BG-N/A BI:  38868 bc:   1 cbc:   1 off:  1376 sta:  40244 mmc:   1
+WR[8,0]: col: BG-N/A BI:  40248 bc:   1 cbc:   1 off:  1376 sta:  41624 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  40252 bc:  41 cbc:  41 off:  1376 sta:  41628 mmc:  41
+WR[8,0]: col: BG-N/A BI:  40416 bc:   1 cbc:   1 off:  1376 sta:  41792 mmc:   1
+WR[8,0]: col: BG-N/A BI:  41796 bc:   1 cbc:   1 off:  1376 sta:  43172 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  41800 bc:  41 cbc:  41 off:  1376 sta:  43176 mmc:  41
+WR[8,0]: col: BG-N/A BI:  41964 bc:   1 cbc:   1 off:  1376 sta:  43340 mmc:   1
+WR[8,0]: col: BG-N/A BI:  43344 bc:   1 cbc:   1 off:  1376 sta:  44720 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  43348 bc:  41 cbc:  41 off:  1376 sta:  44724 mmc:  41
+WR[8,0]: col: BG-N/A BI:  43512 bc:   1 cbc:   1 off:  1376 sta:  44888 mmc:   1
+WR[8,0]: col: BG-N/A BI:  44892 bc:   1 cbc:   1 off:  1376 sta:  46268 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  44896 bc:  41 cbc:  41 off:  1376 sta:  46272 mmc:  41
+WR[8,0]: col: BG-N/A BI:  45060 bc:   1 cbc:   1 off:  1376 sta:  46436 mmc:   1
+WR[8,0]: col: BG-N/A BI:  46440 bc:   1 cbc:   1 off:  1376 sta:  47816 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  46444 bc:  41 cbc:  41 off:  1376 sta:  47820 mmc:  41
+WR[8,0]: col: BG-N/A BI:  46608 bc:   1 cbc:   1 off:  1376 sta:  47984 mmc:   1
+WR[8,0]: col: BG-N/A BI:  47988 bc:   1 cbc:   1 off:  1376 sta:  49364 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  47992 bc:  41 cbc:  41 off:  1376 sta:  49368 mmc:  41
+WR[8,0]: col: BG-N/A BI:  48156 bc:   1 cbc:   1 off:  1376 sta:  49532 mmc:   1
+WR[8,0]: col: BG-N/A BI:  49536 bc:   1 cbc:   1 off:  1376 sta:  50912 mmc:   1
+WR[8,0]: col: FG-0.8 BI:  49540 bc:   1 cbc:   1 off:  1376 sta:  50916 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  49544 bc:  39 cbc:  39 off:  1376 sta:  50920 mmc:  39
+WR[8,0]: col: FG-0.8 BI:  49700 bc:   1 cbc:   1 off:  1376 sta:  51076 mmc:   1
+WR[8,0]: col: BG-N/A BI:  49704 bc:   1 cbc:   1 off:  1376 sta:  51080 mmc:   1
+WR[8,0]: col: BG-N/A BI:  51084 bc:   1 cbc:   1 off:  1376 sta:  52460 mmc:   1
+WR[8,0]: col: FG-0.6 BI:  51088 bc:   1 cbc:   1 off:  1376 sta:  52464 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  51092 bc:  39 cbc:  39 off:  1376 sta:  52468 mmc:  39
+WR[8,0]: col: FG-0.6 BI:  51248 bc:   1 cbc:   1 off:  1376 sta:  52624 mmc:   1
+WR[8,0]: col: BG-N/A BI:  51252 bc:   1 cbc:   1 off:  1376 sta:  52628 mmc:   1
+WR[8,0]: col: BG-N/A BI:  52632 bc:   1 cbc:   1 off:  1376 sta:  54008 mmc:   1
+WR[8,0]: col: FG-0.2 BI:  52636 bc:   1 cbc:   1 off:  1376 sta:  54012 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  52640 bc:  39 cbc:  39 off:  1376 sta:  54016 mmc:  39
+WR[8,0]: col: FG-0.2 BI:  52796 bc:   1 cbc:   1 off:  1376 sta:  54172 mmc:   1
+WR[8,0]: col: BG-N/A BI:  52800 bc:   1 cbc:   1 off:  1376 sta:  54176 mmc:   1
+WR[8,0]: col: BG-N/A BI:  54180 bc:   2 cbc:   2 off:  1376 sta:  55556 mmc:   2
+WR[8,0]: col: FG-1.0 BI:  54188 bc:  39 cbc:  39 off:  1376 sta:  55564 mmc:  39
+WR[8,0]: col: BG-N/A BI:  54344 bc:   2 cbc:   2 off:  1376 sta:  55720 mmc:   2
+WR[8,0]: col: BG-N/A BI:  55728 bc:   2 cbc:   2 off:  1376 sta:  57104 mmc:   2
+WR[8,0]: col: FG-0.5 BI:  55736 bc:   1 cbc:   1 off:  1376 sta:  57112 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  55740 bc:  37 cbc:  37 off:  1376 sta:  57116 mmc:  37
+WR[8,0]: col: FG-0.5 BI:  55888 bc:   1 cbc:   1 off:  1376 sta:  57264 mmc:   1
+WR[8,0]: col: BG-N/A BI:  55892 bc:   2 cbc:   2 off:  1376 sta:  57268 mmc:   2
+WR[8,0]: col: BG-N/A BI:  57276 bc:   3 cbc:   3 off:  1376 sta:  58652 mmc:   3
+WR[8,0]: col: FG-1.0 BI:  57288 bc:   1 cbc:   1 off:  1376 sta:  58664 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  57292 bc:  35 cbc:  35 off:  1376 sta:  58668 mmc:  35
+WR[8,0]: col: FG-1.0 BI:  57432 bc:   1 cbc:   1 off:  1376 sta:  58808 mmc:   1
+WR[8,0]: col: BG-N/A BI:  57436 bc:   3 cbc:   3 off:  1376 sta:  58812 mmc:   3
+WR[8,0]: col: BG-N/A BI:  58824 bc:   4 cbc:   4 off:  1376 sta:  60200 mmc:   4
+WR[8,0]: col: FG-1.0 BI:  58840 bc:  35 cbc:  35 off:  1376 sta:  60216 mmc:  35
+WR[8,0]: col: BG-N/A BI:  58980 bc:   4 cbc:   4 off:  1376 sta:  60356 mmc:   4
+WR[8,0]: col: BG-N/A BI:  60372 bc:   5 cbc:   5 off:  1376 sta:  61748 mmc:   5
+WR[8,0]: col: FG-1.0 BI:  60392 bc:   1 cbc:   1 off:  1376 sta:  61768 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  60396 bc:  31 cbc:  31 off:  1376 sta:  61772 mmc:  31
+WR[8,0]: col: FG-1.0 BI:  60520 bc:   1 cbc:   1 off:  1376 sta:  61896 mmc:   1
+WR[8,0]: col: BG-N/A BI:  60524 bc:   5 cbc:   5 off:  1376 sta:  61900 mmc:   5
+WR[8,0]: col: BG-N/A BI:  61920 bc:   6 cbc:   6 off:  1376 sta:  63296 mmc:   6
+WR[8,0]: col: FG-0.5 BI:  61944 bc:   1 cbc:   1 off:  1376 sta:  63320 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  61948 bc:  29 cbc:  29 off:  1376 sta:  63324 mmc:  29
+WR[8,0]: col: FG-0.5 BI:  62064 bc:   1 cbc:   1 off:  1376 sta:  63440 mmc:   1
+WR[8,0]: col: BG-N/A BI:  62068 bc:   6 cbc:   6 off:  1376 sta:  63444 mmc:   6
+WR[8,0]: col: BG-N/A BI:  63468 bc:   8 cbc:   8 off:  1376 sta:  64844 mmc:   8
+WR[8,0]: col: FG-0.2 BI:  63500 bc:   1 cbc:   1 off:  1376 sta:  64876 mmc:   1
+WR[8,0]: col: FG-0.6 BI:  63504 bc:   1 cbc:   1 off:  1376 sta:  64880 mmc:   1
+WR[8,0]: col: FG-0.8 BI:  63508 bc:   1 cbc:   1 off:  1376 sta:  64884 mmc:   1
+WR[8,0]: col: FG-1.0 BI:  63512 bc:  21 cbc:  21 off:  1376 sta:  64888 mmc:  21
+WR[8,0]: col: FG-0.8 BI:  63596 bc:   1 cbc:   1 off:  1376 sta:  64972 mmc:   1
+WR[8,0]: col: FG-0.6 BI:  63600 bc:   1 cbc:   1 off:  1376 sta:  64976 mmc:   1
+WR[8,0]: col: FG-0.2 BI:  63604 bc:   1 cbc:   1 off:  1376 sta:  64980 mmc:   1
+WR[8,0]: col: BG-N/A BI:  63608 bc:   8 cbc:   8 off:  1376 sta:  64984 mmc:   8
+WR[8,0]: col: BG-N/A BI:  65016 bc:  43 cbc:  43 off:  1376 sta:  66392 mmc:  43

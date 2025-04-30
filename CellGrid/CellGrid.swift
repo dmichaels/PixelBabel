@@ -10,7 +10,7 @@ class CellGrid: ObservableObject
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = true
+        public static let displayScaling: Bool = false
         public static let displayTransparency: UInt8 = 255
         public static let cellSize: Int = 43 // 18 // 43 // 32 // 8 // 83 // 43 // 37 // 35
         public static let cellSizeNeat: Bool = true
@@ -25,16 +25,18 @@ class CellGrid: ObservableObject
         public static var cellPreferredSizeMarginMax: Int = 30
         public static let cellLimitUpdate: Bool = true
         public static let colorSpace = CGColorSpaceCreateDeviceRGB()
-        // public static let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
-        // public static let bitmapInfo: UInt32 = CFByteOrderGetCurrent() == CFByteOrderBigEndian.rawValue ?
-        //                                        CGBitmapInfo.byteOrder32Big.union(.premultipliedLast).rawValue :
-        //                                        CGBitmapInfo.byteOrder32Little.union(.premultipliedFirst).rawValue
+        public static let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
+/*
+        public static let bitmapInfo: UInt32 = CFByteOrderGetCurrent() == CFByteOrderBigEndian.rawValue ?
+                                               CGBitmapInfo.byteOrder32Big.union(.premultipliedLast).rawValue :
+                                               CGBitmapInfo.byteOrder32Little.union(.premultipliedFirst).rawValue
         public static let alphaInfo = CGImageAlphaInfo.premultipliedFirst
         public static let byteOrder = CFByteOrderGetCurrent() == CFByteOrderBigEndian.rawValue ?
                                       CGBitmapInfo.byteOrder32Big :
                                       CGBitmapInfo.byteOrder32Little
         public static let bitmapInfo = CellGrid.Defaults.byteOrder.union(CGBitmapInfo(rawValue:
                                            CellGrid.Defaults.alphaInfo.rawValue)).rawValue
+*/
     }
 
     private var _displayWidth: Int = Screen.initialWidth
@@ -105,10 +107,9 @@ class CellGrid: ObservableObject
         self._cellBackground = cellBackground
 
         let neatCells = Cells.preferredCellSizes(self._displayWidthUnscaled, self._displayHeightUnscaled, cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
-        // print("NEAT-CELL-SIZES-US:")
-        for neatCell in neatCells {
+        /* for neatCell in neatCells {
             print("NEAT-CELL-US: \(neatCell.cellSize) | \(neatCell.displayWidth) \(neatCell.displayHeight) | \(self._displayWidthUnscaled - neatCell.displayWidth) \(self._displayHeightUnscaled - neatCell.displayHeight)")
-        }
+        } */
         if (cellSizeNeat) {
             print("INITIAL-DISPLAY-SIZE:           \(self._displayWidth) x \(self._displayHeight)")
             print("INITIAL-DISPLAY-SIZE-US:        \(self._displayWidthUnscaled) x \(self._displayHeightUnscaled)")
@@ -249,7 +250,7 @@ class CellGrid: ObservableObject
             for case let cell as LifeCell in cells.cells {
                 cell.deactivate()
                 if ((cell.x == 0) && (cell.y == 0)) {
-                    cell.write(foreground: CellColor(Color.red))
+                    cell.write(foreground: CellColor(Color.blue))
                 }
                 else if ((cell.x == cells.ncolumns - 1) && (cell.y == cells.nrows - 1)) {
                     cell.write(foreground: CellColor(Color.green))

@@ -1,0 +1,190 @@
+PIXELMAP-CONSTRUCTOR!!!
+PIXELMAP-CONFIGURE!!!
+INITIAL-DISPLAY-SIZE:           402 x 874
+INITIAL-DISPLAY-SIZE-US:        402 x 874
+ORIG-CELL-SIZE:            43
+ORIG-CELL-SIZE-US:         43
+NEAT-CELL-SIZE:            43
+NEAT-CELL-SIZE-US:         43
+NEAT-DISPLAY-SIZE:         387 x 860
+NEAT-DISPLAY-SIZE-US:      387 x 860
+NEAT-DISPLAY-MARGIN-XY:    15 , 14
+NEAT-DISPLAY-MARGIN-XY-US: 15 , 14
+SCREEN-SCALE-INITIAL:   3.0
+SCREEN-SCALE:           3.0
+SCREEN-SIZE:            402 x 874
+SCREEN-SIZE-US:         402 x 874
+DISPLAY-SCALING:        false
+DISPLAY-SIZE:           387 x 860
+DISPLAY-SIZE-US:        387 x 860
+CELL-COLS:              9
+CELL-ROWS:              20
+CELL-SIZE:              43
+CELL-SIZE-US:           43
+CELL-PADDING:           1
+CELL-PADDING-US:        1
+WR[8,0]: col: BG-N/A BI:      0 bc:  43 cbc:  43 off:  1416 sta:   1416 mmc:  33 shx:  10 shiftxThis: 10 shiftxTodo:  0 x ok
+WR[8,0]: col: BG-N/A BI:   1548 bc:   8 cbc:   8 off:  1416 sta:   2964 mmc:   0 shx:  10 shiftxThis:  8 shiftxTodo:  2 -
+WR[8,0]: col: FG-0.2 bi:   1580 bc:   1 cbc:   9 off:  1416 sta:   2996 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  1 -
+WR[8,0]: col: FG-0.6 bi:   1584 bc:   1 cbc:  10 off:  1416 sta:   3000 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  0 -
+WR[8,0]: col: FG-0.8 bi:   1588 bc:   1 cbc:  11 off:  1416 sta:   3004 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: FG-1.0 bi:   1592 bc:  21 cbc:  32 off:  1416 sta:   3008 mmc:  21 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: FG-0.8 bi:   1676 bc:   1 cbc:  33 off:  1416 sta:   3092 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: FG-0.6 bi:   1680 bc:   1 cbc:  34 off:  1416 sta:   3096 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: FG-0.2 bi:   1684 bc:   1 cbc:  35 off:  1416 sta:   3100 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A bi:   1688 bc:   8 cbc:  43 off:  1416 sta:   3104 mmc:   8 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A BI:   3096 bc:   6 cbc:   6 off:  1416 sta:   4512 mmc:   0 shx:  10 shiftxThis:  6 shiftxTodo:  4 -
+WR[8,0]: col: FG-0.5 bi:   3120 bc:   1 cbc:   7 off:  1416 sta:   4536 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  3 -
+WR[8,0]: col: FG-1.0 bi:   3124 bc:  29 cbc:  36 off:  1416 sta:   4540 mmc:  26 shx:  10 shiftxThis:  3 shiftxTodo:  0 x ok
+WR[8,0]: col: FG-0.5 bi:   3240 bc:   1 cbc:  37 off:  1416 sta:   4656 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A bi:   3244 bc:   6 cbc:  43 off:  1416 sta:   4660 mmc:   6 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A BI:   4644 bc:   5 cbc:   5 off:  1416 sta:   6060 mmc:   0 shx:  10 shiftxThis:  5 shiftxTodo:  5 -
+WR[8,0]: col: FG-1.0 bi:   4664 bc:   1 cbc:   6 off:  1416 sta:   6080 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  4 -
+WR[8,0]: col: FG-1.0 bi:   4668 bc:  31 cbc:  37 off:  1416 sta:   6084 mmc:  27 shx:  10 shiftxThis:  4 shiftxTodo:  0 x ok
+WR[8,0]: col: FG-1.0 bi:   4792 bc:   1 cbc:  38 off:  1416 sta:   6208 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A bi:   4796 bc:   5 cbc:  43 off:  1416 sta:   6212 mmc:   5 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A BI:   6192 bc:   4 cbc:   4 off:  1416 sta:   7608 mmc:   0 shx:  10 shiftxThis:  4 shiftxTodo:  6 -
+WR[8,0]: col: FG-1.0 bi:   6208 bc:  35 cbc:  39 off:  1416 sta:   7624 mmc:  29 shx:  10 shiftxThis:  6 shiftxTodo:  0 x ok
+WR[8,0]: col: BG-N/A bi:   6348 bc:   4 cbc:  43 off:  1416 sta:   7764 mmc:   4 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A BI:   7740 bc:   3 cbc:   3 off:  1416 sta:   9156 mmc:   0 shx:  10 shiftxThis:  3 shiftxTodo:  7 -
+WR[8,0]: col: FG-1.0 bi:   7752 bc:   1 cbc:   4 off:  1416 sta:   9168 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  6 -
+WR[8,0]: col: FG-1.0 bi:   7756 bc:  35 cbc:  39 off:  1416 sta:   9172 mmc:  29 shx:  10 shiftxThis:  6 shiftxTodo:  0 x ok
+WR[8,0]: col: FG-1.0 bi:   7896 bc:   1 cbc:  40 off:  1416 sta:   9312 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A bi:   7900 bc:   3 cbc:  43 off:  1416 sta:   9316 mmc:   3 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A BI:   9288 bc:   2 cbc:   2 off:  1416 sta:  10704 mmc:   0 shx:  10 shiftxThis:  2 shiftxTodo:  8 -
+WR[8,0]: col: FG-0.5 bi:   9296 bc:   1 cbc:   3 off:  1416 sta:  10712 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  7 -
+WR[8,0]: col: FG-1.0 bi:   9300 bc:  37 cbc:  40 off:  1416 sta:  10716 mmc:  30 shx:  10 shiftxThis:  7 shiftxTodo:  0 x ok
+WR[8,0]: col: FG-0.5 bi:   9448 bc:   1 cbc:  41 off:  1416 sta:  10864 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A bi:   9452 bc:   2 cbc:  43 off:  1416 sta:  10868 mmc:   2 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A BI:  10836 bc:   2 cbc:   2 off:  1416 sta:  12252 mmc:   0 shx:  10 shiftxThis:  2 shiftxTodo:  8 -
+WR[8,0]: col: FG-1.0 bi:  10844 bc:  39 cbc:  41 off:  1416 sta:  12260 mmc:  31 shx:  10 shiftxThis:  8 shiftxTodo:  0 x ok
+WR[8,0]: col: BG-N/A bi:  11000 bc:   2 cbc:  43 off:  1416 sta:  12416 mmc:   2 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A BI:  12384 bc:   1 cbc:   1 off:  1416 sta:  13800 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9 -
+WR[8,0]: col: FG-0.2 bi:  12388 bc:   1 cbc:   2 off:  1416 sta:  13804 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  8 -
+WR[8,0]: col: FG-1.0 bi:  12392 bc:  39 cbc:  41 off:  1416 sta:  13808 mmc:  31 shx:  10 shiftxThis:  8 shiftxTodo:  0 x ok
+WR[8,0]: col: FG-0.2 bi:  12548 bc:   1 cbc:  42 off:  1416 sta:  13964 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A bi:  12552 bc:   1 cbc:  43 off:  1416 sta:  13968 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A BI:  13932 bc:   1 cbc:   1 off:  1416 sta:  15348 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9 -
+WR[8,0]: col: FG-0.6 bi:  13936 bc:   1 cbc:   2 off:  1416 sta:  15352 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  8 -
+WR[8,0]: col: FG-1.0 bi:  13940 bc:  39 cbc:  41 off:  1416 sta:  15356 mmc:  31 shx:  10 shiftxThis:  8 shiftxTodo:  0 x ok
+WR[8,0]: col: FG-0.6 bi:  14096 bc:   1 cbc:  42 off:  1416 sta:  15512 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A bi:  14100 bc:   1 cbc:  43 off:  1416 sta:  15516 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A BI:  15480 bc:   1 cbc:   1 off:  1416 sta:  16896 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9 -
+WR[8,0]: col: FG-0.8 bi:  15484 bc:   1 cbc:   2 off:  1416 sta:  16900 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  8 -
+WR[8,0]: col: FG-1.0 bi:  15488 bc:  39 cbc:  41 off:  1416 sta:  16904 mmc:  31 shx:  10 shiftxThis:  8 shiftxTodo:  0 x ok
+WR[8,0]: col: FG-0.8 bi:  15644 bc:   1 cbc:  42 off:  1416 sta:  17060 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A bi:  15648 bc:   1 cbc:  43 off:  1416 sta:  17064 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x
+WR[8,0]: col: BG-N/A BI:  17028 bc:   1 cbc:   1 off:  1416 sta:  18444 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9 -
+WR[8,0]: col: FG-1.0 bi:  17032 bc:  41 cbc:  42 off:  1416 sta:  18448 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0 x ok
+WR[8,0]: col: BG-N/A bi:  17196 bc:   1 cbc:  43 off:  1416 sta:  18612 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0 x notok bingo
+WR[8,0]: col: BG-N/A BI:  18576 bc:   1 cbc:   1 off:  1416 sta:  19992 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  18580 bc:  41 cbc:  42 off:  1416 sta:  19996 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  18744 bc:   1 cbc:  43 off:  1416 sta:  20160 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  20124 bc:   1 cbc:   1 off:  1416 sta:  21540 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  20128 bc:  41 cbc:  42 off:  1416 sta:  21544 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  20292 bc:   1 cbc:  43 off:  1416 sta:  21708 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  21672 bc:   1 cbc:   1 off:  1416 sta:  23088 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  21676 bc:  41 cbc:  42 off:  1416 sta:  23092 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  21840 bc:   1 cbc:  43 off:  1416 sta:  23256 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  23220 bc:   1 cbc:   1 off:  1416 sta:  24636 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  23224 bc:  41 cbc:  42 off:  1416 sta:  24640 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  23388 bc:   1 cbc:  43 off:  1416 sta:  24804 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  24768 bc:   1 cbc:   1 off:  1416 sta:  26184 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  24772 bc:  41 cbc:  42 off:  1416 sta:  26188 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  24936 bc:   1 cbc:  43 off:  1416 sta:  26352 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  26316 bc:   1 cbc:   1 off:  1416 sta:  27732 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  26320 bc:  41 cbc:  42 off:  1416 sta:  27736 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  26484 bc:   1 cbc:  43 off:  1416 sta:  27900 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  27864 bc:   1 cbc:   1 off:  1416 sta:  29280 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  27868 bc:  41 cbc:  42 off:  1416 sta:  29284 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  28032 bc:   1 cbc:  43 off:  1416 sta:  29448 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  29412 bc:   1 cbc:   1 off:  1416 sta:  30828 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  29416 bc:  41 cbc:  42 off:  1416 sta:  30832 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  29580 bc:   1 cbc:  43 off:  1416 sta:  30996 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  30960 bc:   1 cbc:   1 off:  1416 sta:  32376 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  30964 bc:  41 cbc:  42 off:  1416 sta:  32380 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  31128 bc:   1 cbc:  43 off:  1416 sta:  32544 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  32508 bc:   1 cbc:   1 off:  1416 sta:  33924 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  32512 bc:  41 cbc:  42 off:  1416 sta:  33928 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  32676 bc:   1 cbc:  43 off:  1416 sta:  34092 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  34056 bc:   1 cbc:   1 off:  1416 sta:  35472 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  34060 bc:  41 cbc:  42 off:  1416 sta:  35476 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  34224 bc:   1 cbc:  43 off:  1416 sta:  35640 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  35604 bc:   1 cbc:   1 off:  1416 sta:  37020 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  35608 bc:  41 cbc:  42 off:  1416 sta:  37024 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  35772 bc:   1 cbc:  43 off:  1416 sta:  37188 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  37152 bc:   1 cbc:   1 off:  1416 sta:  38568 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  37156 bc:  41 cbc:  42 off:  1416 sta:  38572 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  37320 bc:   1 cbc:  43 off:  1416 sta:  38736 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  38700 bc:   1 cbc:   1 off:  1416 sta:  40116 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  38704 bc:  41 cbc:  42 off:  1416 sta:  40120 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  38868 bc:   1 cbc:  43 off:  1416 sta:  40284 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  40248 bc:   1 cbc:   1 off:  1416 sta:  41664 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  40252 bc:  41 cbc:  42 off:  1416 sta:  41668 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  40416 bc:   1 cbc:  43 off:  1416 sta:  41832 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  41796 bc:   1 cbc:   1 off:  1416 sta:  43212 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  41800 bc:  41 cbc:  42 off:  1416 sta:  43216 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  41964 bc:   1 cbc:  43 off:  1416 sta:  43380 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  43344 bc:   1 cbc:   1 off:  1416 sta:  44760 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  43348 bc:  41 cbc:  42 off:  1416 sta:  44764 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  43512 bc:   1 cbc:  43 off:  1416 sta:  44928 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  44892 bc:   1 cbc:   1 off:  1416 sta:  46308 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  44896 bc:  41 cbc:  42 off:  1416 sta:  46312 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  45060 bc:   1 cbc:  43 off:  1416 sta:  46476 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  46440 bc:   1 cbc:   1 off:  1416 sta:  47856 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  46444 bc:  41 cbc:  42 off:  1416 sta:  47860 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  46608 bc:   1 cbc:  43 off:  1416 sta:  48024 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  47988 bc:   1 cbc:   1 off:  1416 sta:  49404 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-1.0 bi:  47992 bc:  41 cbc:  42 off:  1416 sta:  49408 mmc:  32 shx:  10 shiftxThis:  9 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  48156 bc:   1 cbc:  43 off:  1416 sta:  49572 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  49536 bc:   1 cbc:   1 off:  1416 sta:  50952 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-0.8 bi:  49540 bc:   1 cbc:   2 off:  1416 sta:  50956 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  8
+WR[8,0]: col: FG-1.0 bi:  49544 bc:  39 cbc:  41 off:  1416 sta:  50960 mmc:  31 shx:  10 shiftxThis:  8 shiftxTodo:  0
+WR[8,0]: col: FG-0.8 bi:  49700 bc:   1 cbc:  42 off:  1416 sta:  51116 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  49704 bc:   1 cbc:  43 off:  1416 sta:  51120 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  51084 bc:   1 cbc:   1 off:  1416 sta:  52500 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-0.6 bi:  51088 bc:   1 cbc:   2 off:  1416 sta:  52504 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  8
+WR[8,0]: col: FG-1.0 bi:  51092 bc:  39 cbc:  41 off:  1416 sta:  52508 mmc:  31 shx:  10 shiftxThis:  8 shiftxTodo:  0
+WR[8,0]: col: FG-0.6 bi:  51248 bc:   1 cbc:  42 off:  1416 sta:  52664 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  51252 bc:   1 cbc:  43 off:  1416 sta:  52668 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  52632 bc:   1 cbc:   1 off:  1416 sta:  54048 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  9
+WR[8,0]: col: FG-0.2 bi:  52636 bc:   1 cbc:   2 off:  1416 sta:  54052 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  8
+WR[8,0]: col: FG-1.0 bi:  52640 bc:  39 cbc:  41 off:  1416 sta:  54056 mmc:  31 shx:  10 shiftxThis:  8 shiftxTodo:  0
+WR[8,0]: col: FG-0.2 bi:  52796 bc:   1 cbc:  42 off:  1416 sta:  54212 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  52800 bc:   1 cbc:  43 off:  1416 sta:  54216 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  54180 bc:   2 cbc:   2 off:  1416 sta:  55596 mmc:   0 shx:  10 shiftxThis:  2 shiftxTodo:  8
+WR[8,0]: col: FG-1.0 bi:  54188 bc:  39 cbc:  41 off:  1416 sta:  55604 mmc:  31 shx:  10 shiftxThis:  8 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  54344 bc:   2 cbc:  43 off:  1416 sta:  55760 mmc:   2 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  55728 bc:   2 cbc:   2 off:  1416 sta:  57144 mmc:   0 shx:  10 shiftxThis:  2 shiftxTodo:  8
+WR[8,0]: col: FG-0.5 bi:  55736 bc:   1 cbc:   3 off:  1416 sta:  57152 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  7
+WR[8,0]: col: FG-1.0 bi:  55740 bc:  37 cbc:  40 off:  1416 sta:  57156 mmc:  30 shx:  10 shiftxThis:  7 shiftxTodo:  0
+WR[8,0]: col: FG-0.5 bi:  55888 bc:   1 cbc:  41 off:  1416 sta:  57304 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  55892 bc:   2 cbc:  43 off:  1416 sta:  57308 mmc:   2 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  57276 bc:   3 cbc:   3 off:  1416 sta:  58692 mmc:   0 shx:  10 shiftxThis:  3 shiftxTodo:  7
+WR[8,0]: col: FG-1.0 bi:  57288 bc:   1 cbc:   4 off:  1416 sta:  58704 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  6
+WR[8,0]: col: FG-1.0 bi:  57292 bc:  35 cbc:  39 off:  1416 sta:  58708 mmc:  29 shx:  10 shiftxThis:  6 shiftxTodo:  0
+WR[8,0]: col: FG-1.0 bi:  57432 bc:   1 cbc:  40 off:  1416 sta:  58848 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  57436 bc:   3 cbc:  43 off:  1416 sta:  58852 mmc:   3 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  58824 bc:   4 cbc:   4 off:  1416 sta:  60240 mmc:   0 shx:  10 shiftxThis:  4 shiftxTodo:  6
+WR[8,0]: col: FG-1.0 bi:  58840 bc:  35 cbc:  39 off:  1416 sta:  60256 mmc:  29 shx:  10 shiftxThis:  6 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  58980 bc:   4 cbc:  43 off:  1416 sta:  60396 mmc:   4 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  60372 bc:   5 cbc:   5 off:  1416 sta:  61788 mmc:   0 shx:  10 shiftxThis:  5 shiftxTodo:  5
+WR[8,0]: col: FG-1.0 bi:  60392 bc:   1 cbc:   6 off:  1416 sta:  61808 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  4
+WR[8,0]: col: FG-1.0 bi:  60396 bc:  31 cbc:  37 off:  1416 sta:  61812 mmc:  27 shx:  10 shiftxThis:  4 shiftxTodo:  0
+WR[8,0]: col: FG-1.0 bi:  60520 bc:   1 cbc:  38 off:  1416 sta:  61936 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  60524 bc:   5 cbc:  43 off:  1416 sta:  61940 mmc:   5 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  61920 bc:   6 cbc:   6 off:  1416 sta:  63336 mmc:   0 shx:  10 shiftxThis:  6 shiftxTodo:  4
+WR[8,0]: col: FG-0.5 bi:  61944 bc:   1 cbc:   7 off:  1416 sta:  63360 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  3
+WR[8,0]: col: FG-1.0 bi:  61948 bc:  29 cbc:  36 off:  1416 sta:  63364 mmc:  26 shx:  10 shiftxThis:  3 shiftxTodo:  0
+WR[8,0]: col: FG-0.5 bi:  62064 bc:   1 cbc:  37 off:  1416 sta:  63480 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  62068 bc:   6 cbc:  43 off:  1416 sta:  63484 mmc:   6 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  63468 bc:   8 cbc:   8 off:  1416 sta:  64884 mmc:   0 shx:  10 shiftxThis:  8 shiftxTodo:  2
+WR[8,0]: col: FG-0.2 bi:  63500 bc:   1 cbc:   9 off:  1416 sta:  64916 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  1
+WR[8,0]: col: FG-0.6 bi:  63504 bc:   1 cbc:  10 off:  1416 sta:  64920 mmc:   0 shx:  10 shiftxThis:  1 shiftxTodo:  0
+WR[8,0]: col: FG-0.8 bi:  63508 bc:   1 cbc:  11 off:  1416 sta:  64924 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: FG-1.0 bi:  63512 bc:  21 cbc:  32 off:  1416 sta:  64928 mmc:  21 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: FG-0.8 bi:  63596 bc:   1 cbc:  33 off:  1416 sta:  65012 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: FG-0.6 bi:  63600 bc:   1 cbc:  34 off:  1416 sta:  65016 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: FG-0.2 bi:  63604 bc:   1 cbc:  35 off:  1416 sta:  65020 mmc:   1 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A bi:  63608 bc:   8 cbc:  43 off:  1416 sta:  65024 mmc:   8 shx:  10 shiftxThis:  0 shiftxTodo:  0
+WR[8,0]: col: BG-N/A BI:  65016 bc:  43 cbc:  43 off:  1416 sta:  66432 mmc:  33 shx:  10 shiftxThis: 10 shiftxTodo:  0

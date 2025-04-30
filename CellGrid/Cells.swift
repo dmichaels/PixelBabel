@@ -165,12 +165,13 @@ class Cells
             CellGrid.Defaults.displayScaling ? Int(round(CGFloat(value) * CGFloat(3.0))) : value
         }
 
-        let shiftx: Int = scaled(24)
-        let shifty: Int = scaled(24)
+        let shiftx: Int = scaled(10)
+        let shifty: Int = scaled(0)
         let size: Int = buffer.count
         // let offset: Int = ((self._cellSize * x) + (self._cellSize * self._displayWidth * y)) * Screen.depth
         let offset: Int = ((self._cellSize * x) + shiftx + (self._cellSize * self._displayWidth * y + shifty * self._displayWidth)) * Screen.depth
         var blockCount: Int = 0
+        var blockCountNew: Bool = false
         var lblock: BufferBlock?
         var shiftxThis: Int = 0
         var shiftxTodo: Int = 0
@@ -181,13 +182,22 @@ class Cells
                 guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else {
                     continue
                 }
+                if ((lblock != nil) && ((lblock!.index + (lblock!.count * Screen.depth)) == block.index)) {
+                    blockCount += block.count
+                    blockCountNew = false
+                }
+                else {
+                    // if ((shiftx > 0) && (x == (self.ncolumns - 1)) && (y == 0)) { print("NEW-CONTIGUOUS-BLOCK") }
+                    blockCount = block.count
+                    blockCountNew = true
+                }
                 if (shiftx > 0) {
                     if ((lblock != nil) && ((lblock!.index + (lblock!.count * Screen.depth)) == block.index)) {
-                        blockCount += block.count
+                        // blockCount += block.count
                     }
                     else {
-                        if ((shiftx > 0) && (x == (self.ncolumns - 1))) { print("NEW-CONTIGUOUS-BLOCK") }
-                        blockCount = block.count
+                        // if ((shiftx > 0) && (x == (self.ncolumns - 1)) && (y == 0)) { print("NEW-CONTIGUOUS-BLOCK") }
+                        // blockCount = block.count
                         shiftxThis = shiftx
                         shiftxTodo = shiftx
                     }
@@ -224,13 +234,43 @@ class Cells
                     color = background
                 }
                 // if ((shiftx > 0) && (x == 8)) {
+                if ((shiftx == 0) && (x == (self.ncolumns - 1)) && (y == 0)) {
+                    print("WR[\(x),\(y)]:" +
+                          " col: \(block.foreground ? "FG-\((block.blend * 10).rounded() / 10)" : "BG-N/A")" +
+                          " \(blockCountNew ? "BI" : "bi"): \(String(format: "%6d", block.index))" +
+                          " bc: \(String(format: "%3d", block.count))" +
+                          " cbc: \(String(format: "%3d", blockCount))" +
+                          " off: \(String(format: "%5d", offset))" +
+                          " sta: \(String(format: "%6d", start))" +
+                          " mmc: \(String(format: "%3d", block.count))")
+                }
                 if ((shiftx > 0) && (x == (self.ncolumns - 1))) {
                     let count = block.count - shiftxThis
-                    print("WR[\(x),\(y)]: sx: \(shiftx) \(block.foreground)-\((block.blend * 10).rounded() / 10)" +
-                          " bi: \(block.index) bc: \(block.count) cbc: \(blockCount) mc: \(count) shiftxThis: \(shiftxThis) shiftxTodo: \(shiftxTodo) col: \(color.hex)")
+                    if (y == 0) {
+                        print("WR[\(x),\(y)]:" +
+                              " col: \(block.foreground ? "FG-\((block.blend * 10).rounded() / 10)" : "BG-N/A")" +
+                              " \(blockCountNew ? "BI" : "bi"): \(String(format: "%6d", block.index))" +
+                              " bc: \(String(format: "%3d", block.count))" +
+                              " cbc: \(String(format: "%3d", blockCount))" +
+                              " off: \(String(format: "%5d", offset))" +
+                              " sta: \(String(format: "%6d", start))" +
+                              " mmc: \(String(format: "%3d", count))" +
+                              " shx: \(String(format: "%3d", shiftx))" +
+                              " shiftxThis: \(String(format: "%2d",shiftxThis))" +
+                              " shiftxTodo: \(String(format: "%2d",shiftxTodo))")
+                    }
                     // let count = block.count - shiftx
                     if (count > 0) {
-                        Memory.fastcopy(to: base, count: count, value: color.value)
+                        // xyzzy
+                        var c: CellColor = color
+                        if (start == 18612) {
+                            print("FOOOGOOO")
+                            c = CellColor(Color.red)
+                            // c = CellColor(0, 255, 255)
+                        }
+                        // xyzzy
+                        // xyzzy Memory.fastcopy(to: base, count: count, value: color.value)
+                        Memory.fastcopy(to: base, count: count, value: c.value)
                     }
                     else {
                         // adding this corrects the antialiasing on the far right cell and does not seem to affect the extraneous pixels on the far left
