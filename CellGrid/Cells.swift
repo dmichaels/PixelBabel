@@ -247,7 +247,7 @@ class Cells
                     color = background
                 }
                 // if ((shiftx > 0) && (x == 8)) {
-                if ((shiftx == 0) && (x == (self.ncolumns - 1)) && (y == 0)) {
+                if ((shiftx == 0) && (x == (self.ncolumns - 1)) && (y == 1)) {
                     print("WR[\(x),\(y)]:" +
                           " col: \(block.foreground ? "FG-\((block.blend * 10).rounded() / 10)" : "BG-N/A")" +
                           " \(blockCountNew ? "BI" : "bi"): \(String(format: "%6d", block.index))" +
@@ -258,8 +258,19 @@ class Cells
                           " mmc: \(String(format: "%3d", block.count))")
                 }
                 if ((shiftx > 0) && (x == (self.ncolumns - 1))) {
+
+                        let si = start
+                        let sw = self._displayWidth
+                        let sy = si / sw
+                        let sx = si - (sy * sw)
+                        let ss = shiftx * Screen.depth
+                        if sx < ss {
+                            var xxx = 123
+                            continue
+                        }
+
                     let count = block.count - shiftxThis
-                    if (y == 0) {
+                    if (y == 1) {
                         print("WR[\(x),\(y)]:" +
                               " col: \(block.foreground ? "FG-\((block.blend * 10).rounded() / 10)" : "BG-N/A")" +
                               " \(blockCountNew ? "BI" : "bi"): \(String(format: "%6d", block.index))" +
@@ -272,11 +283,13 @@ class Cells
                               " shiftxThis: \(String(format: "%2d",shiftxThis))" +
                               " shiftxTodo: \(String(format: "%2d",shiftxTodo))")
                     }
-                    // let count = block.count - shiftx
                     if (count > 0) {
                         // xyzzy
                         var c: CellColor = color
-                        if (start == 18612) {
+                        if start == 85176 {
+                            var x = 1
+                        }
+                        if ((start == 18612) || (start == 85176)) {
                             print("FOOOGOOO")
                             c = CellColor(Color.red)
                             // c = CellColor(0, 255, 255)
@@ -288,7 +301,7 @@ class Cells
                     else {
                         // adding this corrects the antialiasing on the far right cell and does not seem to affect the extraneous pixels on the far left
                         // confirmed extraneous pixels on the far left are not do to this.
-                        // Memory.fastcopy(to: base, count: block.count, value: color.value)
+                        Memory.fastcopy(to: base, count: block.count, value: color.value)
                     }
                 }
                 else {
