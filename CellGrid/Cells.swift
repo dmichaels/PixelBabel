@@ -294,12 +294,9 @@ class Cells
                     //     34: i -> I - ((I / W) * W) == 34 - ((34 / 6) * 6) == 4
                     //     35: j -> I - ((I / W) * W) == 35 - ((35 / 6) * 6) == 5
                     //
-                    let si = start
-                    let sw = self._displayWidth
-                    let sy = si / sw
-                    let sx = si - (sy * sw)
-                    let ss = shiftx * Screen.depth
-                    if sx < ss {
+                    let sy = start / self._displayWidth
+                    let sx = start - (sy * self._displayWidth)
+                    if sx < (shiftx * Screen.depth) {
                         continue
                     }
 
