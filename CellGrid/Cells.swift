@@ -180,14 +180,13 @@ class Cells
 
         let shiftx: Int = scaled(25) // scaled(10)
         let shifty: Int = scaled(0)
+        var shiftingx: Int = 0
+        var shiftingxr: Int = 0
+
         let size: Int = buffer.count
-        // let offset: Int = ((self._cellSize * x) + (self._cellSize * self._displayWidth * y)) * Screen.depth
         let offset: Int = ((self._cellSize * x) + shiftx + (self._cellSize * self._displayWidth * y + shifty * self._displayWidth)) * Screen.depth
-        var blockCount: Int = 0
-        var blockCountNew: Bool = false
         var lblock: BufferBlock?
-        var shiftxThis: Int = 0
-        var shiftxTodo: Int = 0
+
         buffer.withUnsafeMutableBytes { raw in
             guard let bufferAddress = raw.baseAddress else { return } // xyzzy
             for block in self._bufferBlocks.blocks {
@@ -195,32 +194,18 @@ class Cells
                 guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else {
                     continue
                 }
-                if ((lblock != nil) && ((lblock!.index + (lblock!.count * Screen.depth)) == block.index)) {
-                    blockCount += block.count
-                    blockCountNew = false
-                }
-                else {
-                    // if ((shiftx > 0) && (x == (self.ncolumns - 1)) && (y == 0)) { print("NEW-CONTIGUOUS-BLOCK") }
-                    blockCount = block.count
-                    blockCountNew = true
-                }
                 if (shiftx > 0) {
-                    if ((lblock != nil) && ((lblock!.index + (lblock!.count * Screen.depth)) == block.index)) {
-                        // blockCount += block.count
+                    if ((lblock == nil) || ((lblock!.index + (lblock!.count * Screen.depth)) != block.index)) {
+                        shiftingx = shiftx
+                        shiftingxr = shiftx
+                    }
+                    if (shiftingxr < block.count) {
+                        shiftingx = shiftingxr
                     }
                     else {
-                        // if ((shiftx > 0) && (x == (self.ncolumns - 1)) && (y == 0)) { print("NEW-CONTIGUOUS-BLOCK") }
-                        // blockCount = block.count
-                        shiftxThis = shiftx
-                        shiftxTodo = shiftx
+                        shiftingx = block.count
                     }
-                    if (shiftxTodo < block.count) {
-                        shiftxThis = shiftxTodo
-                    }
-                    else {
-                        shiftxThis = block.count
-                    }
-                    shiftxTodo -= shiftxThis
+                    shiftingxr -= shiftingx
                     lblock = block
                 }
                 let base: UnsafeMutableRawPointer = bufferAddress.advanced(by: start)
@@ -246,61 +231,93 @@ class Cells
                 else {
                     color = background
                 }
-                if ((shiftx == 0) && (x == (self.ncolumns - 1)) && (y == 1)) {
-                    print("WR[\(x),\(y)]:" +
-                          " col: \(block.foreground ? "FG-\((block.blend * 10).rounded() / 10)" : "BG-N/A")" +
-                          " \(blockCountNew ? "BI" : "bi"): \(String(format: "%6d", block.index))" +
-                          " bc: \(String(format: "%3d", block.count))" +
-                          " cbc: \(String(format: "%3d", blockCount))" +
-                          " off: \(String(format: "%5d", offset))" +
-                          " sta: \(String(format: "%6d", start))" +
-                          " mmc: \(String(format: "%3d", block.count))")
-                }
                 if ((shiftx > 0) && (x == (self.ncolumns - 1))) {
 
-                        let si = start
-                        let sw = self._displayWidth
-                        let sy = si / sw
-                        let sx = si - (sy * sw)
-                        let ss = shiftx * Screen.depth
-
-                    let count = block.count - shiftxThis
-                    if (y == 1) {
-                        print("WR[\(x),\(y)]:" +
-                              " col: \(block.foreground ? "FG-\((block.blend * 10).rounded() / 10)" : "BG-N/A")" +
-                              " \(blockCountNew ? "BI" : "bi"): \(String(format: "%6d", block.index))" +
-                              " bc: \(String(format: "%3d", block.count))" +
-                              " cbc: \(String(format: "%3d", blockCount))" +
-                              " off: \(String(format: "%5d", offset))" +
-                              " sta: \(String(format: "%6d", start))" +
-                              " mmc: \(String(format: "%3d", count))" +
-                              " shx: \(String(format: "%3d", shiftx))" +
-                              " shiftxThis: \(String(format: "%2d",shiftxThis))" +
-                              " shiftxTodo: \(String(format: "%2d",shiftxTodo))")
+                    // Cheat sheet. For example, given the below (WxH) grid,
+                    // and the one-dimensional buffer containing it below it ... 
+                    //
+                    //       x . . .
+                    //       0   1   2   3   4   5
+                    //     +---+---+---+---+---+---+
+                    //     | A | B | C | J | K | L | 0  y
+                    //     +---+---+---+---+---+---+    .
+                    //     | D | E | F | M | N | O | 1  .
+                    //     +---+---+---+---+---+---+    .
+                    //     | G | H | I | P | Q | R | 2
+                    //     +---+---+---+---+---+---+
+                    //     | S | T | U | b | c | d | 3
+                    //     +---+---+---+---+---+---+
+                    //     | V | W | X | c | f | g | 4
+                    //     +---+---+---+---+---+---+
+                    //     | Y | Z | a | h | i | j | 5
+                    //     +---+---+---+---+---+---+
+                    //       ^   ^ 
+                    //       |   |
+                    //       -   -
+                    // If we want to ignore these (say) 2 left-most columns (s) due to right shift, then
+                    // we want to ignore (i.e. not write) buffer indices (I) where: I - ((I / W) * W) < S ...
+                    //
+                    //      0: A -> I - ((I / W) * W) ==  0 - (( 0 / 6) * 6) == 0 <<< ignore: A
+                    //      1: B -> I - ((I / W) * W) ==  1 - (( 1 / 6) * 6) == 1 <<< ignore: B
+                    //      2: C -> I - ((I / W) * W) ==  2 - (( 2 / 6) * 6) == 2
+                    //      3: J -> I - ((I / W) * W) ==  3 - (( 3 / 6) * 6) == 3
+                    //      4: K -> I - ((I / W) * W) ==  4 - (( 4 / 6) * 6) == 4
+                    //      5: L -> I - ((I / W) * W) ==  5 - (( 5 / 6) * 6) == 5
+                    //      6: D -> I - ((I / W) * W) ==  6 - (( 6 / 6) * 6) == 0 <<< ignore: D
+                    //      7: E -> I - ((I / W) * W) ==  7 - (( 6 / 6) * 6) == 1 <<< ignore: E
+                    //      8: F -> I - ((I / W) * W) ==  8 - (( 8 / 6) * 6) == 2
+                    //      9: M -> I - ((I / W) * W) ==  9 - (( 9 / 6) * 6) == 3
+                    //     10: N -> I - ((I / W) * W) == 10 - ((10 / 6) * 6) == 4
+                    //     11: O -> I - ((I / W) * W) == 11 - ((11 / 6) * 6) == 5
+                    //     12: G -> I - ((I / W) * W) == 12 - ((12 / 6) * 6) == 0 <<< ignore: G
+                    //     13: H -> I - ((I / W) * W) == 13 - ((13 / 6) * 6) == 1 <<< ignore: H
+                    //     14: I -> I - ((I / W) * W) == 14 - ((14 / 6) * 6) == 2
+                    //     15: P -> I - ((I / W) * W) == 15 - ((15 / 6) * 6) == 3
+                    //     16: Q -> I - ((I / W) * W) == 16 - ((16 / 6) * 6) == 4
+                    //     17: R -> I - ((I / W) * W) == 17 - ((17 / 6) * 6) == 5
+                    //     18: S -> I - ((I / W) * W) == 18 - ((18 / 6) * 6) == 0 <<< ignore: S
+                    //     19: T -> I - ((I / W) * W) == 19 - ((19 / 6) * 6) == 1 <<< ignore: T
+                    //     20: U -> I - ((I / W) * W) == 20 - ((20 / 6) * 6) == 2
+                    //     21: b -> I - ((I / W) * W) == 21 - ((21 / 6) * 6) == 3
+                    //     22: c -> I - ((I / W) * W) == 22 - ((22 / 6) * 6) == 4
+                    //     23: d -> I - ((I / W) * W) == 23 - ((20 / 6) * 6) == 5
+                    //     24: V -> I - ((I / W) * W) == 24 - ((24 / 6) * 6) == 0 <<< ignore: V
+                    //     25: W -> I - ((I / W) * W) == 25 - ((25 / 6) * 6) == 1 <<< ignore: V
+                    //     26: X -> I - ((I / W) * W) == 26 - ((26 / 6) * 6) == 2
+                    //     27: c -> I - ((I / W) * W) == 27 - ((27 / 6) * 6) == 3
+                    //     28: f -> I - ((I / W) * W) == 28 - ((28 / 6) * 6) == 4
+                    //     29: g -> I - ((I / W) * W) == 29 - ((29 / 6) * 6) == 5
+                    //     30: Y -> I - ((I / W) * W) == 30 - ((30 / 6) * 6) == 0 <<< ignore: Y
+                    //     31: Z -> I - ((I / W) * W) == 31 - ((31 / 6) * 6) == 1 <<< ignore: Z
+                    //     32: a -> I - ((I / W) * W) == 32 - ((32 / 6) * 6) == 2
+                    //     33: h -> I - ((I / W) * W) == 33 - ((33 / 6) * 6) == 3
+                    //     34: i -> I - ((I / W) * W) == 34 - ((34 / 6) * 6) == 4
+                    //     35: j -> I - ((I / W) * W) == 35 - ((35 / 6) * 6) == 5
+                    //
+                    let si = start
+                    let sw = self._displayWidth
+                    let sy = si / sw
+                    let sx = si - (sy * sw)
+                    let ss = shiftx * Screen.depth
+                    if sx < ss {
+                        continue
                     }
+
+                    let count = block.count - shiftingx
                     if (count > 0) {
-                        // xyzzy
-                        var c: CellColor = color
-                        if start == 85176 {
-                            var x = 1
-                        }
-                        if ((start == 18612) || (start == 85176)) {
-                            print("FOOOGOOO")
-                            c = CellColor(Color.red)
-                            // c = CellColor(0, 255, 255)
-                        }
-                        // xyzzy
-                        // xyzzy Memory.fastcopy(to: base, count: count, value: color.value)
-                        Memory.fastcopy(to: base, count: count, value: c.value)
+                        Memory.fastcopy(to: base, count: count, value: color.value)
                     }
                     else {
-                        // adding this corrects the antialiasing on the far right cell and does not seem to affect the extraneous pixels on the far left
-                        // confirmed extraneous pixels on the far left are not do to this.
+                        //
+                        // TODO
+                        // Don't currently understand completely why this is needed; but if it is
+                        // not here then the far right cells are not antialiased; when shifting right.
+                        //
                         Memory.fastcopy(to: base, count: block.count, value: color.value)
                     }
                 }
                 else {
-                    Memory.fastcopy(to: base, count: block.count, value: color.value) // okay
+                    Memory.fastcopy(to: base, count: block.count, value: color.value)
                 }
             }
         }
@@ -322,7 +339,6 @@ class Cells
                 bitmapInfo: CellGrid.Defaults.bitmapInfo
             ) {
                 image = context.makeImage()
-                print("MADE-IMAGE: \(self._displayWidth) x \(self._displayHeight) -> \(image!.width) x \(image!.height)")
             }
         }
         return image
@@ -444,16 +460,6 @@ class Cells
             let lefty = displayHeight - usedh
             if ((leftx <= cellPreferredSizeMarginMax) && (lefty <= cellPreferredSizeMarginMax)) {
                 results.append((cellSize: cellSize, displayWidth: usedw, displayHeight: usedh))
-                /*
-                let marginx: Int = leftx / 2
-                let marginy: Int = lefty / 2
-                if cellSize == 43 {
-                    print("DEBUG-PREF: margin-xy: \(marginx) \(marginy) left-xy: \(leftx) \(lefty) used-wh: \(usedw) \(usedh)")
-                }
-                results.append((cellSize: cellSize,
-                                displayWidth: displayWidth - (marginx * 2),
-                                displayHeight: displayHeight - (marginy * 2)))
-                */
             }
         }
         return results
