@@ -308,9 +308,14 @@ class Cells
                     }
                     else {
                         //
-                        // TODO
+                        // TODO ...
                         // Don't currently understand completely why this is needed; but if it is
                         // not here then the far right cells are not antialiased; when shifting right.
+                        //
+                        // OH ... 
+                        // Maybe the problem is I need to apply the tricky thing above with the sx/sx thing
+                        // to each block range being written to here ... then this will fall out better ... 
+                        // 
                         //
                         Memory.fastcopy(to: base, count: block.count, value: color.value)
                     }
