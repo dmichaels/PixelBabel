@@ -297,7 +297,7 @@ class Cells
                     // And note that the BufferBlock.indix already has Screen.depth factored into it,
                     //
                     let sy = start / self._displayWidth
-                    let sx = start - (sy * self._displayWidth)
+                    let sx = start % self._displayWidth
                     if sx < (shiftx * Screen.depth) {
                         continue
                     }
