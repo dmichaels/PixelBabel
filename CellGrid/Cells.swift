@@ -294,6 +294,8 @@ class Cells
                     //     34: i -> I - ((I / W) * W) == 34 - ((34 / 6) * 6) == 4
                     //     35: j -> I - ((I / W) * W) == 35 - ((35 / 6) * 6) == 5
                     //
+                    // And note that the BufferBlock.indix already has Screen.depth factored into it,
+                    //
                     let sy = start / self._displayWidth
                     let sx = start - (sy * self._displayWidth)
                     if sx < (shiftx * Screen.depth) {
