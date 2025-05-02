@@ -28,27 +28,10 @@ class Cells
             self.blend = blend
             self.lindex = self.index
         }
-
-        func dump(verbose: Bool = false) {
-            if verbose {
-                for i in 0..<self.count {
-                    print("BLOCK>" +
-                          " INDEX: \(String(format: "%8d", self.index + i * 4))" +
-                          "  \(self.foreground ? "FG" : "BG")-\(String(format: "%.1f", self.blend))" +
-                          " \(i == 0 ? "B: \(String(format: "%3d", self.count))" : "C")")
-                }
-            }
-            else {
-                print("block>" +
-                      " index: \(String(format: "%8d", self.index))" +
-                      " count: \(String(format: "%3d", self.count))" +
-                      "  \(self.foreground ? "FG" : "BG")-\(String(format: "%.1f", self.blend))")
-            }
-        }
     }
 
-    private class BufferBlocks {
-
+    private class BufferBlocks
+    {
         var blocks: [BufferBlock] = []
 
         func append(index: Int, foreground: Bool, blend: Float = 0.0) {
@@ -160,19 +143,6 @@ class Cells
         }
     }
 
-    public func fill(_ color: CellColor) {
-        self.fill(color.color)
-    }
-
-    public func fill(_ color: Color) {
-        let pixel: CellColor = CellColor(color)
-        let count = self._buffer.count / Screen.depth
-        self._buffer.withUnsafeMutableBytes { raw in
-            guard let buffer = raw.baseAddress else { return }
-            Memory.fastcopy(to: buffer, count: count, value: pixel.value)
-        }
-    }
-
     var cells: [Cell] {
         self._cells
     }
@@ -211,25 +181,34 @@ class Cells
         self._displayHeight / self._cellSize
     }
 
-    private func defineCell(x: Int, y: Int, foreground: CellColor, background: CellColor) {
-        let cell: Cell = (self._cellFactory != nil)
-                         ? self._cellFactory!(self, x, y, foreground, background)
-                         : Cell(parent: self, x: x, y: y, foreground: foreground, background: background)
-        self._cells.append(cell)
+    public func fill(_ color: CellColor) {
+        self.fill(color.color)
     }
 
-    public func writeCell(x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
-        self.writeCell(buffer: &self._buffer, x: x, y: y, foreground: foreground, background: background, limit: limit)
+    public func fill(_ color: Color) {
+        let pixel: CellColor = CellColor(color)
+        let count = self._buffer.count / Screen.depth
+        self._buffer.withUnsafeMutableBytes { raw in
+            guard let buffer = raw.baseAddress else { return }
+            Memory.fastcopy(to: buffer, count: count, value: pixel.value)
+        }
     }
 
-    public func writeCell(buffer: inout [UInt8],
+    func writeCell(x: Int, y: Int,
+                   foreground: CellColor, background: CellColor,
+                   shiftx: Int = 0, shifty: Int = 0,
+                   limit: Bool = false) {
+        self.writeCell(buffer: &self._buffer, x: x, y: y,
+                       foreground: foreground, background: background,
+                       shiftx: shiftx, shifty: shifty, limit: limit)
+    }
+
+    private func writeCell(buffer: inout [UInt8],
                           x: Int, y: Int,
-                          foreground: CellColor,
-                          background: CellColor,
-                          limit: Bool = false,
-                          shiftx: Int = 0,
-                          shifty: Int = 0) {
-
+                          foreground: CellColor, background: CellColor,
+                          shiftx: Int = 0, shifty: Int = 0,
+                          limit: Bool = false)
+    {
         func scaled(_ value: Int) -> Int {
             CellGrid.Defaults.displayScaling ? Int(round(CGFloat(value) * CGFloat(3.0))) : value
         }
@@ -373,6 +352,13 @@ class Cells
             }
         }
         return image
+    }
+
+    private func defineCell(x: Int, y: Int, foreground: CellColor, background: CellColor) {
+        let cell: Cell = (self._cellFactory != nil)
+                         ? self._cellFactory!(self, x, y, foreground, background)
+                         : Cell(parent: self, x: x, y: y, foreground: foreground, background: background)
+        self._cells.append(cell)
     }
 
     private static func createBufferBlocks(bufferSize: Int,
