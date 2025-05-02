@@ -520,16 +520,17 @@ private func splitBufferBlock(_ block: BufferBlock, offset: Int, width: Int, shi
         let offset: Int = ((self._cellSize * x) + shiftx + (self._cellSize * self._displayWidth * y + shifty * self._displayWidth)) * Screen.depth
 
         for block in self._bufferBlocks.blocks {
-            if (false && shiftx > 0) {
+            if (shiftx > 0) {
+                // NOT WORKING YET - THE ELSE BLOCK FOR ABOVE IF IS 
                 let sblocks = splitBufferBlock(block, offset: offset, width: self._displayWidth, shiftx: shiftx, debug: y == 0 && x == 8)
                 if sblocks.count == 0 {
                     writeCellBlock(block, ignoreShiftx: true)
                 }
                 else {
                     for sblock in sblocks {
-                        // writeCellBlock(sblock, ignoreShiftx: true)
-                        writeCellBlock(block) 
-                        break
+                        writeCellBlock(sblock, ignoreShiftx: true)
+                        // writeCellBlock(block) 
+                        // break
                     }
                 }
             }
