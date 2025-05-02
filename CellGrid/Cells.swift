@@ -61,34 +61,6 @@ class Cells
             }
         }
 
-        static func save_prune(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
-            let stride = 4
-            var results: [BufferBlock] = []
-            var currentBlockStart: Int? = nil
-            var currentBlockCount = 0
-            for i in 0..<block.count {
-                let chunkStart = offset + block.index + i * stride
-                if (chunkStart / 4) % width >= shiftx {
-                    if currentBlockStart == nil {
-                        currentBlockStart = chunkStart
-                        currentBlockCount = 1
-                    } else {
-                        currentBlockCount += 1
-                    }
-                } else {
-                    if let start = currentBlockStart {
-                        results.append(BufferBlock(index: start - offset, count: currentBlockCount, foreground: block.foreground, blend: block.blend))
-                        currentBlockStart = nil
-                        currentBlockCount = 0
-                    }
-                }
-            }
-            if let start = currentBlockStart {
-                results.append(BufferBlock(index: start - offset, count: currentBlockCount, foreground: block.foreground, blend: block.blend))
-            }
-            return results
-        }
-
         static func prune(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
             let stride = 4
             var results: [BufferBlock] = []
@@ -250,182 +222,6 @@ class Cells
         self.writeCell(buffer: &self._buffer, x: x, y: y, foreground: foreground, background: background, limit: limit)
     }
 
-    public func save_writeCell(buffer: inout [UInt8], x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
-
-        func scaled(_ value: Int) -> Int {
-            CellGrid.Defaults.displayScaling ? Int(round(CGFloat(value) * CGFloat(3.0))) : value
-        }
-
-        let shiftx: Int = scaled(25) // scaled(10)
-        let shifty: Int = 0 // scaled(25)
-        var shiftingx: Int = 0
-        var shiftingxr: Int = 0
-
-        let size: Int = buffer.count
-        let offset: Int = ((self._cellSize * x) + shiftx + (self._cellSize * self._displayWidth * y + shifty * self._displayWidth)) * Screen.depth
-        var lblock: BufferBlock?
-
-        buffer.withUnsafeMutableBytes { raw in
-            guard let bufferAddress = raw.baseAddress else { return } // xyzzy
-            for block in self._bufferBlocks.blocks {
-                let start: Int = offset + block.index
-                guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else {
-                    continue
-                }
-                if (shiftx > 0) {
-                    if ((lblock == nil) || ((lblock!.index + (lblock!.count * Screen.depth)) != block.index)) {
-                        shiftingx = shiftx
-                        shiftingxr = shiftx
-                    }
-                    if (shiftingxr < block.count) {
-                        shiftingx = shiftingxr
-                    }
-                    else {
-                        shiftingx = block.count
-                    }
-                    shiftingxr -= shiftingx
-                    lblock = block
-                }
-                let base: UnsafeMutableRawPointer = bufferAddress.advanced(by: start)
-                var color: CellColor
-                if (block.foreground) {
-                    if (block.blend != 0.0) {
-                        color = CellColor(Cells.blend(foreground.red,   background.red,   amount: block.blend),
-                                          Cells.blend(foreground.green, background.green, amount: block.blend),
-                                          Cells.blend(foreground.blue,  background.blue,  amount: block.blend),
-                                          alpha: foreground.alpha)
-                    }
-                    else {
-                        color = foreground
-                    }
-                }
-                else if (limit) {
-                    //
-                    // Limit the write to only the foreground; can be useful
-                    // for performance as background normally doesn't change.
-                    //
-                    continue
-                }
-                else {
-                    color = background
-                }
-
-                /*
-                let sx = start % self._displayWidth
-                let blockStart = block.index + offset
-                let blockEnd = blockStart + block.count - 1
-                if blockEnd < (sx * Screen.depth) {
-                    continue
-                }
-                let skipCount = max(0, (shiftx * 4) - blockStart)
-                if skipCount > 0 {
-                    var x = 1
-                }
-                let adjustedIndex = blockStart + skipCount
-                let adjustedCount = block.count - skipCount
-                let base: UnsafeMutableRawPointer = bufferAddress.advanced(by: adjustedIndex)
-                Memory.fastcopy(to: base, count: adjustedCount, value: color.value)
-                */
-
-                if ((shiftx > 0) && (x == (self.ncolumns - 1))) {
-
-                    // Cheat sheet. For example, given the below (WxH) grid,
-                    // and the one-dimensional buffer containing it below it ... 
-                    //
-                    //       x . . .
-                    //       0   1   2   3   4   5
-                    //     +---+---+---+---+---+---+
-                    //     | A | B | C | J | K | L | 0  y
-                    //     +---+---+---+---+---+---+    .
-                    //     | D | E | F | M | N | O | 1  .
-                    //     +---+---+---+---+---+---+    .
-                    //     | G | H | I | P | Q | R | 2
-                    //     +---+---+---+---+---+---+
-                    //     | S | T | U | b | c | d | 3
-                    //     +---+---+---+---+---+---+
-                    //     | V | W | X | c | f | g | 4
-                    //     +---+---+---+---+---+---+
-                    //     | Y | Z | a | h | i | j | 5
-                    //     +---+---+---+---+---+---+
-                    //       ^   ^ 
-                    //       |   |
-                    //       -   -
-                    // If we want to ignore these (say) 2 left-most columns (s) due to right shift, then
-                    // we want to ignore (i.e. not write) buffer indices (I) where: I - ((I / W) * W) < S ...
-                    //
-                    //      0: A -> I % W ==  0 % 6 == 0 <<< ignore: A
-                    //      1: B -> I % W ==  1 % 6 == 1 <<< ignore: B
-                    //      2: C -> I % W ==  2 % 6 == 2
-                    //      3: J -> I % W ==  3 % 6 == 3
-                    //      4: K -> I % W ==  4 % 6 == 4
-                    //      5: L -> I % W ==  5 % 6 == 5
-                    //      6: D -> I % W ==  6 % 6 == 0 <<< ignore: D
-                    //      7: E -> I % W ==  7 % 6 == 1 <<< ignore: E
-                    //      8: F -> I % W ==  8 % 6 == 2
-                    //      9: M -> I % W ==  9 % 6 == 3
-                    //     10: N -> I % W == 10 % 6 == 4
-                    //     11: O -> I % W == 11 % 6 == 5
-                    //     12: G -> I % W == 12 % 6 == 0 <<< ignore: G
-                    //     13: H -> I % W == 13 % 6 == 1 <<< ignore: H
-                    //     14: I -> I % W == 14 % 6 == 2
-                    //     15: P -> I % W == 15 % 6 == 3
-                    //     16: Q -> I % W == 16 % 6 == 4
-                    //     17: R -> I % W == 17 % 6 == 5
-                    //     18: S -> I % W == 18 % 6 == 0 <<< ignore: S
-                    //     19: T -> I % W == 19 % 6 == 1 <<< ignore: T
-                    //     20: U -> I % W == 20 % 6 == 2
-                    //     21: b -> I % W == 21 % 6 == 3
-                    //     22: c -> I % W == 22 % 6 == 4
-                    //     23: d -> I % W == 23 % 6 == 5
-                    //     24: V -> I % W == 24 % 6 == 0 <<< ignore: V
-                    //     25: W -> I % W == 25 % 6 == 1 <<< ignore: V
-                    //     26: X -> I % W == 26 % 6 == 2
-                    //     27: c -> I % W == 27 % 6 == 3
-                    //     28: f -> I % W == 28 % 6 == 4
-                    //     29: g -> I % W == 29 % 6 == 5
-                    //     30: Y -> I % W == 30 % 6 == 0 <<< ignore: Y
-                    //     31: Z -> I % W == 31 % 6 == 1 <<< ignore: Z
-                    //     32: a -> I % W == 32 % 6 == 2
-                    //     33: h -> I % W == 33 % 6 == 3
-                    //     34: i -> I % W == 34 % 6 == 4
-                    //     35: j -> I % W == 35 % 6 == 5
-                    //
-                    // And note that the BufferBlock.index is a byte index into the buffer,
-                    // i.e. it already has Screen.depth factored into it; and note that the
-                    // BufferBlock.count refers to the number of 4-byte (UInt32) values,
-                    //
-                    // let sy = start / self._displayWidth
-                    // let sx = start % self._displayWidth
-                    let sx = start % (self._displayWidth * Screen.depth)
-                    if sx < (shiftx * Screen.depth) {
-                        continue
-                    }
-
-                    let count = block.count - shiftingx
-                    if (count > 0) {
-                        Memory.fastcopy(to: base, count: count, value: color.value)
-                    }
-                    else {
-                        //
-                        // TODO ...
-                        // Don't currently understand completely why this is needed; but if it is
-                        // not here then the far right cells are not antialiased; when shifting right.
-                        //
-                        // OH ... 
-                        // Maybe the problem is I need to apply the tricky thing above with the sx/sx thing
-                        // to each block range being written to here ... then this will fall out better ... 
-                        // 
-                        //
-                        Memory.fastcopy(to: base, count: block.count, value: color.value)
-                    }
-                }
-                else {
-                    Memory.fastcopy(to: base, count: block.count, value: color.value)
-                }
-            }
-        }
-    }
-
     public func writeCell(buffer: inout [UInt8],
                           x: Int, y: Int,
                           foreground: CellColor,
@@ -438,10 +234,10 @@ class Cells
             CellGrid.Defaults.displayScaling ? Int(round(CGFloat(value) * CGFloat(3.0))) : value
         }
 
-        let shiftX: Int = scaled(25) // scaled(shiftx)
-        let shiftY: Int = -scaled(25) // scaled(shifty)
-        let size: Int = buffer.count
+        let shiftX: Int = scaled(25)
+        let shiftY: Int = scaled(25)
         let offset: Int = ((self._cellSize * x) + shiftX + (self._cellSize * self._displayWidth * y + shiftY * self._displayWidth)) * Screen.depth
+        let size: Int = buffer.count
 
         // Cheat sheet on shifting right (shiftx > 0); shifting vertically just falls out,
         // as well as shifting horizontally left, but not so for shifting horizontally right.
@@ -509,35 +305,29 @@ class Cells
         // i.e. it already has Screen.depth factored into it; and note that
         // the BufferBlock.count refers to the number of 4-byte (UInt32) values,
 
-        for block in self._bufferBlocks.blocks {
-            if (shiftX > 0) {
-                if (x == 8) { // TODO
+        buffer.withUnsafeMutableBytes { raw in
+            guard let base = raw.baseAddress else { return }
+            for block in self._bufferBlocks.blocks {
+                if ((shiftX > 0) && (x == 8) /* TODO */ ) {
                     for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
-                        writeCellBlock(block)
+                        writeCellBlock(buffer: base, block: block)
                     }
+                    continue
                 }
-                else {
-                    writeCellBlock(block)
-                }
-                    
-            }
-            else if (shiftX < 0) {
-                if (x == 0) { // TODO
+                else if ((shiftX < 0) && (x == 0) /* TODO */ ) {
                     for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
-                        writeCellBlock(block)
+                        writeCellBlock(buffer: base, block: block)
                     }
+                    continue
                 }
-                else {
-                    writeCellBlock(block)
-                }
-            }
-            else {
-                writeCellBlock(block)
+                writeCellBlock(buffer: base, block: block)
             }
         }
 
-        func writeCellBlock(_ block: BufferBlock)  {
+        func writeCellBlock(buffer: UnsafeMutableRawPointer, block: BufferBlock)  {
             let start: Int = offset + block.index
+            guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else { return }
+            let base = buffer.advanced(by: start)
             var color: CellColor
             if (block.foreground) {
                 if (block.blend != 0.0) {
@@ -560,9 +350,8 @@ class Cells
             else {
                 color = background
             }
-            Memory.fastcopy(to: &buffer, index: start, count: block.count, value: color.value)
+            Memory.fastcopy(to: base, count: block.count, value: color.value)
         }
-
     }
 
     public var image: CGImage? {
