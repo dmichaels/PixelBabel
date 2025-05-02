@@ -45,32 +45,31 @@ class Cells
         }
 
         static func prune(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
-            let stride = 4
-            var results: [BufferBlock] = []
-            var currentBlockStart: Int? = nil
-            var currentBlockCount = 0
+            var blocks: [BufferBlock] = []
+            var start: Int? = nil
+            var count = 0
             for i in 0..<block.count {
-                let chunkStart = offset + block.index + i * stride
+                let chunkStart = offset + block.index + i * Memory.bufferBlockSize
                 if (((shiftx > 0) && (((chunkStart / 4) % width) >= shiftx)) ||
                     ((shiftx < 0) && ((chunkStart / 4) % width) < -shiftx)) {
-                    if currentBlockStart == nil {
-                        currentBlockStart = chunkStart
-                        currentBlockCount = 1
+                    if (start == nil) {
+                        start = chunkStart
+                        count = 1
                     } else {
-                        currentBlockCount += 1
+                        count += 1
                     }
-                } else {
-                    if let start = currentBlockStart {
-                        results.append(BufferBlock(index: start - offset, count: currentBlockCount, foreground: block.foreground, blend: block.blend))
-                        currentBlockStart = nil
-                        currentBlockCount = 0
-                    }
+                } else if (start != nil) {
+                    blocks.append(BufferBlock(index: start! - offset, count: count,
+                                   foreground: block.foreground, blend: block.blend))
+                    start = nil
+                    count = 0
                 }
             }
-            if let start = currentBlockStart {
-                results.append(BufferBlock(index: start - offset, count: currentBlockCount, foreground: block.foreground, blend: block.blend))
+            if (start != nil) {
+                blocks.append(BufferBlock(index: start! - offset, count: count,
+                                          foreground: block.foreground, blend: block.blend))
             }
-            return results
+            return blocks
         }
     }
 
@@ -151,7 +150,7 @@ class Cells
     // which (the display input coordinates) are always in unscaled units.
     //
     public func locate(_ screenPoint: CGPoint) -> CellGridPoint? {
-        let point = CellGridPoint(screenPoint)
+        let point: CellGridPoint = CellGridPoint(screenPoint)
         if ((point.x < 0) || (point.y < 0) ||
             (point.x >= self._displayWidthUnscaled) || (point.y >= self._displayHeightUnscaled)) {
             return nil
@@ -160,7 +159,7 @@ class Cells
     }
 
     public func cell<T: Cell>(_ screenPoint: CGPoint) -> T? {
-        if let clocation = self.locate(screenPoint) {
+        if let clocation: CellGridPoint = self.locate(screenPoint) {
             return self.cell(clocation.x, clocation.y)
         }
         return nil
@@ -187,7 +186,7 @@ class Cells
 
     public func fill(_ color: Color) {
         let pixel: CellColor = CellColor(color)
-        let count = self._buffer.count / Screen.depth
+        let count: Int = self._buffer.count / Screen.depth
         self._buffer.withUnsafeMutableBytes { raw in
             guard let buffer = raw.baseAddress else { return }
             Memory.fastcopy(to: buffer, count: count, value: pixel.value)
@@ -384,8 +383,8 @@ class Cells
 
                 if dx >= displayWidth || dy >= displayHeight { continue }
                 if dx < 0 || dy < 0 { continue }
-                let fx = Float(dx) + 0.5
-                let fy = Float(dy) + 0.5
+                let fx: Float = Float(dx) + 0.5
+                let fy: Float = Float(dy) + 0.5
                 var coverage: Float = 0.0
 
                 switch cellShape {
@@ -396,44 +395,44 @@ class Cells
                     }
 
                 case .circle:
-                    let centerX = Float(cellSize / 2)
-                    let centerY = Float(cellSize / 2)
-                    let dxsq = (fx - centerX) * (fx - centerX)
-                    let dysq = (fy - centerY) * (fy - centerY)
-                    let dist = sqrt(dxsq + dysq)
-                    let circleRadius = Float(cellSizeAdjusted) / 2.0
-                    let d = circleRadius - dist
+                    let centerX: Float = Float(cellSize / 2)
+                    let centerY: Float = Float(cellSize / 2)
+                    let dxsq: Float = (fx - centerX) * (fx - centerX)
+                    let dysq: Float = (fy - centerY) * (fy - centerY)
+                    let dist: Float = sqrt(dxsq + dysq)
+                    let circleRadius: Float = Float(cellSizeAdjusted) / 2.0
+                    let d: Float = circleRadius - dist
                     coverage = max(0.0, min(1.0, d / fadeRange))
 
                 case .rounded:
-                    let cornerRadius = Float(cellSizeAdjusted) * 0.25
-                    let cr2 = cornerRadius * cornerRadius
-                    let minX = Float(cellPaddingThickness)
-                    let minY = Float(cellPaddingThickness)
-                    let maxX = Float(cellSize - cellPaddingThickness)
-                    let maxY = Float(cellSize - cellPaddingThickness)
+                    let cornerRadius: Float = Float(cellSizeAdjusted) * 0.25
+                    let cr2: Float = cornerRadius * cornerRadius
+                    let minX: Float = Float(cellPaddingThickness)
+                    let minY: Float = Float(cellPaddingThickness)
+                    let maxX: Float = Float(cellSize - cellPaddingThickness)
+                    let maxY: Float = Float(cellSize - cellPaddingThickness)
                     if ((fx >= minX + cornerRadius) && (fx <= maxX - cornerRadius)) {
-                        if fy >= minY && fy <= maxY {
+                        if ((fy >= minY) && (fy <= maxY)) {
                             coverage = 1.0
                         }
                     } else if ((fy >= minY + cornerRadius) && (fy <= maxY - cornerRadius)) {
-                        if fx >= minX && fx <= maxX {
+                        if ((fx >= minX) && (fx <= maxX)) {
                             coverage = 1.0
                         }
                     } else {
-                        let cx = fx < minX + cornerRadius ? minX + cornerRadius :
-                                 fx > maxX - cornerRadius ? maxX - cornerRadius : fx
-                        let cy = fy < minY + cornerRadius ? minY + cornerRadius :
-                                 fy > maxY - cornerRadius ? maxY - cornerRadius : fy
-                        let dx = fx - cx
-                        let dy = fy - cy
-                        let dist = sqrt(dx * dx + dy * dy)
-                        let d = cornerRadius - dist
+                        let cx: Float = fx < (minX + cornerRadius) ? minX + cornerRadius :
+                                        fx > (maxX - cornerRadius) ? maxX - cornerRadius : fx
+                        let cy: Float = fy < (minY + cornerRadius) ? minY + cornerRadius :
+                                        fy > (maxY - cornerRadius) ? maxY - cornerRadius : fy
+                        let dx: Float = fx - cx
+                        let dy: Float = fy - cy
+                        let dist: Float = sqrt(dx * dx + dy * dy)
+                        let d: Float = cornerRadius - dist
                         coverage = max(0.0, min(1.0, d / fadeRange))
                     }
                 }
 
-                let i = (dy * displayWidth + dx) * Screen.depth
+                let i: Int = (dy * displayWidth + dx) * Screen.depth
                 if ((i >= 0) && ((i + (Screen.depth - 1)) < bufferSize)) {
                     let alpha = UInt8(Float(cellTransparency) * coverage)
                     if coverage > 0 {
