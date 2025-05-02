@@ -53,47 +53,4 @@ public struct Memory
             memset_pattern4(base, &rvalue, count * Memory.bufferBlockSize)
         }
     }
-
-    // OLDER/SLOWER VERSIONS ...
-
-    private static func xfastcopy(to buffer: inout [UInt8], index: Int, count: Int, value: UInt32) {
-        let byteIndex = index
-        let byteCount = count * Memory.bufferBlockSize
-        guard byteIndex >= 0, byteIndex + byteCount <= buffer.count else {
-            //
-            // Out of bounds.
-            //
-            return
-        }
-        var rvalue: UInt32 = value.bigEndian
-        buffer.withUnsafeMutableBytes { dest in
-            let base = dest.baseAddress!.advanced(by: byteIndex)
-            for offset in stride(from: 0, to: byteCount, by: Memory.bufferBlockSize) {
-                memcpy(base + offset, &rvalue, Memory.bufferBlockSize)
-            }
-        }
-    }
-
-    private static func xfastcopy(to base: UnsafeMutableRawPointer, count: Int, value: UInt32) {
-        let byteCount = count * Memory.bufferBlockSize
-        var rvalue: UInt32 = value.bigEndian
-        for offset in stride(from: 0, to: byteCount, by: Memory.bufferBlockSize) {
-            memcpy(base + offset, &rvalue, Memory.bufferBlockSize)
-        }
-    }
-
-    private static func yfastcopy(to buffer: inout [UInt8], index: Int, count: Int, value: UInt32) {
-        let byteIndex = index
-        let byteCount = count * Memory.bufferBlockSize
-        guard byteIndex >= 0, byteIndex + byteCount <= buffer.count else {
-            return
-        }
-        buffer.withUnsafeMutableBytes { raw in
-            let typedPtr = raw.baseAddress!.advanced(by: byteIndex).assumingMemoryBound(to: UInt32.self)
-            let rvalue = value.bigEndian
-            for i in 0..<count {
-                typedPtr[i] = rvalue
-            }
-        }
-    }
 }

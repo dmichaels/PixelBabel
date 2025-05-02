@@ -41,6 +41,71 @@ class Cells
         }
     }
 
+private func first_splitBufferBlock(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
+    let stride = 4
+    var result: [BufferBlock] = []
+
+    var currentBlockStart: Int? = nil
+    var currentBlockCount = 0
+
+    for i in 0..<block.count {
+        let startIndex = offset + block.index + i * stride
+        if (startIndex / 4) % width >= shiftx {
+            if currentBlockStart == nil {
+                // currentBlockStart = startIndex
+                currentBlockStart = startIndex
+                currentBlockCount = 1
+            } else {
+                currentBlockCount += 1
+            }
+        } else if let start = currentBlockStart {
+            result.append(BufferBlock(index: start, count: currentBlockCount))
+            currentBlockStart = nil
+            currentBlockCount = 0
+        }
+    }
+
+    if let start = currentBlockStart, currentBlockCount > 0 {
+        result.append(BufferBlock(index: start, count: currentBlockCount))
+    }
+
+    return result
+}
+private func splitBufferBlock(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int, debug: Bool = false) -> [BufferBlock] {
+    let stride = 4
+    var results: [BufferBlock] = []
+
+    var currentBlockStart: Int? = nil
+    var currentBlockCount = 0
+
+    for i in 0..<block.count {
+        let chunkStart = offset + block.index + i * stride
+        if (chunkStart / 4) % width >= shiftx {
+            if currentBlockStart == nil {
+                currentBlockStart = chunkStart
+                currentBlockCount = 1
+            } else {
+                currentBlockCount += 1
+            }
+        } else {
+            if debug {
+                print("NONO: \(chunkStart) sx: \(chunkStart % width) dw: \(width)")
+            }
+            if let start = currentBlockStart {
+                results.append(BufferBlock(index: start, count: currentBlockCount))
+                currentBlockStart = nil
+                currentBlockCount = 0
+            }
+        }
+    }
+
+    if let start = currentBlockStart {
+        results.append(BufferBlock(index: start, count: currentBlockCount))
+    }
+
+    return results
+}
+
     private let _displayWidth: Int
     private let _displayHeight: Int
     private let _displayWidthUnscaled: Int
@@ -172,14 +237,14 @@ class Cells
         self.writeCell(buffer: &self._buffer, x: x, y: y, foreground: foreground, background: background, limit: limit)
     }
 
-    public func writeCell(buffer: inout [UInt8], x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
+    public func save_writeCell(buffer: inout [UInt8], x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
 
         func scaled(_ value: Int) -> Int {
             CellGrid.Defaults.displayScaling ? Int(round(CGFloat(value) * CGFloat(3.0))) : value
         }
 
         let shiftx: Int = scaled(25) // scaled(10)
-        let shifty: Int = scaled(0)
+        let shifty: Int = 0 // scaled(25)
         var shiftingx: Int = 0
         var shiftingxr: Int = 0
 
@@ -231,6 +296,24 @@ class Cells
                 else {
                     color = background
                 }
+
+                /*
+                let sx = start % self._displayWidth
+                let blockStart = block.index + offset
+                let blockEnd = blockStart + block.count - 1
+                if blockEnd < (sx * Screen.depth) {
+                    continue
+                }
+                let skipCount = max(0, (shiftx * 4) - blockStart)
+                if skipCount > 0 {
+                    var x = 1
+                }
+                let adjustedIndex = blockStart + skipCount
+                let adjustedCount = block.count - skipCount
+                let base: UnsafeMutableRawPointer = bufferAddress.advanced(by: adjustedIndex)
+                Memory.fastcopy(to: base, count: adjustedCount, value: color.value)
+                */
+
                 if ((shiftx > 0) && (x == (self.ncolumns - 1))) {
 
                     // Cheat sheet. For example, given the below (WxH) grid,
@@ -294,10 +377,13 @@ class Cells
                     //     34: i -> I % W == 34 % 6 == 4
                     //     35: j -> I % W == 35 % 6 == 5
                     //
-                    // And note that the BufferBlock.index already has Screen.depth factored into it,
+                    // And note that the BufferBlock.index is a byte index into the buffer,
+                    // i.e. it already has Screen.depth factored into it; and note that the
+                    // BufferBlock.count refers to the number of 4-byte (UInt32) values,
                     //
-                    let sy = start / self._displayWidth
-                    let sx = start % self._displayWidth
+                    // let sy = start / self._displayWidth
+                    // let sx = start % self._displayWidth
+                    let sx = start % (self._displayWidth * Screen.depth)
                     if sx < (shiftx * Screen.depth) {
                         continue
                     }
@@ -325,6 +411,181 @@ class Cells
                 }
             }
         }
+    }
+
+    public func simple_writeCell(buffer: inout [UInt8], x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
+
+        let size: Int = buffer.count
+        let offset: Int = ((self._cellSize * x) + 0 + (self._cellSize * self._displayWidth * y + 0 * self._displayWidth)) * Screen.depth
+
+        for block in self._bufferBlocks.blocks {
+            let start: Int = offset + block.index
+            var color: CellColor
+            if (block.foreground) {
+                if (block.blend != 0.0) {
+                    color = CellColor(Cells.blend(foreground.red,   background.red,   amount: block.blend),
+                                      Cells.blend(foreground.green, background.green, amount: block.blend),
+                                      Cells.blend(foreground.blue,  background.blue,  amount: block.blend),
+                                      alpha: foreground.alpha)
+                }
+                else {
+                    color = foreground
+                }
+            }
+            else if (limit) {
+                //
+                // Limit the write to only the foreground; can be useful
+                // for performance as background normally doesn't change.
+                //
+                continue
+            }
+            else {
+                color = background
+            }
+            for i in stride(from: 0, to: block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
+                buffer[start + i] = color.red
+                buffer[start + i + 1] = color.green
+                buffer[start + i + 2] = color.blue
+                buffer[start + i + 3] = color.alpha
+            }
+        }
+    }
+
+    public func experimental_writeCell(buffer: inout [UInt8], x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
+
+        func scaled(_ value: Int) -> Int {
+            CellGrid.Defaults.displayScaling ? Int(round(CGFloat(value) * CGFloat(3.0))) : value
+        }
+
+        let shiftx: Int = scaled(25)
+        let shifty: Int = scaled(25)
+        let size: Int = buffer.count
+        let offset: Int = ((self._cellSize * x) + shiftx + (self._cellSize * self._displayWidth * y + shifty * self._displayWidth)) * Screen.depth
+
+        for block in self._bufferBlocks.blocks {
+            let start: Int = offset + block.index
+            var color: CellColor
+            if (block.foreground) {
+                if (block.blend != 0.0) {
+                    color = CellColor(Cells.blend(foreground.red,   background.red,   amount: block.blend),
+                                      Cells.blend(foreground.green, background.green, amount: block.blend),
+                                      Cells.blend(foreground.blue,  background.blue,  amount: block.blend),
+                                      alpha: foreground.alpha)
+                }
+                else {
+                    color = foreground
+                }
+            }
+            else if (limit) {
+                //
+                // Limit the write to only the foreground; can be useful
+                // for performance as background normally doesn't change.
+                //
+                continue
+            }
+            else {
+                color = background
+            }
+
+
+            for i in stride(from: start, to: start + block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
+                if ((i + 3) < size) {
+                    if (shiftx > 0) {
+                        let sx = (i / 4) % self._displayWidth
+                        if (sx < shiftx) {
+                            continue
+                        }
+                    }
+                    buffer[i] = color.red
+                    buffer[i + 1] = color.green
+                    buffer[i + 2] = color.blue
+                    buffer[i + 3] = color.alpha
+                }
+            }
+/*
+            Memory.fastcopy(to: &buffer, index: start, count: block.count, value: color.value)
+*/
+        }
+
+    }
+    public func writeCell(buffer: inout [UInt8], x: Int, y: Int, foreground: CellColor, background: CellColor, limit: Bool = false) {
+
+        func scaled(_ value: Int) -> Int {
+            CellGrid.Defaults.displayScaling ? Int(round(CGFloat(value) * CGFloat(3.0))) : value
+        }
+
+        let shiftx: Int = scaled(25)
+        let shifty: Int = scaled(25)
+        let size: Int = buffer.count
+        let offset: Int = ((self._cellSize * x) + shiftx + (self._cellSize * self._displayWidth * y + shifty * self._displayWidth)) * Screen.depth
+
+        for block in self._bufferBlocks.blocks {
+            if (false && shiftx > 0) {
+                let sblocks = splitBufferBlock(block, offset: offset, width: self._displayWidth, shiftx: shiftx, debug: y == 0 && x == 8)
+                if sblocks.count == 0 {
+                    writeCellBlock(block, ignoreShiftx: true)
+                }
+                else {
+                    for sblock in sblocks {
+                        // writeCellBlock(sblock, ignoreShiftx: true)
+                        writeCellBlock(block) 
+                        break
+                    }
+                }
+            }
+            else {
+                writeCellBlock(block) 
+            }
+        }
+
+        func writeCellBlock(_ block: BufferBlock, ignoreShiftx: Bool = false)  {
+            let start: Int = offset + block.index
+            var color: CellColor
+            if (block.foreground) {
+                if (block.blend != 0.0) {
+                    color = CellColor(Cells.blend(foreground.red,   background.red,   amount: block.blend),
+                                      Cells.blend(foreground.green, background.green, amount: block.blend),
+                                      Cells.blend(foreground.blue,  background.blue,  amount: block.blend),
+                                      alpha: foreground.alpha)
+                }
+                else {
+                    color = foreground
+                }
+            }
+            else if (limit) {
+                //
+                // Limit the write to only the foreground; can be useful
+                // for performance as background normally doesn't change.
+                //
+                return
+            }
+            else {
+                color = background
+            }
+
+
+            for i in stride(from: start, to: start + block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
+                if ((i + 3) < size) {
+                    if (shiftx > 0 && !ignoreShiftx) {
+                        let sx = (i / 4) % self._displayWidth
+                        if (sx < shiftx) {
+                            if y == 0 && x == 8 {
+                                print("nono: \(i) i/4: \(i/4) sx: \(sx) dw: \(self._displayWidth)")
+                            }
+                            continue
+                        }
+                    }
+                    buffer[i] = color.red
+                    buffer[i + 1] = color.green
+                    buffer[i + 2] = color.blue
+                    buffer[i + 3] = color.alpha
+                }
+            }
+/*
+            Memory.fastcopy(to: &buffer, index: start, count: block.count, value: color.value)
+*/
+        }
+
     }
 
     public var image: CGImage? {
@@ -363,24 +624,16 @@ class Cells
             cellPaddingThickness = cellPadding
         }
 
-        let endX = cellSize
-        let endY = cellSize
         let cellSizeAdjusted = cellSize - (2 * cellPaddingThickness)
-        let centerX = Float(cellSize / 2)
-        let centerY = Float(cellSize / 2)
-        let circleRadius = Float(cellSizeAdjusted) / 2.0
-        let radiusSquared = circleRadius * circleRadius
         let fadeRange: Float = 0.6 // smaller is smoother
 
         for dy in 0..<cellSize {
             for dx in 0..<cellSize {
 
-                let ix = dx
-                let iy = dy
-                if ix >= displayWidth || iy >= displayHeight { continue }
-                if ix < 0 || iy < 0 { continue }
-                let fx = Float(ix) + 0.5
-                let fy = Float(iy) + 0.5
+                if dx >= displayWidth || dy >= displayHeight { continue }
+                if dx < 0 || dy < 0 { continue }
+                let fx = Float(dx) + 0.5
+                let fy = Float(dy) + 0.5
                 var coverage: Float = 0.0
 
                 switch cellShape {
@@ -391,9 +644,12 @@ class Cells
                     }
 
                 case .circle:
+                    let centerX = Float(cellSize / 2)
+                    let centerY = Float(cellSize / 2)
                     let dxsq = (fx - centerX) * (fx - centerX)
                     let dysq = (fy - centerY) * (fy - centerY)
                     let dist = sqrt(dxsq + dysq)
+                    let circleRadius = Float(cellSizeAdjusted) / 2.0
                     let d = circleRadius - dist
                     coverage = max(0.0, min(1.0, d / fadeRange))
 
@@ -402,8 +658,8 @@ class Cells
                     let cr2 = cornerRadius * cornerRadius
                     let minX = Float(cellPaddingThickness)
                     let minY = Float(cellPaddingThickness)
-                    let maxX = Float(endX - cellPaddingThickness)
-                    let maxY = Float(endY - cellPaddingThickness)
+                    let maxX = Float(cellSize - cellPaddingThickness)
+                    let maxY = Float(cellSize - cellPaddingThickness)
                     if ((fx >= minX + cornerRadius) && (fx <= maxX - cornerRadius)) {
                         if fy >= minY && fy <= maxY {
                             coverage = 1.0
@@ -425,7 +681,7 @@ class Cells
                     }
                 }
 
-                let i = (iy * displayWidth + ix) * Screen.depth
+                let i = (dy * displayWidth + dx) * Screen.depth
                 if ((i >= 0) && ((i + (Screen.depth - 1)) < bufferSize)) {
                     let alpha = UInt8(Float(cellTransparency) * coverage)
                     if coverage > 0 {
