@@ -213,8 +213,8 @@ class Cells
             CellGrid.Defaults.displayScaling ? Int(round(CGFloat(value) * CGFloat(3.0))) : value
         }
 
-        let shiftX: Int = scaled(25) + scaled(shiftx)
-        let shiftY: Int = scaled(25) + scaled(shifty)
+        let shiftX: Int = scaled(shiftx)
+        let shiftY: Int = scaled(shifty)
         let offset: Int = ((self._cellSize * x) + shiftX + (self._cellSize * self._displayWidth * y + shiftY * self._displayWidth)) * Screen.depth
         let size: Int = buffer.count
 

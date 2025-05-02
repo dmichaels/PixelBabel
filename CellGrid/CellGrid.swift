@@ -194,7 +194,7 @@ class CellGrid: ObservableObject
         self._cellBackground
     }
 
-    var _dragStart: CGPoint?
+    var _dragPoint: CGPoint?
 
     public func onDrag(_ location: CGPoint) {
         /*
@@ -226,15 +226,30 @@ class CellGrid: ObservableObject
 
         var shiftx: Int = 0
         var shifty: Int = 0
-        if (self._dragStart == nil) {
-            self._dragStart = location
+        if (self._dragPoint == nil) {
+            self._dragPoint = location
         }
         else {
-            shiftx = Int(location.x) - Int(self._dragStart!.x)
-            shifty = Int(location.y) - Int(self._dragStart!.y)
+            shiftx = Int(location.x) - Int(self._dragPoint!.x)
+            shifty = Int(location.y) - Int(self._dragPoint!.y)
+            // self._dragPoint = location
             print("SHIFT: \(shiftx) \(shifty)")
         }
         if let cell: LifeCell = self._cells?.cell(location) {
+
+        self._cells = Cells(displayWidth: self._displayWidth,
+                            displayHeight: self._displayHeight,
+                            displayScale: self._displayScale,
+                            displayScaling: self._displayScaling,
+                            cellSize: self._cellSize / 4,
+                            cellPadding: self._cellPadding,
+                            cellShape: self._cellShape,
+                            cellTransparency: Defaults.displayTransparency,
+                            cellBleed: Defaults.cellBleed,
+                            cellForeground: CellColor.white,
+                            cellBackground: self._cellBackground,
+                            cellFactory: self._cellFactory)
+
             if ((self._dragCell == nil) || (self._dragCell!.location != cell.location)) {
                 let start = Date()
                 self._cells!.fill(self._cellBackground)
@@ -250,7 +265,7 @@ class CellGrid: ObservableObject
     }
 
     public func onDragEnd(_ location: CGPoint) {
-        self._dragStart = nil
+        self._dragPoint = nil
         /*
         if let cell = self._cells?.cell(location) {
             self._dragCell = nil
