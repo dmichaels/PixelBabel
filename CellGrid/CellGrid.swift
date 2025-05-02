@@ -194,6 +194,8 @@ class CellGrid: ObservableObject
         self._cellBackground
     }
 
+    var _dragStart: CGPoint?
+
     public func onDrag(_ location: CGPoint) {
         /*
         if let cell = self._cells?.cell(location) {
@@ -204,15 +206,51 @@ class CellGrid: ObservableObject
             }
         }
         */
+        /*
         if let cell: LifeCell = self._cells?.cell(location) {
             if ((self._dragCell == nil) || (self._dragCell!.location != cell.location)) {
                 cell.toggle()
                 self._dragCell = cell
             }
         }
+        */
+            let x = location.x
+            let y = location.y
+            let gp = self._cells!.locate(location)
+            let gx = (gp != nil) ? gp!.x : -1
+            let gy = (gp != nil) ? gp!.y : -1
+            let c = self._cells!.cell(location)
+            let cx = (c != nil) ? c!.x : -1
+            let cy = (c != nil) ? c!.y : -1
+            print("DRAG: [\(String(format: "%.1f", x)),\(String(format: "%.1f", y))] -> [\(gx),\(gy)] -> (\(cx),\(cy)]")
+
+        var shiftx: Int = 0
+        var shifty: Int = 0
+        if (self._dragStart == nil) {
+            self._dragStart = location
+        }
+        else {
+            shiftx = Int(location.x) - Int(self._dragStart!.x)
+            shifty = Int(location.y) - Int(self._dragStart!.y)
+            print("SHIFT: \(shiftx) \(shifty)")
+        }
+        if let cell: LifeCell = self._cells?.cell(location) {
+            if ((self._dragCell == nil) || (self._dragCell!.location != cell.location)) {
+                let start = Date()
+                self._cells!.fill(self._cellBackground)
+                for cell in self._cells!.cells {
+                    self._cells!.writeCell(x: cell.x, y: cell.y,
+                                           shiftx: shiftx, shifty: shifty,
+                                           foreground: cell.foreground, background: cell.background,
+                                           limit: false)
+                }
+                print(String(format: "DRAW-TIME: %.5fs", Date().timeIntervalSince(start)))
+            }
+        }
     }
 
     public func onDragEnd(_ location: CGPoint) {
+        self._dragStart = nil
         /*
         if let cell = self._cells?.cell(location) {
             self._dragCell = nil

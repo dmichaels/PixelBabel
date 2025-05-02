@@ -194,26 +194,27 @@ class Cells
     }
 
     func writeCell(x: Int, y: Int,
-                   foreground: CellColor, background: CellColor,
                    shiftx: Int = 0, shifty: Int = 0,
+                   foreground: CellColor, background: CellColor,
                    limit: Bool = false) {
         self.writeCell(buffer: &self._buffer, x: x, y: y,
+                       shiftx: shiftx, shifty: shifty,
                        foreground: foreground, background: background,
-                       shiftx: shiftx, shifty: shifty, limit: limit)
+                       limit: limit)
     }
 
     private func writeCell(buffer: inout [UInt8],
                           x: Int, y: Int,
-                          foreground: CellColor, background: CellColor,
                           shiftx: Int = 0, shifty: Int = 0,
+                          foreground: CellColor, background: CellColor,
                           limit: Bool = false)
     {
         func scaled(_ value: Int) -> Int {
             CellGrid.Defaults.displayScaling ? Int(round(CGFloat(value) * CGFloat(3.0))) : value
         }
 
-        let shiftX: Int = scaled(25)
-        let shiftY: Int = scaled(25)
+        let shiftX: Int = scaled(25) + scaled(shiftx)
+        let shiftY: Int = scaled(25) + scaled(shifty)
         let offset: Int = ((self._cellSize * x) + shiftX + (self._cellSize * self._displayWidth * y + shiftY * self._displayWidth)) * Screen.depth
         let size: Int = buffer.count
 
