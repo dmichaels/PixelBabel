@@ -44,23 +44,33 @@ class Cells
             }
         }
 
+        // Returns a new BufferBlock list for this/self one (possibly empty) which eliminates indices
+        // which correspond to a shifting left or right by the given (shiftx) amount; this was tricky.
+        //
         static func prune(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
             var blocks: [BufferBlock] = []
             var start: Int? = nil
             var count = 0
+            let shiftw = (shiftx > 0) ? shiftx : ((shiftx < 0) ? (width + shiftx) : 0)
             for i in 0..<block.count {
-                let chunkStart = offset + block.index + i * Memory.bufferBlockSize
-                if (((shiftx > 0) && (((chunkStart / 4) % width) >= shiftx)) ||
-                    ((shiftx < 0) && ((chunkStart / 4) % width) < (width + shiftx))) {
+                let starti = offset + block.index + i * Memory.bufferBlockSize
+                let shift = (starti / Memory.bufferBlockSize) % width
+                //
+                // This the below uncommented if-expression was suggested by ChatGPT as a simplification
+                // of this if-expression; it is still not entirely clear to me why/how these are equivalent:
+                //
+                //  (((shiftx > 0) && (shift >= shiftw)) || ((shiftx < 0) && (shift < shiftw)))
+                //
+                if ((shiftx != 0) && ((shiftx > 0) == (shift >= shiftw))) {
                     if (start == nil) {
-                        start = chunkStart
+                        start = starti
                         count = 1
                     } else {
                         count += 1
                     }
                 } else if (start != nil) {
                     blocks.append(BufferBlock(index: start! - offset, count: count,
-                                   foreground: block.foreground, blend: block.blend))
+                                              foreground: block.foreground, blend: block.blend))
                     start = nil
                     count = 0
                 }
