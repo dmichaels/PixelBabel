@@ -45,7 +45,8 @@ class Cells
         }
 
         // Returns a new BufferBlock list for this/self one (possibly empty) which eliminates indices
-        // which correspond to a shifting left or right by the given (shiftx) amount; this was tricky.
+        // which correspond to a shifting left or right by the given (shiftx) amount; this was tricky,
+        // due to the row-major organization of grid cells/pixels in the one-dimensional buffer array.
         //
         static func prune(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
             var blocks: [BufferBlock] = []
