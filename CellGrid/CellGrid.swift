@@ -12,11 +12,11 @@ class CellGrid: ObservableObject
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 43 // 18 // 43 // 32 // 8 // 83 // 43 // 37 // 35
+        public static let cellSize: Int = 43
         public static let cellSizeNeat: Bool = true
-        public static let cellPadding: Int = 1 // 1
+        public static let cellPadding: Int = 1
         public static let cellBleed: Bool = false
-        public static let cellShape: CellShape = CellShape.rounded // CellShape.square // CellShape.rounded
+        public static let cellShape: CellShape = CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color
         public static let cellForeground: CellColor = CellColor.black
         public static let cellBackground: CellColor = CellColor(40, 40, 40)
@@ -51,7 +51,7 @@ class CellGrid: ObservableObject
 
     init(cellFactory: Cell.Factory? = nil) {
         self._cellFactory = cellFactory
-        print("PIXELMAP-CONSTRUCTOR!!!")
+        print("PIXELMAP-CONSTRUCTOR")
     }
 
     func configure(screen: Screen,
@@ -71,7 +71,7 @@ class CellGrid: ObservableObject
         // e.g. one-to-three on iPhone 15, by default, but only if rending rounded rectangles are
         // circles for smoother curves; no need for squares (inset or not).
 
-        print("PIXELMAP-CONFIGURE!!!")
+        print("PIXELMAP-CONFIGURE")
         self._displayScale = screen.scale
         self._displayScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : displayScaling
         self._displayWidth = self.scaled(displayWidth)
