@@ -44,34 +44,6 @@ class Cells
             }
         }
 
-        static func old_prune(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
-            var blocks: [BufferBlock] = []
-            var start: Int? = nil
-            var count = 0
-            for i in 0..<block.count {
-                let chunkStart = offset + block.index + i * Memory.bufferBlockSize
-                if (((shiftx > 0) && (((chunkStart / 4) % width) >= shiftx)) ||
-                    ((shiftx < 0) && ((chunkStart / 4) % width) < -shiftx)) {
-                    if (start == nil) {
-                        start = chunkStart
-                        count = 1
-                    } else {
-                        count += 1
-                    }
-                } else if (start != nil) {
-                    blocks.append(BufferBlock(index: start! - offset, count: count,
-                                   foreground: block.foreground, blend: block.blend))
-                    start = nil
-                    count = 0
-                }
-            }
-            if (start != nil) {
-                blocks.append(BufferBlock(index: start! - offset, count: count,
-                                          foreground: block.foreground, blend: block.blend))
-            }
-            return blocks
-        }
-
         static func prune(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
             var blocks: [BufferBlock] = []
             var start: Int? = nil
@@ -339,7 +311,9 @@ class Cells
                         }
                         continue
                     }
-                    if x < shiftc { continue }
+                    else if (x < shiftc) {
+                        continue
+                    }
                 }
                 writeCellBlock(buffer: base, block: block)
             }
