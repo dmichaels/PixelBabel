@@ -73,6 +73,7 @@ class Cells
         }
     }
 
+    private let _grid: CellGrid
     private let _displayWidth: Int
     private let _displayHeight: Int
     private let _displayWidthUnscaled: Int
@@ -91,7 +92,8 @@ class Cells
     private var _buffer: [UInt8]
     private let _bufferBlocks: BufferBlocks
 
-    init(displayWidth: Int,
+    init(grid: CellGrid,
+         displayWidth: Int,
          displayHeight: Int,
          displayScale: CGFloat,
          displayScaling: Bool,
@@ -108,18 +110,15 @@ class Cells
         // and that displayScaling is set correspondingly correctly; we only need to unscale
         // to map screen input (tap etc) locations since these are always unscaled.
 
-        func unscaled(_ value: Int) -> Int {
-            return displayScaling ? Int(round(CGFloat(value) / displayScale)) : value
-        }
-
-        self._displayWidth = displayWidth
-        self._displayHeight = displayHeight
-        self._displayWidthUnscaled = unscaled(displayWidth)
-        self._displayHeightUnscaled = unscaled(displayHeight)
+        self._grid = grid
         self._displayScale = displayScale
         self._displayScaling = displayScaling
+        self._displayWidth = displayWidth
+        self._displayHeight = displayHeight
+        self._displayWidthUnscaled = grid.unscaled(displayWidth)
+        self._displayHeightUnscaled = grid.unscaled(displayHeight)
         self._cellSize = cellSize
-        self._cellSizeUnscaled = unscaled(cellSize)
+        self._cellSizeUnscaled = grid.unscaled(cellSize)
         self._cellPadding = cellPadding
         self._cellShape = cellShape
         self._cellTransparency = cellTransparency
@@ -209,12 +208,8 @@ class Cells
                           foreground: CellColor, background: CellColor,
                           limit: Bool = false)
     {
-        func scaled(_ value: Int) -> Int {
-            CellGrid.Defaults.displayScaling ? Int(round(CGFloat(value) * CGFloat(3.0))) : value
-        }
-
-        let shiftX: Int = scaled(shiftx)
-        let shiftY: Int = scaled(shifty)
+        let shiftX: Int = self._grid.scaled(shiftx)
+        let shiftY: Int = self._grid.scaled(shifty)
         let offset: Int = ((self._cellSize * x) + shiftX + (self._cellSize * self._displayWidth * y + shiftY * self._displayWidth)) * Screen.depth
         let size: Int = buffer.count
 
