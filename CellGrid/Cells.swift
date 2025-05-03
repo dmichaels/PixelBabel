@@ -261,15 +261,17 @@ class Cells
         //     +---+---+---+---+---+---+
         //     | S | T | U | b | c | d | 3
         //     +---+---+---+---+---+---+
-        //     | V | W | X | c | f | g | 4
+        //     | V | W | X | e | f | g | 4
         //     +---+---+---+---+---+---+
         //     | Y | Z | a | h | i | j | 5
         //     +---+---+---+---+---+---+
         //       ^   ^ 
         //       |   |
         //       -   -
-        // If we want to ignore the 2 (S) left-most columns due to right shift, then
-        // we want to ignore (i.e. not write) buffer indices (I) where: I % W < S ...
+        // If we want to ignore the 2 (S) left-most columns due to right shift,
+        // then we want to ignore (i.e. not write) buffer indices (I) where: I % W < S
+        // Conversely, if we want to ignore the 2 (S) right-most columns due to left shift,
+        // then we want to ignore (i.e. not write) buffer indices (I) where: (I % W) >= (W - S)
         //
         //      0: A -> I % W ==  0 % 6 == 0 <<< ignore: A
         //      1: B -> I % W ==  1 % 6 == 1 <<< ignore: B
@@ -298,7 +300,7 @@ class Cells
         //     24: V -> I % W == 24 % 6 == 0 <<< ignore: V
         //     25: W -> I % W == 25 % 6 == 1 <<< ignore: V
         //     26: X -> I % W == 26 % 6 == 2
-        //     27: c -> I % W == 27 % 6 == 3
+        //     27: e -> I % W == 27 % 6 == 3
         //     28: f -> I % W == 28 % 6 == 4
         //     29: g -> I % W == 29 % 6 == 5
         //     30: Y -> I % W == 30 % 6 == 0 <<< ignore: Y
