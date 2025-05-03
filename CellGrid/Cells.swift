@@ -457,7 +457,6 @@ class Cells
 
                 let i: Int = (dy * displayWidth + dx) * Screen.depth
                 if ((i >= 0) && ((i + (Screen.depth - 1)) < bufferSize)) {
-                    // let alpha = UInt8(Float(cellTransparency) * coverage)
                     if (coverage > 0) {
                         bufferBlocks.append(index: i, foreground: true, blend: coverage)
 
