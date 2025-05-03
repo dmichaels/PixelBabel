@@ -241,12 +241,12 @@ class Cells
             CellGrid.Defaults.displayScaling ? Int(round(CGFloat(value) * CGFloat(3.0))) : value
         }
 
-        // let shiftX: Int = scaled(shiftx)
+        let shiftX: Int = scaled(shiftx)
         // let shiftX: Int = -scaled(22) // ok
         // let shiftX: Int = -scaled(21) // ok
         // let shiftX: Int = -scaled(20) // not ok
         // let shiftX: Int = -scaled(19) // not ok - and also on the right
-        let shiftX: Int = -scaled(11) // not ok - on the right 
+        // let shiftX: Int = -scaled(11) // not ok - on the right 
         // let shiftX: Int = -scaled(4) // not ok - on the right 
         // let shiftX: Int = -scaled(3) // not ok - on the right 
         // let shiftX: Int = -scaled(2) // not ok - on the right
@@ -256,7 +256,9 @@ class Cells
         // let shiftX: Int = -scaled(44) // seems ok
         // let shiftX: Int = -scaled(50) // seems ok
         // let shiftX: Int = -scaled(90) // seems ok
-        // let shiftX: Int = -scaled(135) // seems ok
+        // let shiftX: Int = -scaled(140) // seems ok
+        // let shiftX: Int = -scaled(172) // seems ok
+        // let shiftX: Int = -scaled(22)
         let shiftY: Int = scaled(shifty)
         let offset: Int = ((self._cellSize * x) + shiftX + (self._cellSize * self._displayWidth * y + shiftY * self._displayWidth)) * Screen.depth
         let size: Int = buffer.count
@@ -365,18 +367,38 @@ class Cells
                 //
                 // if shiftx == -scaled(90) then do: if (x == 1) { continue } ... and ... if (x == 2) { prune... }
                 // if shiftx == -scaled(135) then do: if (x == 1) { continue } ... and ... if (x == 2 || x == 3) { prune... }
-                // if shiftx == -scaled(135) then do: if (x == 1 || x == 2) { continue } ... and ... if (x == 2 || x == 3) { prune... }
+                // if shiftx == -scaled(135) do: if (x == 1 || x == 2) { continue } ... and ... if (x == 2 || x == 3) { prune... }
+                //
+                // ... post important fix in prune ...
+                // for -25  (shiftx/cellSize=0) use if x == 0 prune...
+                // for -22  (shiftx/cellSize=0) use if x == 0 prune...
+                // for -20  (shiftx/cellSize=0) use if x == 0 prune...
+                // for -30  (shiftx/cellSize=0) use if x == 0 prune...
+                // for -40  (shiftx/cellSize=0) use if x == 0 prune...
+                // for -42  (shiftx/cellSize=0) use if x == 0 prune...
+                // for -43  (shiftx/cellSize=1) use if x == 0 prune... also ok
+                // for -43  (shiftx/cellSize=1) use if x == 1 prune... and if x == 0
+                // for -44  (shiftx/cellSize=1) use if x == 0 prune... also ok
+                // for -44  (shiftx/cellSize=1) use if x == 1 prune... and if x == 0
+                // for -45  (shiftx/cellSize=1) use if x == 1 prune... and if x == 0
+                // for -48  (shiftx/cellSize=1) use if x == 1 prune... and if x == 0
+                // for -80  (shiftx/cellSize=1) use if x == 1 prune... and if x == 0
+                // for -86  (shiftx/cellSize=2) use if x == 2 prune... and if x == 0 || x == 1
+                // for -87  (shiftx/cellSize=2) use if x == 2 prune... and if x == 0 || x == 1
+                // for -88  (shiftx/cellSize=2) use if x == 2 prune... and if x == 0 || x == 1
+                // for -135 (shiftx/cellSize=3) use if x == 3 prune... and if x == 0 || x == 1 || x == 2
+                // for -145 (shiftx/cellSize=3) use if x == 3 prune... and if x == 0 || x == 1 || x == 2
+                // for -175 (shiftx/cellSize=4) use if x == 4 prune... and if x == 0 || x == 1 || x == 2 || x == 3
                 else if (shiftX < 0) {
-                    // if (x == 2) { continue }
-                    let shiftc: Int = (shiftX / self._cellSize) + 1
-                    let shiftcr: Int = self.ncolumns + shiftc
-                    if (x == 0) /* TODO */ {
+                    let shiftc: Int = (-shiftX / self._cellSize)
+                    if (x == shiftc) /* TODO */ {
                         // for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: -(shiftX + 1)) {
                         for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
                             writeCellBlock(buffer: base, block: block)
                         }
                         continue
                     }
+                    if x < shiftc { continue }
                 }
                 writeCellBlock(buffer: base, block: block)
             }
