@@ -44,7 +44,7 @@ class Cells
             }
         }
 
-        static func prune(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
+        static func old_prune(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
             var blocks: [BufferBlock] = []
             var start: Int? = nil
             var count = 0
@@ -52,6 +52,34 @@ class Cells
                 let chunkStart = offset + block.index + i * Memory.bufferBlockSize
                 if (((shiftx > 0) && (((chunkStart / 4) % width) >= shiftx)) ||
                     ((shiftx < 0) && ((chunkStart / 4) % width) < -shiftx)) {
+                    if (start == nil) {
+                        start = chunkStart
+                        count = 1
+                    } else {
+                        count += 1
+                    }
+                } else if (start != nil) {
+                    blocks.append(BufferBlock(index: start! - offset, count: count,
+                                   foreground: block.foreground, blend: block.blend))
+                    start = nil
+                    count = 0
+                }
+            }
+            if (start != nil) {
+                blocks.append(BufferBlock(index: start! - offset, count: count,
+                                          foreground: block.foreground, blend: block.blend))
+            }
+            return blocks
+        }
+
+        static func prune(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
+            var blocks: [BufferBlock] = []
+            var start: Int? = nil
+            var count = 0
+            for i in 0..<block.count {
+                let chunkStart = offset + block.index + i * Memory.bufferBlockSize
+                if (((shiftx > 0) && (((chunkStart / 4) % width) >= shiftx)) ||
+                    ((shiftx < 0) && ((chunkStart / 4) % width) < (width + shiftx))) {
                     if (start == nil) {
                         start = chunkStart
                         count = 1
@@ -213,7 +241,22 @@ class Cells
             CellGrid.Defaults.displayScaling ? Int(round(CGFloat(value) * CGFloat(3.0))) : value
         }
 
-        let shiftX: Int = scaled(shiftx)
+        // let shiftX: Int = scaled(shiftx)
+        // let shiftX: Int = -scaled(22) // ok
+        // let shiftX: Int = -scaled(21) // ok
+        // let shiftX: Int = -scaled(20) // not ok
+        // let shiftX: Int = -scaled(19) // not ok - and also on the right
+        let shiftX: Int = -scaled(11) // not ok - on the right 
+        // let shiftX: Int = -scaled(4) // not ok - on the right 
+        // let shiftX: Int = -scaled(3) // not ok - on the right 
+        // let shiftX: Int = -scaled(2) // not ok - on the right
+        // let shiftX: Int = -scaled(1) // not ok - on the right
+        // let shiftX: Int = -scaled(42) // seems ok
+        // let shiftX: Int = -scaled(43) // seems ok
+        // let shiftX: Int = -scaled(44) // seems ok
+        // let shiftX: Int = -scaled(50) // seems ok
+        // let shiftX: Int = -scaled(90) // seems ok
+        // let shiftX: Int = -scaled(135) // seems ok
         let shiftY: Int = scaled(shifty)
         let offset: Int = ((self._cellSize * x) + shiftX + (self._cellSize * self._displayWidth * y + shiftY * self._displayWidth)) * Screen.depth
         let size: Int = buffer.count
@@ -240,8 +283,8 @@ class Cells
         //       ^   ^ 
         //       |   |
         //       -   -
-        // If we want to ignore these (say) 2 left-most columns (s) due to right shift,
-        // then we want to ignore (i.e. not write) buffer indices (I) where: I % W < S ...
+        // If we want to ignore the 2 (S) left-most columns due to right shift, then
+        // we want to ignore (i.e. not write) buffer indices (I) where: I % W < S ...
         //
         //      0: A -> I % W ==  0 % 6 == 0 <<< ignore: A
         //      1: B -> I % W ==  1 % 6 == 1 <<< ignore: B
@@ -284,20 +327,56 @@ class Cells
         // i.e. it already has Screen.depth factored into it; and note that
         // the BufferBlock.count refers to the number of 4-byte (UInt32) values,
 
+        /*
+        if (shiftX > 0) {
+            // let shiftc: Int = self.ncolumns - (shiftX / (self._cellSize - 0))
+            let shiftc: Int = (shiftX / self._cellSize) + 1
+            let shiftcr: Int = self.ncolumns - shiftc
+            print("XX: x: \(x) shiftX: \(shiftX) cellSize: \(self._cellSize) ncolumns: \(self.ncolumns) shiftc: \(shiftc) shiftcr: \(shiftcr)")
+        }
+        */
+        if (shiftX < 0) {
+            let shiftc: Int = (shiftX / self._cellSize) + 1
+            let shiftcr: Int = self.ncolumns + shiftc
+            print("XX: x: \(x) shiftX: \(shiftX) cellSize: \(self._cellSize) ncolumns: \(self.ncolumns) shiftc: \(shiftc) shiftcr: \(shiftcr)")
+        }
+
         buffer.withUnsafeMutableBytes { raw in
             guard let base = raw.baseAddress else { return }
             for block in self._bufferBlocks.blocks {
-                if ((shiftX > 0) && (x == 8) /* TODO */ ) {
-                    for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
-                        writeCellBlock(buffer: base, block: block)
+                if (shiftX > 0) {
+                    //
+                    // This prevents cells showing up of the left when shifting right.
+                    // this will surely change with the introduction of a huge virtual grid.
+                    // let shiftc: Int = self.ncolumns - (shiftX / (self._cellSize - 0))
+                    let shiftc: Int = (shiftX / self._cellSize) + 1
+                    let shiftcr: Int = self.ncolumns - shiftc
+                    if (x >= shiftcr) {
+                        for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
+                            writeCellBlock(buffer: base, block: block)
+                        }
+                        continue
                     }
-                    continue
                 }
-                else if ((shiftX < 0) && (x == 0) /* TODO */ ) {
-                    for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
-                        writeCellBlock(buffer: base, block: block)
+                // 25 -> 1 -> 10 .. want 1
+                // 55 -> 0 -> 9 .. want 2
+                // 88 -> -1 -> 8 .. want 3
+                // 350 -> -7 -> 2 .. want 8?
+                //
+                // if shiftx == -scaled(90) then do: if (x == 1) { continue } ... and ... if (x == 2) { prune... }
+                // if shiftx == -scaled(135) then do: if (x == 1) { continue } ... and ... if (x == 2 || x == 3) { prune... }
+                // if shiftx == -scaled(135) then do: if (x == 1 || x == 2) { continue } ... and ... if (x == 2 || x == 3) { prune... }
+                else if (shiftX < 0) {
+                    // if (x == 2) { continue }
+                    let shiftc: Int = (shiftX / self._cellSize) + 1
+                    let shiftcr: Int = self.ncolumns + shiftc
+                    if (x == 0) /* TODO */ {
+                        // for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: -(shiftX + 1)) {
+                        for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
+                            writeCellBlock(buffer: base, block: block)
+                        }
+                        continue
                     }
-                    continue
                 }
                 writeCellBlock(buffer: base, block: block)
             }

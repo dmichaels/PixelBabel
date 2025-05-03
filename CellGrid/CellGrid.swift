@@ -237,7 +237,7 @@ class CellGrid: ObservableObject
         }
         if let cell: LifeCell = self._cells?.cell(location) {
 
-        self._cells = Cells(displayWidth: self._displayWidth,
+        /* self._cells = Cells(displayWidth: self._displayWidth,
                             displayHeight: self._displayHeight,
                             displayScale: self._displayScale,
                             displayScaling: self._displayScaling,
@@ -248,7 +248,7 @@ class CellGrid: ObservableObject
                             cellBleed: Defaults.cellBleed,
                             cellForeground: CellColor.white,
                             cellBackground: self._cellBackground,
-                            cellFactory: self._cellFactory)
+                            cellFactory: self._cellFactory) */
 
             if ((self._dragCell == nil) || (self._dragCell!.location != cell.location)) {
                 let start = Date()
