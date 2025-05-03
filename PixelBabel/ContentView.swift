@@ -195,35 +195,9 @@ struct ContentView: View
     }
 
     public func normalizedLocation(_ location: CGPoint) -> CGPoint {
-        let x, y: CGFloat
-        switch self.orientation.current {
-        case .portrait:
-            x = location.x - self.parentRelativeImagePosition.x
-            y = location.y - self.parentRelativeImagePosition.y
-        case .portraitUpsideDown:
-            if (orientation.ipad) {
-                x = CGFloat(self.cellGrid.displayWidthUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.x)
-                y = CGFloat(self.cellGrid.displayHeightUnscaled) - 1 - (location.y - self.parentRelativeImagePosition.y)
-            }
-            else if (self.orientation.previous.isLandscape) {
-                x = location.y - self.parentRelativeImagePosition.x
-                y = CGFloat(self.cellGrid.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
-            }
-            else {
-                x = location.x - self.parentRelativeImagePosition.x
-                y = location.y - self.parentRelativeImagePosition.y
-            }
-        case .landscapeRight:
-            x = location.y - self.parentRelativeImagePosition.x
-            y = CGFloat(self.cellGrid.displayHeightUnscaled) - 1 - (location.x - self.parentRelativeImagePosition.y)
-        case .landscapeLeft:
-            x = CGFloat(self.cellGrid.displayWidthUnscaled) - 1 - (location.y - self.parentRelativeImagePosition.x)
-            y = location.x - self.parentRelativeImagePosition.y
-        default:
-            x = location.x - self.parentRelativeImagePosition.x
-            y = location.y - self.parentRelativeImagePosition.y
-        }
-        return CGPoint(x: x, y: y)
+        return self.cellGrid.normalizedLocation(screenPoint: location,
+                                                gridOrigin: parentRelativeImagePosition,
+                                                orientation: self.orientation)
     }
 
     private func onChangeOrientation(_ current: UIDeviceOrientation, _ previous: UIDeviceOrientation) {

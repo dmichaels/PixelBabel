@@ -215,6 +215,44 @@ class CellGrid: ObservableObject
         self._cellBackground
     }
 
+    public func normalizedLocation(screenPoint: CGPoint,
+                                   gridOrigin: CGPoint,
+                                   orientation: OrientationObserver) -> CGPoint
+    {
+        // Various oddities with upside-down mode and having to know the
+        // previous orientation and whether or not we are an iPad and whatnot.
+        //
+        let x, y: CGFloat
+        switch orientation.current {
+        case .portrait:
+            x = screenPoint.x - gridOrigin.x
+            y = screenPoint.y - gridOrigin.y
+        case .portraitUpsideDown:
+            if (orientation.ipad) {
+                x = CGFloat(self._displayWidthUnscaled) - 1 - (screenPoint.x - gridOrigin.x)
+                y = CGFloat(self._displayHeightUnscaled) - 1 - (screenPoint.y - gridOrigin.y)
+            }
+            else if (orientation.previous.isLandscape) {
+                x = screenPoint.y - gridOrigin.x
+                y = CGFloat(self._displayHeightUnscaled) - 1 - (screenPoint.x - gridOrigin.y)
+            }
+            else {
+                x = screenPoint.x - gridOrigin.x
+                y = screenPoint.y - gridOrigin.y
+            }
+        case .landscapeRight:
+            x = screenPoint.y - gridOrigin.x
+            y = CGFloat(self._displayHeightUnscaled) - 1 - (screenPoint.x - gridOrigin.y)
+        case .landscapeLeft:
+            x = CGFloat(self._displayWidthUnscaled) - 1 - (screenPoint.y - gridOrigin.x)
+            y = screenPoint.x - gridOrigin.y
+        default:
+            x = screenPoint.x - gridOrigin.x
+            y = screenPoint.y - gridOrigin.y
+        }
+        return CGPoint(x: x, y: y)
+    }
+
     var _dragPoint: CGPoint?
 
     public func onDrag(_ location: CGPoint) {
