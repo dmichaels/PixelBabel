@@ -12,7 +12,7 @@ class CellGrid: ObservableObject
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 43
+        public static let cellSize: Int = 42 // 43
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 1
         public static let cellBleed: Bool = false
@@ -360,6 +360,33 @@ class CellGrid: ObservableObject
     }
 
     func testingLifeSetup() {
+
+/*
+        var cells: [Cell] = []
+        let ncolumns = 10 /// 100
+        let nrows = 21 /// 20 /// 100
+        for y in 0..<nrows {
+            for x in 0..<ncolumns {
+                var fg: CellColor
+                if ((x == 0) /* && (y == 0) */ ) {
+                    print("FOOOOO")
+                    fg = CellColor(Color.blue)
+                }
+                else if ((x == 9) /* && (y == 0) */ ) {
+                    fg = CellColor(Color.red)
+                }
+                else {
+                    fg = CellColor.white
+                }
+                var cell = LifeCell(parent: self._cells!, x: x, y: y,
+                                    foreground: fg, background: self._cellBackground,
+                                    activeColor: CellColor(Color.red), inactiveColor: CellColor(Color.gray))
+                cells.append(cell)
+            }
+        }
+        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: -20, shifty: -20)
+*/
+
         if let cells = self._cells {
             for case let cell as LifeCell in cells.cells {
                 cell.deactivate()

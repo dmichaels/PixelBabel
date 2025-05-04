@@ -11,6 +11,30 @@ import Utils
 @MainActor
 class Cells
 {
+    public func setView(cells: [Cell], ncolumns: Int, nrows: Int, x: Int, y: Int, shiftx: Int = 0, shifty: Int = 0)
+    {
+        func cell<T: Cell>(x: Int, y: Int) -> T? {
+            guard x >= 0, y >= 0, x < ncolumns, y < nrows else {
+                return nil
+            }
+            return cells[y * ncolumns + x] as? T
+        }
+
+        for row in y..<min(nrows, self.nrows + (shifty != 0 ? /*1*/ 1 : 0)) {
+            for column in x..<min(ncolumns, self.ncolumns + (shiftx != 0 ? /*1*/ 1 : 0)) {
+                if let cell: Cell = cell(x: column, y: row) {
+                    print("WC: [\(cell.x),\(cell.y)]")
+                    if ((column == 0) && (row == 0)) {
+                        var x = 1
+                    }
+                    self.writeCell(x: cell.x, y: cell.y, shiftx: shiftx, shifty: shifty,
+                                   foreground: cell.foreground, background: cell.background,
+                                   limit: false, tmp_ncolumns: ncolumns)
+                }
+            }
+        }
+    }
+
     typealias PreferredSize = (cellSize: Int, displayWidth: Int, displayHeight: Int)
 
     private class BufferBlock
@@ -206,23 +230,25 @@ class Cells
     func writeCell(x: Int, y: Int,
                    shiftx: Int = 0, shifty: Int = 0,
                    foreground: CellColor, background: CellColor,
-                   limit: Bool = false) {
+                   limit: Bool = false, tmp_ncolumns: Int? = nil) {
         self.writeCell(buffer: &self._buffer, x: x, y: y,
                        shiftx: shiftx, shifty: shifty,
                        foreground: foreground, background: background,
-                       limit: limit)
+                       limit: limit, tmp_ncolumns: tmp_ncolumns)
     }
 
     private func writeCell(buffer: inout [UInt8],
                           x: Int, y: Int,
                           shiftx: Int = 0, shifty: Int = 0,
                           foreground: CellColor, background: CellColor,
-                          limit: Bool = false)
+                          limit: Bool = false, tmp_ncolumns: Int? = nil)
     {
         let shiftX: Int = self._grid.scaled(shiftx)
         let shiftY: Int = self._grid.scaled(shifty)
         let offset: Int = ((self._cellSize * x) + shiftX + (self._cellSize * self._displayWidth * y + shiftY * self._displayWidth)) * Screen.depth
         let size: Int = buffer.count
+
+        let ncolumns = tmp_ncolumns != nil ? tmp_ncolumns! : self.ncolumns
 
         // Cheat sheet on shifting right (shiftx > 0); shifting vertically just falls out,
         // as well as shifting horizontally left, but not so for shifting horizontally right.
@@ -301,7 +327,8 @@ class Cells
                     // this will surely change with the introduction of a huge virtual grid.
                     //
                     let shiftc: Int = (shiftX / self._cellSize) + 1
-                    let shiftcr: Int = self.ncolumns - shiftc
+                    // let shiftcr: Int = self.ncolumns - shiftc
+                    let shiftcr: Int = ncolumns - shiftc
                     if (x >= shiftcr) {
                         for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
                             writeCellBlock(buffer: base, block: block)
@@ -311,7 +338,15 @@ class Cells
                 }
                 else if (shiftX < 0) {
                     let shiftc: Int = (-shiftX / self._cellSize)
-                    if (x == shiftc) {
+                    let shiftcr: Int = ncolumns - shiftc - 1
+                    if (x == shiftcr) {
+                        for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth,
+                                                        shiftx: self._cellSize + shiftX) {
+                            writeCellBlock(buffer: base, block: block)
+                        }
+                        continue
+                    }
+                    else if (x == shiftc) {
                         for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
                             writeCellBlock(buffer: base, block: block)
                         }
