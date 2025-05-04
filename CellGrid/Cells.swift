@@ -41,8 +41,8 @@ class Cells
                                     cellForeground: cell.foreground,
                                     cellBackground: cell.background,
                                     cellForegroundOnly: false,
-                                    shiftX: self._grid.scaled(shiftx),
-                                    shiftY: self._grid.scaled(shifty),
+                                    shiftX: self._grid.scaled(200),
+                                    shiftY: self._grid.scaled(200),
                                     viewWidth: self._displayWidth,
                                     viewHeight: self._displayHeight)
                 }
@@ -344,10 +344,14 @@ class Cells
                     let shiftc: Int = (shiftX / self._cellSize) + 1
                     // let shiftcr: Int = self.ncolumns - shiftc
                     let shiftcr: Int = ncolumns - shiftc
-                    if (x >= shiftcr) {
+                    // if (x >= shiftcr) {
+                    if (x == shiftcr) {
                         for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
                             writeCellBlock(buffer: base, block: block)
                         }
+                        continue
+                    }
+                    else if (x > shiftcr) {
                         continue
                     }
                 }
