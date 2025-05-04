@@ -20,18 +20,24 @@ class Cells
             return cells[y * ncolumns + x] as? T
         }
 
-        for row in y..<min(nrows, self.nrows + (shifty != 0 ? /*1*/ 1 : 0)) {
-            for column in x..<min(ncolumns, self.ncolumns + (shiftx != 0 ? /*1*/ 1 : 0)) {
+        var startx: Int
+        if (shiftx < 0) {
+            startx = y - (-shiftx / self._cellSize)
+            endx = startx + TODO
+        }
+
+        let nr = min(nrows, self.nrows + (shifty != 0 ? 1 : 0))
+        let nc = min(ncolumns, self.ncolumns + (shiftx != 0 ? 1 : 0))
+        // for row in y..<min(nrows, self.nrows + (shifty != 0 ? 1 : 0)) {
+            // for column in x..<min(ncolumns, self.ncolumns + (shiftx != 0 ? 1 : 0)) {
+        for row in y..<nr{
+            for column in x..<nc {
                 if let cell: Cell = cell(x: column, y: row) {
                     print("WC: [\(cell.x),\(cell.y)]")
-                    if ((column == 0) && (row == 0)) {
-                        var x = 1
-                    }
-                    /*
                     self.writeCell(x: cell.x, y: cell.y, shiftx: shiftx, shifty: shifty,
                                    foreground: cell.foreground, background: cell.background,
-                                   limit: false, tmp_ncolumns: ncolumns)
-                    */
+                                   limit: false, tmp_ncolumns: nc) // ncolumns)
+                    /*
                     Cells.writeCell(buffer: &self._buffer,
                                     cellSize: self._cellSize,
                                     cellCountX: ncolumns,
@@ -41,10 +47,13 @@ class Cells
                                     cellForeground: cell.foreground,
                                     cellBackground: cell.background,
                                     cellForegroundOnly: false,
-                                    shiftX: self._grid.scaled(200),
-                                    shiftY: self._grid.scaled(200),
+                                    shiftX: self._grid.scaled(0),
+                                    shiftY: self._grid.scaled(0),
+                                    // shiftX: self._grid.scaled(200),
+                                    // shiftY: self._grid.scaled(200),
                                     viewWidth: self._displayWidth,
                                     viewHeight: self._displayHeight)
+                    */
                 }
             }
         }
@@ -263,7 +272,8 @@ class Cells
         let offset: Int = ((self._cellSize * x) + shiftX + (self._cellSize * self._displayWidth * y + shiftY * self._displayWidth)) * Screen.depth
         let size: Int = buffer.count
 
-        let ncolumns = tmp_ncolumns != nil ? tmp_ncolumns! : self.ncolumns
+        // let ncolumns = tmp_ncolumns != nil ? tmp_ncolumns! : self.ncolumns
+        let ncolumns = tmp_ncolumns != nil ? tmp_ncolumns! : (shiftx != 0 ? self.ncolumns + 1 : self.ncolumns)
 
         // Cheat sheet on shifting right (shiftx > 0); shifting vertically just falls out,
         // as well as shifting horizontally left, but not so for shifting horizontally right.
@@ -341,17 +351,31 @@ class Cells
                     // This prevents cells showing up of the left when shifting right.
                     // this will surely change with the introduction of a huge virtual grid.
                     //
+                    if (x >= ncolumns) {
+                        continue
+                    } 
                     let shiftc: Int = (shiftX / self._cellSize) + 1
-                    // let shiftcr: Int = self.ncolumns - shiftc
                     let shiftcr: Int = ncolumns - shiftc
-                    // if (x >= shiftcr) {
-                    if (x == shiftcr) {
+                    // if (x == shiftcr) { // works with first test
+                    // if ((x == shiftcr) || (x == shiftcr - 1)) { // new works with shiftx=50 but not with 20
+                    //
+                    // This seems to work with the second/new test:
+                    //
+                    //       if (x == shiftcr - 1) { ... }
+                    //       else if (x > shiftcr - 1) { ... }
+                    //
+                    // This works with the first test:
+                    //
+                    //       if (x == shiftcr) { ... }
+                    //       else if (x > shiftcr) { ... }
+                    //
+                    if (x == shiftcr - 1) {
                         for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
                             writeCellBlock(buffer: base, block: block)
                         }
                         continue
                     }
-                    else if (x > shiftcr) {
+                    else if (x > shiftcr - 1) {
                         continue
                     }
                 }
@@ -504,10 +528,13 @@ class Cells
                     //
                     let shiftc: Int = (shiftX / cellSize) + 1
                     let shiftcr: Int = cellCountX - shiftc
-                    if (cellX >= shiftcr) {
+                    if (cellX == shiftcr) {
                         for block in BufferBlocks.prune(block, offset: offset, width: viewWidth, shiftx: shiftX) {
                             writeCellBlock(buffer: base, block: block)
                         }
+                        continue
+                    }
+                    else if (cellX > shiftcr) {
                         continue
                     }
                 }
