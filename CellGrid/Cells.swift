@@ -27,9 +27,24 @@ class Cells
                     if ((column == 0) && (row == 0)) {
                         var x = 1
                     }
+                    /*
                     self.writeCell(x: cell.x, y: cell.y, shiftx: shiftx, shifty: shifty,
                                    foreground: cell.foreground, background: cell.background,
                                    limit: false, tmp_ncolumns: ncolumns)
+                    */
+                    Cells.writeCell(buffer: &self._buffer,
+                                    cellSize: self._cellSize,
+                                    cellCountX: ncolumns,
+                                    cellBlocks: self._bufferBlocks.blocks,
+                                    cellX: cell.x,
+                                    cellY: cell.y,
+                                    cellForeground: cell.foreground,
+                                    cellBackground: cell.background,
+                                    cellForegroundOnly: false,
+                                    shiftX: self._grid.scaled(shiftx),
+                                    shiftY: self._grid.scaled(shifty),
+                                    viewWidth: self._displayWidth,
+                                    viewHeight: self._displayHeight)
                 }
             }
         }
@@ -390,19 +405,19 @@ class Cells
         }
     }
 
-    private static func xwriteCell(buffer: inout [UInt8],
-                                   cellSize: Int, // self._cellSize - scaled
-                                   cellCountX: Int, // tmp_columns or self.ncolumns - total number of cell columns (cell horizontally not just in the view)
-                                   cellBlocks: [BufferBlock],
-                                   cellX: Int,
-                                   cellY: Int, // cell-relative position - (0, 0) top-left thru (viewWidth / cellSize - 1, viewHeight / cellSize - 1)
-                                   shiftX: Int = 0,
-                                   shiftY: Int = 0, // scaled
-                                   viewWidth: Int, // self._displayWidth - scaled
-                                   viewHeight: Int, // self._displayHeight - scaled (not used here i dont think)
-                                   cellForeground: CellColor,
-                                   cellBackground: CellColor,
-                                   cellForegroundOnly: Bool = false)
+    private static func writeCell(buffer: inout [UInt8],
+                                  cellSize: Int, // self._cellSize - scaled
+                                  cellCountX: Int, // tmp_columns or self.ncolumns - total number of cell columns (cell horizontally not just in the view)
+                                  cellBlocks: [BufferBlock],
+                                  cellX: Int,
+                                  cellY: Int, // cell-relative position - (0, 0) top-left thru (viewWidth / cellSize - 1, viewHeight / cellSize - 1)
+                                  cellForeground: CellColor,
+                                  cellBackground: CellColor,
+                                  cellForegroundOnly: Bool,
+                                  shiftX: Int = 0,
+                                  shiftY: Int = 0, // scaled
+                                  viewWidth: Int, // self._displayWidth - scaled
+                                  viewHeight: Int) // self._displayHeight - scaled (not used here i dont think)
     {
         let offset: Int = ((cellSize * cellX) + shiftX + (cellSize * viewWidth * cellY + shiftY * viewWidth)) * Screen.depth
         let size: Int = buffer.count
