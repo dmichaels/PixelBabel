@@ -394,17 +394,20 @@ class Cells
                                    cellSize: Int, // self._cellSize - scaled
                                    cellCountX: Int, // tmp_columns or self.ncolumns - total number of cell columns (cell horizontally not just in the view)
                                    cellBlocks: [BufferBlock],
+                                   cellX: Int,
+                                   cellY: Int, // cell-relative position - (0, 0) top-left thru (viewWidth / cellSize - 1, viewHeight / cellSize - 1)
+                                   shiftX: Int = 0,
+                                   shiftY: Int = 0, // scaled
                                    viewWidth: Int, // self._displayWidth - scaled
                                    viewHeight: Int, // self._displayHeight - scaled (not used here i dont think)
-                                   x: Int, y: Int, // cell-relative position - (0, 0) top-left thru (viewWidth / cellSize - 1, viewHeight / cellSize - 1)
-                                   shiftx: Int = 0, shifty: Int = 0, // scaled
-                                   foreground: CellColor, background: CellColor,
-                                   limit: Bool = false)
+                                   cellForeground: CellColor,
+                                   cellBackground: CellColor,
+                                   cellForegroundOnly: Bool = false)
     {
-        let offset: Int = ((cellSize * x) + shiftx + (cellSize * viewWidth * y + shifty * viewWidth)) * Screen.depth
+        let offset: Int = ((cellSize * cellX) + shiftX + (cellSize * viewWidth * cellY + shiftY * viewWidth)) * Screen.depth
         let size: Int = buffer.count
 
-        // Cheat sheet on shifting right (shiftx > 0); shifting vertically just falls out,
+        // Cheat sheet on shifting right (shiftX > 0); shifting vertically just falls out,
         // as well as shifting horizontally left, but not so for shifting horizontally right.
         // For example, this (WxH) grid, and the one-dimensional buffer for it ...
         //
@@ -475,37 +478,37 @@ class Cells
         buffer.withUnsafeMutableBytes { raw in
             guard let base = raw.baseAddress else { return }
             for block in cellBlocks {
-                if (shiftx > 0) {
+                if (shiftX > 0) {
                     //
                     // This prevents cells showing up of the left when shifting right.
                     // this will surely change with the introduction of a huge virtual grid.
                     //
-                    let shiftc: Int = (shiftx / cellSize) + 1
+                    let shiftc: Int = (shiftX / cellSize) + 1
                     let shiftcr: Int = cellCountX - shiftc
-                    if (x >= shiftcr) {
-                        for block in BufferBlocks.prune(block, offset: offset, width: viewWidth, shiftx: shiftx) {
+                    if (cellX >= shiftcr) {
+                        for block in BufferBlocks.prune(block, offset: offset, width: viewWidth, shiftx: shiftX) {
                             writeCellBlock(buffer: base, block: block)
                         }
                         continue
                     }
                 }
-                else if (shiftx < 0) {
-                    let shiftc: Int = (-shiftx / cellSize)
+                else if (shiftX < 0) {
+                    let shiftc: Int = (-shiftX / cellSize)
                     let shiftcr: Int = cellCountX - shiftc - 1
-                    if (x == shiftcr) {
+                    if (cellX == shiftcr) {
                         for block in BufferBlocks.prune(block, offset: offset, width: viewWidth,
-                                                        shiftx: cellSize + shiftx) {
+                                                        shiftx: cellSize + shiftX) {
                             writeCellBlock(buffer: base, block: block)
                         }
                         continue
                     }
-                    else if (x == shiftc) {
-                        for block in BufferBlocks.prune(block, offset: offset, width: viewWidth, shiftx: shiftx) {
+                    else if (cellX == shiftc) {
+                        for block in BufferBlocks.prune(block, offset: offset, width: viewWidth, shiftx: shiftX) {
                             writeCellBlock(buffer: base, block: block)
                         }
                         continue
                     }
-                    else if (x < shiftc) {
+                    else if (cellX < shiftc) {
                         continue
                     }
                 }
@@ -520,16 +523,16 @@ class Cells
             var color: CellColor
             if (block.foreground) {
                 if (block.blend != 0.0) {
-                    color = CellColor(Cells.blend(foreground.red,   background.red,   amount: block.blend),
-                                      Cells.blend(foreground.green, background.green, amount: block.blend),
-                                      Cells.blend(foreground.blue,  background.blue,  amount: block.blend),
-                                      alpha: foreground.alpha)
+                    color = CellColor(Cells.blend(cellForeground.red,   cellBackground.red,   amount: block.blend),
+                                      Cells.blend(cellForeground.green, cellBackground.green, amount: block.blend),
+                                      Cells.blend(cellForeground.blue,  cellBackground.blue,  amount: block.blend),
+                                      alpha: cellForeground.alpha)
                 }
                 else {
-                    color = foreground
+                    color = cellForeground
                 }
             }
-            else if (limit) {
+            else if (cellForegroundOnly) {
                 //
                 // Limit the write to only the foreground; can be useful
                 // for performance as background normally doesn't change.
@@ -537,7 +540,7 @@ class Cells
                 return
             }
             else {
-                color = background
+                color = cellBackground
             }
             Memory.fastcopy(to: base, count: block.count, value: color.value)
         }
@@ -579,7 +582,7 @@ class Cells
                                            cellShape: CellShape,
                                            cellTransparency: UInt8) -> BufferBlocks
     {
-        var bufferBlocks: BufferBlocks = BufferBlocks()
+        let bufferBlocks: BufferBlocks = BufferBlocks()
 
         var cellPaddingThickness: Int = 0
         if ((cellPadding > 0) && (cellSize >= 6) && (cellShape != .square)) {
