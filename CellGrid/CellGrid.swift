@@ -361,7 +361,6 @@ class CellGrid: ObservableObject
 
     func testingLifeSetup() {
 
-/*
         var cells: [Cell] = []
         let ncolumns = 10 /// 100
         let nrows = 21 /// 20 /// 100
@@ -385,8 +384,8 @@ class CellGrid: ObservableObject
             }
         }
         self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: -20, shifty: -20)
-*/
 
+/*
         if let cells = self._cells {
             for case let cell as LifeCell in cells.cells {
                 cell.deactivate()
@@ -401,6 +400,7 @@ class CellGrid: ObservableObject
                 }
             }
         }
+*/
     }
 
     func testingLife() {
