@@ -35,7 +35,7 @@ class Cells
         for row in startCellY...endCellY{
             for column in startCellX...endCellX {
                 if let cell: Cell = cell(x: column, y: row) {
-                    print("WC: [\(cell.x),\(cell.y)]")
+                    // print("WC: [\(cell.x),\(cell.y)]")
                     self.writeCell(x: cell.x, y: cell.y,
                                    shiftx: shiftx, shifty: shifty, // NOTE UNSCALED FOR THIS VERSION OF writeCell (it does scaling)
                                    foreground: cell.foreground, background: cell.background,
@@ -79,6 +79,28 @@ class Cells
             self.blend = blend
             self.lindex = self.index
         }
+
+        func dump(verbose: Bool = false, code: Bool = false, width: Int = 0) {
+            if verbose {
+                for i in 0..<self.count {
+                    let index = self.index + i * Memory.bufferBlockSize
+                    print("BLOCK>" +
+                          " INDEX: \(String(format: "%08d", index))" +
+                          (i == 0 ? " COUNT: \(String(format: "%3d", self.count))" : "   ...:   -") +
+                          "  \(self.foreground ? "FG" : "BG")-\(String(format: "%.1f", self.blend))" +
+                          (width > 0 ? " -> [\(index % width), \(index / width)]" : ""))
+                }
+            }
+            else {
+                print("block>" +
+                      " index: \(String(format: "%08d", self.index))" +
+                      " count: \(String(format: "%3d", self.count))" +
+                      "  \(self.foreground ? "FG" : "BG")-\(String(format: "%.1f", self.blend))")
+            }
+            if code {
+                print("blocks.append(BufferBlock(index: \(self.index), count: \(self.count), foreground: \(self.foreground), blend: \(self.blend)))")
+            }
+        }
     }
 
     private class BufferBlocks
@@ -95,15 +117,27 @@ class Cells
             }
         }
 
+        static func truncateLeftOf(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
+            return BufferBlocks.truncateX(block, offset: offset, width: width, shiftx: shiftx)
+        }
+
+        static func truncateRightOf(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
+            return BufferBlocks.truncateX(block, offset: offset, width: width, shiftx: -shiftx)
+        }
+
         // Returns a new BufferBlock list for this/self one (possibly empty) which eliminates indices
         // which correspond to a shifting left or right by the given (shiftx) amount; this was tricky,
         // due to the row-major organization of grid cells/pixels in the one-dimensional buffer array.
+        // A positive shiftx means to truncate the values (pixels) LEFT of the given shiftx value, and
+        // a negative shiftx means to truncate the values (pixels) RIGHT of the given shiftx value.
         //
-        static func prune(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
+        static func truncateX(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
             var blocks: [BufferBlock] = []
             var start: Int? = nil
             var count = 0
-            let shiftw = (shiftx > 0) ? shiftx : ((shiftx < 0) ? (width + shiftx) : 0)
+            // let shiftw = (shiftx > 0) ? shiftx : ((shiftx < 0) ? (width + shiftx) : 0)
+            // let shiftw = (shiftx > 0) ? shiftx : ((shiftx < 0) ? -shiftx : 0)
+            let shiftw = abs(shiftx)
             for i in 0..<block.count {
                 let starti = offset + block.index + i * Memory.bufferBlockSize
                 let shift = (starti / Memory.bufferBlockSize) % width
@@ -345,10 +379,44 @@ class Cells
         // Note that the BufferBlock.index is a byte index into the buffer,
         // i.e. it already has Screen.depth factored into it; and note that
         // the BufferBlock.count refers to the number of 4-byte (UInt32) values,
+        //
+        // To ignore the left-most SX columns: OK
+        // BufferBlocks.truncateX(block, offset: offset, width: self._displayWidth, shiftx: SX)
+        //
+        // To ignore the right-most SX columns: ???
+        // BufferBlocks.truncateX(block, offset: offset, width: self._displayWidth, shiftx: -SX)
 
+        if x == 9 {
+            var x = 1
+        }
+        else if x == 10 {
+            var x = 1
+        }
         buffer.withUnsafeMutableBytes { raw in
             guard let base = raw.baseAddress else { return }
+            /*
+                if x == 0 && y == 1 {
+                    for block in self._bufferBlocks.blocks {
+                        block.dump(verbose: true, width: self._displayWidth)
+                        writeCellBlock(buffer: base, block: block, foreground: foreground, background: background)
+                    }
+                    return
+                }
+            */
             for block in self._bufferBlocks.blocks {
+                // tmp-xyzzy
+                if x == 0 && y == 1 {
+                    // for block in BufferBlocks.truncateLeft(block, offset: offset, width: self._displayWidth, shiftx: 10) { // OK
+                    // for block in BufferBlocks.truncateRight(block, offset: offset, width: self._displayWidth, shiftx: self._cellSize - 10) {
+                    // for block in BufferBlocks.truncateX(block, offset: offset, width: self._displayWidth, shiftx: 10) {
+                    for block in BufferBlocks.truncateLeftOf(block, offset: offset, width: self._displayWidth, shiftx: 10) {
+                        block.dump(verbose: true, code: true, width: self._displayWidth)
+                        writeCellBlock(buffer: base, block: block, foreground: foreground, background: background)
+                    }
+                    continue
+                }
+                else { continue }
+                // tmp-xyzzy
                 if (shiftX > 0) {
                     //
                     // This prevents cells showing up of the left when shifting right.
@@ -373,8 +441,9 @@ class Cells
                     //       else if (x > shiftcr) { ... }
                     //
                     if (x == shiftcr - 1) {
-                        for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
-                            writeCellBlock(buffer: base, block: block)
+                        for block in BufferBlocks.truncateX(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
+                            // writeCellBlock(buffer: base, block: block)
+                            writeCellBlock(buffer: base, block: block, foreground: foreground, background: background)
                         }
                         continue
                     }
@@ -384,17 +453,21 @@ class Cells
                 }
                 else if (shiftX < 0) {
                     let shiftc: Int = (-shiftX / self._cellSize)
-                    let shiftcr: Int = ncolumns - shiftc - 1
+                    // let shiftcr: Int = ncolumns - shiftc - 1
+                    let shiftcr: Int = ncolumns + shiftc - 1
                     if (x == shiftcr) {
-                        for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth,
+                        for block in BufferBlocks.truncateX(block, offset: offset, width: self._displayWidth,
                                                         shiftx: self._cellSize + shiftX) {
-                            writeCellBlock(buffer: base, block: block)
+                            // writeCellBlock(buffer: base, block: block)
+                            // writeCellBlock(buffer: base, block: block, foreground: foreground, background: background)
+                            writeCellBlock(buffer: base, block: block, foreground: CellColor(Color.gray), background: background)
                         }
                         continue
                     }
                     else if (x == shiftc) {
-                        for block in BufferBlocks.prune(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
-                            writeCellBlock(buffer: base, block: block)
+                        for block in BufferBlocks.truncateX(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
+                            // writeCellBlock(buffer: base, block: block)
+                            writeCellBlock(buffer: base, block: block, foreground: foreground, background: background)
                         }
                         continue
                     }
@@ -402,11 +475,42 @@ class Cells
                         continue
                     }
                 }
-                writeCellBlock(buffer: base, block: block)
+                // writeCellBlock(buffer: base, block: block)
+                writeCellBlock(buffer: base, block: block, foreground: foreground, background: background)
             }
         }
 
+        /*
         func writeCellBlock(buffer: UnsafeMutableRawPointer, block: BufferBlock)  {
+            let start: Int = offset + block.index
+            guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else { return }
+            let base = buffer.advanced(by: start)
+            var color: CellColor
+            if (block.foreground) {
+                if (block.blend != 0.0) {
+                    color = CellColor(Cells.blend(foreground.red,   background.red,   amount: block.blend),
+                                      Cells.blend(foreground.green, background.green, amount: block.blend),
+                                      Cells.blend(foreground.blue,  background.blue,  amount: block.blend),
+                                      alpha: foreground.alpha)
+                }
+                else {
+                    color = foreground
+                }
+            }
+            else if (limit) {
+                //
+                // Limit the write to only the foreground; can be useful
+                // for performance as background normally doesn't change.
+                //
+                return
+            }
+            else {
+                color = background
+            }
+            Memory.fastcopy(to: base, count: block.count, value: color.value)
+        }
+        */
+        func writeCellBlock(buffer: UnsafeMutableRawPointer, block: BufferBlock, foreground: CellColor, background: CellColor)  {
             let start: Int = offset + block.index
             guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else { return }
             let base = buffer.advanced(by: start)
@@ -532,7 +636,7 @@ class Cells
                     let shiftc: Int = (shiftX / cellSize) + 1
                     let shiftcr: Int = cellCountX - shiftc
                     if (cellX == shiftcr) {
-                        for block in BufferBlocks.prune(block, offset: offset, width: viewWidth, shiftx: shiftX) {
+                        for block in BufferBlocks.truncateX(block, offset: offset, width: viewWidth, shiftx: shiftX) {
                             writeCellBlock(buffer: base, block: block)
                         }
                         continue
@@ -545,14 +649,14 @@ class Cells
                     let shiftc: Int = (-shiftX / cellSize)
                     let shiftcr: Int = cellCountX - shiftc - 1
                     if (cellX == shiftcr) {
-                        for block in BufferBlocks.prune(block, offset: offset, width: viewWidth,
+                        for block in BufferBlocks.truncateX(block, offset: offset, width: viewWidth,
                                                         shiftx: cellSize + shiftX) {
                             writeCellBlock(buffer: base, block: block)
                         }
                         continue
                     }
                     else if (cellX == shiftc) {
-                        for block in BufferBlocks.prune(block, offset: offset, width: viewWidth, shiftx: shiftX) {
+                        for block in BufferBlocks.truncateX(block, offset: offset, width: viewWidth, shiftx: shiftX) {
                             writeCellBlock(buffer: base, block: block)
                         }
                         continue

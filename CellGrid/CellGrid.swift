@@ -10,7 +10,7 @@ class CellGrid: ObservableObject
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = true
+        public static let displayScaling: Bool = false
         public static let displayTransparency: UInt8 = 255
         public static let cellSize: Int = 42 // 43
         public static let cellSizeNeat: Bool = true
@@ -368,8 +368,10 @@ class CellGrid: ObservableObject
             for x in 0..<ncolumns {
                 var fg: CellColor
                 if ((x == 0) /* && (y == 0) */ ) {
-                    print("FOOOOO")
                     fg = CellColor(Color.blue)
+                }
+                else if ((x == 1) /* && (y == 0) */ ) {
+                    fg = CellColor(Color.purple)
                 }
                 else if ((x == 8) /* && (y == 0) */ ) {
                     fg = CellColor(Color.green)
@@ -392,7 +394,8 @@ class CellGrid: ObservableObject
                 cells.append(cell)
             }
         }
-        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: -60, shifty: 0)
+        // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: -60, shifty: 0)
+        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 0, shifty: 0)
 */
         if let cells = self._cells {
             for case let cell as LifeCell in cells.cells {
