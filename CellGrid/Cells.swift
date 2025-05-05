@@ -20,21 +20,24 @@ class Cells
             return cells[y * ncolumns + x] as? T
         }
 
-        var startx: Int
-        if (shiftx < 0) {
-            startx = y - (-shiftx / self._cellSize)
-            endx = startx + TODO
-        }
+        let shiftX = self._grid.scaled(shiftx)
+        let shiftY = self._grid.scaled(shifty)
+        let startCellX = x - (shiftX / self._cellSize)
+        let endCellX = startCellX + self.ncolumns + (shiftX != 0 ? 1 : 0) - 1 
+        let startCellY = y - (shiftY / self._cellSize)
+        let endCellY = startCellY + self.nrows + (shiftY != 0 ? 1 : 0) - 1 
 
-        let nr = min(nrows, self.nrows + (shifty != 0 ? 1 : 0))
-        let nc = min(ncolumns, self.ncolumns + (shiftx != 0 ? 1 : 0))
-        // for row in y..<min(nrows, self.nrows + (shifty != 0 ? 1 : 0)) {
-            // for column in x..<min(ncolumns, self.ncolumns + (shiftx != 0 ? 1 : 0)) {
-        for row in y..<nr{
-            for column in x..<nc {
+        // let nr = min(nrows, self.nrows + (shiftY != 0 ? 1 : 0))
+        // let nc = min(ncolumns, self.ncolumns + (shiftX != 0 ? 1 : 0))
+        // let nc = endCellX - startCellX + 1
+        let nc = endCellX - startCellX + 1
+
+        for row in startCellY...endCellY{
+            for column in startCellX...endCellX {
                 if let cell: Cell = cell(x: column, y: row) {
                     print("WC: [\(cell.x),\(cell.y)]")
-                    self.writeCell(x: cell.x, y: cell.y, shiftx: shiftx, shifty: shifty,
+                    self.writeCell(x: cell.x, y: cell.y,
+                                   shiftx: shiftx, shifty: shifty, // NOTE UNSCALED FOR THIS VERSION OF writeCell (it does scaling)
                                    foreground: cell.foreground, background: cell.background,
                                    limit: false, tmp_ncolumns: nc) // ncolumns)
                     /*

@@ -360,6 +360,7 @@ class CellGrid: ObservableObject
     }
 
     func testingLifeSetup() {
+/*
         var cells: [Cell] = []
         let ncolumns = 12 /// 100
         let nrows = 21 /// 20 /// 100
@@ -376,6 +377,12 @@ class CellGrid: ObservableObject
                 else if ((x == 9) /* && (y == 0) */ ) {
                     fg = CellColor(Color.red)
                 }
+                else if ((x == 10) /* && (y == 0) */ ) {
+                    fg = CellColor(Color.yellow)
+                }
+                else if ((x == 11) /* && (y == 0) */ ) {
+                    fg = CellColor(Color.orange)
+                }
                 else {
                     fg = CellColor.white
                 }
@@ -385,8 +392,8 @@ class CellGrid: ObservableObject
                 cells.append(cell)
             }
         }
-        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: -55, shifty: 0)
-/*
+        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: -60, shifty: 0)
+*/
         if let cells = self._cells {
             for case let cell as LifeCell in cells.cells {
                 cell.deactivate()
@@ -401,7 +408,6 @@ class CellGrid: ObservableObject
                 }
             }
         }
-*/
     }
 
     func testingLife() {
