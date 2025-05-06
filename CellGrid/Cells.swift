@@ -13,6 +13,106 @@ class Cells
 {
     public func setView(cells: [Cell], ncolumns: Int, nrows: Int, x: Int, y: Int, shiftx: Int = 0, shifty: Int = 0)
     {
+        guard x >= 0, y >= 0, x < ncolumns, y < nrows else {
+            return
+        }
+
+        func cell<T: Cell>(x: Int, y: Int) -> T? {
+            return cells[y * ncolumns + x] as? T
+        }
+
+        let cellColumns: Int = ncolumns
+        let cellRows: Int = nrows
+        let cellEndX: Int = cellColumns - 1
+        let cellEndY: Int = cellRows - 1
+
+        // These will go somewhere else; in some View calss or something ...
+        //
+        let viewWidth: Int = self._displayWidth
+        let viewHeight: Int = self._displayHeight
+        let viewCellColumns: Int = viewWidth / self._cellSize 
+        let viewCellRows: Int = viewHeight / self._cellSize 
+        let viewCellEndX: Int = viewCellColumns - 1
+        let viewCellEndY: Int = viewCellRows - 1
+
+        // Normalize the pixel-level shift to cell-level and pixel-level.
+        //
+        var shiftX: Int = self._grid.scaled(shiftx), shiftCellX: Int
+        var shiftY: Int = self._grid.scaled(shifty), shiftCellY: Int
+
+        if (shiftX != 0) {
+            shiftCellX = shiftX / self._cellSize
+            if (shiftCellX != 0) {
+                shiftX = shiftX % self._cellSize
+            }
+        }
+        else {
+            shiftCellX = 0
+        }
+        if (shiftY != 0) {
+            shiftCellY = shiftY / self._cellSize
+            if (shiftCellY != 0) {
+                shiftY = shiftY % self._cellSize
+            }
+        }
+        else {
+            shiftCellY = 0
+        }
+
+        // Restrict shift to min/max.
+        //
+        if (shiftCellX >= viewCellEndX) {
+            shiftCellX = viewCellEndX
+            shiftX = 0
+        }
+        else if (-shiftCellX >= cellEndX) {
+            shiftCellX = cellEndX
+            shiftX = 0
+        }
+        if (shiftCellY >= viewCellEndY) {
+            shiftCellY = viewCellEndY
+            shiftY = 0
+        }
+        else if (-shiftCellY >= cellEndY) {
+            shiftCellY = cellEndY
+            shiftY = 0
+        }
+        let writeBlankCells: Bool = true
+
+        // TODO ...
+        //
+        let viewCellExtraX = (shiftCellX != 0) ? 1 : 0
+        let viewCellExtraY = (shiftCellY != 0) ? 1 : 0
+
+        for vy in 0..<(viewCellRows /*+ viewCellExtraY*/) {
+            for vx in 0..<(viewCellColumns /*+ viewCellExtraX*/) {
+                let cellX: Int = vx - shiftCellX - viewCellExtraX
+                let cellY: Int = vy - shiftCellY - viewCellExtraY
+                if vy == 0 {
+                    var x = 1
+                }
+                if ((cellX < 0) || (cellY < 0)) { // ((vx < shiftCellX) || (vy < shiftCellY))
+                    if (writeBlankCells) {
+                        self.writeCell(x: vx, y: vy,
+                                       shiftx: shiftX, shifty: shiftY,
+                                       foreground: CellColor(Color.red), // self._cellBackground,
+                                       background: CellColor(Color.red), // self._cellBackground,
+                                       limit: false)
+                    }
+                    continue
+                }
+                if let cell: Cell = cell(x: cellX, y: cellY) {
+                    self.writeCell(x: vx, y: vy,
+                                   shiftx: shiftX, shifty: shiftY,
+                                   foreground: cell.foreground,
+                                   background: self._cellBackground, limit: false)
+                }
+            }
+        }
+    }
+
+    public func old_setView(cells: [Cell], ncolumns: Int, nrows: Int, x: Int, y: Int, shiftx: Int = 0, shifty: Int = 0)
+    {
         func cell<T: Cell>(x: Int, y: Int) -> T? {
             guard x >= 0, y >= 0, x < ncolumns, y < nrows else {
                 return nil
@@ -22,28 +122,43 @@ class Cells
 
         let shiftX = self._grid.scaled(shiftx)
         let shiftY = self._grid.scaled(shifty)
+
+        /*
+        let viewCellWidth = self._displayWidth / self._cellSize 
+        let viewCellHeight = self._displayHeight / self._cellSize 
+
+        let shiftCellX = shiftX / self._cellSize
+        let shiftCellY = shiftY / self._cellSize
+
+        let startCellX = x - shiftCellX
+        let endCellX = ? // startCellX + viewCellWidth + (shiftX != 0 ? 1 : 0) - 1 
+        let endCellX = startCellX + self.ncolumns + (shiftX != 0 ? 1 : 0) - 1 
+        let startCellY = y - shiftCellY
+        let endCellY = ? // startCellY + viewCellHeight + (shiftY != 0 ? 1 : 0) - 1 
+        */
+
         let startCellX = x - (shiftX / self._cellSize)
         let endCellX = startCellX + self.ncolumns + (shiftX != 0 ? 1 : 0) - 1 
         let startCellY = y - (shiftY / self._cellSize)
         let endCellY = startCellY + self.nrows + (shiftY != 0 ? 1 : 0) - 1 
 
-        // let nr = min(nrows, self.nrows + (shiftY != 0 ? 1 : 0))
-        // let nc = min(ncolumns, self.ncolumns + (shiftX != 0 ? 1 : 0))
-        // let nc = endCellX - startCellX + 1
-        let nc = endCellX - startCellX + 1
+        let viewStartCellX = (shiftx > 0) ? startCellX + (self._cellSize / shiftx) : startCellX
+        let viewEndCellX = (shiftx < 0) ? endCellX - (self._cellSize / -shiftx) : endCellX
 
         for row in startCellY...endCellY{
             for column in startCellX...endCellX {
                 if let cell: Cell = cell(x: column, y: row) {
-                    // print("WC: [\(cell.x),\(cell.y)]")
-                    self.writeCell(x: cell.x, y: cell.y,
+                    print("WC: [\(column),\(row)] = [\(cell.x),\(cell.y)] SXY: [\(startCellX),\(endCellX)] TL: \(shiftx != 0 && column == startCellX) TR: \(shiftx != 0 && column == endCellX))")
+                    // self.writeCell(x: cell.x, y: cell.y,
+                    self.writeCell(x: column, y: row,
                                    shiftx: shiftx, shifty: shifty, // NOTE UNSCALED FOR THIS VERSION OF writeCell (it does scaling)
                                    foreground: cell.foreground, background: cell.background,
-                                   limit: false, tmp_ncolumns: nc) // ncolumns)
+                                   limit: false,
+                                   truncateLeft: shiftx != 0 && column == startCellX,
+                                   truncateRight: shiftx != 0 && column == endCellX)
                     /*
                     Cells.writeCell(buffer: &self._buffer,
                                     cellSize: self._cellSize,
-                                    cellCountX: ncolumns,
                                     cellBlocks: self._bufferBlocks.blocks,
                                     cellX: cell.x,
                                     cellY: cell.y,
@@ -117,10 +232,14 @@ class Cells
             }
         }
 
+        // Ignore blocks to the left of the given shiftx value.
+        //
         static func truncateLeftOf(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
             return BufferBlocks.truncateX(block, offset: offset, width: width, shiftx: shiftx)
         }
 
+        // Ignore blocks to the right of the given shiftx value.
+        //
         static func truncateRightOf(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
             return BufferBlocks.truncateX(block, offset: offset, width: width, shiftx: -shiftx)
         }
@@ -132,6 +251,45 @@ class Cells
         // a negative shiftx means to truncate the values (pixels) RIGHT of the given shiftx value.
         //
         static func truncateX(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
+            var blocks: [BufferBlock] = []
+            var start: Int? = nil
+            var count = 0
+            // let shiftw = (shiftx > 0) ? shiftx : ((shiftx < 0) ? (width + shiftx) : 0)
+            // let shiftw = (shiftx > 0) ? shiftx : ((shiftx < 0) ? -shiftx : 0)
+            let shiftw = abs(shiftx)
+            for i in 0..<block.count {
+                // let starti = offset + block.index + i * Memory.bufferBlockSize
+                let starti = /*offset +*/ block.index + i * Memory.bufferBlockSize
+                let shift = (starti / Memory.bufferBlockSize) % width
+                //
+                // This the below uncommented if-expression was suggested by ChatGPT as a simplification
+                // of this if-expression; it is still not entirely clear to me why/how these are equivalent:
+                //
+                //  (((shiftx > 0) && (shift >= shiftw)) || ((shiftx < 0) && (shift < shiftw)))
+                //
+                if ((shiftx != 0) && ((shiftx > 0) == (shift >= shiftw))) {
+                    if (start == nil) {
+                        start = starti
+                        count = 1
+                    } else {
+                        count += 1
+                    }
+                } else if (start != nil) {
+                    // blocks.append(BufferBlock(index: start! - offset, count: count,
+                    blocks.append(BufferBlock(index: start! /*- offset*/, count: count,
+                                              foreground: block.foreground, blend: block.blend))
+                    start = nil
+                    count = 0
+                }
+            }
+            if (start != nil) {
+                // blocks.append(BufferBlock(index: start! - offset, count: count,
+                blocks.append(BufferBlock(index: start! /*- offset*/, count: count,
+                                          foreground: block.foreground, blend: block.blend))
+            }
+            return blocks
+        }
+        static func old_truncateX(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
             var blocks: [BufferBlock] = []
             var start: Int? = nil
             var count = 0
@@ -290,229 +448,43 @@ class Cells
 
     func writeCell(x: Int, y: Int,
                    shiftx: Int = 0, shifty: Int = 0,
-                   foreground: CellColor, background: CellColor,
-                   limit: Bool = false, tmp_ncolumns: Int? = nil) {
+                   foreground: CellColor, background: CellColor, limit: Bool = false,
+                   truncateLeft: Bool = false, truncateRight: Bool = false) {
         self.writeCell(buffer: &self._buffer, x: x, y: y,
                        shiftx: shiftx, shifty: shifty,
-                       foreground: foreground, background: background,
-                       limit: limit, tmp_ncolumns: tmp_ncolumns)
+                       foreground: foreground, background: background, limit: limit,
+                       truncateLeft: truncateLeft, truncateRight: truncateRight)
     }
 
     private func writeCell(buffer: inout [UInt8],
                           x: Int, y: Int,
                           shiftx: Int = 0, shifty: Int = 0,
-                          foreground: CellColor, background: CellColor,
-                          limit: Bool = false, tmp_ncolumns: Int? = nil)
+                          foreground: CellColor, background: CellColor, limit: Bool = false,
+                          truncateLeft: Bool = false, truncateRight: Bool = false)
     {
-        let shiftX: Int = self._grid.scaled(shiftx)
-        let shiftY: Int = self._grid.scaled(shifty)
-        let offset: Int = ((self._cellSize * x) + shiftX + (self._cellSize * self._displayWidth * y + shiftY * self._displayWidth)) * Screen.depth
+        // TODO: guard ...
+        // TODO: special case for foreground == background - just write/fill square
+
+        let offset: Int = ((self._cellSize * x) + shiftx + (self._cellSize * self._displayWidth * y + shifty * self._displayWidth)) * Screen.depth
         let size: Int = buffer.count
 
-        // let ncolumns = tmp_ncolumns != nil ? tmp_ncolumns! : self.ncolumns
-        let ncolumns = tmp_ncolumns != nil ? tmp_ncolumns! : (shiftx != 0 ? self.ncolumns + 1 : self.ncolumns)
-
-        // Cheat sheet on shifting right (shiftx > 0); shifting vertically just falls out,
-        // as well as shifting horizontally left, but not so for shifting horizontally right.
-        // For example, this (WxH) grid, and the one-dimensional buffer for it ...
-        //
-        //       x . . .
-        //       0   1   2   3   4   5
-        //     +---+---+---+---+---+---+
-        //     | A | B | C | J | K | L | 0  y
-        //     +---+---+---+---+---+---+    .
-        //     | D | E | F | M | N | O | 1  .
-        //     +---+---+---+---+---+---+    .
-        //     | G | H | I | P | Q | R | 2
-        //     +---+---+---+---+---+---+
-        //     | S | T | U | b | c | d | 3
-        //     +---+---+---+---+---+---+
-        //     | V | W | X | e | f | g | 4
-        //     +---+---+---+---+---+---+
-        //     | Y | Z | a | h | i | j | 5
-        //     +---+---+---+---+---+---+
-        //       ^   ^            ^   ^
-        //       |   |            |   |
-        //       -   -            -   -
-        // If we want to ignore the 2 (S) left-most columns due to right shift,
-        // then we want to ignore (i.e. not write) buffer indices (I) where: I % W < S
-        // Conversely, if we want to ignore the 2 (S) right-most columns due to left shift,
-        // then we want to ignore (i.e. not write) buffer indices (I) where: (I % W) >= (W - S)
-        //
-        //      0: A -> I % W ==  0 % 6 == 0 <<< ignore on rshift-2: A
-        //      1: B -> I % W ==  1 % 6 == 1 <<< ignore on rshift-2: B
-        //      2: C -> I % W ==  2 % 6 == 2
-        //      3: J -> I % W ==  3 % 6 == 3
-        //      4: K -> I % W ==  4 % 6 == 4 <<< ignore on lshift-2: K
-        //      5: L -> I % W ==  5 % 6 == 5 <<< ignore on lshift-2: L
-        //      6: D -> I % W ==  6 % 6 == 0 <<< ignore on rshift-2: D
-        //      7: E -> I % W ==  7 % 6 == 1 <<< ignore on rshift-2: E
-        //      8: F -> I % W ==  8 % 6 == 2
-        //      9: M -> I % W ==  9 % 6 == 3
-        //     10: N -> I % W == 10 % 6 == 4 <<< ignore on lshift-2: N
-        //     11: O -> I % W == 11 % 6 == 5 <<< ignore on lshift-2: O
-        //     12: G -> I % W == 12 % 6 == 0 <<< ignore on rshift-2: G
-        //     13: H -> I % W == 13 % 6 == 1 <<< ignore on rshift-2: H
-        //     14: I -> I % W == 14 % 6 == 2
-        //     15: P -> I % W == 15 % 6 == 3
-        //     16: Q -> I % W == 16 % 6 == 4 <<< ignore on lshift-2: Q
-        //     17: R -> I % W == 17 % 6 == 5 <<< ignore on lshift-2: R
-        //     18: S -> I % W == 18 % 6 == 0 <<< ignore on rshift-2: S
-        //     19: T -> I % W == 19 % 6 == 1 <<< ignore on rshift-2: T
-        //     20: U -> I % W == 20 % 6 == 2
-        //     21: b -> I % W == 21 % 6 == 3
-        //     22: c -> I % W == 22 % 6 == 4 <<< ignore on lshift-2: c
-        //     23: d -> I % W == 23 % 6 == 5 <<< ignore on lshift-2: d
-        //     24: V -> I % W == 24 % 6 == 0 <<< ignore on rshift-2: V
-        //     25: W -> I % W == 25 % 6 == 1 <<< ignore on rshift-2: W
-        //     26: X -> I % W == 26 % 6 == 2
-        //     27: e -> I % W == 27 % 6 == 3
-        //     28: f -> I % W == 28 % 6 == 4 <<< ignore on lshift-2: f
-        //     29: g -> I % W == 29 % 6 == 5 <<< ignore on lshift-2: g
-        //     30: Y -> I % W == 30 % 6 == 0 <<< ignore on rshift-2: Y
-        //     31: Z -> I % W == 31 % 6 == 1 <<< ignore on rshift-2: Z
-        //     32: a -> I % W == 32 % 6 == 2
-        //     33: h -> I % W == 33 % 6 == 3
-        //     34: i -> I % W == 34 % 6 == 4 <<< ignore on lshift-2: i
-        //     35: j -> I % W == 35 % 6 == 5 <<< ignore on lshift-2: j
-        //
-        // Note that the BufferBlock.index is a byte index into the buffer,
-        // i.e. it already has Screen.depth factored into it; and note that
-        // the BufferBlock.count refers to the number of 4-byte (UInt32) values,
-        //
-        // To ignore the left-most SX columns: OK
-        // BufferBlocks.truncateX(block, offset: offset, width: self._displayWidth, shiftx: SX)
-        //
-        // To ignore the right-most SX columns: ???
-        // BufferBlocks.truncateX(block, offset: offset, width: self._displayWidth, shiftx: -SX)
-
-        if x == 9 {
-            var x = 1
-        }
-        else if x == 10 {
-            var x = 1
-        }
         buffer.withUnsafeMutableBytes { raw in
             guard let base = raw.baseAddress else { return }
-            /*
-                if x == 0 && y == 1 {
-                    for block in self._bufferBlocks.blocks {
-                        block.dump(verbose: true, width: self._displayWidth)
-                        writeCellBlock(buffer: base, block: block, foreground: foreground, background: background)
-                    }
-                    return
-                }
-            */
             for block in self._bufferBlocks.blocks {
-                // tmp-xyzzy
-                if x == 0 && y == 1 {
-                    // for block in BufferBlocks.truncateLeft(block, offset: offset, width: self._displayWidth, shiftx: 10) { // OK
-                    // for block in BufferBlocks.truncateRight(block, offset: offset, width: self._displayWidth, shiftx: self._cellSize - 10) {
-                    // for block in BufferBlocks.truncateX(block, offset: offset, width: self._displayWidth, shiftx: 10) {
-                    for block in BufferBlocks.truncateLeftOf(block, offset: offset, width: self._displayWidth, shiftx: 10) {
-                        block.dump(verbose: true, code: true, width: self._displayWidth)
-                        writeCellBlock(buffer: base, block: block, foreground: foreground, background: background)
-                    }
-                    continue
-                }
-                else { continue }
-                // tmp-xyzzy
-                if (shiftX > 0) {
-                    //
-                    // This prevents cells showing up of the left when shifting right.
-                    // this will surely change with the introduction of a huge virtual grid.
-                    //
-                    if (x >= ncolumns) {
-                        continue
-                    } 
-                    let shiftc: Int = (shiftX / self._cellSize) + 1
-                    let shiftcr: Int = ncolumns - shiftc
-                    // if (x == shiftcr) { // works with first test
-                    // if ((x == shiftcr) || (x == shiftcr - 1)) { // new works with shiftx=50 but not with 20
-                    //
-                    // This seems to work with the second/new test:
-                    //
-                    //       if (x == shiftcr - 1) { ... }
-                    //       else if (x > shiftcr - 1) { ... }
-                    //
-                    // This works with the first test:
-                    //
-                    //       if (x == shiftcr) { ... }
-                    //       else if (x > shiftcr) { ... }
-                    //
-                    if (x == shiftcr - 1) {
-                        for block in BufferBlocks.truncateX(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
-                            // writeCellBlock(buffer: base, block: block)
-                            writeCellBlock(buffer: base, block: block, foreground: foreground, background: background)
-                        }
-                        continue
-                    }
-                    else if (x > shiftcr - 1) {
-                        continue
-                    }
-                }
-                else if (shiftX < 0) {
-                    let shiftc: Int = (-shiftX / self._cellSize)
-                    // let shiftcr: Int = ncolumns - shiftc - 1
-                    let shiftcr: Int = ncolumns + shiftc - 1
-                    if (x == shiftcr) {
-                        for block in BufferBlocks.truncateX(block, offset: offset, width: self._displayWidth,
-                                                        shiftx: self._cellSize + shiftX) {
-                            // writeCellBlock(buffer: base, block: block)
-                            // writeCellBlock(buffer: base, block: block, foreground: foreground, background: background)
-                            writeCellBlock(buffer: base, block: block, foreground: CellColor(Color.gray), background: background)
-                        }
-                        continue
-                    }
-                    else if (x == shiftc) {
-                        for block in BufferBlocks.truncateX(block, offset: offset, width: self._displayWidth, shiftx: shiftX) {
-                            // writeCellBlock(buffer: base, block: block)
-                            writeCellBlock(buffer: base, block: block, foreground: foreground, background: background)
-                        }
-                        continue
-                    }
-                    else if (x < shiftc) {
-                        continue
-                    }
-                }
-                // writeCellBlock(buffer: base, block: block)
-                writeCellBlock(buffer: base, block: block, foreground: foreground, background: background)
+                writeCellBlock(buffer: base, block: block)
             }
         }
 
-        /*
+        // Writes the given buffer block to the backing image (pixel value) buffer; each block describing a
+        // range of indices and whether the block is for a foreground or background color, and the amount
+        // it should be blended with the background if it is for a foreground color).
+        // N.B. From the outer function scope: offset, size, foreground, background, limit
+        //
         func writeCellBlock(buffer: UnsafeMutableRawPointer, block: BufferBlock)  {
             let start: Int = offset + block.index
-            guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else { return }
-            let base = buffer.advanced(by: start)
-            var color: CellColor
-            if (block.foreground) {
-                if (block.blend != 0.0) {
-                    color = CellColor(Cells.blend(foreground.red,   background.red,   amount: block.blend),
-                                      Cells.blend(foreground.green, background.green, amount: block.blend),
-                                      Cells.blend(foreground.blue,  background.blue,  amount: block.blend),
-                                      alpha: foreground.alpha)
-                }
-                else {
-                    color = foreground
-                }
-            }
-            else if (limit) {
-                //
-                // Limit the write to only the foreground; can be useful
-                // for performance as background normally doesn't change.
-                //
+            guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else {
                 return
             }
-            else {
-                color = background
-            }
-            Memory.fastcopy(to: base, count: block.count, value: color.value)
-        }
-        */
-        func writeCellBlock(buffer: UnsafeMutableRawPointer, block: BufferBlock, foreground: CellColor, background: CellColor)  {
-            let start: Int = offset + block.index
-            guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else { return }
             let base = buffer.advanced(by: start)
             var color: CellColor
             if (block.foreground) {
@@ -542,7 +514,6 @@ class Cells
 
     private static func writeCell(buffer: inout [UInt8],
                                   cellSize: Int, // self._cellSize - scaled
-                                  cellCountX: Int, // tmp_columns or self.ncolumns - total number of cell columns (cell horizontally not just in the view)
                                   cellBlocks: [BufferBlock],
                                   cellX: Int,
                                   cellY: Int, // cell-relative position - (0, 0) top-left thru (viewWidth / cellSize - 1, viewHeight / cellSize - 1)
@@ -628,50 +599,23 @@ class Cells
         buffer.withUnsafeMutableBytes { raw in
             guard let base = raw.baseAddress else { return }
             for block in cellBlocks {
-                if (shiftX > 0) {
-                    //
-                    // This prevents cells showing up of the left when shifting right.
-                    // this will surely change with the introduction of a huge virtual grid.
-                    //
-                    let shiftc: Int = (shiftX / cellSize) + 1
-                    let shiftcr: Int = cellCountX - shiftc
-                    if (cellX == shiftcr) {
-                        for block in BufferBlocks.truncateX(block, offset: offset, width: viewWidth, shiftx: shiftX) {
-                            writeCellBlock(buffer: base, block: block)
-                        }
-                        continue
-                    }
-                    else if (cellX > shiftcr) {
-                        continue
-                    }
-                }
-                else if (shiftX < 0) {
-                    let shiftc: Int = (-shiftX / cellSize)
-                    let shiftcr: Int = cellCountX - shiftc - 1
-                    if (cellX == shiftcr) {
-                        for block in BufferBlocks.truncateX(block, offset: offset, width: viewWidth,
-                                                        shiftx: cellSize + shiftX) {
-                            writeCellBlock(buffer: base, block: block)
-                        }
-                        continue
-                    }
-                    else if (cellX == shiftc) {
-                        for block in BufferBlocks.truncateX(block, offset: offset, width: viewWidth, shiftx: shiftX) {
-                            writeCellBlock(buffer: base, block: block)
-                        }
-                        continue
-                    }
-                    else if (cellX < shiftc) {
-                        continue
-                    }
-                }
+                //
+                // TODO: Horizontal shift handling.
+                //
                 writeCellBlock(buffer: base, block: block)
             }
         }
 
-        func writeCellBlock(buffer: UnsafeMutableRawPointer, block: BufferBlock)  {
+        // Writes the given buffer block to the backing image (pixel value) buffer; each block describing a
+        // range of indices and whether the block is for a foreground or background color, and the amount
+        // it should be blended with the background if it is for a foreground color).
+        // N.B. From the outer function scope: offset, size, cellForeground
+        //
+        func writeCellBlock(buffer: UnsafeMutableRawPointer, block: BufferBlock) {
             let start: Int = offset + block.index
-            guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else { return }
+            guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else {
+                return
+            }
             let base = buffer.advanced(by: start)
             var color: CellColor
             if (block.foreground) {

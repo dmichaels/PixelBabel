@@ -10,7 +10,7 @@ class CellGrid: ObservableObject
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = false
+        public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
         public static let cellSize: Int = 42 // 43
         public static let cellSizeNeat: Bool = true
@@ -314,7 +314,8 @@ class CellGrid: ObservableObject
                 self._cells!.fill(self._cellBackground)
                 for cell in self._cells!.cells {
                     self._cells!.writeCell(x: cell.x, y: cell.y,
-                                           shiftx: shiftx, shifty: shifty,
+                                           // shiftx: shiftx, shifty: shifty,
+                                           shiftx: self.scaled(shiftx), shifty: self.scaled(shifty),
                                            foreground: cell.foreground, background: cell.background,
                                            limit: false)
                 }
@@ -360,7 +361,6 @@ class CellGrid: ObservableObject
     }
 
     func testingLifeSetup() {
-/*
         var cells: [Cell] = []
         let ncolumns = 12 /// 100
         let nrows = 21 /// 20 /// 100
@@ -394,9 +394,9 @@ class CellGrid: ObservableObject
                 cells.append(cell)
             }
         }
-        // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: -60, shifty: 0)
-        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 0, shifty: 0)
-*/
+        // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 30, shifty: 0)
+        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 60, shifty: 0)
+/*
         if let cells = self._cells {
             for case let cell as LifeCell in cells.cells {
                 cell.deactivate()
@@ -411,6 +411,7 @@ class CellGrid: ObservableObject
                 }
             }
         }
+*/
     }
 
     func testingLife() {
