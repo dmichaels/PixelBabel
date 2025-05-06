@@ -81,96 +81,42 @@ class Cells
 
         // TODO ...
         //
-        let viewCellExtraX = (shiftCellX != 0) ? 1 : 0
-        let viewCellExtraY = (shiftCellY != 0) ? 1 : 0
+        let viewCellExtraX = (shiftX != 0) ? 1 : 0
+        let viewCellExtraY = (shiftY != 0) ? 1 : 0
 
-        for vy in 0..<viewCellRows {
-            for vx in 0..<viewCellColumns {
-                let cellX: Int = vx - shiftCellX - viewCellExtraX
-                let cellY: Int = vy - shiftCellY - viewCellExtraY
+        for vy in 0..<(viewCellRows + viewCellExtraY) {
+            for vx in 0..<(viewCellColumns + viewCellExtraX) {
+                let cellX: Int = vx - shiftCellX // - viewCellExtraX // ok i think
+                let cellY: Int = vy - shiftCellY // - viewCellExtraY // ok i think
+                // let cellX: Int = vx - shiftCellX - viewCellExtraX
+                // let cellY: Int = vy - shiftCellY - viewCellExtraY
                 if ((cellX < 0) || (cellY < 0)) {
                     if (writeBlankCells) {
                         self.writeCell(x: vx, y: vy,
                                        shiftx: shiftX, shifty: shiftY,
+                                       // foreground: self._cellBackground,
+                                       // background: self._cellBackground,
                                        foreground: CellColor(Color.red), // self._cellBackground,
                                        background: CellColor(Color.red), // self._cellBackground,
                                        limit: false,
-                                       truncateLeft: false, truncateRight: false)
+                                       truncateLeft: 0, truncateRight: 0) // TODO
                     }
                     continue
                 }
                 if let cell: Cell = cell(x: cellX, y: cellY) {
+                    let truncateLeft: Int = ((shiftX > 0) && (vx == 0)) ? self._cellSize - shiftX :
+                                            (((shiftX < 0) && (vx == 0)) ? shiftX : 0)
+                    let truncateRight: Int = ((shiftX > 0) && (vx == viewCellEndX)) ? shiftX :
+                                             (((shiftX < 0) && (vx == viewCellEndX)) ? (self._cellSize - shiftX) : 0)
                     self.writeCell(x: vx, y: vy,
                                    shiftx: shiftX, shifty: shiftY,
                                    foreground: cell.foreground,
                                    background: self._cellBackground, limit: false,
-                                   truncateLeft: false, truncateRight: shiftX != 0 && vx == viewCellEndX)
-                }
-            }
-        }
-    }
+                                   truncateLeft: truncateLeft,
+                                   truncateRight: truncateRight)
 
-    public func old_setView(cells: [Cell], ncolumns: Int, nrows: Int, x: Int, y: Int, shiftx: Int = 0, shifty: Int = 0)
-    {
-        func cell<T: Cell>(x: Int, y: Int) -> T? {
-            guard x >= 0, y >= 0, x < ncolumns, y < nrows else {
-                return nil
-            }
-            return cells[y * ncolumns + x] as? T
-        }
-
-        let shiftX = self._grid.scaled(shiftx)
-        let shiftY = self._grid.scaled(shifty)
-
-        /*
-        let viewCellWidth = self._displayWidth / self._cellSize 
-        let viewCellHeight = self._displayHeight / self._cellSize 
-
-        let shiftCellX = shiftX / self._cellSize
-        let shiftCellY = shiftY / self._cellSize
-
-        let startCellX = x - shiftCellX
-        let endCellX = ? // startCellX + viewCellWidth + (shiftX != 0 ? 1 : 0) - 1 
-        let endCellX = startCellX + self.ncolumns + (shiftX != 0 ? 1 : 0) - 1 
-        let startCellY = y - shiftCellY
-        let endCellY = ? // startCellY + viewCellHeight + (shiftY != 0 ? 1 : 0) - 1 
-        */
-
-        let startCellX = x - (shiftX / self._cellSize)
-        let endCellX = startCellX + self.ncolumns + (shiftX != 0 ? 1 : 0) - 1 
-        let startCellY = y - (shiftY / self._cellSize)
-        let endCellY = startCellY + self.nrows + (shiftY != 0 ? 1 : 0) - 1 
-
-        let viewStartCellX = (shiftx > 0) ? startCellX + (self._cellSize / shiftx) : startCellX
-        let viewEndCellX = (shiftx < 0) ? endCellX - (self._cellSize / -shiftx) : endCellX
-
-        for row in startCellY...endCellY{
-            for column in startCellX...endCellX {
-                if let cell: Cell = cell(x: column, y: row) {
-                    print("WC: [\(column),\(row)] = [\(cell.x),\(cell.y)] SXY: [\(startCellX),\(endCellX)] TL: \(shiftx != 0 && column == startCellX) TR: \(shiftx != 0 && column == endCellX))")
-                    // self.writeCell(x: cell.x, y: cell.y,
-                    self.writeCell(x: column, y: row,
-                                   shiftx: shiftx, shifty: shifty, // NOTE UNSCALED FOR THIS VERSION OF writeCell (it does scaling)
-                                   foreground: cell.foreground, background: cell.background,
-                                   limit: false,
-                                   truncateLeft: shiftx != 0 && column == startCellX,
-                                   truncateRight: shiftx != 0 && column == endCellX)
-                    /*
-                    Cells.writeCell(buffer: &self._buffer,
-                                    cellSize: self._cellSize,
-                                    cellBlocks: self._bufferBlocks.blocks,
-                                    cellX: cell.x,
-                                    cellY: cell.y,
-                                    cellForeground: cell.foreground,
-                                    cellBackground: cell.background,
-                                    cellForegroundOnly: false,
-                                    shiftX: self._grid.scaled(0),
-                                    shiftY: self._grid.scaled(0),
-                                    // shiftX: self._grid.scaled(200),
-                                    // shiftY: self._grid.scaled(200),
-                                    viewWidth: self._displayWidth,
-                                    viewHeight: self._displayHeight)
-                    */
+                                   // truncateLeft: (shiftX < 0) && (vx == 0),
+                                   // truncateRight: (shiftX != 0) && (vx == viewCellEndX + 0))
                 }
             }
         }
@@ -407,7 +353,7 @@ class Cells
     func writeCell(x: Int, y: Int,
                    shiftx: Int = 0, shifty: Int = 0,
                    foreground: CellColor, background: CellColor, limit: Bool = false,
-                   truncateLeft: Bool = false, truncateRight: Bool = false) {
+                   truncateLeft: Int = 0, truncateRight: Int = 0) {
         self.writeCell(buffer: &self._buffer, x: x, y: y,
                        shiftx: shiftx, shifty: shifty,
                        foreground: foreground, background: background, limit: limit,
@@ -418,7 +364,7 @@ class Cells
                           x: Int, y: Int,
                           shiftx: Int = 0, shifty: Int = 0,
                           foreground: CellColor, background: CellColor, limit: Bool = false,
-                          truncateLeft: Bool = false, truncateRight: Bool = false)
+                          truncateLeft: Int = 0, truncateRight: Int = 0)
     {
         // TODO: guard ...
         // TODO: special case for foreground == background - just write/fill square
@@ -429,14 +375,21 @@ class Cells
         buffer.withUnsafeMutableBytes { raw in
             guard let base = raw.baseAddress else { return }
             for block in self._bufferBlocks.blocks {
-                if (truncateLeft) {
+                if (truncateLeft > 0) {
+                    let truncatedBlocks = BufferBlocks.truncateLeftOf(block,
+                                                                      offset: offset,
+                                                                      width: self._displayWidth,
+                                                                      shiftx: truncateLeft)
+                    for block in truncatedBlocks {
+                        writeCellBlock(buffer: base, block: block)
+                    }
                     continue
                 }
-                else if (truncateRight) {
+                else if (truncateRight > 0) {
                     let truncatedBlocks = BufferBlocks.truncateRightOf(block,
                                                                        offset: offset,
                                                                        width: self._displayWidth,
-                                                                       shiftx: self._cellSize - abs(shiftx))
+                                                                       shiftx: truncateRight)
                     for block in truncatedBlocks {
                         writeCellBlock(buffer: base, block: block)
                     }

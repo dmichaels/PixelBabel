@@ -373,6 +373,9 @@ class CellGrid: ObservableObject
                 else if ((x == 1) /* && (y == 0) */ ) {
                     fg = CellColor(Color.purple)
                 }
+                else if ((x == 7) /* && (y == 0) */ ) {
+                    fg = CellColor(Color.mint)
+                }
                 else if ((x == 8) /* && (y == 0) */ ) {
                     fg = CellColor(Color.green)
                 }
@@ -395,7 +398,7 @@ class CellGrid: ObservableObject
             }
         }
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 30, shifty: 0)
-        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 60, shifty: 0)
+        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: -30, shifty: 0)
 /*
         if let cells = self._cells {
             for case let cell as LifeCell in cells.cells {
