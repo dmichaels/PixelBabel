@@ -84,20 +84,18 @@ class Cells
         let viewCellExtraX = (shiftCellX != 0) ? 1 : 0
         let viewCellExtraY = (shiftCellY != 0) ? 1 : 0
 
-        for vy in 0..<(viewCellRows /*+ viewCellExtraY*/) {
-            for vx in 0..<(viewCellColumns /*+ viewCellExtraX*/) {
+        for vy in 0..<viewCellRows {
+            for vx in 0..<viewCellColumns {
                 let cellX: Int = vx - shiftCellX - viewCellExtraX
                 let cellY: Int = vy - shiftCellY - viewCellExtraY
-                if vy == 0 {
-                    var x = 1
-                }
-                if ((cellX < 0) || (cellY < 0)) { // ((vx < shiftCellX) || (vy < shiftCellY))
+                if ((cellX < 0) || (cellY < 0)) {
                     if (writeBlankCells) {
                         self.writeCell(x: vx, y: vy,
                                        shiftx: shiftX, shifty: shiftY,
                                        foreground: CellColor(Color.red), // self._cellBackground,
                                        background: CellColor(Color.red), // self._cellBackground,
-                                       limit: false)
+                                       limit: false,
+                                       truncateLeft: false, truncateRight: false)
                     }
                     continue
                 }
@@ -105,7 +103,8 @@ class Cells
                     self.writeCell(x: vx, y: vy,
                                    shiftx: shiftX, shifty: shiftY,
                                    foreground: cell.foreground,
-                                   background: self._cellBackground, limit: false)
+                                   background: self._cellBackground, limit: false,
+                                   truncateLeft: false, truncateRight: shiftX != 0 && vx == viewCellEndX)
                 }
             }
         }
@@ -254,12 +253,9 @@ class Cells
             var blocks: [BufferBlock] = []
             var start: Int? = nil
             var count = 0
-            // let shiftw = (shiftx > 0) ? shiftx : ((shiftx < 0) ? (width + shiftx) : 0)
-            // let shiftw = (shiftx > 0) ? shiftx : ((shiftx < 0) ? -shiftx : 0)
             let shiftw = abs(shiftx)
             for i in 0..<block.count {
-                // let starti = offset + block.index + i * Memory.bufferBlockSize
-                let starti = /*offset +*/ block.index + i * Memory.bufferBlockSize
+                let starti = block.index + i * Memory.bufferBlockSize
                 let shift = (starti / Memory.bufferBlockSize) % width
                 //
                 // This the below uncommented if-expression was suggested by ChatGPT as a simplification
@@ -275,52 +271,14 @@ class Cells
                         count += 1
                     }
                 } else if (start != nil) {
-                    // blocks.append(BufferBlock(index: start! - offset, count: count,
-                    blocks.append(BufferBlock(index: start! /*- offset*/, count: count,
+                    blocks.append(BufferBlock(index: start!, count: count,
                                               foreground: block.foreground, blend: block.blend))
                     start = nil
                     count = 0
                 }
             }
             if (start != nil) {
-                // blocks.append(BufferBlock(index: start! - offset, count: count,
-                blocks.append(BufferBlock(index: start! /*- offset*/, count: count,
-                                          foreground: block.foreground, blend: block.blend))
-            }
-            return blocks
-        }
-        static func old_truncateX(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
-            var blocks: [BufferBlock] = []
-            var start: Int? = nil
-            var count = 0
-            // let shiftw = (shiftx > 0) ? shiftx : ((shiftx < 0) ? (width + shiftx) : 0)
-            // let shiftw = (shiftx > 0) ? shiftx : ((shiftx < 0) ? -shiftx : 0)
-            let shiftw = abs(shiftx)
-            for i in 0..<block.count {
-                let starti = offset + block.index + i * Memory.bufferBlockSize
-                let shift = (starti / Memory.bufferBlockSize) % width
-                //
-                // This the below uncommented if-expression was suggested by ChatGPT as a simplification
-                // of this if-expression; it is still not entirely clear to me why/how these are equivalent:
-                //
-                //  (((shiftx > 0) && (shift >= shiftw)) || ((shiftx < 0) && (shift < shiftw)))
-                //
-                if ((shiftx != 0) && ((shiftx > 0) == (shift >= shiftw))) {
-                    if (start == nil) {
-                        start = starti
-                        count = 1
-                    } else {
-                        count += 1
-                    }
-                } else if (start != nil) {
-                    blocks.append(BufferBlock(index: start! - offset, count: count,
-                                              foreground: block.foreground, blend: block.blend))
-                    start = nil
-                    count = 0
-                }
-            }
-            if (start != nil) {
-                blocks.append(BufferBlock(index: start! - offset, count: count,
+                blocks.append(BufferBlock(index: start!, count: count,
                                           foreground: block.foreground, blend: block.blend))
             }
             return blocks
@@ -471,6 +429,19 @@ class Cells
         buffer.withUnsafeMutableBytes { raw in
             guard let base = raw.baseAddress else { return }
             for block in self._bufferBlocks.blocks {
+                if (truncateLeft) {
+                    continue
+                }
+                else if (truncateRight) {
+                    let truncatedBlocks = BufferBlocks.truncateRightOf(block,
+                                                                       offset: offset,
+                                                                       width: self._displayWidth,
+                                                                       shiftx: self._cellSize - abs(shiftx))
+                    for block in truncatedBlocks {
+                        writeCellBlock(buffer: base, block: block)
+                    }
+                    continue
+                }
                 writeCellBlock(buffer: base, block: block)
             }
         }
