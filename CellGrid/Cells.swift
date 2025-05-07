@@ -14,7 +14,7 @@ class Cells
     // TODO
     // Create a CellGridView to encapsulate all this;
     // maybe it ends up replacing this Cells class entirely.
-    /
+    //
     public func setView(cells: [Cell], ncolumns: Int, nrows: Int, shiftx: Int = 0, shifty: Int = 0)
     {
         func cell<T: Cell>(_ x: Int, _ y: Int) -> T? {
