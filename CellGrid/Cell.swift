@@ -40,11 +40,13 @@ class Cell
     }
 
     public func write(foreground: CellColor, limit: Bool = false) {
+        print("XYZZY-WRITE-A")
         self._foreground = foreground
         self._parent.writeCell(x: self.x, y: self.y, foreground: foreground, background: background, limit: limit)
     }
 
     public func write(foreground: CellColor, background: CellColor, limit: Bool = false) {
+        print("XYZZY-WRITE-B")
         self._foreground = foreground
         self._background = background
         self._parent.writeCell(x: self.x, y: self.y, foreground: foreground, background: background, limit: limit)

@@ -269,6 +269,8 @@ class Cells
         self._cellFactory = cellFactory
         self._cells = []
         self._buffer = [UInt8](repeating: 0, count: self._displayWidth * self._displayHeight * Screen.depth)
+        print("CREATE-BUFFER-BLOCKS> BUFFER-SIZE: \(self._buffer.count)")
+        let start = Date()
         self._bufferBlocks = Cells.createBufferBlocks(bufferSize: self._buffer.count,
                                                       displayWidth: self._displayWidth,
                                                       displayHeight: self._displayHeight,
@@ -281,6 +283,7 @@ class Cells
                 self.defineCell(x: x, y: y, foreground: cellForeground, background: self._cellBackground)
             }
         }
+        print(String(format: "CREATE-BUFFER-BLOCKS-TIME> %.5fs", Date().timeIntervalSince(start)))
     }
 
     var cells: [Cell] {
@@ -587,15 +590,15 @@ class Cells
                                            cellShape: CellShape,
                                            cellTransparency: UInt8) -> BufferBlocks
     {
-        let bufferBlocks: BufferBlocks = BufferBlocks()
-
-        var cellPaddingThickness: Int = 0
-        if ((cellPadding > 0) && (cellSize >= 6) && (cellShape != .square)) {
-            cellPaddingThickness = cellPadding
-        }
-
-        let cellSizeAdjusted = cellSize - (2 * cellPaddingThickness)
-        let fadeRange: Float = 0.6 // smaller is smoother
+        let blocks: BufferBlocks = BufferBlocks()
+        let padding: Int = ((cellPadding > 0) && (cellShape != .square))
+                           ? (((cellPadding * 2) >= cellSize)
+                             ? ((cellSize / 2) - 1)
+                             : cellPadding)
+                           : 0
+        let size = cellSize - (2 * padding)
+        let shape = (size < 3) ? .inset : cellShape
+        let fade: Float = 0.6  // smaller is smoother
 
         for dy in 0..<cellSize {
             for dx in 0..<cellSize {
@@ -606,10 +609,10 @@ class Cells
                 let fy: Float = Float(dy) + 0.5
                 var coverage: Float = 0.0
 
-                switch cellShape {
+                switch shape {
                 case .square, .inset:
-                    if ((dx >= cellPaddingThickness) && (dx < cellSize - cellPaddingThickness) &&
-                        (dy >= cellPaddingThickness) && (dy < cellSize - cellPaddingThickness)) {
+                    if ((dx >= padding) && (dx < cellSize - padding) &&
+                        (dy >= padding) && (dy < cellSize - padding)) {
                         coverage = 1.0
                     }
 
@@ -619,17 +622,16 @@ class Cells
                     let dxsq: Float = (fx - centerX) * (fx - centerX)
                     let dysq: Float = (fy - centerY) * (fy - centerY)
                     let dist: Float = sqrt(dxsq + dysq)
-                    let circleRadius: Float = Float(cellSizeAdjusted) / 2.0
+                    let circleRadius: Float = Float(size) / 2.0
                     let d: Float = circleRadius - dist
-                    coverage = max(0.0, min(1.0, d / fadeRange))
+                    coverage = max(0.0, min(1.0, d / fade))
 
                 case .rounded:
-                    let cornerRadius: Float = Float(cellSizeAdjusted) * 0.25
-                    let cr2: Float = cornerRadius * cornerRadius
-                    let minX: Float = Float(cellPaddingThickness)
-                    let minY: Float = Float(cellPaddingThickness)
-                    let maxX: Float = Float(cellSize - cellPaddingThickness)
-                    let maxY: Float = Float(cellSize - cellPaddingThickness)
+                    let cornerRadius: Float = Float(size) * 0.25
+                    let minX: Float = Float(padding)
+                    let minY: Float = Float(padding)
+                    let maxX: Float = Float(cellSize - padding)
+                    let maxY: Float = Float(cellSize - padding)
                     if ((fx >= minX + cornerRadius) && (fx <= maxX - cornerRadius)) {
                         if ((fy >= minY) && (fy <= maxY)) {
                             coverage = 1.0
@@ -647,23 +649,23 @@ class Cells
                         let dy: Float = fy - cy
                         let dist: Float = sqrt(dx * dx + dy * dy)
                         let d: Float = cornerRadius - dist
-                        coverage = max(0.0, min(1.0, d / fadeRange))
+                        coverage = max(0.0, min(1.0, d / fade))
                     }
                 }
 
                 let i: Int = (dy * displayWidth + dx) * Screen.depth
                 if ((i >= 0) && ((i + (Screen.depth - 1)) < bufferSize)) {
                     if (coverage > 0) {
-                        bufferBlocks.append(index: i, foreground: true, blend: coverage)
+                        blocks.append(index: i, foreground: true, blend: coverage)
 
                     } else {
-                        bufferBlocks.append(index: i, foreground: false)
+                        blocks.append(index: i, foreground: false)
                     }
                 }
             }
         }
 
-        return bufferBlocks
+        return blocks
     }
 
     public static func blend(_ a: UInt8, _ b: UInt8, amount: Float) -> UInt8 {

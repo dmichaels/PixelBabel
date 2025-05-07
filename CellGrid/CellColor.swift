@@ -53,6 +53,10 @@ struct CellColor: Equatable {
         self._alpha = UInt8(alpha)
     }
 
+    // N.B. Creating UIColor many times an be sloooooooooooooow. 
+    // For example doing this 1200 * 2100 = 2,520,000 times can take
+    // nearly 2 full seconds. Be careful to avoid this if/when possible.
+    //
     init(_ color: Color) {
         self.init(UIColor(color))
     }

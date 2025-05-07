@@ -12,10 +12,15 @@ class CellGrid: ObservableObject
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 42 // 43
+        public static let cellSize: Int = 20
         public static let cellSizeNeat: Bool = true
-        public static let cellPadding: Int = 1
+        public static let cellPadding: Int = 4
         public static let cellBleed: Bool = false
+        //
+        // TODO: while dragging make the shape inset rather than rounded (or circle) for speed.
+        // For example generating grid-view with rounded is like 0.074 vs inset like  0.018.
+        // But slightly tricker as it uses scaling false so different/smaller buffer size.
+        //
         public static let cellShape: CellShape = CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color
         public static let cellForeground: CellColor = CellColor.black
@@ -361,9 +366,14 @@ class CellGrid: ObservableObject
     }
 
     func testingLifeSetup() {
+        // var start = Date()
         var cells: [Cell] = []
-        let ncolumns = 12 /// 100
-        let nrows = 21 /// 20 /// 100
+        let ncolumns = 1200 /// 100
+        let nrows = 2100 /// 20 /// 100
+        print("XYZZY-TESTING-LIFE-SETUP-A: \(ncolumns * nrows)")
+        let xyzzy = CellColor(Color.red)
+        let activeColor: CellColor = CellColor(Color.pink)
+        let inactiveColor: CellColor = CellColor(Color.teal)
         for y in 0..<nrows {
             for x in 0..<ncolumns {
                 var fg: CellColor
@@ -393,14 +403,17 @@ class CellGrid: ObservableObject
                 }
                 var cell = LifeCell(parent: self._cells!, x: x, y: y,
                                     foreground: fg, background: self._cellBackground,
-                                    activeColor: CellColor(Color.red), inactiveColor: CellColor(Color.gray))
+                                    activeColor: activeColor, inactiveColor: inactiveColor)
                 cells.append(cell)
             }
         }
+        // print(String(format: "XYZZY-TESTING-LIFE-SETUP-B: %.5fs", Date().timeIntervalSince(start)))
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 30, shifty: 0)
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 0, shifty: 0)
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 60, shifty: 0)
-        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: -200, shifty: 90)
+        let start = Date()
+        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: 0, shifty: 0)
+        print(String(format: "SETVIEW-TIME: %.5fs", Date().timeIntervalSince(start)))
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: 0, shifty: 0)
 /*
         if let cells = self._cells {
