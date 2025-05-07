@@ -139,7 +139,7 @@ struct ContentView: View
                 .navigationTitle("Home")
                 .navigationBarHidden(true)
                 // .background(self.cellGrid.background.color) // xyzzy
-                .background(Color.yellow) // xyzzy
+                .background(Color.pink) // xyzzy
                 .statusBar(hidden: true)
                 .coordinateSpace(name: "zstack")
             }

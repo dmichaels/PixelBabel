@@ -11,16 +11,14 @@ import Utils
 @MainActor
 class Cells
 {
-    public func setView(cells: [Cell], ncolumns: Int, nrows: Int, x: Int, y: Int, shiftx: Int = 0, shifty: Int = 0)
+    public func setView(cells: [Cell], ncolumns: Int, nrows: Int, shiftx: Int = 0, shifty: Int = 0)
     {
-        guard x >= 0, y >= 0, x < ncolumns, y < nrows else {
-            return
-        }
-
-        func cell<T: Cell>(x: Int, y: Int) -> T? {
+        func cell<T: Cell>(_ x: Int, _ y: Int) -> T? {
             return cells[y * ncolumns + x] as? T
         }
 
+        let cellSize: Int = self._cellSize
+        let cellBackground: CellColor = self._cellBackground
         let cellColumns: Int = ncolumns
         let cellRows: Int = nrows
         let cellEndX: Int = cellColumns - 1
@@ -79,65 +77,31 @@ class Cells
         }
         let writeBlankCells: Bool = true
 
-        let startCellX: Int = x + shiftCellX
-
-        // TODO ...
-        //
-        // let viewCellExtraX = (shiftX != 0) ? 1 : 0
-        // let viewCellExtraY = (shiftY != 0) ? 1 : 0
-        // if (shiftX != 0) { viewCellEndX += 1 }
-        // if (shiftY != 0) { viewCellEndY += 1 }
-
-        // if (shiftX < 0) { viewCellEndX += 1 }
-        // if (shiftY < 0) { viewCellEndY += 1 }
-
         if (shiftX != 0) { viewCellEndX += 1 }
         if (shiftY != 0) { viewCellEndY += 1 }
 
-//      for vy in 0..<(viewCellRows + viewCellExtraY) {
-//          for vx in 0..<(viewCellColumns + viewCellExtraX) {
-
         for vy in 0...viewCellEndY {
             for vx in 0...viewCellEndX {
-
-                // let cellX: Int = vx - shiftCellX
-                // let cellY: Int = vy - shiftCellY
-                let cellX: Int = vx - shiftCellX - (shiftX > 0 ? 0 : 0)
-                let cellY: Int = vy - shiftCellY - (shiftY > 0 ? 0 : 0)
-                let truncateLeft: Int = ((shiftX > 0) && (vx == 0) && (cellX > 0)) ? self._cellSize - shiftX :
-                                        (((shiftX < 0) && (vx == 0)) ? -shiftX : 0)
-                // let truncateRight: Int = ((shiftX > 0) && (vx == viewCellEndX)) ? shiftX :
-                // let truncateRight: Int = ((shiftX > 0) && (vx == viewCellEndX)) ? (self._cellSize - shiftX) :
-                let truncateRight: Int = ((shiftX > 0) && (vx == viewCellEndX - shiftCellX)) ? (self._cellSize - shiftX) :
-                                         (((shiftX < 0) && (vx == viewCellEndX)) ? -shiftX : 0)
-                if cellY == 0 {
-                    var x = 1
-                }
-                // if ((shiftCellX > 0) && (cellX >= viewCellColumns - 1)) {
-                if ((shiftX > 0) && (cellX >= viewCellColumns)) {
-                    continue
-                }
-                if ((cellX < 0) || (cellY < 0)) {
-                    if (writeBlankCells) {
-                        self.writeCell(x: vx, y: vy,
-                                       shiftx: shiftX, shifty: shiftY,
-                                       // foreground: self._cellBackground,
-                                       // background: self._cellBackground,
-                                       foreground: CellColor(Color.black), // self._cellBackground,
-                                       background: CellColor(Color.black), // self._cellBackground,
-                                       limit: false,
-                                       truncateLeft: truncateLeft, truncateRight: truncateRight)
-                    }
-                    continue
-                }
-                if let cell: Cell = cell(x: cellX, y: cellY) {
-                    self.writeCell(x: vx, y: vy,
-                                   shiftx: shiftX, shifty: shiftY,
-                                   foreground: cell.foreground,
-                                   background: self._cellBackground, limit: false,
-                                   truncateLeft: truncateLeft,
-                                   truncateRight: truncateRight)
-                }
+                let cx = vx - shiftCellX - ((shiftX > 0) ? 1 : 0)
+                let cy = vy - shiftCellY - ((shiftY > 0) ? 1 : 0)
+                let truncateLeft = ((shiftX > 0) && (vx == 0))
+                                   ? (cellSize - shiftX)
+                                   : ((shiftX < 0) && (vx == 0)
+                                     ? -shiftX : 0)
+                let truncateRight = ((shiftX > 0) && (vx == viewCellEndX))
+                                    ? (cellSize - shiftX)
+                                    : ((shiftX < 0) && (vx == viewCellEndX)
+                                      ? -shiftX : 0)
+                let foreground = ((cx >= 0) && (cx <= cellEndX) && (cy >= 0) && (cy <= cellEndY))
+                                 ? cell(cx, cy)!.foreground
+                                 : cellBackground
+                self.writeCell(x: vx - (shiftX > 0 ? 1 : 0), y: vy,
+                               shiftx: shiftX, shifty: shiftY,
+                               foreground: foreground,
+                               background: cellBackground,
+                               limit: false,
+                               truncateLeft: truncateLeft,
+                               truncateRight: truncateRight)
             }
         }
     }
