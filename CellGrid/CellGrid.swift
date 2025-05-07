@@ -118,7 +118,7 @@ class CellGrid: ObservableObject
 
         // self.fill(with: self._cellBackground)
         // self._cells!.fill(Color.green)
-        self._cells!.fill(self._cellBackground)
+        // self._cells!.fill(self._cellBackground)
 
         func print_debug() {
             print("INIT-SCREEN-SCALE:      \(Screen.initialScale)")
@@ -398,7 +398,10 @@ class CellGrid: ObservableObject
             }
         }
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 30, shifty: 0)
-        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: -30, shifty: 0)
+        // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 0, shifty: 0)
+        // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 60, shifty: 0)
+        // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 30, shifty: 0)
+        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 0, shifty: 0)
 /*
         if let cells = self._cells {
             for case let cell as LifeCell in cells.cells {
