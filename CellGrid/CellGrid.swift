@@ -12,14 +12,14 @@ class CellGrid: ObservableObject
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 20
+        public static let cellSize: Int = 19
         public static let cellSizeNeat: Bool = true
-        public static let cellPadding: Int = 4
+        public static let cellPadding: Int = 1
         public static let cellBleed: Bool = false
         //
         // TODO: while dragging make the shape inset rather than rounded (or circle) for speed.
-        // For example generating grid-view with rounded is like 0.074 vs inset like  0.018.
-        // But slightly tricker as it uses scaling false so different/smaller buffer size.
+        // For example generating grid-view with rounded is like 0.074 vs inset is like 0.018.
+        // But tricker as it implies no scaling so different/smaller buffer size (the point).
         //
         public static let cellShape: CellShape = CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color

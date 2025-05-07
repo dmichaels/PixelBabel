@@ -11,6 +11,10 @@ import Utils
 @MainActor
 class Cells
 {
+    // TODO
+    // Create a CellGridView to encapsulate all this;
+    // maybe it ends up replacing this Cells class entirely.
+    /
     public func setView(cells: [Cell], ncolumns: Int, nrows: Int, shiftx: Int = 0, shifty: Int = 0)
     {
         func cell<T: Cell>(_ x: Int, _ y: Int) -> T? {
@@ -80,6 +84,8 @@ class Cells
         if (shiftX != 0) { viewCellEndX += 1 }
         if (shiftY != 0) { viewCellEndY += 1 }
 
+        // This was tricker than you might think (yes basic arithmetic).
+        //
         for vy in 0...viewCellEndY {
             for vx in 0...viewCellEndX {
                 let cx = vx - shiftCellX - ((shiftX > 0) ? 1 : 0)
@@ -151,7 +157,7 @@ class Cells
     {
         var blocks: [BufferBlock] = []
 
-        func append(index: Int, foreground: Bool, blend: Float = 0.0) {
+        func append(_ index: Int, foreground: Bool, blend: Float = 0.0) {
             if let last = self.blocks.last, last.foreground == foreground, last.blend == blend,
                         index == last.lindex + Memory.bufferBlockSize {
                 last.count += 1
@@ -594,8 +600,7 @@ class Cells
         let padding: Int = ((cellPadding > 0) && (cellShape != .square))
                            ? (((cellPadding * 2) >= cellSize)
                              ? ((cellSize / 2) - 1)
-                             : cellPadding)
-                           : 0
+                             : cellPadding) : 0
         let size = cellSize - (2 * padding)
         let shape = (size < 3) ? .inset : cellShape
         let fade: Float = 0.6  // smaller is smoother
@@ -621,9 +626,8 @@ class Cells
                     let centerY: Float = Float(cellSize / 2)
                     let dxsq: Float = (fx - centerX) * (fx - centerX)
                     let dysq: Float = (fy - centerY) * (fy - centerY)
-                    let dist: Float = sqrt(dxsq + dysq)
                     let circleRadius: Float = Float(size) / 2.0
-                    let d: Float = circleRadius - dist
+                    let d: Float = circleRadius - sqrt(dxsq + dysq)
                     coverage = max(0.0, min(1.0, d / fade))
 
                 case .rounded:
@@ -647,19 +651,18 @@ class Cells
                                         fy > (maxY - cornerRadius) ? maxY - cornerRadius : fy
                         let dx: Float = fx - cx
                         let dy: Float = fy - cy
-                        let dist: Float = sqrt(dx * dx + dy * dy)
-                        let d: Float = cornerRadius - dist
+                        let d: Float = cornerRadius - sqrt(dx * dx + dy * dy)
                         coverage = max(0.0, min(1.0, d / fade))
                     }
                 }
 
-                let i: Int = (dy * displayWidth + dx) * Screen.depth
-                if ((i >= 0) && ((i + (Screen.depth - 1)) < bufferSize)) {
+                let index: Int = (dy * displayWidth + dx) * Screen.depth
+                if ((index >= 0) && ((index + (Screen.depth - 1)) < bufferSize)) {
                     if (coverage > 0) {
-                        blocks.append(index: i, foreground: true, blend: coverage)
+                        blocks.append(index, foreground: true, blend: coverage)
 
                     } else {
-                        blocks.append(index: i, foreground: false)
+                        blocks.append(index, foreground: false)
                     }
                 }
             }
