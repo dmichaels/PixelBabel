@@ -12,7 +12,7 @@ class CellGrid: ObservableObject
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 19
+        public static let cellSize: Int = 43
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 1
         public static let cellBleed: Bool = false
@@ -412,7 +412,7 @@ class CellGrid: ObservableObject
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 0, shifty: 0)
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 60, shifty: 0)
         let start = Date()
-        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: 0, shifty: 0)
+        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: -60, shifty: -30)
         print(String(format: "SETVIEW-TIME: %.5fs", Date().timeIntervalSince(start)))
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: 0, shifty: 0)
 /*
