@@ -88,10 +88,10 @@ class CellGrid: ObservableObject
         self._cellColorMode = cellColorMode
         self._cellBackground = cellBackground
 
-        let neatCells = Cells.preferredCellSizes(self._displayWidthUnscaled, self._displayHeightUnscaled,
+        let neatCells = CellGridView.preferredCellSizes(self._displayWidthUnscaled, self._displayHeightUnscaled,
                                                  cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
         if (cellSizeNeat) {
-            if let neatCell = Cells.closestPreferredCellSize(in: neatCells, to: self._cellSizeUnscaled) {
+            if let neatCell = CellGridView.closestPreferredCellSize(in: neatCells, to: self._cellSizeUnscaled) {
                 print_debug(neatCells, neatCell, verbose: true)
                 self._cellSize = self.scaled(neatCell.cellSize)
                 self._displayWidth = self.scaled(neatCell.displayWidth)
@@ -148,10 +148,6 @@ class CellGrid: ObservableObject
 
         print_debug()
 
-        // self.fill(with: self._cellBackground)
-        // self._cells!.fill(Color.green)
-        // self._cells!.fill(self._cellBackground)
-
         func print_debug() {
             print("INIT-SCREEN-SCALE:      \(Screen.initialScale)")
             print("SCREEN-SCALE:           \(screen.scale)")
@@ -176,7 +172,7 @@ class CellGrid: ObservableObject
             print("CELL-PADDING-US:        \(self.unscaled(self._cellPadding))")
         }
 
-        func print_debug(_ neatCells: [Cells.PreferredSize], _ neatCell: Cells.PreferredSize, verbose: Bool = false) {
+        func print_debug(_ neatCells: [CellGridView.PreferredSize], _ neatCell: CellGridView.PreferredSize, verbose: Bool = false) {
             if (verbose) {
                 for neatCell in neatCells {
                     print("NEAT-CELL-US> CELL-SIZE \(neatCell.cellSize)" +
@@ -330,36 +326,8 @@ class CellGrid: ObservableObject
         }
         if let cell: LifeCell = self._cells?.gridCell(location) {
 
-        /* self._cells = Cells(displayWidth: self._displayWidth,
-                            displayHeight: self._displayHeight,
-                            displayScale: self._displayScale,
-                            displayScaling: self._displayScaling,
-                            cellSize: self._cellSize / 4,
-                            cellPadding: self._cellPadding,
-                            cellShape: self._cellShape,
-                            cellTransparency: Defaults.displayTransparency,
-                            cellForeground: CellColor.white,
-                            cellBackground: self._cellBackground,
-                            cellFactory: self._cellFactory) */
-
             if ((self._dragCell == nil) || (self._dragCell!.location != cell.location)) {
                 let start = Date()
-                /* trying new ...
-                self._cells!.fill(self._cellBackground)
-                for cell in self._cells!.cells {
-                    self._cells!.writeCell(x: cell.x, y: cell.y,
-                                           // shiftx: shiftx, shifty: shifty,
-                                           shiftx: self.scaled(shiftx), shifty: self.scaled(shifty),
-                                           foreground: cell.foreground, background: cell.background,
-                                           cellForegroundOnly: false)
-                }
-                */
-                /*
-                self._cells!.setView(cells: self._cells!.cells,
-                                     ncolumns: self._cells!.ncolumns,
-                                     nrows: self._cells!.nrows,
-                                     shiftx: shiftx, shifty: shifty)
-                */
                 self._cells!.shift(shiftx: shiftx, shifty: shifty)
                 print(String(format: "DRAW-TIME: %.5fs", Date().timeIntervalSince(start)))
             }
@@ -380,11 +348,6 @@ class CellGrid: ObservableObject
     }
 
     public func onTap(_ location: CGPoint) {
-        /*
-        if let _ = self._cells?.cell(location) {
-            self.randomize()
-        }
-        */
         if let cell: LifeCell = self._cells?.gridCell(location) {
             cell.toggle()
         }
@@ -393,16 +356,6 @@ class CellGrid: ObservableObject
     public func locate(_ location: CGPoint) -> CellGridPoint? {
         return self._cells?.locate(location)
     }
-
-    /*
-    func fill(with color: CellColor, limit: Bool = true) {
-        if let cells = self._cells {
-            for cell in cells.cells {
-                cell.write(foreground: color, background: self._cellBackground, foregroundOnly: limit)
-            }
-        }
-    }
-    */
 
     func testingLife() {
         if let cells = self._cells {

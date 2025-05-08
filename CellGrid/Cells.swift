@@ -36,7 +36,7 @@ class CellGridView {
     private let _cellFactory: CellFactory?
     private var _cells: [Cell]
     private var _buffer: [UInt8]
-    private let _bufferBlocks: Cells.BufferBlocks
+    private let _bufferBlocks: CellGridView.BufferBlocks
 
     // These change based on moving/shifting the cell-grid around the grid-view.
     //
@@ -86,7 +86,7 @@ class CellGridView {
         self._cellFactory = cellFactory
         self._cells = []
         self._buffer = [UInt8](repeating: 0, count: self._viewWidth * self._viewHeight * Screen.depth)
-        self._bufferBlocks = Cells.createBufferBlocks(bufferSize: self._buffer.count,
+        self._bufferBlocks = CellGridView.createBufferBlocks(bufferSize: self._buffer.count,
                                                       displayWidth: self._viewWidth,
                                                       displayHeight: self._viewHeight,
                                                       cellSize: self._cellSize,
@@ -291,7 +291,7 @@ class CellGridView {
             guard let base = raw.baseAddress else { return }
             for block in self._bufferBlocks.blocks {
                 if (truncateLeft > 0) {
-                    let truncatedBlocks = Cells.BufferBlocks.truncateLeft(block,
+                    let truncatedBlocks = CellGridView.BufferBlocks.truncateLeft(block,
                                                                           offset: offset,
                                                                           width: self._viewWidth,
                                                                           shiftx: truncateLeft)
@@ -301,7 +301,7 @@ class CellGridView {
                     continue
                 }
                 else if (truncateRight > 0) {
-                    let truncatedBlocks = Cells.BufferBlocks.truncateRight(block,
+                    let truncatedBlocks = CellGridView.BufferBlocks.truncateRight(block,
                                                                            offset: offset,
                                                                            width: self._viewWidth,
                                                                            shiftx: truncateRight)
@@ -320,7 +320,7 @@ class CellGridView {
         // N.B. From outer function scope: offset, size, foreground, foregroundOnly
         // N.B. From class scope: self._viewBackground
         //
-        func writeCellBlock(buffer: UnsafeMutableRawPointer, block: Cells.BufferBlock)  {
+        func writeCellBlock(buffer: UnsafeMutableRawPointer, block: CellGridView.BufferBlock)  {
             let start: Int = offset + block.index
             guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else {
                 return
@@ -329,9 +329,9 @@ class CellGridView {
             var color: CellColor
             if (block.foreground) {
                 if (block.blend != 0.0) {
-                    color = CellColor(Cells.blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
-                                      Cells.blend(foreground.green, self._viewBackground.green, amount: block.blend),
-                                      Cells.blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
+                    color = CellColor(CellGridView.blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
+                                      CellGridView.blend(foreground.green, self._viewBackground.green, amount: block.blend),
+                                      CellGridView.blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
                                       alpha: foreground.alpha)
                 }
                 else {
@@ -380,12 +380,7 @@ class CellGridView {
                          : Cell(parent: self, x: x, y: y, foreground: foreground)
         self._cells.append(cell)
     }
-}
 
-
-@MainActor
-class Cells
-{
     typealias PreferredSize = (cellSize: Int, displayWidth: Int, displayHeight: Int)
 
     internal class BufferBlock
