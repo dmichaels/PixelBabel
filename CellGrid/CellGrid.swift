@@ -10,7 +10,7 @@ class CellGrid: ObservableObject
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = true
+        public static let displayScaling: Bool = false
         public static let displayTransparency: UInt8 = 255
         public static let cellSize: Int = 43
         public static let cellSizeNeat: Bool = true
@@ -101,8 +101,8 @@ class CellGrid: ObservableObject
             }
         }
 
-        let gridColumns = 100
-        let gridRows = 200
+        let gridColumns = 12
+        let gridRows = 21
 
         self._cells = CellGridView(viewParent: self,
                                    viewWidth: self._displayWidth,
@@ -144,7 +144,7 @@ class CellGrid: ObservableObject
                 }
             }
         }
-        self._cells!.shift(shiftx: 30, shifty: 30)
+        self._cells!.shift(shiftx: -90, shifty: -90)
 
         print_debug()
 

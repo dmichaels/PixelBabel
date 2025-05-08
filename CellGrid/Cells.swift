@@ -57,7 +57,8 @@ class CellGridView {
          cellSize: Int,
          cellPadding: Int,
          cellShape: CellShape,
-         cellFactory: CellFactory? = nil)
+         cellFactory: CellFactory? = nil,
+         nodraw: Bool = false)
     {
         self._viewParent = viewParent
         self._viewWidth = viewWidth
@@ -99,8 +100,6 @@ class CellGridView {
         self._viewCellExtraX = 0
         self._viewCellExtraY = 0
 
-//      for y in 0...self._viewCellEndY + self._viewCellExtraY {
-//          for x in 0...self._viewCellEndX + self._viewCellExtraX {
         for y in 0..<self._gridRows {
             for x in 0..<self._gridColumns {
                 self._defineCell(x: x, y: y, foreground: CellGrid.Defaults.cellForeground)
@@ -255,13 +254,11 @@ class CellGridView {
 
         // This was all a lot tricker than you might expect (yes basic arithmetic).
 
-        let cellX = viewCellX - self._shiftCellX - self._viewCellExtraX
-        let cellY = viewCellY - self._shiftCellY - self._viewCellExtraY
         let shiftLeft: Bool = self._shiftX < 0
         let shiftRight: Bool = self._shiftX > 0
         let shiftDown: Bool = self._shiftY > 0
-        let shiftX = shiftRight ? self._shiftX - self._cellSize : self._shiftX
-        let shiftY = shiftDown ? self._shiftY - self._cellSize : self._shiftY
+        let cellX = viewCellX - self._shiftCellX - (shiftRight ? 1 : 0)
+        let cellY = viewCellY - self._shiftCellY - (shiftDown ? 1 : 0)
         let viewCellFirstX: Bool = (viewCellX == 0)
         let viewCellLastX: Bool = (viewCellX == self._viewCellEndX + self._viewCellExtraX)
 
@@ -279,6 +276,8 @@ class CellGridView {
                          : self._viewBackground
         let foregroundOnly = false
 
+        let shiftX = shiftRight ? self._shiftX - self._cellSize : self._shiftX
+        let shiftY = shiftDown ? self._shiftY - self._cellSize : self._shiftY
         let offset: Int = ((self._cellSize * viewCellX) + shiftX +
                            (self._cellSize * self._viewWidth * viewCellY + shiftY * self._viewWidth)) * Screen.depth
         let size: Int = self._buffer.count
