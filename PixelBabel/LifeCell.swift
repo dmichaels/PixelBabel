@@ -6,20 +6,12 @@ class LifeCell: Cell {
     public var _activeColor: CellColor
     public var _inactiveColor: CellColor
 
-    init(parent: Cells, x: Int, y: Int, foreground: CellColor, background: CellColor,
-         activeColor: CellColor, inactiveColor: CellColor, active: Bool = false) {
-        self._active = active
-        self._activeColor = activeColor
-        self._inactiveColor = inactiveColor
-        super.init(parent: parent, x: x, y: y, foreground: foreground, background: background)
-    }
-
     init(parent: CellGridView, x: Int, y: Int, foreground: CellColor,
          activeColor: CellColor, inactiveColor: CellColor, active: Bool = false) {
         self._active = active
         self._activeColor = activeColor
         self._inactiveColor = inactiveColor
-        super.init(viewParent: parent, x: x, y: y, foreground: foreground)
+        super.init(parent: parent, x: x, y: y, foreground: foreground)
     }
 
     public var active: Bool {
@@ -53,7 +45,7 @@ class LifeCell: Cell {
     }
 
     func write() {
-        self.write(foreground: self._active ? self._activeColor : self._inactiveColor, background: self.background)
+        self.write(foreground: self._active ? self._activeColor : self._inactiveColor)
     }
 
     public static func factory(activeColor: CellColor, inactiveColor: CellColor) -> CellFactory {

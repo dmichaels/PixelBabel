@@ -10,7 +10,7 @@ class CellGrid: ObservableObject
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = false
+        public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
         public static let cellSize: Int = 43
         public static let cellSizeNeat: Bool = true
@@ -434,7 +434,7 @@ class CellGrid: ObservableObject
     {
         let start = Date()
         for cell in cells.gridCells {
-            cell.write(foreground: CellColor.random(), background: background, foregroundOnly: cellLimitUpdate)
+            cell.write(foreground: CellColor.random(), foregroundOnly: cellLimitUpdate)
         }
         let end = Date()
         let elapsed = end.timeIntervalSince(start)
@@ -442,7 +442,7 @@ class CellGrid: ObservableObject
     }
 
     func writeCell(_ cell: Cell, _ color: CellColor, limit: Bool = true) {
-        cell.write(foreground: color, background: self.background, foregroundOnly: limit)
+        cell.write(foreground: color, foregroundOnly: limit)
     }
 
     public var image: CGImage? {
