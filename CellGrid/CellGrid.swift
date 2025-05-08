@@ -414,7 +414,7 @@ class CellGrid: ObservableObject
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 0, shifty: 0)
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 60, shifty: 0)
         let start = Date()
-        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: 0, shifty: 30)
+        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: 0, shifty: 60)
         print(String(format: "SETVIEW-TIME: %.5fs", Date().timeIntervalSince(start)))
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: 0, shifty: 0)
 /*

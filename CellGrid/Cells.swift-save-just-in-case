@@ -101,11 +101,22 @@ class Cells
                 let foreground = ((cx >= 0) && (cx <= cellEndX) && (cy >= 0) && (cy <= cellEndY))
                                  ? cell(cx, cy)!.foreground
                                  : cellBackground
-                self.writeCell(x: vx, y: vy,
-                               shiftx: (shiftX > 0) ? shiftX - cellSize : shiftX,
-                               shifty: (shiftY > 0) ? shiftY - cellSize : shiftY,
-                               foreground: foreground, background: cellBackground, limit: false,
-                               truncateLeft: truncateLeft, truncateRight: truncateRight)
+                if (false) {
+                    self.writeCell(x: vx - (shiftX > 0 ? 1 : 0), y: vy,
+                                   shiftx: shiftX, shifty: shiftY,
+                                   foreground: foreground,
+                                   background: cellBackground,
+                                   limit: false,
+                                   truncateLeft: truncateLeft,
+                                   truncateRight: truncateRight)
+                }
+                else {
+                    self.writeCell(x: vx, y: vy,
+                                   shiftx: (shiftX > 0) ? shiftX - cellSize : shiftX,
+                                   shifty: (shiftY > 0) ? shiftY - cellSize : shiftY,
+                                   foreground: foreground, background: cellBackground, limit: false,
+                                   truncateLeft: truncateLeft, truncateRight: truncateRight)
+                }
             }
         }
     }
