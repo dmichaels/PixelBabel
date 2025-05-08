@@ -197,11 +197,16 @@ class CellGridView {
 
         // Restrict the shift to min/max.
 
-        // TODO
-        // Support different rules; initially we do not allow the left-most
-        // grid cell to be shifted past the far-right of the grid view, nor
-        // the right-most grid-cellato be shifted past the far-left of the
-        // grid view; and similarly for the vertical dimention.
+        // Support different rules:
+        //
+        // - Disallow the left-most cell of the cell-grid being right-shifted past the right-most
+        //   position of the grid-view, and the right-most cell of the grid-view being left-shifted
+        //   past the left-most position of the grid-view; similarly for the vertical.
+        //
+        // - TODO
+        //   Disallow the left-most cell of the cell-grid being right-shifted past the left-most
+        //   position of the grid-view, and the right-most cell of the cell-grid being left-shifted
+        //   past the right-most position of the grid-view; similarly for the vertical.
 
         if (shiftCellX >= self._viewCellEndX) {
             shiftCellX = self._viewCellEndX
