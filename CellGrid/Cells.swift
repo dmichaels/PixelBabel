@@ -88,6 +88,11 @@ class Cells
         //
         for vy in 0...viewCellEndY {
             for vx in 0...viewCellEndX {
+                //
+                // TODO
+                // Move to its own function ...
+                // static func writeCell(viewX, viewY, shiftCellX, shiftCellY, shiftX, shiftY)
+                //
                 let cx = vx - shiftCellX - ((shiftX > 0) ? 1 : 0)
                 let cy = vy - shiftCellY - ((shiftY > 0) ? 1 : 0)
                 let truncateLeft = ((shiftX > 0) && (vx == 0))

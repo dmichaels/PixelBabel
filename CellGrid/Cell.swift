@@ -9,6 +9,10 @@ class Cell
     private let _x: Int
     private let _y: Int
     private var _foreground: CellColor
+    //
+    // TODO
+    // Don't think we need background at this leve; implementation detail.
+    //
     private var _background: CellColor
 
     public var x: Int {
