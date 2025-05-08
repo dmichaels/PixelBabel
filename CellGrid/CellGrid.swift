@@ -10,12 +10,11 @@ class CellGrid: ObservableObject
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = false
+        public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 13
+        public static let cellSize: Int = 43
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 1
-        public static let cellBleed: Bool = false
         //
         // TODO: while dragging make the shape inset rather than rounded (or circle) for speed.
         // For example generating grid-view with rounded is like 0.074 vs inset is like 0.018.
@@ -42,7 +41,6 @@ class CellGrid: ObservableObject
     private var _cellSize: Int = Defaults.cellSize
     private var _cellSizeUnscaled: Int = Defaults.cellSize
     private var _cellPadding: Int = Defaults.cellPadding
-    private var _cellBleed: Bool = Defaults.cellBleed
     private var _cellShape: CellShape = Defaults.cellShape
     private var _cellColorMode: CellColorMode = Defaults.cellColorMode
     private var _cellBackground: CellColor = Defaults.cellBackground
@@ -50,11 +48,11 @@ class CellGrid: ObservableObject
     private var _cellRoundedRectangleRadius: Float = Defaults.cellRoundedRectangleRadius
     private var _cellPreferredSizeMarginMax: Int = Defaults.cellPreferredSizeMarginMax
     private var _cellLimitUpdate: Bool = Defaults.cellLimitUpdate
-    private var _cells: Cells? = nil
-    private var _cellFactory: Cell.Factory?
+    private var _cells: CellGridView? = nil
+    private var _cellFactory: CellFactory?
     private var _dragCell: Cell? = nil
 
-    init(cellFactory: Cell.Factory? = nil) {
+    init(cellFactory: CellFactory? = nil) {
         self._cellFactory = cellFactory
         print("PIXELMAP-CONSTRUCTOR")
     }
@@ -65,7 +63,6 @@ class CellGrid: ObservableObject
                    cellSize: Int = Defaults.cellSize,
                    cellSizeNeat: Bool = Defaults.cellSizeNeat,
                    cellPadding: Int = Defaults.cellPadding,
-                   cellBleed: Bool = Defaults.cellBleed,
                    cellShape: CellShape = Defaults.cellShape,
                    cellColorMode: CellColorMode = Defaults.cellColorMode,
                    cellForeground: CellColor = Defaults.cellForeground,
@@ -87,7 +84,6 @@ class CellGrid: ObservableObject
         self._cellSize = self.scaled(cellSize)
         self._cellSizeUnscaled = cellSize
         self._cellPadding = self.scaled(cellPadding)
-        self._cellBleed = cellBleed
         self._cellShape = cellShape
         self._cellColorMode = cellColorMode
         self._cellBackground = cellBackground
@@ -105,6 +101,7 @@ class CellGrid: ObservableObject
             }
         }
 
+        /*
         self._cells = Cells(grid: self,
                             displayWidth: self._displayWidth,
                             displayHeight: self._displayHeight,
@@ -114,75 +111,56 @@ class CellGrid: ObservableObject
                             cellPadding: self._cellPadding,
                             cellShape: self._cellShape,
                             cellTransparency: Defaults.displayTransparency,
-                            cellBleed: Defaults.cellBleed,
                             cellForeground: cellForeground,
                             cellBackground: self._cellBackground,
                             cellFactory: self._cellFactory)
+        */
 
-        let newcells = CellGridView(viewParent: self,
-                                    viewWidth: self._displayWidth,
-                                    viewHeight: self._displayHeight,
-                                    viewBackground: self._cellBackground,
-                                    viewTransparency: Defaults.displayTransparency,
-                                    cellSize: self._cellSize,
-                                    cellPadding: self._cellPadding,
-                                    cellShape: self._cellShape,
-                                    cellFactory: nil /* TODO */ )
+        let gridColumns = 100
+        let gridRows = 200
 
-        for case let cell as LifeCell in newcells.gridCells {
-            if (cell.x == 0) {
-                cell.foreground = CellColor(Color.blue)
-            }
-            else if (cell.x == 1) {
-                cell.foreground = CellColor(Color.purple)
-            }
-            else if (cell.x == 7) {
-                cell.foreground = CellColor(Color.mint)
-            }
-            else if (cell.x == 8) {
-                cell.foreground = CellColor(Color.green)
-            }
-            else if (cell.x == 9) {
-                cell.foreground = CellColor(Color.red)
-            }
-            else if (cell.x == 10) {
-                cell.foreground = CellColor(Color.yellow)
-            }
-            else if (cell.x == 11) {
-                cell.foreground = CellColor(Color.orange)
-            }
-            else {
-                cell.foreground = CellColor.white
+        self._cells = CellGridView(viewParent: self,
+                                   viewWidth: self._displayWidth,
+                                   viewHeight: self._displayHeight,
+                                   viewBackground: self._cellBackground,
+                                   viewTransparency: Defaults.displayTransparency,
+                                   gridColumns: gridColumns,
+                                   gridRows: gridRows,
+                                   cellSize: self._cellSize,
+                                   cellPadding: self._cellPadding,
+                                   cellShape: self._cellShape,
+                                   cellFactory: self._cellFactory)
+
+        for cell in self._cells!.gridCells {
+            // if let lifeCell: LifeCell = cell as LifeCell ... TODO ...
+            if let lifeCell: LifeCell = self._cells?.gridCell(cell.x, cell.y) {
+                if (lifeCell.x == 0) {
+                    lifeCell.foreground = CellColor(Color.blue)
+                }
+                else if (lifeCell.x == 1) {
+                    lifeCell.foreground = CellColor(Color.purple)
+                }
+                else if (lifeCell.x == 7) {
+                    lifeCell.foreground = CellColor(Color.mint)
+                }
+                else if (lifeCell.x == 8) {
+                    lifeCell.foreground = CellColor(Color.green)
+                }
+                else if (lifeCell.x == 9) {
+                    lifeCell.foreground = CellColor(Color.red)
+                }
+                else if (lifeCell.x == 10) {
+                    lifeCell.foreground = CellColor(Color.yellow)
+                }
+                else if (lifeCell.x == 11) {
+                    lifeCell.foreground = CellColor(Color.orange)
+                }
+                else {
+                    lifeCell.foreground = CellColor.white
+                }
             }
         }
-        // xyzzy
-        for case let cell as LifeCell in self._cells!.cells {
-            if (cell.x == 0) {
-                cell.foreground = CellColor(Color.blue)
-            }
-            else if (cell.x == 1) {
-                cell.foreground = CellColor(Color.purple)
-            }
-            else if (cell.x == 7) {
-                cell.foreground = CellColor(Color.mint)
-            }
-            else if (cell.x == 8) {
-                cell.foreground = CellColor(Color.green)
-            }
-            else if (cell.x == 9) {
-                cell.foreground = CellColor(Color.red)
-            }
-            else if (cell.x == 10) {
-                cell.foreground = CellColor(Color.yellow)
-            }
-            else if (cell.x == 11) {
-                cell.foreground = CellColor(Color.orange)
-            }
-            else {
-                cell.foreground = CellColor.white
-            }
-        }
-        // xyzzy
+        self._cells!.shift(shiftx: 30, shifty: 30)
 
         print_debug()
 
@@ -195,18 +173,20 @@ class CellGrid: ObservableObject
             print("SCREEN-SCALE:           \(screen.scale)")
             print("SCREEN-SIZE:            \(self.scaled(screen.width)) x \(self.scaled(screen.height))")
             if (self._displayScaling) {
-                print("SCREEN-SIZE-US:         \(screen.width) x \(screen.height)")
+                print("SCREEN-SIZE-US:     \(screen.width) x \(screen.height)")
             }
             print("DISPLAY-SCALING:        \(self._displayScaling)")
             print("DISPLAY-SIZE:           \(self._displayWidth) x \(self._displayHeight)")
             if (self._displayScaling) {
-                print("DISPLAY-SIZE-US:        \(self._displayWidthUnscaled) x \(self._displayHeightUnscaled)")
+                print("DISPLAY-SIZE-US:    \(self._displayWidthUnscaled) x \(self._displayHeightUnscaled)")
             }
-            print("CELL-COLS:              \(self._cells!.ncolumns)")
-            print("CELL-ROWS:              \(self._cells!.nrows)")
+            print("CELL-GRID-COLS:         \(self._cells!.gridColumns)")
+            print("CELL-GRID-ROWS:         \(self._cells!.gridRows)")
+            print("CELL-VIEW-COLS:         \(self._cells!.viewColumns)")
+            print("CELL-VIEW-ROWS:         \(self._cells!.viewRows)")
             print("CELL-SIZE:              \(self._cellSize)")
             if (self._displayScaling) {
-                print("CELL-SIZE-US:           \(self._cellSizeUnscaled)")
+                print("CELL-SIZE-US:       \(self._cellSizeUnscaled)")
             }
             print("CELL-PADDING:           \(self._cellPadding)")
             print("CELL-PADDING-US:        \(self.unscaled(self._cellPadding))")
@@ -348,7 +328,7 @@ class CellGrid: ObservableObject
             let gp = self._cells!.locate(location)
             let gx = (gp != nil) ? gp!.x : -1
             let gy = (gp != nil) ? gp!.y : -1
-            let c = self._cells!.cell(location)
+            let c = self._cells!.gridCell(location)
             let cx = (c != nil) ? c!.x : -1
             let cy = (c != nil) ? c!.y : -1
             print("DRAG: [\(String(format: "%.1f", x)),\(String(format: "%.1f", y))] -> [\(gx),\(gy)] -> (\(cx),\(cy)]")
@@ -364,7 +344,7 @@ class CellGrid: ObservableObject
             // self._dragPoint = location
             print("SHIFT: \(shiftx) \(shifty)")
         }
-        if let cell: LifeCell = self._cells?.cell(location) {
+        if let cell: LifeCell = self._cells?.gridCell(location) {
 
         /* self._cells = Cells(displayWidth: self._displayWidth,
                             displayHeight: self._displayHeight,
@@ -374,7 +354,6 @@ class CellGrid: ObservableObject
                             cellPadding: self._cellPadding,
                             cellShape: self._cellShape,
                             cellTransparency: Defaults.displayTransparency,
-                            cellBleed: Defaults.cellBleed,
                             cellForeground: CellColor.white,
                             cellBackground: self._cellBackground,
                             cellFactory: self._cellFactory) */
@@ -391,10 +370,13 @@ class CellGrid: ObservableObject
                                            cellForegroundOnly: false)
                 }
                 */
+                /*
                 self._cells!.setView(cells: self._cells!.cells,
                                      ncolumns: self._cells!.ncolumns,
                                      nrows: self._cells!.nrows,
                                      shiftx: shiftx, shifty: shifty)
+                */
+                self._cells!.shift(shiftx: shiftx, shifty: shifty)
                 print(String(format: "DRAW-TIME: %.5fs", Date().timeIntervalSince(start)))
             }
         }
@@ -419,7 +401,7 @@ class CellGrid: ObservableObject
             self.randomize()
         }
         */
-        if let cell: LifeCell = self._cells?.cell(location) {
+        if let cell: LifeCell = self._cells?.gridCell(location) {
             cell.toggle()
         }
     }
@@ -428,6 +410,7 @@ class CellGrid: ObservableObject
         return self._cells?.locate(location)
     }
 
+    /*
     func fill(with color: CellColor, limit: Bool = true) {
         if let cells = self._cells {
             for cell in cells.cells {
@@ -435,77 +418,7 @@ class CellGrid: ObservableObject
             }
         }
     }
-
-    func testingLifeSetup() {
-        // var start = Date()
-        var cells: [Cell] = []
-        // let ncolumns = 1200 /// 100
-        // let nrows = 2100 /// 20 /// 100
-        let ncolumns = 12
-        let nrows = 21
-        print("XYZZY-TESTING-LIFE-SETUP-A: \(ncolumns * nrows)")
-        let xyzzy = CellColor(Color.red)
-        let activeColor: CellColor = CellColor(Color.pink)
-        let inactiveColor: CellColor = CellColor(Color.teal)
-        for y in 0..<nrows {
-            for x in 0..<ncolumns {
-                var fg: CellColor
-                if ((x == 0) /* && (y == 0) */ ) {
-                    fg = CellColor(Color.blue)
-                }
-                else if ((x == 1) /* && (y == 0) */ ) {
-                    fg = CellColor(Color.purple)
-                }
-                else if ((x == 7) /* && (y == 0) */ ) {
-                    fg = CellColor(Color.mint)
-                }
-                else if ((x == 8) /* && (y == 0) */ ) {
-                    fg = CellColor(Color.green)
-                }
-                else if ((x == 9) /* && (y == 0) */ ) {
-                    fg = CellColor(Color.red)
-                }
-                else if ((x == 10) /* && (y == 0) */ ) {
-                    fg = CellColor(Color.yellow)
-                }
-                else if ((x == 11) /* && (y == 0) */ ) {
-                    fg = CellColor(Color.orange)
-                }
-                else {
-                    fg = CellColor.white
-                }
-                var cell = LifeCell(parent: self._cells!, x: x, y: y,
-                                    foreground: fg, background: self._cellBackground,
-                                    activeColor: activeColor, inactiveColor: inactiveColor)
-                cells.append(cell)
-            }
-        }
-        // print(String(format: "XYZZY-TESTING-LIFE-SETUP-B: %.5fs", Date().timeIntervalSince(start)))
-        // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 30, shifty: 0)
-        // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 0, shifty: 0)
-        // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 60, shifty: 0)
-        let start = Date()
-        // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: -30, shifty: -30)
-        self._cells!.setView(cells: self._cells!.cells, ncolumns: self._cells!.ncolumns, nrows: self._cells!.nrows, shiftx: 0, shifty: 0)
-        print(String(format: "SETVIEW-TIME: %.5fs", Date().timeIntervalSince(start)))
-        // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: 0, shifty: 0)
-/*
-        if let cells = self._cells {
-            for case let cell as LifeCell in cells.cells {
-                cell.deactivate()
-                if ((cell.x == 0) && (cell.y == 0)) {
-                    cell.write(foreground: CellColor(Color.blue))
-                }
-                else if ((cell.x == cells.ncolumns - 1) && (cell.y == cells.nrows - 1)) {
-                    cell.write(foreground: CellColor(Color.green))
-                }
-                else {
-                    cell.write()
-                }
-            }
-        }
-*/
-    }
+    */
 
     func testingLife() {
         if let cells = self._cells {
@@ -533,10 +446,10 @@ class CellGrid: ObservableObject
                            cellPadding: Int,
                            cellLimitUpdate: Bool,
                            background: CellColor,
-                           cells: Cells)
+                           cells: CellGridView)
     {
         let start = Date()
-        for cell in cells.cells {
+        for cell in cells.gridCells {
             cell.write(foreground: CellColor.random(), background: background, foregroundOnly: cellLimitUpdate)
         }
         let end = Date()

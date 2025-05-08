@@ -56,14 +56,7 @@ class LifeCell: Cell {
         self.write(foreground: self._active ? self._activeColor : self._inactiveColor, background: self.background)
     }
 
-    public static func factory(activeColor: CellColor, inactiveColor: CellColor) -> Cell.Factory {
-        return { parent, x, y, foreground, background in
-            return LifeCell(parent: parent, x: x, y: y, foreground: foreground, background: background,
-                            activeColor: activeColor, inactiveColor: inactiveColor, active: false)
-        }
-    }
-
-    public static func factoryNew(activeColor: CellColor, inactiveColor: CellColor) -> CellFactory {
+    public static func factory(activeColor: CellColor, inactiveColor: CellColor) -> CellFactory {
         return { parent, x, y, foreground in
             return LifeCell(parent: parent, x: x, y: y, foreground: foreground,
                             activeColor: activeColor, inactiveColor: inactiveColor, active: false)

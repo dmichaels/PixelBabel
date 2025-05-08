@@ -1,12 +1,12 @@
 import SwiftUI
 
-extension Cells {
+extension CellGridView {
 
     func nextGeneration() {
-        var states: [[Bool]] = Array(repeating: Array(repeating: false, count: self.ncolumns), count: self.nrows)
-        for row in 0..<self.nrows {
-            for column in 0..<self.ncolumns {
-                if let cell: LifeCell = self.cell(column, row) {
+        var states: [[Bool]] = Array(repeating: Array(repeating: false, count: self.gridColumns), count: self.gridRows)
+        for row in 0..<self.gridRows {
+            for column in 0..<self.gridColumns {
+                if let cell: LifeCell = self.gridCell(column, row) {
                     let liveNeighbors: Int = self.activeNeighbors(cell)
                     if cell.active {
                         states[row][column] = ((liveNeighbors == 2) || (liveNeighbors == 3))
@@ -16,9 +16,9 @@ extension Cells {
                 }
             }
         }
-        for row in 0..<self.nrows {
-            for column in 0..<self.ncolumns {
-                if let cell: LifeCell = self.cell(column, row) {
+        for row in 0..<self.gridRows {
+            for column in 0..<self.gridColumns {
+                if let cell: LifeCell = self.gridCell(column, row) {
                     if (states[row][column]) {
                         cell.activate()
                     }
@@ -37,9 +37,9 @@ extension Cells {
                 if ((dx == 0) && (dy == 0)) {
                     continue
                 }
-                let nx = (cell.x + dx + self.ncolumns) % self.ncolumns
-                let ny = (cell.y + dy + self.nrows) % self.nrows
-                if let cell: LifeCell = self.cell(nx, ny) {
+                let nx = (cell.x + dx + self.gridColumns) % self.gridColumns
+                let ny = (cell.y + dy + self.gridRows) % self.gridRows
+                if let cell: LifeCell = self.gridCell(nx, ny) {
                     if (cell.active) {
                         count += 1
                     }

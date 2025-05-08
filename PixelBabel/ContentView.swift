@@ -133,7 +133,7 @@ struct ContentView: View
                             cellBackground: DefaultSettings.cellBackground)
                         // self.cellGrid.randomize()
                         print("XYZZY-A")
-                        self.cellGrid.testingLifeSetup()
+                        // self.cellGrid.testingLifeSetup()
                         print("XYZZY-B")
                         self.updateImage()
                         print("XYZZY-C")

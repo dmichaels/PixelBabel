@@ -52,6 +52,8 @@ class CellGridView {
          viewHeight: Int,
          viewBackground: CellColor,
          viewTransparency: UInt8 = 255,
+         gridColumns: Int,
+         gridRows: Int,
          cellSize: Int,
          cellPadding: Int,
          cellShape: CellShape,
@@ -75,8 +77,8 @@ class CellGridView {
         self._viewBackground = viewBackground
         self._viewTransparency = viewTransparency
 
-        self._gridColumns = 0
-        self._gridRows = 0
+        self._gridColumns = gridColumns > 0 ? gridColumns : self._viewColumns
+        self._gridRows = gridRows > 0 ? gridRows : self._viewRows
         self._gridCellEndX = self._gridColumns - 1
         self._gridCellEndY = self._gridRows - 1
 
@@ -96,6 +98,14 @@ class CellGridView {
         self._shiftY = 0
         self._viewCellExtraX = 0
         self._viewCellExtraY = 0
+
+//      for y in 0...self._viewCellEndY + self._viewCellExtraY {
+//          for x in 0...self._viewCellEndX + self._viewCellExtraX {
+        for y in 0..<self._gridRows {
+            for x in 0..<self._gridColumns {
+                self._defineCell(x: x, y: y, foreground: CellGrid.Defaults.cellForeground)
+            }
+        }
     }
 
     public var viewColumns: Int {
@@ -125,8 +135,8 @@ class CellGridView {
     // Returns the cell-grid cell object for the given grid-view input location, or nil;
     // note that the display input location is always in unscaled units.
     //
-    public func gridCell<T: Cell>(_ location: CGPoint) -> T? {
-        if let gridPoint: CellGridPoint = self.locate(location) {
+    public func gridCell<T: Cell>(_ viewLocation: CGPoint) -> T? {
+        if let gridPoint: CellGridPoint = self.locate(viewLocation) {
             return self.gridCell(gridPoint.x, gridPoint.y)
         }
         return nil
@@ -144,14 +154,14 @@ class CellGridView {
     // Returns the cell-grid cell location for the given grid-view input location, or nil;
     // note that the display input location is always in unscaled units.
     //
-    public func locate(_ location: CGPoint) -> CellGridPoint? {
-        let viewLocation: CellGridPoint = CellGridPoint(location)
-        guard viewLocation.x >= 0, viewLocation.x < self._viewWidthUnscaled,
-              viewLocation.y >= 0, viewLocation.y < self._viewHeightUnscaled else {
+    public func locate(_ viewLocation: CGPoint) -> CellGridPoint? {
+        let viewPoint: CellGridPoint = CellGridPoint(viewLocation)
+        guard viewPoint.x >= 0, viewPoint.x < self._viewWidthUnscaled,
+              viewPoint.y >= 0, viewPoint.y < self._viewHeightUnscaled else {
             return nil
         }
-        let viewCellX = viewLocation.x / self._cellSizeUnscaled
-        let viewCellY = viewLocation.y / self._cellSizeUnscaled
+        let viewCellX = viewPoint.x / self._cellSizeUnscaled
+        let viewCellY = viewPoint.y / self._cellSizeUnscaled
         let gridCellX = viewCellX - self._shiftCellX - self._viewCellExtraX
         let gridCellY = viewCellY - self._shiftCellY - self._viewCellExtraY
         guard gridCellX >= 0, gridCellX < self._gridColumns, gridCellY >= 0, gridCellY < self._gridRows else {
@@ -359,7 +369,7 @@ class CellGridView {
         return image
     }
 
-    private func _defineCell(x: Int, y: Int, foreground: CellColor, background: CellColor? = nil)
+    private func _defineCell(x: Int, y: Int, foreground: CellColor)
     {
         let cell: Cell = (self._cellFactory != nil)
                          ? self._cellFactory!(self, x, y, foreground)
@@ -597,7 +607,6 @@ class Cells
     private let _cellPadding: Int
     private let _cellShape: CellShape
     private let _cellTransparency: UInt8
-    private let _cellBleed: Bool
     private let _cellBackground: CellColor
     private let _cellFactory: Cell.Factory?
     private var _cells: [Cell]
@@ -613,7 +622,6 @@ class Cells
          cellPadding: Int,
          cellShape: CellShape,
          cellTransparency: UInt8,
-         cellBleed: Bool,
          cellForeground: CellColor,
          cellBackground: CellColor,
          cellFactory: Cell.Factory? = nil) {
@@ -634,7 +642,6 @@ class Cells
         self._cellPadding = cellPadding
         self._cellShape = cellShape
         self._cellTransparency = cellTransparency
-        self._cellBleed = cellBleed
         self._cellBackground = cellBackground
         self._cellFactory = cellFactory
         self._cells = []
