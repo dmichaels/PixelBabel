@@ -104,7 +104,7 @@ class Cells
                 self.writeCell(x: vx, y: vy,
                                shiftx: (shiftX > 0) ? shiftX - cellSize : shiftX,
                                shifty: (shiftY > 0) ? shiftY - cellSize : shiftY,
-                               foreground: foreground, background: cellBackground, limit: false,
+                               foreground: foreground, background: cellBackground, cellForegroundOnly: false,
                                truncateLeft: truncateLeft, truncateRight: truncateRight)
             }
         }
@@ -343,18 +343,18 @@ class Cells
 
     func writeCell(x: Int, y: Int,
                    shiftx: Int = 0, shifty: Int = 0,
-                   foreground: CellColor, background: CellColor, limit: Bool = false,
+                   foreground: CellColor, background: CellColor, cellForegroundOnly: Bool = false,
                    truncateLeft: Int = 0, truncateRight: Int = 0) {
         self.writeCell(buffer: &self._buffer, x: x, y: y,
                        shiftx: shiftx, shifty: shifty,
-                       foreground: foreground, background: background, limit: limit,
+                       foreground: foreground, background: background, cellForegroundOnly: cellForegroundOnly,
                        truncateLeft: truncateLeft, truncateRight: truncateRight)
     }
 
     private func writeCell(buffer: inout [UInt8],
                           x: Int, y: Int,
                           shiftx: Int = 0, shifty: Int = 0,
-                          foreground: CellColor, background: CellColor, limit: Bool = false,
+                          foreground: CellColor, background: CellColor, cellForegroundOnly: Bool = false,
                           truncateLeft: Int = 0, truncateRight: Int = 0)
     {
         // TODO: guard ...
@@ -397,7 +397,7 @@ class Cells
         // Writes the given buffer block to the backing image (pixel value) buffer; each block describing a
         // range of indices and whether the block is for a foreground or background color, and the amount
         // it should be blended with the background if it is for a foreground color).
-        // N.B. From the outer function scope: offset, size, foreground, background, limit
+        // N.B. From the outer function scope: offset, size, foreground, background, cellForegroundOnly
         //
         func writeCellBlock(buffer: UnsafeMutableRawPointer, block: BufferBlock)  {
             let start: Int = offset + block.index
@@ -417,7 +417,7 @@ class Cells
                     color = foreground
                 }
             }
-            else if (limit) {
+            else if (cellForegroundOnly) {
                 //
                 // Limit the write to only the foreground; can be useful
                 // for performance as background normally doesn't change.

@@ -10,7 +10,7 @@ class CellGrid: ObservableObject
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = false
+        public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
         public static let cellSize: Int = 43
         public static let cellSizeNeat: Bool = true
@@ -322,7 +322,7 @@ class CellGrid: ObservableObject
                                            // shiftx: shiftx, shifty: shifty,
                                            shiftx: self.scaled(shiftx), shifty: self.scaled(shifty),
                                            foreground: cell.foreground, background: cell.background,
-                                           limit: false)
+                                           cellForegroundOnly: false)
                 }
                 print(String(format: "DRAW-TIME: %.5fs", Date().timeIntervalSince(start)))
             }
@@ -360,7 +360,7 @@ class CellGrid: ObservableObject
     func fill(with color: CellColor, limit: Bool = true) {
         if let cells = self._cells {
             for cell in cells.cells {
-                cell.write(foreground: color, background: self._cellBackground, limit: limit)
+                cell.write(foreground: color, background: self._cellBackground, foregroundOnly: limit)
             }
         }
     }
@@ -414,7 +414,7 @@ class CellGrid: ObservableObject
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 0, shifty: 0)
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 60, shifty: 0)
         let start = Date()
-        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: 0, shifty: 60)
+        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: -30, shifty: -30)
         print(String(format: "SETVIEW-TIME: %.5fs", Date().timeIntervalSince(start)))
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: 0, shifty: 0)
 /*
@@ -465,7 +465,7 @@ class CellGrid: ObservableObject
     {
         let start = Date()
         for cell in cells.cells {
-            cell.write(foreground: CellColor.random(), background: background, limit: cellLimitUpdate)
+            cell.write(foreground: CellColor.random(), background: background, foregroundOnly: cellLimitUpdate)
         }
         let end = Date()
         let elapsed = end.timeIntervalSince(start)
@@ -473,7 +473,7 @@ class CellGrid: ObservableObject
     }
 
     func writeCell(_ cell: Cell, _ color: CellColor, limit: Bool = true) {
-        cell.write(foreground: color, background: self.background, limit: limit)
+        cell.write(foreground: color, background: self.background, foregroundOnly: limit)
     }
 
     public var image: CGImage? {
