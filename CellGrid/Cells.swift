@@ -15,6 +15,8 @@ class CellGridView {
     private let _viewParent: CellGrid
     private let _viewWidth: Int
     private let _viewHeight: Int
+    private let _viewWidthUnscaled: Int
+    private let _viewHeightUnscaled: Int
     private let _viewColumns: Int
     private let _viewRows: Int
     private let _viewCellEndX: Int
@@ -28,6 +30,7 @@ class CellGridView {
     private let _gridCellEndY: Int
 
     private let _cellSize: Int
+    private let _cellSizeUnscaled: Int
     private let _cellPadding: Int
     private let _cellShape: CellShape
     private let _cellFactory: CellFactory?
@@ -35,6 +38,8 @@ class CellGridView {
     private var _buffer: [UInt8]
     private let _bufferBlocks: Cells.BufferBlocks
 
+    // These change based on moving/shifting the cell-grid around the grid-view.
+    //
     private var _shiftCellX: Int
     private var _shiftCellY: Int
     private var _shiftX: Int
@@ -55,8 +60,11 @@ class CellGridView {
         self._viewParent = viewParent
         self._viewWidth = viewWidth
         self._viewHeight = viewHeight
+        self._viewWidthUnscaled = viewParent.unscaled(self._viewWidth)
+        self._viewHeightUnscaled = viewParent.unscaled(self._viewHeight)
 
         self._cellSize = (cellSize > 0) ? cellSize : CellGrid.Defaults.cellSize
+        self._cellSizeUnscaled = viewParent.unscaled(self._cellSize)
         self._cellPadding = (cellPadding > 0) ? cellPadding : CellGrid.Defaults.cellPadding
         self._cellShape = cellShape
 
@@ -90,28 +98,70 @@ class CellGridView {
         self._viewCellExtraY = 0
     }
 
+    public var viewColumns: Int {
+        self._viewColumns + self._viewCellExtraY
+    }
+
+    public var viewRows: Int {
+        self._viewRows + self._viewCellExtraX
+    }
+
     public var viewBackground: CellColor {
         self._viewBackground
+    }
+
+    public var gridColumns: Int {
+        self._gridColumns
+    }
+
+    public var gridRows: Int {
+        self._gridRows
     }
 
     public var gridCells: [Cell] {
         self._cells
     }
 
-    private func _defineCell(x: Int, y: Int, foreground: CellColor, background: CellColor? = nil)
-    {
-        let cell: Cell = (self._cellFactory != nil)
-                         ? self._cellFactory!(self, x, y, foreground)
-                         : Cell(viewParent: self, x: x, y: y, foreground: foreground)
-        self._cells.append(cell)
+    // Returns the cell-grid cell object for the given grid-view input location, or nil;
+    // note that the display input location is always in unscaled units.
+    //
+    public func gridCell<T: Cell>(_ location: CGPoint) -> T? {
+        if let gridPoint: CellGridPoint = self.locate(location) {
+            return self.gridCell(gridPoint.x, gridPoint.y)
+        }
+        return nil
+    }
+
+    // Returns the cell-grid cell object for the given cell-grid x/y cell location, or nil.
+    //
+    public func gridCell<T: Cell>(_ gridCellX: Int, _ gridCellY: Int) -> T? {
+        guard gridCellX >= 0, gridCellX < self._gridColumns, gridCellY >= 0, gridCellY < self._gridRows else {
+            return nil
+        }
+        return self._cells[gridCellY * self._gridColumns + gridCellX] as? T
+    }
+
+    // Returns the cell-grid cell location for the given grid-view input location, or nil;
+    // note that the display input location is always in unscaled units.
+    //
+    public func locate(_ location: CGPoint) -> CellGridPoint? {
+        let viewLocation: CellGridPoint = CellGridPoint(location)
+        guard viewLocation.x >= 0, viewLocation.x < self._viewWidthUnscaled,
+              viewLocation.y >= 0, viewLocation.y < self._viewHeightUnscaled else {
+            return nil
+        }
+        let viewCellX = viewLocation.x / self._cellSizeUnscaled
+        let viewCellY = viewLocation.y / self._cellSizeUnscaled
+        let gridCellX = viewCellX - self._shiftCellX - self._viewCellExtraX
+        let gridCellY = viewCellY - self._shiftCellY - self._viewCellExtraY
+        guard gridCellX >= 0, gridCellX < self._gridColumns, gridCellY >= 0, gridCellY < self._gridRows else {
+            return nil
+        }
+        return CellGridPoint(gridCellX, gridCellY)
     }
 
     public func shift(shiftx: Int = 0, shifty: Int = 0)
     {
-        func gridCell<T: Cell>(_ x: Int, _ y: Int) -> T? {
-            return self._cells[y * self._gridColumns + x] as? T
-        }
-
         // Normalize the given pixel level shift to cell and pixel level.
 
         var shiftX: Int = self._viewParent.scaled(shiftx), shiftCellX: Int
@@ -186,8 +236,11 @@ class CellGridView {
     //
     private func _writeCell(viewCellX: Int, viewCellY: Int)
     {
-        func gridCell<T: Cell>(_ x: Int, _ y: Int) -> T? {
-            return self._cells[y * self._gridColumns + x] as? T
+        func gridCell(_ gridCellX: Int, _ gridCellY: Int) -> Cell? {
+            //
+            // This is the same as CellGrid.gridCell but without the guard check for speed.
+            //
+            return self._cells[gridCellY * self._gridColumns + gridCellX]
         }
 
         // This was all a lot tricker than you might expect (yes basic arithmetic).
@@ -283,6 +336,35 @@ class CellGridView {
             }
             Memory.fastcopy(to: base, count: block.count, value: color.value)
         }
+    }
+
+    public var image: CGImage? {
+        var image: CGImage?
+        self._buffer.withUnsafeMutableBytes { rawBuffer in
+            guard let baseAddress = rawBuffer.baseAddress else {
+                fatalError("Buffer has no base address")
+            }
+            if let context = CGContext(
+                data: baseAddress,
+                width: self._viewWidth,
+                height: self._viewHeight,
+                bitsPerComponent: 8,
+                bytesPerRow: self._viewWidth * Screen.depth,
+                space: CellGrid.Defaults.colorSpace,
+                bitmapInfo: CellGrid.Defaults.bitmapInfo
+            ) {
+                image = context.makeImage()
+            }
+        }
+        return image
+    }
+
+    private func _defineCell(x: Int, y: Int, foreground: CellColor, background: CellColor? = nil)
+    {
+        let cell: Cell = (self._cellFactory != nil)
+                         ? self._cellFactory!(self, x, y, foreground)
+                         : Cell(viewParent: self, x: x, y: y, foreground: foreground)
+        self._cells.append(cell)
     }
 }
 
