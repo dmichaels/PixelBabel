@@ -87,12 +87,12 @@ class CellGridView {
         self._cells = []
         self._buffer = [UInt8](repeating: 0, count: self._viewWidth * self._viewHeight * Screen.depth)
         self._bufferBlocks = CellGridView.createBufferBlocks(bufferSize: self._buffer.count,
-                                                      displayWidth: self._viewWidth,
-                                                      displayHeight: self._viewHeight,
-                                                      cellSize: self._cellSize,
-                                                      cellPadding: self._cellPadding,
-                                                      cellShape: self._cellShape,
-                                                      cellTransparency: self._viewTransparency)
+                                                             displayWidth: self._viewWidth,
+                                                             displayHeight: self._viewHeight,
+                                                             cellSize: self._cellSize,
+                                                             cellPadding: self._cellPadding,
+                                                             cellShape: self._cellShape,
+                                                             cellTransparency: self._viewTransparency)
         self._shiftCellX = 0
         self._shiftCellY = 0
         self._shiftX = 0
@@ -292,9 +292,9 @@ class CellGridView {
             for block in self._bufferBlocks.blocks {
                 if (truncateLeft > 0) {
                     let truncatedBlocks = CellGridView.BufferBlocks.truncateLeft(block,
-                                                                          offset: offset,
-                                                                          width: self._viewWidth,
-                                                                          shiftx: truncateLeft)
+                                                                                 offset: offset,
+                                                                                 width: self._viewWidth,
+                                                                                 shiftx: truncateLeft)
                     for block in truncatedBlocks {
                         writeCellBlock(buffer: base, block: block)
                     }
@@ -302,9 +302,9 @@ class CellGridView {
                 }
                 else if (truncateRight > 0) {
                     let truncatedBlocks = CellGridView.BufferBlocks.truncateRight(block,
-                                                                           offset: offset,
-                                                                           width: self._viewWidth,
-                                                                           shiftx: truncateRight)
+                                                                                  offset: offset,
+                                                                                  width: self._viewWidth,
+                                                                                  shiftx: truncateRight)
                     for block in truncatedBlocks {
                         writeCellBlock(buffer: base, block: block)
                     }
@@ -329,10 +329,11 @@ class CellGridView {
             var color: CellColor
             if (block.foreground) {
                 if (block.blend != 0.0) {
-                    color = CellColor(CellGridView.blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
-                                      CellGridView.blend(foreground.green, self._viewBackground.green, amount: block.blend),
-                                      CellGridView.blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
-                                      alpha: foreground.alpha)
+                    color = CellColor(
+                        CellGridView.blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
+                        CellGridView.blend(foreground.green, self._viewBackground.green, amount: block.blend),
+                        CellGridView.blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
+                        alpha: foreground.alpha)
                 }
                 else {
                     color = foreground

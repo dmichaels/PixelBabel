@@ -89,7 +89,7 @@ class CellGrid: ObservableObject
         self._cellBackground = cellBackground
 
         let neatCells = CellGridView.preferredCellSizes(self._displayWidthUnscaled, self._displayHeightUnscaled,
-                                                 cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
+                                                        cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
         if (cellSizeNeat) {
             if let neatCell = CellGridView.closestPreferredCellSize(in: neatCells, to: self._cellSizeUnscaled) {
                 print_debug(neatCells, neatCell, verbose: true)
