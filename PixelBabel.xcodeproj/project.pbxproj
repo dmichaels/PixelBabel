@@ -130,7 +130,7 @@
 				CellColorMode.swift,
 				CellGrid.swift,
 				CellGridPoint.swift,
-				Cells.swift,
+				CellGridView.swift,
 				CellShape.swift,
 			);
 			target = 984AE8342D9904ED00DBCEDA /* PixelBabel */;
@@ -143,7 +143,7 @@
 				CellColorMode.swift,
 				CellGrid.swift,
 				CellGridPoint.swift,
-				Cells.swift,
+				CellGridView.swift,
 				CellShape.swift,
 			);
 			target = 98FFBFD02DBEBDD400C161DB /* CellGrid */;
