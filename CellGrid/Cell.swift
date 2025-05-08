@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-typealias CellFactory = (_ parent: CellGridView, _ x: Int, _ y: Int, _ foreground: CellColor, _ background: CellColor?) -> Cell
+typealias CellFactory = (_ parent: CellGridView, _ x: Int, _ y: Int, _ foreground: CellColor) -> Cell
 
 @MainActor
 class Cell

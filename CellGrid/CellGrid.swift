@@ -10,7 +10,7 @@ class CellGrid: ObservableObject
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = true
+        public static let displayScaling: Bool = false
         public static let displayTransparency: UInt8 = 255
         public static let cellSize: Int = 13
         public static let cellSizeNeat: Bool = true
@@ -119,6 +119,42 @@ class CellGrid: ObservableObject
                             cellBackground: self._cellBackground,
                             cellFactory: self._cellFactory)
 
+        let newcells = CellGridView(viewParent: self,
+                                    viewWidth: self._displayWidth,
+                                    viewHeight: self._displayHeight,
+                                    viewBackground: self._cellBackground,
+                                    viewTransparency: Defaults.displayTransparency,
+                                    cellSize: self._cellSize,
+                                    cellPadding: self._cellPadding,
+                                    cellShape: self._cellShape,
+                                    cellFactory: nil /* TODO */ )
+
+        for case let cell as LifeCell in newcells.gridCells {
+            if (cell.x == 0) {
+                cell.foreground = CellColor(Color.blue)
+            }
+            else if (cell.x == 1) {
+                cell.foreground = CellColor(Color.purple)
+            }
+            else if (cell.x == 7) {
+                cell.foreground = CellColor(Color.mint)
+            }
+            else if (cell.x == 8) {
+                cell.foreground = CellColor(Color.green)
+            }
+            else if (cell.x == 9) {
+                cell.foreground = CellColor(Color.red)
+            }
+            else if (cell.x == 10) {
+                cell.foreground = CellColor(Color.yellow)
+            }
+            else if (cell.x == 11) {
+                cell.foreground = CellColor(Color.orange)
+            }
+            else {
+                cell.foreground = CellColor.white
+            }
+        }
         // xyzzy
         for case let cell as LifeCell in self._cells!.cells {
             if (cell.x == 0) {
