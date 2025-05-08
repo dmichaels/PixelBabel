@@ -226,8 +226,7 @@ struct ContentView: View
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static let cellFactory = LifeCell.factory(activeColor: DefaultLifeSettings.cellActiveColor,
-                                              inactiveColor: DefaultLifeSettings.cellInactiveColor)
+    static let cellFactory = LifeCell.factory()
     static let cellGrid = CellGrid(cellFactory: cellFactory)
     static let settings = Settings()
     static var previews: some View {

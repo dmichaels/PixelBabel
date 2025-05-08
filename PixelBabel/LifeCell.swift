@@ -3,14 +3,9 @@ import SwiftUI
 class LifeCell: Cell {
 
     public var _active: Bool
-    public var _activeColor: CellColor
-    public var _inactiveColor: CellColor
 
-    init(parent: CellGridView, x: Int, y: Int, foreground: CellColor,
-         activeColor: CellColor, inactiveColor: CellColor, active: Bool = false) {
+    init(parent: CellGridView, x: Int, y: Int, foreground: CellColor, active: Bool = false) {
         self._active = active
-        self._activeColor = activeColor
-        self._inactiveColor = inactiveColor
         super.init(parent: parent, x: x, y: y, foreground: foreground)
     }
 
@@ -45,13 +40,13 @@ class LifeCell: Cell {
     }
 
     func write() {
-        self.write(foreground: self._active ? self._activeColor : self._inactiveColor)
+        // TODO
+        self.write(foreground: CellColor(Color.black))
     }
 
-    public static func factory(activeColor: CellColor, inactiveColor: CellColor) -> CellFactory {
+    public static func factory() -> CellFactory {
         return { parent, x, y, foreground in
-            return LifeCell(parent: parent, x: x, y: y, foreground: foreground,
-                            activeColor: activeColor, inactiveColor: inactiveColor, active: false)
+            return LifeCell(parent: parent, x: x, y: y, foreground: foreground, active: false)
         }
     }
 }

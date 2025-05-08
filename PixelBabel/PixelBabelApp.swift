@@ -9,8 +9,7 @@ import SwiftUI
 
 @main
 struct PixelBabelApp: App {
-    static let cellFactory = LifeCell.factory(activeColor: DefaultLifeSettings.cellActiveColor,
-                                              inactiveColor: DefaultLifeSettings.cellInactiveColor)
+    static let cellFactory = LifeCell.factory()
     @StateObject var pixelMap: CellGrid = CellGrid(cellFactory: cellFactory)
     @StateObject var settings: Settings = Settings()
     var body: some Scene {

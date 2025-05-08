@@ -144,7 +144,7 @@ class CellGrid: ObservableObject
                 }
             }
         }
-        self._cells!.shift(shiftx: -90, shifty: -90)
+        self._cells!.shift(shiftx: 10, shifty: 10)
 
         print_debug()
 
