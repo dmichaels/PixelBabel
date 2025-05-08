@@ -28,7 +28,8 @@ class Cell
     }
 
     public var foreground: CellColor {
-        self._foreground
+        get { return self._foreground }
+        set { self._foreground = newValue }
     }
 
     public var background: CellColor {

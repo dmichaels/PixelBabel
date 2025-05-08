@@ -12,7 +12,7 @@ class CellGrid: ObservableObject
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 43
+        public static let cellSize: Int = 13
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 1
         public static let cellBleed: Bool = false
@@ -23,7 +23,7 @@ class CellGrid: ObservableObject
         //
         public static let cellShape: CellShape = CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color
-        public static let cellForeground: CellColor = CellColor.black
+        public static let cellForeground: CellColor = CellColor(Color.teal) // CellColor.black
         public static let cellBackground: CellColor = CellColor(40, 40, 40)
         public static let cellAntialiasFade: Float = 0.6
         public static let cellRoundedRectangleRadius: Float = 0.25
@@ -118,6 +118,35 @@ class CellGrid: ObservableObject
                             cellForeground: cellForeground,
                             cellBackground: self._cellBackground,
                             cellFactory: self._cellFactory)
+
+        // xyzzy
+        for case let cell as LifeCell in self._cells!.cells {
+            if (cell.x == 0) {
+                cell.foreground = CellColor(Color.blue)
+            }
+            else if (cell.x == 1) {
+                cell.foreground = CellColor(Color.purple)
+            }
+            else if (cell.x == 7) {
+                cell.foreground = CellColor(Color.mint)
+            }
+            else if (cell.x == 8) {
+                cell.foreground = CellColor(Color.green)
+            }
+            else if (cell.x == 9) {
+                cell.foreground = CellColor(Color.red)
+            }
+            else if (cell.x == 10) {
+                cell.foreground = CellColor(Color.yellow)
+            }
+            else if (cell.x == 11) {
+                cell.foreground = CellColor(Color.orange)
+            }
+            else {
+                cell.foreground = CellColor.white
+            }
+        }
+        // xyzzy
 
         print_debug()
 
@@ -316,6 +345,7 @@ class CellGrid: ObservableObject
 
             if ((self._dragCell == nil) || (self._dragCell!.location != cell.location)) {
                 let start = Date()
+                /* trying new ...
                 self._cells!.fill(self._cellBackground)
                 for cell in self._cells!.cells {
                     self._cells!.writeCell(x: cell.x, y: cell.y,
@@ -324,6 +354,11 @@ class CellGrid: ObservableObject
                                            foreground: cell.foreground, background: cell.background,
                                            cellForegroundOnly: false)
                 }
+                */
+                self._cells!.setView(cells: self._cells!.cells,
+                                     ncolumns: self._cells!.ncolumns,
+                                     nrows: self._cells!.nrows,
+                                     shiftx: shiftx, shifty: shifty)
                 print(String(format: "DRAW-TIME: %.5fs", Date().timeIntervalSince(start)))
             }
         }
@@ -414,7 +449,8 @@ class CellGrid: ObservableObject
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 0, shifty: 0)
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 60, shifty: 0)
         let start = Date()
-        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: -30, shifty: -30)
+        // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: -30, shifty: -30)
+        self._cells!.setView(cells: self._cells!.cells, ncolumns: self._cells!.ncolumns, nrows: self._cells!.nrows, shiftx: 0, shifty: 0)
         print(String(format: "SETVIEW-TIME: %.5fs", Date().timeIntervalSince(start)))
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: 0, shifty: 0)
 /*
