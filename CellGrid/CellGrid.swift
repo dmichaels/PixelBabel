@@ -101,21 +101,6 @@ class CellGrid: ObservableObject
             }
         }
 
-        /*
-        self._cells = Cells(grid: self,
-                            displayWidth: self._displayWidth,
-                            displayHeight: self._displayHeight,
-                            displayScale: self._displayScale,
-                            displayScaling: self._displayScaling,
-                            cellSize: self._cellSize,
-                            cellPadding: self._cellPadding,
-                            cellShape: self._cellShape,
-                            cellTransparency: Defaults.displayTransparency,
-                            cellForeground: cellForeground,
-                            cellBackground: self._cellBackground,
-                            cellFactory: self._cellFactory)
-        */
-
         let gridColumns = 100
         let gridRows = 200
 
@@ -132,7 +117,6 @@ class CellGrid: ObservableObject
                                    cellFactory: self._cellFactory)
 
         for cell in self._cells!.gridCells {
-            // if let lifeCell: LifeCell = cell as LifeCell ... TODO ...
             if let lifeCell: LifeCell = self._cells?.gridCell(cell.x, cell.y) {
                 if (lifeCell.x == 0) {
                     lifeCell.foreground = CellColor(Color.blue)
