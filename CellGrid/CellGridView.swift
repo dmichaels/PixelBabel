@@ -437,6 +437,75 @@ class CellGridView {
             }
         }
 
+        // Regarding the truncating of horizontal left or right portions of buffer blocks ...
+        // Cheat sheet on shifting right (shiftX > 0); shifting vertically just falls out,
+        // as well as shifting horizontally left, but not so for shifting horizontally right.
+        // For example, this (WxH) grid, and the one-dimensional buffer for it ...
+        //
+        //       x . . .
+        //       0   1   2   3   4   5
+        //     +---+---+---+---+---+---+
+        //     | A | B | C | J | K | L | 0  y
+        //     +---+---+---+---+---+---+    .
+        //     | D | E | F | M | N | O | 1  .
+        //     +---+---+---+---+---+---+    .
+        //     | G | H | I | P | Q | R | 2
+        //     +---+---+---+---+---+---+
+        //     | S | T | U | b | c | d | 3
+        //     +---+---+---+---+---+---+
+        //     | V | W | X | e | f | g | 4
+        //     +---+---+---+---+---+---+
+        //     | Y | Z | a | h | i | j | 5
+        //     +---+---+---+---+---+---+
+        //       ^   ^            ^   ^
+        //       |   |            |   |
+        //       -   -            -   -
+        // If we want to ignore the 2 (S) left-most columns due to right shift,
+        // then we want to ignore (i.e. not write) buffer indices (I) where: I % W < S
+        // Conversely, if we want to ignore the 2 (S) right-most columns due to left shift,
+        // then we want to ignore (i.e. not write) buffer indices (I) where: (I % W) >= (W - S)
+        //
+        //      0: A -> I % W ==  0 % 6 == 0 <<< ignore on rshift-2: A
+        //      1: B -> I % W ==  1 % 6 == 1 <<< ignore on rshift-2: B
+        //      2: C -> I % W ==  2 % 6 == 2
+        //      3: J -> I % W ==  3 % 6 == 3
+        //      4: K -> I % W ==  4 % 6 == 4 <<< ignore on lshift-2: K
+        //      5: L -> I % W ==  5 % 6 == 5 <<< ignore on lshift-2: L
+        //      6: D -> I % W ==  6 % 6 == 0 <<< ignore on rshift-2: D
+        //      7: E -> I % W ==  7 % 6 == 1 <<< ignore on rshift-2: E
+        //      8: F -> I % W ==  8 % 6 == 2
+        //      9: M -> I % W ==  9 % 6 == 3
+        //     10: N -> I % W == 10 % 6 == 4 <<< ignore on lshift-2: N
+        //     11: O -> I % W == 11 % 6 == 5 <<< ignore on lshift-2: O
+        //     12: G -> I % W == 12 % 6 == 0 <<< ignore on rshift-2: G
+        //     13: H -> I % W == 13 % 6 == 1 <<< ignore on rshift-2: H
+        //     14: I -> I % W == 14 % 6 == 2
+        //     15: P -> I % W == 15 % 6 == 3
+        //     16: Q -> I % W == 16 % 6 == 4 <<< ignore on lshift-2: Q
+        //     17: R -> I % W == 17 % 6 == 5 <<< ignore on lshift-2: R
+        //     18: S -> I % W == 18 % 6 == 0 <<< ignore on rshift-2: S
+        //     19: T -> I % W == 19 % 6 == 1 <<< ignore on rshift-2: T
+        //     20: U -> I % W == 20 % 6 == 2
+        //     21: b -> I % W == 21 % 6 == 3
+        //     22: c -> I % W == 22 % 6 == 4 <<< ignore on lshift-2: c
+        //     23: d -> I % W == 23 % 6 == 5 <<< ignore on lshift-2: d
+        //     24: V -> I % W == 24 % 6 == 0 <<< ignore on rshift-2: V
+        //     25: W -> I % W == 25 % 6 == 1 <<< ignore on rshift-2: W
+        //     26: X -> I % W == 26 % 6 == 2
+        //     27: e -> I % W == 27 % 6 == 3
+        //     28: f -> I % W == 28 % 6 == 4 <<< ignore on lshift-2: f
+        //     29: g -> I % W == 29 % 6 == 5 <<< ignore on lshift-2: g
+        //     30: Y -> I % W == 30 % 6 == 0 <<< ignore on rshift-2: Y
+        //     31: Z -> I % W == 31 % 6 == 1 <<< ignore on rshift-2: Z
+        //     32: a -> I % W == 32 % 6 == 2
+        //     33: h -> I % W == 33 % 6 == 3
+        //     34: i -> I % W == 34 % 6 == 4 <<< ignore on lshift-2: i
+        //     35: j -> I % W == 35 % 6 == 5 <<< ignore on lshift-2: j
+        //
+        // Note that the BufferBlock.index is a byte index into the buffer,
+        // i.e. it already has Screen.depth factored into it; and note that
+        // the BufferBlock.count refers to the number of 4-byte (UInt32) values,
+
         // Ignore blocks to the left of the given shiftx value.
         //
         static func truncateLeft(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
