@@ -10,7 +10,7 @@ class CellGrid: ObservableObject
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = true
+        public static let displayScaling: Bool = false
         public static let displayTransparency: UInt8 = 255
         public static let cellSize: Int = 43
         public static let cellSizeNeat: Bool = true
@@ -368,8 +368,10 @@ class CellGrid: ObservableObject
     func testingLifeSetup() {
         // var start = Date()
         var cells: [Cell] = []
-        let ncolumns = 1200 /// 100
-        let nrows = 2100 /// 20 /// 100
+        // let ncolumns = 1200 /// 100
+        // let nrows = 2100 /// 20 /// 100
+        let ncolumns = 12
+        let nrows = 21
         print("XYZZY-TESTING-LIFE-SETUP-A: \(ncolumns * nrows)")
         let xyzzy = CellColor(Color.red)
         let activeColor: CellColor = CellColor(Color.pink)
@@ -412,7 +414,7 @@ class CellGrid: ObservableObject
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 0, shifty: 0)
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, x: 0, y: 0, shiftx: 60, shifty: 0)
         let start = Date()
-        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: -60, shifty: -30)
+        self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: 0, shifty: 30)
         print(String(format: "SETVIEW-TIME: %.5fs", Date().timeIntervalSince(start)))
         // self._cells!.setView(cells: cells, ncolumns: ncolumns, nrows: nrows, shiftx: 0, shifty: 0)
 /*

@@ -68,7 +68,7 @@ class Cells
             shiftX = 0
         }
         else if (-shiftCellX >= cellEndX) {
-            shiftCellX = cellEndX
+            shiftCellX = -cellEndX
             shiftX = 0
         }
         if (shiftCellY >= viewCellEndY) {
@@ -76,7 +76,7 @@ class Cells
             shiftY = 0
         }
         else if (-shiftCellY >= cellEndY) {
-            shiftCellY = cellEndY
+            shiftCellY = -cellEndY
             shiftY = 0
         }
         let writeBlankCells: Bool = true
@@ -101,13 +101,29 @@ class Cells
                 let foreground = ((cx >= 0) && (cx <= cellEndX) && (cy >= 0) && (cy <= cellEndY))
                                  ? cell(cx, cy)!.foreground
                                  : cellBackground
-                self.writeCell(x: vx - (shiftX > 0 ? 1 : 0), y: vy,
-                               shiftx: shiftX, shifty: shiftY,
-                               foreground: foreground,
-                               background: cellBackground,
-                               limit: false,
-                               truncateLeft: truncateLeft,
-                               truncateRight: truncateRight)
+                if (false) {
+                    self.writeCell(x: vx - (shiftX > 0 ? 1 : 0), y: vy,
+                                   shiftx: shiftX, shifty: shiftY,
+                                   foreground: foreground,
+                                   background: cellBackground,
+                                   limit: false,
+                                   truncateLeft: truncateLeft,
+                                   truncateRight: truncateRight)
+                }
+                else {
+                    //
+                    // TODO
+                    // shift down by (for example) 30, i.e setView(y: 30),
+                    // does not paint the background of the top empty cells.
+                    self.writeCell(x: vx, y: vy,
+                                   shiftx: (shiftX > 0) ? shiftX - cellSize : shiftX,
+                                   shifty: shiftY,
+                                   foreground: foreground,
+                                   background: cellBackground,
+                                   limit: false,
+                                   truncateLeft: truncateLeft,
+                                   truncateRight: truncateRight)
+                }
             }
         }
     }
@@ -364,6 +380,10 @@ class Cells
 
         let offset: Int = ((self._cellSize * x) + shiftx + (self._cellSize * self._displayWidth * y + shifty * self._displayWidth)) * Screen.depth
         let size: Int = buffer.count
+
+        if (y == 0) {
+            var x = 1
+        }
 
         buffer.withUnsafeMutableBytes { raw in
             guard let base = raw.baseAddress else { return }
