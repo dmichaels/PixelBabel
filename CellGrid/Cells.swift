@@ -8,6 +8,266 @@ import Utils
 // called with indices which are monotonically increasing, and are not duplicated or out of order
 // or anything weird; assume called from the buffer setting loop in the PixelMap._write method.
 //
+
+@MainActor
+class CellGridView {
+
+    private let _viewParent: CellGrid
+    private let _viewWidth: Int
+    private let _viewHeight: Int
+    private let _viewColumns: Int
+    private let _viewRows: Int
+    private let _viewCellEndX: Int
+    private let _viewCellEndY: Int
+    private var _viewBackground: CellColor
+    private var _viewTransparency: UInt8
+
+    private var _gridColumns: Int
+    private var _gridRows: Int
+    private var _gridCellEndX: Int
+    private var _gridCellEndY: Int
+
+    private var _cellSize: Int
+    private var _cellPadding: Int
+    private var _cellShape: CellShape
+    private let _cellFactory: CellFactory?
+    private var _cells: [Cell]
+    private var _buffer: [UInt8]
+    private let _bufferBlocks: Cells.BufferBlocks
+
+    private var _shiftCellX: Int
+    private var _shiftCellY: Int
+    private var _shiftX: Int
+    private var _shiftY: Int
+
+    init(viewParent: CellGrid,
+         viewWidth: Int, viewHeight: Int,
+         viewBackground: CellColor,
+         viewTransparency: UInt8 = 255,
+         cellSize: Int,
+         cellPadding: Int,
+         cellShape: CellShape,
+         cellFactory: CellFactory? = nil)
+    {
+        self._viewParent = viewParent
+        self._viewWidth = viewWidth
+        self._viewHeight = viewHeight
+
+        self._cellSize = (cellSize > 0) ? cellSize : CellGrid.Defaults.cellSize
+        self._cellPadding = (cellPadding > 0) ? cellPadding : CellGrid.Defaults.cellPadding
+        self._cellShape = cellShape
+
+        self._viewColumns = self._viewWidth / self._cellSize
+        self._viewRows = self._viewHeight / self._cellSize
+        self._viewCellEndX = self._viewColumns - 1
+        self._viewCellEndY = self._viewRows - 1
+        self._viewBackground = viewBackground
+        self._viewTransparency = viewTransparency
+
+        self._gridColumns = 0
+        self._gridRows = 0
+        self._gridCellEndX = self._gridColumns - 1
+        self._gridCellEndY = self._gridRows - 1
+
+        self._cellFactory = cellFactory
+        self._cells = []
+        self._buffer = [UInt8](repeating: 0, count: self._viewWidth * self._viewHeight * Screen.depth)
+        self._bufferBlocks = Cells.createBufferBlocks(bufferSize: self._buffer.count,
+                                                      displayWidth: self._viewWidth,
+                                                      displayHeight: self._viewHeight,
+                                                      cellSize: self._cellSize,
+                                                      cellPadding: self._cellPadding,
+                                                      cellShape: self._cellShape,
+                                                      cellTransparency: self._viewTransparency)
+
+        self._shiftCellX = 0
+        self._shiftCellY = 0
+        self._shiftX = 0
+        self._shiftY = 0
+    }
+
+    public var viewBackground: CellColor {
+        self._viewBackground
+    }
+
+    private func _defineCell(x: Int, y: Int, foreground: CellColor, background: CellColor? = nil)
+    {
+        let cell: Cell = (self._cellFactory != nil)
+                         ? self._cellFactory!(self, x, y, foreground, background)
+                         : Cell(viewParent: self, x: x, y: y, foreground: foreground)
+        self._cells.append(cell)
+    }
+
+    public func shift(shiftx: Int = 0, shifty: Int = 0)
+    {
+        func gridCell<T: Cell>(_ x: Int, _ y: Int) -> T? {
+            return self._cells[y * self._gridColumns + x] as? T
+        }
+
+        // Normalize the given pixel level shift to cell and pixel level.
+        //
+        var shiftX: Int = self._viewParent.scaled(shiftx), shiftCellX: Int
+        var shiftY: Int = self._viewParent.scaled(shifty), shiftCellY: Int
+
+        if (shiftX != 0) {
+            shiftCellX = shiftX / self._cellSize
+            if (shiftCellX != 0) {
+                shiftX = shiftX % self._cellSize
+            }
+        }
+        else {
+            shiftCellX = 0
+        }
+        if (shiftY != 0) {
+            shiftCellY = shiftY / self._cellSize
+            if (shiftCellY != 0) {
+                shiftY = shiftY % self._cellSize
+            }
+        }
+        else {
+            shiftCellY = 0
+        }
+
+        // Restrict the shift to min/max.
+        //
+        // TODO
+        // Support different rules; initially we do not allow the left-most
+        // grid cell to be shifted past the far-right of the grid view, nor
+        // the right-most grid-cellato be shifted past the far-left of the
+        // grid view; and similarly for the vertical dimention.
+        //
+        if (shiftCellX >= self._viewCellEndX) {
+            shiftCellX = self._viewCellEndX
+            shiftX = 0
+        }
+        else if (-shiftCellX >= self._gridCellEndX) {
+            shiftCellX = -self._gridCellEndX
+            shiftX = 0
+        }
+        if (shiftCellY >= self._viewCellEndY) {
+            shiftCellY = self._viewCellEndY
+            shiftY = 0
+        }
+        else if (-shiftCellY >= self._gridCellEndY) {
+            shiftCellY = -self._gridCellEndY
+            shiftY = 0
+        }
+
+        var viewCellEndX: Int = self._viewCellEndX + ((shiftX != 0) ? 1 : 0)
+        var viewCellEndY: Int = self._viewCellEndY + ((shiftY != 0) ? 1 : 0)
+
+        // This was tricker than you might think (yes basic arithmetic).
+        //
+        for vy in 0...viewCellEndY {
+            for vx in 0...viewCellEndX {
+                //
+                // TODO
+                // Move to its own function ...
+                // static func writeCell(viewX, viewY, shiftCellX, shiftCellY, shiftX, shiftY)
+                //
+                let cx = vx - shiftCellX - ((shiftX > 0) ? 1 : 0)
+                let cy = vy - shiftCellY - ((shiftY > 0) ? 1 : 0)
+                let truncateLeft = ((shiftX > 0) && (vx == 0))
+                                   ? (self._cellSize - shiftX)
+                                   : ((shiftX < 0) && (vx == 0)
+                                     ? -shiftX : 0)
+                let truncateRight = ((shiftX > 0) && (vx == viewCellEndX))
+                                    ? (self._cellSize - shiftX)
+                                    : ((shiftX < 0) && (vx == viewCellEndX)
+                                      ? -shiftX : 0)
+                let foreground = ((cx >= 0) && (cx <= self._gridCellEndX) && (cy >= 0) && (cy <= self._gridCellEndY))
+                                 ? gridCell(cx, cy)!.foreground
+                                 : self._viewBackground
+                self._writeCell(x: vx,
+                                y: vy,
+                                shiftx: (shiftX > 0) ? shiftX - self._cellSize : shiftX,
+                                shifty: (shiftY > 0) ? shiftY - self._cellSize : shiftY,
+                                foreground: foreground,
+                                foregroundOnly: false,
+                                truncateLeft: truncateLeft,
+                                truncateRight: truncateRight)
+            }
+        }
+    }
+
+    private func _writeCell(x: Int, y: Int,
+                           shiftx: Int = 0, shifty: Int = 0,
+                           foreground: CellColor, foregroundOnly: Bool = false,
+                           truncateLeft: Int = 0, truncateRight: Int = 0)
+    {
+        // TODO: guard ...
+        // TODO: special case for foreground == background - just write/fill square
+
+        let offset: Int = ((self._cellSize * x) + shiftx + (self._cellSize * self._viewWidth * y + shifty * self._viewWidth)) * Screen.depth
+        let size: Int = self._buffer.count
+
+        self._buffer.withUnsafeMutableBytes { raw in
+            guard let base = raw.baseAddress else { return }
+            for block in self._bufferBlocks.blocks {
+                if (truncateLeft > 0) {
+                    let truncatedBlocks = Cells.BufferBlocks.truncateLeftOf(block,
+                                                                      offset: offset,
+                                                                      width: self._viewWidth,
+                                                                      shiftx: truncateLeft)
+                    for block in truncatedBlocks {
+                        writeCellBlock(buffer: base, block: block)
+                    }
+                    continue
+                }
+                else if (truncateRight > 0) {
+                    let truncatedBlocks = Cells.BufferBlocks.truncateRightOf(block,
+                                                                       offset: offset,
+                                                                       width: self._viewWidth,
+                                                                       shiftx: truncateRight)
+                    for block in truncatedBlocks {
+                        writeCellBlock(buffer: base, block: block)
+                    }
+                    continue
+                }
+                writeCellBlock(buffer: base, block: block)
+            }
+        }
+
+        // Writes the given buffer block to the backing image (pixel value) buffer; each block describing a
+        // range of indices and whether the block is for a foreground or background color, and the amount
+        // it should be blended with the background if it is for a foreground color).
+        // N.B. From outer function scope: offset, size, foreground, foregroundOnly
+        // N.B. From class scope: self._viewBackground
+        //
+        func writeCellBlock(buffer: UnsafeMutableRawPointer, block: Cells.BufferBlock)  {
+            let start: Int = offset + block.index
+            guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else {
+                return
+            }
+            let base = buffer.advanced(by: start)
+            var color: CellColor
+            if (block.foreground) {
+                if (block.blend != 0.0) {
+                    color = CellColor(Cells.blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
+                                      Cells.blend(foreground.green, self._viewBackground.green, amount: block.blend),
+                                      Cells.blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
+                                      alpha: foreground.alpha)
+                }
+                else {
+                    color = foreground
+                }
+            }
+            else if (foregroundOnly) {
+                //
+                // Limit the write to only the foreground; can be useful
+                // for performance as background normally doesn't change.
+                //
+                return
+            }
+            else {
+                color = self._viewBackground
+            }
+            Memory.fastcopy(to: base, count: block.count, value: color.value)
+        }
+    }
+}
+
+
 @MainActor
 class Cells
 {
@@ -117,7 +377,7 @@ class Cells
 
     typealias PreferredSize = (cellSize: Int, displayWidth: Int, displayHeight: Int)
 
-    private class BufferBlock
+    internal class BufferBlock
     {
         let index: Int
         let foreground: Bool
@@ -156,7 +416,7 @@ class Cells
         }
     }
 
-    private class BufferBlocks
+    internal class BufferBlocks
     {
         var blocks: [BufferBlock] = []
 
@@ -297,6 +557,10 @@ class Cells
 
     var cells: [Cell] {
         self._cells
+    }
+
+    var background: CellColor {
+        self._cellBackground
     }
 
     // Returns the cell coordinate for the given display input coordinates,
@@ -595,7 +859,7 @@ class Cells
         self._cells.append(cell)
     }
 
-    private static func createBufferBlocks(bufferSize: Int,
+    internal static func createBufferBlocks(bufferSize: Int,
                                            displayWidth: Int,
                                            displayHeight: Int,
                                            cellSize: Int,
