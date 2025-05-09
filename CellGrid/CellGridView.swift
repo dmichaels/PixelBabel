@@ -304,6 +304,7 @@ class CellGridView {
 
         if true && self._viewBleed && viewCellLastX && self._viewExtraRight > 0 {
             // truncateRight -= self._cellSize - self._viewExtraRight // almost okay with 30, 60, -30, -60
+            // OK beelow but still scrolling issues with large size (small seems ok)
             if truncateRight != 0 {
                 truncateRight -= self._cellSize - self._viewExtraRight
             }
