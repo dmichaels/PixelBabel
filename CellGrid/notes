@@ -14,41 +14,48 @@ self._viewColumnsExtra = ((self._viewWidthExtra > 0) ? 1 : 0)
 
 // 1. truncateLeft and truncateRight
 //
-if (shiftfX > 0) {
-    if (viewCellFirstX) {
-        truncateLeft = self._cellSize - shiftX
-    }
-    else if (viewCellLastX) {
-        if (self._viewWidthExtra > 0) {
-            truncateRight = (self._cellSize - shiftX + self._viewWidthExtra) % self._cellSize
+        let viewCellFirstX: Bool = (viewCellX == 0)
+        let viewCellLastX: Bool = (viewCellX == self._viewCellEndX + self._viewColumnsExtra)
+        let truncateLeft: Int
+        let truncateRight: Int
+        let foreground: CellColor = CellColor.white
+        let foregroundOnly = false
+
+        if (self._shiftX > 0) {
+            if (viewCellFirstX) {
+                truncateLeft = self._cellSize - self._shiftX
+            }
+            else if (viewCellLastX) {
+                if (self._viewWidthExtra > 0) {
+                    truncateRight = (self._cellSize - self._shiftX + self._viewWidthExtra) % self._cellSize
+                }
+                else {
+                    truncateRight = self._cellSize - self._shiftX
+                }
+            }
         }
-        else {
-            truncateRight = self._cellSize - shiftX
+        else if (self._shiftX < 0) {
+            if (viewCellFirstX) {
+                truncateLeft = -self._shiftX
+            }
+            else if (viewCellLastX) {
+                if (self._viewWidthExtra > 0) {
+                    truncateRight = (self._viewWidthExtra - self._shiftX) % self._cellSize
+                }
+                else {
+                    truncateRight = -self._shiftX
+                }
+            }
         }
-    }
-}
-else if (shiftfX < 0) {
-    if (viewCellFirstX) {
-        truncateLeft = -shiftX
-    }
-    else if (viewCellLastX) {
-        if (self._viewWidthExtra > 0) {
-            truncateRight = (self._viewWidthExtra - shiftX) % self._cellSize
+        else if ((self._viewWidthExtra > 0) && viewCellLastX) {
+            truncateRight = self._viewWidthExtra
         }
-        else {
-            truncateRight = -shiftX
-        }
-    }
-}
-else if (self._viewWidthExtra > 0) {
-    truncateRight = self._viewWidthExtra
-}
 
 // 2. gridCellX from viewCellX
 //
 // TODO
-let gridCellX = viewCellX - self._shiftCellX - (shiftRight ? 1 : 0)
-let gridCellY = viewCellY - self._shiftCellY - (shiftDown ? 1 : 0)
+        let gridCellX = viewCellX - self._shiftCellX - (shiftRight ? 1 : 0)
+        let gridCellY = viewCellY - self._shiftCellY - (shiftDown ? 1 : 0)
 
 // 3. gridCellX color i.e. cell foreground if in range otherwise background
 //

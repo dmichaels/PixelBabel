@@ -107,17 +107,15 @@ class CellGrid: ObservableObject
                 // self._displayWidthUnscaled = 387 // 387
                 // self._displayWidth = self.scaled(self._displayWidthUnscaled)
                 // experiment for cellSize == 43 ... make viewWidth be too short
-                // self._displayWidthUnscaled = 377 // a little too small for 43
+                self._displayWidthUnscaled = 377 // a little too small for 43
                 // self._displayWidthUnscaled = 397 // a little too big for 43
-                // self._displayWidth = self.scaled(self._displayWidthUnscaled)
+                self._displayWidth = self.scaled(self._displayWidthUnscaled)
                 //xyzzy
 
         self._cells = CellGridView(viewParent: self,
                                    viewWidth: self._displayWidth,
                                    viewHeight: self._displayHeight,
                                    viewBackground: self._cellBackground,
-                                   // viewBleed: false,
-                                   viewBleed: true, //xyzzy
                                    viewTransparency: Defaults.displayTransparency,
                                    gridColumns: self._gridColumns,
                                    gridRows: self._gridRows,
@@ -154,7 +152,7 @@ class CellGrid: ObservableObject
                 }
             }
         }
-        self._cells!.shift(shiftx: 0, shifty: 0)
+        self._cells!.shift(shiftx: 33, shifty: 0)
 
         print_debug()
 
@@ -382,7 +380,6 @@ class CellGrid: ObservableObject
                                            // viewWidth: 400, // for 51
                                            // viewHeight: 850, // for 51
                                            viewBackground: self._cellBackground,
-                                           viewBleed: true,
                                            viewTransparency: Defaults.displayTransparency,
                                            gridColumns: self._gridColumns,
                                            gridRows: self._gridRows,
