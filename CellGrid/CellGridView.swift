@@ -184,23 +184,34 @@ class CellGridView {
             var x = 1
         }
 
-        if (shiftX != 0) {
+        if (true) {
+            // TIME: 2.22552s
+            if (shiftX != 0) {
+                shiftCellX = shiftX / self._cellSize
+                if (shiftCellX != 0) {
+                    shiftX = shiftX % self._cellSize
+                }
+            }
+            else {
+                shiftCellX = 0
+            }
+            if (shiftY != 0) {
+                shiftCellY = shiftY / self._cellSize
+                if (shiftCellY != 0) {
+                    shiftY = shiftY % self._cellSize
+                }
+            }
+            else {
+                shiftCellY = 0
+            }
+        }
+        else {
+            // More compact of above via ChatGPT ... TODO: TEST MORE ...
+            // TIME: 2.39635s
             shiftCellX = shiftX / self._cellSize
-            if (shiftCellX != 0) {
-                shiftX = shiftX % self._cellSize
-            }
-        }
-        else {
-            shiftCellX = 0
-        }
-        if (shiftY != 0) {
+            shiftX = (shiftX != 0 && shiftCellX != 0) ? (shiftX % self._cellSize) : shiftX
             shiftCellY = shiftY / self._cellSize
-            if (shiftCellY != 0) {
-                shiftY = shiftY % self._cellSize
-            }
-        }
-        else {
-            shiftCellY = 0
+            shiftY = (shiftY != 0 && shiftCellY != 0) ? (shiftY % self._cellSize) : shiftY
         }
 
         // Restrict the shift to min/max.
@@ -216,21 +227,36 @@ class CellGridView {
         //   position of the grid-view, and the right-most cell of the cell-grid being left-shifted
         //   past the right-most position of the grid-view; similarly for the vertical.
 
-        if (shiftCellX >= self._viewCellEndX) {
-            shiftCellX = self._viewCellEndX
-            shiftX = 0
+        if (true) {
+            // TIME: 2.12476s
+            if (shiftCellX >= self._viewCellEndX) {
+                shiftCellX = self._viewCellEndX
+                shiftX = 0
+            }
+            else if (-shiftCellX >= self._gridCellEndX) {
+                shiftCellX = -self._gridCellEndX
+                shiftX = 0
+            }
+            if (shiftCellY >= self._viewCellEndY) {
+                shiftCellY = self._viewCellEndY
+                shiftY = 0
+            }
+            else if (-shiftCellY >= self._gridCellEndY) {
+                shiftCellY = -self._gridCellEndY
+                shiftY = 0
+            }
         }
-        else if (-shiftCellX >= self._gridCellEndX) {
-            shiftCellX = -self._gridCellEndX
-            shiftX = 0
-        }
-        if (shiftCellY >= self._viewCellEndY) {
-            shiftCellY = self._viewCellEndY
-            shiftY = 0
-        }
-        else if (-shiftCellY >= self._gridCellEndY) {
-            shiftCellY = -self._gridCellEndY
-            shiftY = 0
+        else {
+            // TIME: 2.21211s
+            // More compact of above via ChatGPT ... TODO: TEST MORE ...
+            if abs(shiftCellX) >= (shiftCellX >= 0 ? self._viewCellEndX : self._gridCellEndX) {
+                shiftCellX = shiftCellX >= 0 ? self._viewCellEndX : -self._gridCellEndX
+                shiftX = 0
+            }
+            if abs(shiftCellY) >= (shiftCellY >= 0 ? self._viewCellEndY : self._gridCellEndY) {
+                shiftCellY = shiftCellY >= 0 ? self._viewCellEndY : -self._gridCellEndY
+                shiftY = 0
+            }
         }
 
         // Update the shift related values for the view.
@@ -242,6 +268,13 @@ class CellGridView {
         // self._viewColumnsExtra = (shiftX != 0 ? 1 : 0) + (self._viewWidthExtra > 0 ? 1 : 0)
         // self._viewRowsExtra = (shiftY != 0 ? 1 : 0) + (self._viewHeightExtra > 0 ? 1 : 0)
 
+        self._viewColumnsExtra = (self._shiftX != 0 ? 1 : 0)
+                               + ((self._shiftX > 0 && self._viewWidthExtra > self._shiftX) ||
+                                  (self._shiftX < 0 && self._viewWidthExtra > (self._cellSize - self._shiftX)) ? 1 : 0)
+        self._viewRowsExtra = (self._shiftY != 0 ? 1 : 0)
+                               + ((self._shiftY > 0 && self._viewHeightExtra > self._shiftY) ||
+                                  (self._shiftY < 0 && self._viewHeightExtra > (self._cellSize - self._shiftY)) ? 1 : 0)
+/*
         self._viewColumnsExtra = (self._shiftX != 0 ? 1 : 0)
         if (self._shiftX > 0) {
             if (self._viewWidthExtra > self._shiftX) {
@@ -264,6 +297,7 @@ class CellGridView {
                 self._viewRowsExtra += 1
             }
         }
+*/
 
         // Now actually write/draw the cells to the view.
 
