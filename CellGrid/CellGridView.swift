@@ -17,6 +17,7 @@ class CellGridView {
     private let _viewHeight: Int
     private let _viewWidthUnscaled: Int
     private let _viewHeightUnscaled: Int
+    private let _viewWidthExtra: Int
     private let _viewColumns: Int
     private let _viewRows: Int
     private let _viewCellEndX: Int
@@ -81,6 +82,7 @@ class CellGridView {
         self._viewCellEndY = self._viewRows - 1
         self._viewExtraRight = self._viewWidth % self._cellSize // new
         self._viewExtraBottom = self._viewHeight % self._cellSize // new
+        self._viewWidthExtra = self._viewWidth % self._cellSize
         self._viewBackground = viewBackground
         self._viewBleed = viewBleed
         self._viewTransparency = viewTransparency

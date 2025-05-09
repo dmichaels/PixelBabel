@@ -8,22 +8,22 @@
 
 // 0. viewColumns and viewColumnsExtra
 //
-viewWidthExtra = viewWidth % cellSize
-viewColumns = viewWidth / cellSize
-viewColumnsExtra = ((viewWidthExtra > 0) ? 1 : 0)
+self._viewWidthExtra = self._viewWidth % self._cellSize
+self._viewColumns = self._viewWidth / self._cellSize
+self._viewColumnsExtra = ((self._viewWidthExtra > 0) ? 1 : 0)
 
 // 1. truncateLeft and truncateRight
 //
 if (shiftfX > 0) {
     if (viewCellFirstX) {
-        truncateLeft = cellSize - shiftX
+        truncateLeft = self._cellSize - shiftX
     }
     else if (viewCellLastX) {
-        if (viewWidthExtra > 0) {
-            truncateRight = (cellSize - shiftX + viewWidthExtra) % cellSize
+        if (self._viewWidthExtra > 0) {
+            truncateRight = (self._cellSize - shiftX + self._viewWidthExtra) % self._cellSize
         }
         else {
-            truncateRight = cellSize - shiftX
+            truncateRight = self._cellSize - shiftX
         }
     }
 }
@@ -32,21 +32,23 @@ else if (shiftfX < 0) {
         truncateLeft = -shiftX
     }
     else if (viewCellLastX) {
-        if (viewWidthExtra > 0) {
-            truncateRight = (viewWidthExtra - shiftX) % cellSize
+        if (self._viewWidthExtra > 0) {
+            truncateRight = (self._viewWidthExtra - shiftX) % self._cellSize
         }
         else {
             truncateRight = -shiftX
         }
     }
 }
-else if (viewWidthExtra > 0) {
-    truncateRight = viewWidthExtra
+else if (self._viewWidthExtra > 0) {
+    truncateRight = self._viewWidthExtra
 }
 
 // 2. gridCellX from viewCellX
 //
 // TODO
+let gridCellX = viewCellX - self._shiftCellX - (shiftRight ? 1 : 0)
+let gridCellY = viewCellY - self._shiftCellY - (shiftDown ? 1 : 0)
 
 // 3. gridCellX color i.e. cell foreground if in range otherwise background
 //
