@@ -64,9 +64,9 @@ struct ContentView: View
                                             //
                                             // Swipe left.
                                             //
-                                            withAnimation {
-                                                showSettingsView = true
-                                            }
+                                            // withAnimation {
+                                                // showSettingsView = true
+                                            // }
                                         }
                                         else if (swipeDistance > DefaultSettings.swipeDistance) {
                                             //
