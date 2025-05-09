@@ -283,8 +283,8 @@ class CellGridView {
         let shiftLeft: Bool = self._shiftX < 0
         let shiftRight: Bool = self._shiftX > 0
         let shiftDown: Bool = self._shiftY > 0
-        let cellX = viewCellX - self._shiftCellX - (shiftRight ? 1 : 0)
-        let cellY = viewCellY - self._shiftCellY - (shiftDown ? 1 : 0)
+        let gridCellX = viewCellX - self._shiftCellX - (shiftRight ? 1 : 0)
+        let gridCellY = viewCellY - self._shiftCellY - (shiftDown ? 1 : 0)
         let viewCellFirstX: Bool = (viewCellX == 0)
         let viewCellLastX: Bool = (viewCellX == self._viewCellEndX + self._viewCellExtraX)
 
@@ -296,9 +296,15 @@ class CellGridView {
                             ? (self._cellSize - self._shiftX)
                             : (shiftLeft && viewCellLastX
                               ? -self._shiftX : 0)
-        let foreground = ((cellX >= 0) && (cellX <= self._gridCellEndX) &&
-                          (cellY >= 0) && (cellY <= self._gridCellEndY))
-                         ? gridCell(cellX, cellY)!.foreground
+        //
+        // TODO
+        // Could have special grid-cell blocks for a sold square for background for empty cell (faster).
+        // i.e. if foreground here turns out to be self._viewBackground then instead of using
+        // self._bufferBlocks.blocks below use a special blocks which has indices for square sans padding.
+        //
+        let foreground = ((gridCellX >= 0) && (gridCellX <= self._gridCellEndX) &&
+                          (gridCellY >= 0) && (gridCellY <= self._gridCellEndY))
+                         ? gridCell(gridCellX, gridCellY)!.foreground
                          : self._viewBackground
         let foregroundOnly = false
 
@@ -333,7 +339,7 @@ class CellGridView {
             truncateRight = newCellSize - cellOverageX // 51 - 21 = 30
             var x = 1
         }
-        if self._viewBleed && cellY == 16 {
+        if self._viewBleed && gridCellY == 16 {
             var x = 1
         }
 

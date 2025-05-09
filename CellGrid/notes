@@ -1,0 +1,53 @@
+
+// Get these three things as much as possible independently from each other:
+//
+// 0. viewColumns and viewColumnsExtra
+// 1. truncateLeft and truncateRight
+// 2. gridCellX from viewCellX
+// 3. gridCellX color i.e. cell foreground if in range otherwise background
+
+// 0. viewColumns and viewColumnsExtra
+//
+viewWidthExtra = viewWidth % cellSize
+viewColumns = viewWidth / cellSize
+viewColumnsExtra = ((viewWidthExtra > 0) ? 1 : 0)
+
+// 1. truncateLeft and truncateRight
+//
+if (shiftfX > 0) {
+    if (viewCellFirstX) {
+        truncateLeft = cellSize - shiftX
+    }
+    else if (viewCellLastX) {
+        if (viewWidthExtra > 0) {
+            truncateRight = (cellSize - shiftX + viewWidthExtra) % cellSize
+        }
+        else {
+            truncateRight = cellSize - shiftX
+        }
+    }
+}
+else if (shiftfX < 0) {
+    if (viewCellFirstX) {
+        truncateLeft = -shiftX
+    }
+    else if (viewCellLastX) {
+        if (viewWidthExtra > 0) {
+            truncateRight = (viewWidthExtra - shiftX) % cellSize
+        }
+        else {
+            truncateRight = -shiftX
+        }
+    }
+}
+else if (viewWidthExtra > 0) {
+    truncateRight = viewWidthExtra
+}
+
+// 2. gridCellX from viewCellX
+//
+// TODO
+
+// 3. gridCellX color i.e. cell foreground if in range otherwise background
+//
+// TODO
