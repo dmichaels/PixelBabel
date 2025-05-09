@@ -12,7 +12,7 @@ class CellGrid: ObservableObject
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = false
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 43
+        public static let cellSize: Int = 43 // 51
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 1
         //
@@ -102,12 +102,22 @@ class CellGrid: ObservableObject
                 self._displayHeightUnscaled = neatCell.displayHeight
             }
         }
+                //xyzzy
+                // experiment for cellSize == 51 ... make viewWidth be too short
+                // self._displayWidthUnscaled = 387 // 387
+                // self._displayWidth = self.scaled(self._displayWidthUnscaled)
+                // experiment for cellSize == 43 ... make viewWidth be too short
+                self._displayWidthUnscaled = 377 // a little too small for 43
+                // self._displayWidthUnscaled = 397 // a little too big for 43
+                self._displayWidth = self.scaled(self._displayWidthUnscaled)
+                //xyzzy
 
         self._cells = CellGridView(viewParent: self,
                                    viewWidth: self._displayWidth,
                                    viewHeight: self._displayHeight,
                                    viewBackground: self._cellBackground,
-                                   viewBleed: false,
+                                   // viewBleed: false,
+                                   viewBleed: true, //xyzzy
                                    viewTransparency: Defaults.displayTransparency,
                                    gridColumns: self._gridColumns,
                                    gridRows: self._gridRows,

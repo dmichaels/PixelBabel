@@ -21,6 +21,8 @@ class CellGridView {
     private let _viewRows: Int
     private let _viewCellEndX: Int
     private let _viewCellEndY: Int
+    private let _viewExtraRight: Int
+    private let _viewExtraBottom: Int
     private let _viewBackground: CellColor
     private let _viewBleed: Bool
     private let _viewTransparency: UInt8
@@ -73,12 +75,12 @@ class CellGridView {
         self._cellPadding = (cellPadding > 0) ? cellPadding : CellGrid.Defaults.cellPadding
         self._cellShape = cellShape
 
-        // self._viewColumns = self._viewWidth / self._cellSize
-        // self._viewRows = self._viewHeight / self._cellSize
-        self._viewColumns = self._viewWidth / self._cellSize + (viewBleed && self._viewWidth % self._cellSize != 0 ? 1 : 0)
-        self._viewRows = self._viewHeight / self._cellSize + (viewBleed && self._viewHeight % self._cellSize != 0 ? 1 : 0)
+        self._viewColumns = self._viewWidth / self._cellSize
+        self._viewRows = self._viewHeight / self._cellSize
         self._viewCellEndX = self._viewColumns - 1
         self._viewCellEndY = self._viewRows - 1
+        self._viewExtraRight = self._viewWidth % self._cellSize // new
+        self._viewExtraBottom = self._viewHeight % self._cellSize // new
         self._viewBackground = viewBackground
         self._viewBleed = viewBleed
         self._viewTransparency = viewTransparency
@@ -106,6 +108,8 @@ class CellGridView {
         self._viewCellExtraY = 0
         // self._viewCellExtraX = (viewBleed && self._viewWidth % self._cellSize != 0) ? 1 : 0
         // self._viewCellExtraY = (viewBleed && self._viewHeight % self._cellSize != 0) ? 1 : 0
+        self._viewCellExtraX = (viewBleed && self._viewExtraRight > 0) ? 1 : 0
+        self._viewCellExtraY = (viewBleed && self._viewExtraBottom > 0) ? 1 : 0
 
         for y in 0..<self._gridRows {
             for x in 0..<self._gridColumns {
@@ -183,6 +187,10 @@ class CellGridView {
         var shiftX: Int = self._viewParent.scaled(shiftx), shiftCellX: Int
         var shiftY: Int = self._viewParent.scaled(shifty), shiftCellY: Int
 
+        if shiftx < -1 {
+            var x = 1
+        }
+
         if (shiftX != 0) {
             shiftCellX = shiftX / self._cellSize
             if (shiftCellX != 0) {
@@ -238,8 +246,14 @@ class CellGridView {
         self._shiftCellY = shiftCellY
         self._shiftX = shiftX
         self._shiftY = shiftY
-        self._viewCellExtraX = shiftX != 0 ? 1 : 0
-        self._viewCellExtraY = shiftY != 0 ? 1 : 0
+        // self._viewCellExtraX = shiftX != 0 ? 1 : 0
+        // self._viewCellExtraY = shiftY != 0 ? 1 : 0
+        // self._viewCellExtraX = (self._viewBleed && self._viewWidth % self._cellSize != 0) || (shiftX != 0) ? 1 : 0
+        // self._viewCellExtraY = (self._viewBleed && self._viewHeight % self._cellSize != 0) || (shiftY != 0) ? 1 : 0
+        // self._viewCellExtraX = (self._viewBleed && self._viewExtraRight > 0) || (shiftX != 0) ? 1 : 0
+        // self._viewCellExtraY = (self._viewBleed && self._viewExtraBottom > 0) || (shiftY != 0) ? 1 : 0
+        self._viewCellExtraX = (shiftX != 0 ? 1 : 0) + (self._viewBleed && self._viewExtraRight > 0 ? 1 : 0)
+        self._viewCellExtraY = (shiftY != 0 ? 1 : 0) + (self._viewBleed && self._viewExtraBottom > 0 ? 1 : 0)
 
         // Now actually write/draw the cells to the view.
 
@@ -288,15 +302,37 @@ class CellGridView {
                          : self._viewBackground
         let foregroundOnly = false
 
+        if true && self._viewBleed && viewCellLastX && self._viewExtraRight > 0 {
+            // truncateRight -= self._cellSize - self._viewExtraRight // almost okay with 30, 60, -30, -60
+            if truncateRight != 0 {
+                truncateRight -= self._cellSize - self._viewExtraRight
+            }
+            else {
+                truncateRight = self._viewExtraRight
+            }
+            if truncateRight > 0 {
+                // if view is too large then do nothing
+                // else if view is too small then ... -= self._viewExtraRight ? but still off if 
+                // truncateRight -= self._cellSize - self._viewExtraRight
+                // truncateRight += self._viewExtraRight
+            }
+            else {
+                // truncateRight = self._cellSize - self._viewExtraRight
+                // truncateRight = self._viewExtraRight
+            }
+        }
         // LOTS OF TOdO HERE FOR DYNAMIC CELL-SIZE CHANGE ...
         // Given that had sort of assumed the initial view dimensions fit the cells exactly (which it did due to the preferred size stuff).
-        if self._viewBleed && viewCellLastX {
+        if false && self._viewBleed && viewCellLastX {
             // fix for cellSize from  43 to 51 i.e +8 -> truncateRight = 30 -> why?
             let newCellSize = self._viewParent._cellSize // 51 // from hack in CellGrid.onTap i.e cellSize = 43 + 8
             // truncateRight = 30
-            let cellSpaceX = self._cellSize * self._viewColumns // 51 * 8 = 408
+            let cellSpaceX = self._cellSize * (self._viewColumns + self._viewCellExtraX) // 51 * 8 = 408
             let cellOverageX = cellSpaceX - self._viewWidth // 408 - 387 (387 for cellSize of our usual 43) = 21
             truncateRight = newCellSize - cellOverageX // 51 - 21 = 30
+            var x = 1
+        }
+        if self._viewBleed && cellY == 16 {
             var x = 1
         }
 
