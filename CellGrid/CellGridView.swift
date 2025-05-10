@@ -760,7 +760,7 @@ class CellGridView {
             BufferBlocks.xtruncateX(block, width: width, shiftx: -shiftx, writeCellBlock: writeCellBlock, buffer: buffer)
         }
 
-private static func new_xtruncateX(
+private static func xtruncateX(
     _ block: BufferBlock,
     width: Int,
     shiftx: Int,
@@ -806,7 +806,7 @@ private static func new_xtruncateX(
         writeCellBlock(buffer, block, idx, count)
     }
 }
-        private static func xtruncateX(_ block: BufferBlock, width: Int, shiftx: Int,
+        private static func old_xtruncateX(_ block: BufferBlock, width: Int, shiftx: Int,
                                        writeCellBlock: CellGridView.WriteCellBlock,
                                        buffer: UnsafeMutableRawPointer) {
             var index: Int? = nil
