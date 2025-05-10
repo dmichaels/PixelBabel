@@ -59,7 +59,8 @@ class CellGridView {
          cellSize: Int,
          cellPadding: Int,
          cellShape: CellShape,
-         cellFactory: CellFactory? = nil)
+         cellFactory: CellFactory? = nil,
+         cells: [Cell]? = nil)
     {
         self._viewParent = viewParent
         self._viewWidth = viewWidth
@@ -87,7 +88,7 @@ class CellGridView {
         self._gridCellEndY = self._gridRows - 1
 
         self._cellFactory = cellFactory
-        self._cells = []
+        self._cells = cells != nil ? cells! : []
         self._buffer = [UInt8](repeating: 0, count: self._viewWidth * self._viewHeight * Screen.depth)
         self._bufferBlocks = CellGridView.createBufferBlocks(bufferSize: self._buffer.count,
                                                              displayWidth: self._viewWidth,
@@ -437,11 +438,11 @@ class CellGridView {
 
     private class BufferBlock
     {
-        let index: Int
-        let foreground: Bool
-        let blend: Float
-        var count: Int
-        var lindex: Int
+        internal let index: Int
+        internal let foreground: Bool
+        internal let blend: Float
+        internal var count: Int
+        internal var lindex: Int
 
         init(index: Int, count: Int, foreground: Bool = true, blend: Float = 0.0) {
             self.index = max(index, 0)
@@ -454,7 +455,7 @@ class CellGridView {
 
     private class BufferBlocks
     {
-        var blocks: [BufferBlock] = []
+        internal var blocks: [BufferBlock] = []
 
         internal func append(_ index: Int, foreground: Bool, blend: Float = 0.0) {
             if let last = self.blocks.last, last.foreground == foreground, last.blend == blend,
@@ -537,13 +538,13 @@ class CellGridView {
 
         // Ignore blocks to the left of the given shiftx value.
         //
-        static func truncateLeft(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
+        internal static func truncateLeft(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
             return BufferBlocks.truncateX(block, offset: offset, width: width, shiftx: shiftx)
         }
 
         // Ignore blocks to the right of the given shiftx value.
         //
-        static func truncateRight(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
+        internal static func truncateRight(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
             return BufferBlocks.truncateX(block, offset: offset, width: width, shiftx: -shiftx)
         }
 
@@ -553,7 +554,7 @@ class CellGridView {
         // A positive shiftx means to truncate the values (pixels) LEFT of the given shiftx value, and
         // a negative shiftx means to truncate the values (pixels) RIGHT of the given shiftx value.
         //
-        static func truncateX(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
+        private static func truncateX(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
             var blocks: [BufferBlock] = []
             var start: Int? = nil
             var count = 0
@@ -611,8 +612,6 @@ class CellGridView {
 
                 if dx >= displayWidth || dy >= displayHeight { continue }
                 if dx < 0 || dy < 0 { continue }
-                let fx: Float = Float(dx) + 0.5
-                let fy: Float = Float(dy) + 0.5
                 var coverage: Float = 0.0
 
                 switch shape {
@@ -623,6 +622,8 @@ class CellGridView {
                     }
 
                 case .circle:
+                    let fx: Float = Float(dx) + 0.5
+                    let fy: Float = Float(dy) + 0.5
                     let centerX: Float = Float(cellSize / 2)
                     let centerY: Float = Float(cellSize / 2)
                     let dxsq: Float = (fx - centerX) * (fx - centerX)
@@ -632,6 +633,8 @@ class CellGridView {
                     coverage = max(0.0, min(1.0, d / fade))
 
                 case .rounded:
+                    let fx: Float = Float(dx) + 0.5
+                    let fy: Float = Float(dy) + 0.5
                     let cornerRadius: Float = Float(size) * 0.25
                     let minX: Float = Float(padding)
                     let minY: Float = Float(padding)
