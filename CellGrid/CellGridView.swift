@@ -262,6 +262,9 @@ class CellGridView {
                 self._viewColumnsExtra += 1
             }
         }
+        else if (self._viewWidthExtra > 0) {
+            self._viewColumnsExtra += 1
+        }
         self._viewRowsExtra = (self._shiftY != 0 ? 1 : 0)
         if (self._shiftY > 0) {
             if (self._viewHeightExtra > self._shiftY) {
@@ -272,6 +275,9 @@ class CellGridView {
             if (self._viewHeightExtra > (self._cellSize - self._shiftY)) {
                 self._viewRowsExtra += 1
             }
+        }
+        else if (self._viewHeightExtra > 0) {
+            self._viewRowsExtra += 1
         }
 
         // Now actually write/draw the cells to the view.

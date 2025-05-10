@@ -107,7 +107,7 @@ class CellGrid: ObservableObject
                 // self._displayWidthUnscaled = 387 // 387
                 // self._displayWidth = self.scaled(self._displayWidthUnscaled)
                 // experiment for cellSize == 43 ... make viewWidth be too short
-                self._displayWidthUnscaled = 377 // a little too small for 43
+                // self._displayWidthUnscaled = 377 // a little too small for 43
                 // self._displayWidthUnscaled = 397 // a little too big for 43
                 self._displayWidth = self.scaled(self._displayWidthUnscaled)
                 //xyzzy
