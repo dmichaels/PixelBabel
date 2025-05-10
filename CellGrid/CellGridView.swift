@@ -4,10 +4,9 @@ import Utils
 
 // A main purpose of this (as first created) is for keeping track of the backing pixel buffer
 // indices for the (canonical) cell; for the purpose of being able to write the values very fast
-// using block memory copy (see Memory.fastcopy). It is ASSUMED that the abufferBlocksddBufferItem function is
-// called with indices which are monotonically increasing, and are not duplicated or out of order
+// using block memory copy (Memory.fastcopy). It is ASSUMED that the abufferBlocksddBufferItem function
+// is called with indices which are monotonically increasing, and are not duplicated or out of order
 // or anything weird; assume called from the buffer setting loop in the PixelMap._write method.
-//
 
 @MainActor
 class CellGridView {
@@ -260,13 +259,13 @@ class CellGridView {
 
         let gridCellX: Int = viewCellX - self._shiftCellX - ((self._shiftX > 0) ? 1 : 0)
         let gridCellY: Int = viewCellY - self._shiftCellY - ((self._shiftY > 0) ? 1 : 0)
-        let foreground = self.gridCell(gridCellX, gridCellY)?.foreground ?? self._viewBackground
-        let foregroundOnly = false
+        let foreground: CellColor = self.gridCell(gridCellX, gridCellY)?.foreground ?? self._viewBackground
+        let foregroundOnly: Bool = false
 
         // Setup the offset for the buffer blocks.
 
-        let shiftX = (self._shiftX > 0) ? self._shiftX - self._cellSize : self._shiftX
-        let shiftY = (self._shiftY > 0) ? self._shiftY - self._cellSize : self._shiftY
+        let shiftX: Int = (self._shiftX > 0) ? self._shiftX - self._cellSize : self._shiftX
+        let shiftY: Int = (self._shiftY > 0) ? self._shiftY - self._cellSize : self._shiftY
         let offset: Int = ((self._cellSize * viewCellX) + shiftX +
                            (self._cellSize * self._viewWidth * viewCellY + shiftY * self._viewWidth)) * Screen.depth
         let size: Int = self._buffer.count
@@ -397,10 +396,10 @@ class CellGridView {
               viewPoint.y >= 0, viewPoint.y < self._viewHeightUnscaled else {
             return nil
         }
-        let viewCellX = viewPoint.x / self._cellSizeUnscaled
-        let viewCellY = viewPoint.y / self._cellSizeUnscaled
-        let gridCellX = viewCellX - self._shiftCellX - self._viewColumnsExtra
-        let gridCellY = viewCellY - self._shiftCellY - self._viewRowsExtra
+        let viewCellX: Int = viewPoint.x / self._cellSizeUnscaled
+        let viewCellY: Int = viewPoint.y / self._cellSizeUnscaled
+        let gridCellX: Int = viewCellX - self._shiftCellX - self._viewColumnsExtra
+        let gridCellY: Int = viewCellY - self._shiftCellY - self._viewRowsExtra
         guard gridCellX >= 0, gridCellX < self._gridColumns, gridCellY >= 0, gridCellY < self._gridRows else {
             return nil
         }
@@ -557,11 +556,11 @@ class CellGridView {
         private static func truncateX(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
             var blocks: [BufferBlock] = []
             var start: Int? = nil
-            var count = 0
-            let shiftw = abs(shiftx)
+            var count: Int = 0
+            let shiftw: Int = abs(shiftx)
             for i in 0..<block.count {
-                let starti = block.index + i * Memory.bufferBlockSize
-                let shift = (starti / Memory.bufferBlockSize) % width
+                let starti: Int = block.index + i * Memory.bufferBlockSize
+                let shift: Int = (starti / Memory.bufferBlockSize) % width
                 //
                 // This the below uncommented if-expression was suggested by ChatGPT as a simplification
                 // of this if-expression; it is still not entirely clear to me why/how these are equivalent:
@@ -603,8 +602,8 @@ class CellGridView {
                            ? (((cellPadding * 2) >= cellSize)
                              ? ((cellSize / 2) - 1)
                              : cellPadding) : 0
-        let size = cellSize - (2 * padding)
-        let shape = (size < 3) ? .inset : cellShape
+        let size: Int = cellSize - (2 * padding)
+        let shape: CellShape = (size < 3) ? .inset : cellShape
         let fade: Float = 0.6  // smaller is smoother
 
         for dy in 0..<cellSize {
@@ -684,16 +683,16 @@ class CellGridView {
                                           _ displayHeight: Int,
                                           cellPreferredSizeMarginMax: Int = CellGrid.Defaults.cellPreferredSizeMarginMax)
                                           -> [PreferredSize] {
-        let mindim = min(displayWidth, displayHeight)
+        let mindim: Int = min(displayWidth, displayHeight)
         guard mindim > 0 else { return [] }
-        var results: [(cellSize: Int, displayWidth: Int, displayHeight: Int)] = []
+        var results: [PreferredSize] = []
         for cellSize in 1...mindim {
-            let ncols = displayWidth / cellSize
-            let nrows = displayHeight / cellSize
-            let usedw = ncols * cellSize
-            let usedh = nrows * cellSize
-            let leftx = displayWidth - usedw
-            let lefty = displayHeight - usedh
+            let ncols: Int = displayWidth / cellSize
+            let nrows: Int = displayHeight / cellSize
+            let usedw: Int = ncols * cellSize
+            let usedh: Int = nrows * cellSize
+            let leftx: Int = displayWidth - usedw
+            let lefty: Int = displayHeight - usedh
             if ((leftx <= cellPreferredSizeMarginMax) && (lefty <= cellPreferredSizeMarginMax)) {
                 results.append((cellSize: cellSize, displayWidth: usedw, displayHeight: usedh))
             }
@@ -703,8 +702,8 @@ class CellGridView {
 
     public static func closestPreferredCellSize(in list: [PreferredSize], to target: Int) -> PreferredSize? {
         return list.min(by: {
-            let a = abs($0.cellSize - target)
-            let b = abs($1.cellSize - target)
+            let a: Int = abs($0.cellSize - target)
+            let b: Int = abs($1.cellSize - target)
             return (a, $0.cellSize) < (b, $1.cellSize)
         })
     }
