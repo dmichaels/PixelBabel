@@ -107,7 +107,7 @@ class CellGrid: ObservableObject
                 // self._displayWidthUnscaled = 387 // 387
                 // self._displayWidth = self.scaled(self._displayWidthUnscaled)
                 // experiment for cellSize == 43 ... make viewWidth be too short
-                // self._displayWidthUnscaled = 377 // a little too small for 43
+                self._displayWidthUnscaled = 377 // a little too small for 43
                 // self._displayWidthUnscaled = 397 // a little too big for 43
                 self._displayWidth = self.scaled(self._displayWidthUnscaled)
                 //xyzzy
@@ -154,7 +154,7 @@ class CellGrid: ObservableObject
         }
         // not working: 30, 34 (just barely - margin on right yellow),  86, 43
         // working: 0, 30, 8, 9, 10, 12, 33, 85, 87
-        self._cells!.shift(shiftx: 0, shifty: 0)
+        self._cells!.shift(shiftx: -30, shifty: 0)
 
         print_debug()
 

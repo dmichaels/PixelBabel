@@ -258,7 +258,7 @@ class CellGridView {
             }
         }
         else if (self._shiftX < 0) {
-            if (self._viewWidthExtra > (self._cellSize - self._shiftX)) {
+            if (self._viewWidthExtra > (self._cellSize + self._shiftX)) {
                 self._viewColumnsExtra += 1
             }
         }
@@ -272,7 +272,7 @@ class CellGridView {
             }
         }
         else if (self._shiftY < 0) {
-            if (self._viewHeightExtra > (self._cellSize - self._shiftY)) {
+            if (self._viewHeightExtra > (self._cellSize + self._shiftY)) {
                 self._viewRowsExtra += 1
             }
         }
