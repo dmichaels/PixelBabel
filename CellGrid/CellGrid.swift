@@ -107,8 +107,8 @@ class CellGrid: ObservableObject
                 // self._displayWidthUnscaled = 387 // 387
                 // self._displayWidth = self.scaled(self._displayWidthUnscaled)
                 // experiment for cellSize == 43 ... make viewWidth be too short
-                // self._displayWidthUnscaled = 377 // a little too small for 43
-                self._displayWidthUnscaled = 397 // a little too big for 43
+                self._displayWidthUnscaled = 377 // a little too small for 43
+                // self._displayWidthUnscaled = 397 // a little too big for 43
                 self._displayWidth = self.scaled(self._displayWidthUnscaled)
                 // self._displayHeightUnscaled = 848 // a little too small for 43
                 // self._displayHeight = self.scaled(self._displayHeightUnscaled)
@@ -156,7 +156,7 @@ class CellGrid: ObservableObject
         }
         // viewWidth normal (387) work all around: 0, 30, 60, 90, -30, -90, scroll around
         // viewWidth small (377) works: 0, -30, -60, -90, -43, -53, -8, -10, scroll around (except jerks left at start but maybe drag issue), 30, 60, 90, 43, 33, 8, 10
-        self._cells!.shift(shiftx: 0, shifty: 0)
+        self._cells!.shift(shiftx: -27, shifty: 0)
 
         print_debug()
 
@@ -283,7 +283,7 @@ class CellGrid: ObservableObject
                 y = screenPoint.y - gridOrigin.y
             }
         case .landscapeRight:
-            x = screenPoint.y - gridOrigin.x
+        x = screenPoint.y - gridOrigin.x
             y = CGFloat(self._displayHeightUnscaled) - 1 - (screenPoint.x - gridOrigin.y)
         case .landscapeLeft:
             x = CGFloat(self._displayWidthUnscaled) - 1 - (screenPoint.y - gridOrigin.x)
@@ -292,6 +292,7 @@ class CellGrid: ObservableObject
             x = screenPoint.x - gridOrigin.x
             y = screenPoint.y - gridOrigin.y
         }
+        print("NL> \(screenPoint) -> \(CGPoint(x: x, y: y)) -> \(self._cells!.locate(x, y))")
         return CGPoint(x: x, y: y)
     }
 
@@ -315,6 +316,9 @@ class CellGrid: ObservableObject
             }
         }
         */
+        let gridCell = self._cells!.gridCell(location)
+
+        print("DRAG> \(location) -> \(gridCell)")
             let x = location.x
             let y = location.y
             let gp = self._cells!.locate(location)
@@ -323,12 +327,13 @@ class CellGrid: ObservableObject
             let c = self._cells!.gridCell(location)
             let cx = (c != nil) ? c!.x : -1
             let cy = (c != nil) ? c!.y : -1
-            print("DRAG: [\(String(format: "%.1f", x)),\(String(format: "%.1f", y))] -> [\(gx),\(gy)] -> (\(cx),\(cy)]")
+            // print("DRAG: [\(String(format: "%.1f", x)),\(String(format: "%.1f", y))] -> [\(gx),\(gy)] -> (\(cx),\(cy)]")
 
         var shiftx: Int = 0
         var shifty: Int = 0
         if (self._dragPoint == nil) {
             self._dragPoint = location
+            self._cells!.onDrag(gridCell)
         }
         else {
             shiftx = Int(location.x) - Int(self._dragPoint!.x)
@@ -348,6 +353,7 @@ class CellGrid: ObservableObject
 
     public func onDragEnd(_ location: CGPoint) {
         self._dragPoint = nil
+        self._cells!.onDragEnd()
         /*
         if let cell = self._cells?.cell(location) {
             self._dragCell = nil

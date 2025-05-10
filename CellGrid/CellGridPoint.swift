@@ -1,6 +1,6 @@
 import Foundation
 
-struct CellGridPoint: Equatable {
+struct CellGridPoint: Equatable, CustomStringConvertible {
 
     public let x: Int
     public let y: Int
@@ -15,5 +15,14 @@ struct CellGridPoint: Equatable {
         // self.y = Int(round(point.y))
         self.x = Int(floor(point.x))
         self.y = Int(floor(point.y))
+    }
+
+    init(_ x: CGFloat, _ y: CGFloat) {
+        self.x = Int(round(x))
+        self.y = Int(round(y))
+    }
+
+    public var description: String {
+        String(format: "[%d, %d]", self.x, self.y)
     }
 }

@@ -5,6 +5,8 @@ import SwiftUI
 //
 struct CellColor: Equatable {
 
+    public static var _debugInitCount: Int = 0
+
     var _red: UInt8
     var _green: UInt8
     var _blue: UInt8
@@ -31,7 +33,7 @@ struct CellColor: Equatable {
             (UInt32(self._red)   << 24) |
             (UInt32(self._green) << 16) |
             (UInt32(self._blue)  << 8)  |
-             UInt32(self._alpha)
+            (UInt32(self._alpha))
         }
     }
 
@@ -40,6 +42,7 @@ struct CellColor: Equatable {
     }
 
     init(_ red: UInt8, _ green: UInt8, _ blue: UInt8, alpha: UInt8 = 255) {
+        // CellColor._debugInitCount += 1
         self._red = red
         self._green = green
         self._blue = blue
@@ -47,6 +50,7 @@ struct CellColor: Equatable {
     }
 
     init(_ red: Int, _ green: Int, _ blue: Int, alpha: Int = 255) {
+        // CellColor._debugInitCount += 1
         self._red = UInt8(red)
         self._green = UInt8(green)
         self._blue = UInt8(blue)
@@ -62,6 +66,7 @@ struct CellColor: Equatable {
     }
 
     init(_ color: UIColor) {
+        CellColor._debugInitCount += 1
         var red: CGFloat = 0
         var green: CGFloat = 0
         var blue: CGFloat = 0
@@ -80,6 +85,7 @@ struct CellColor: Equatable {
     }
 
     init(_ value: UInt32) {
+        // CellColor._debugInitCount += 1
         self._red = UInt8((value >> 24) & 0xFF)
         self._green = UInt8((value >> 16) & 0xFF)
         self._blue = UInt8((value >> 8) & 0xFF)
@@ -88,6 +94,13 @@ struct CellColor: Equatable {
 
     public var color: Color {
         get { return Color(red: Double(self.red) / 255.0, green: Double(self.green) / 255.0, blue: Double(self.blue) / 255.0) }
+    }
+
+    public static func valueOf(_ red: UInt8, _ green: UInt8, _ blue: UInt8, alpha: UInt8 = 255) -> UInt32 {
+        return (UInt32(red)   << 24) |
+               (UInt32(green) << 16) |
+               (UInt32(blue)  << 8)  |
+               (UInt32(alpha))
     }
 
     public static let black: CellColor = CellColor(0, 0, 0)

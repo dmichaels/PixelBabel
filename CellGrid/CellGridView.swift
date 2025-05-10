@@ -8,8 +8,17 @@ import Utils
 // is called with indices which are monotonically increasing, and are not duplicated or out of order
 // or anything weird; assume called from the buffer setting loop in the PixelMap._write method.
 
+class Foo {
+    static var _debugTruncateLoopCount: Int = 0
+}
+
 @MainActor
 class CellGridView {
+
+    static var _debugWriteBlockCount: Int = 0
+    static var _debugWriteTime: TimeInterval = 0
+    static var _debugCellWriteCount: Int = 0
+    static var _debugFastCopyCount: Int = 0
 
     private let _viewParent: CellGrid
     private let _viewWidth: Int
@@ -47,6 +56,10 @@ class CellGridView {
     private var _shiftY: Int
     private var _viewColumnsExtra: Int
     private var _viewRowsExtra: Int
+
+    private var _dragStartLocation: CellGridPoint? = nil
+    private var _dragStartShiftCellX: Int? = nil
+    private var _dragStartShiftCellY: Int? = nil
 
     init(viewParent: CellGrid,
          viewWidth: Int,
@@ -88,7 +101,15 @@ class CellGridView {
 
         self._cellFactory = cellFactory
         self._cells = cells != nil ? cells! : []
-        self._buffer = [UInt8](repeating: 0, count: self._viewWidth * self._viewHeight * Screen.depth)
+        if (false) {
+            self._buffer = [UInt8](repeating: 0, count: self._viewWidth * self._viewHeight * Screen.depth)
+        }
+        else {
+            let bufferSize = self._viewWidth * self._viewHeight * Screen.depth
+            self._buffer = [UInt8](unsafeUninitializedCapacity: bufferSize) {  buffer, initializedCount in
+                initializedCount = bufferSize
+            }
+        }
         self._bufferBlocks = CellGridView.createBufferBlocks(bufferSize: self._buffer.count,
                                                              displayWidth: self._viewWidth,
                                                              displayHeight: self._viewHeight,
@@ -112,6 +133,12 @@ class CellGridView {
 
     public func shift(shiftx: Int = 0, shifty: Int = 0)
     {
+        CellGridView._debugWriteBlockCount = 0
+        CellGridView._debugCellWriteCount = 0
+        CellGridView._debugFastCopyCount = 0
+        CellGridView._debugWriteTime = 0
+        Foo._debugTruncateLoopCount = 0
+
         // Normalize the given pixel level shift to cell and pixel level.
 
         var shiftX: Int = self._viewParent.scaled(shiftx), shiftCellX: Int
@@ -202,12 +229,16 @@ class CellGridView {
 
         // Now actually write the cells to the view.
 
+        let debugStartTime = Date()
         for vy in 0...self._viewCellEndY + self._viewRowsExtra {
             for vx in 0...self._viewCellEndX + self._viewColumnsExtra {
                 self.writeCell(viewCellX: vx, viewCellY: vy)
             }
         }
+        print(String(format: "SHT: %.5fs WRT: %.5fs BL: \(CellGridView._debugWriteBlockCount) CWC: \(CellGridView._debugCellWriteCount) MCC: \(CellGridView._debugFastCopyCount) TLC: \(Foo._debugTruncateLoopCount) BSZ: \(self._buffer.count) CCC: \(CellColor._debugInitCount)", Date().timeIntervalSince(debugStartTime), CellGridView._debugWriteTime))
     }
+
+    private typealias WriteCellBlock = (_ buffer: UnsafeMutableRawPointer, _ block: CellGridView.BufferBlock, _ index: Int, _ count: Int) -> Void
 
     // Draws at the given grid view cell location (viewCellX, viewCellY), the grid cell currently corresponding
     // to that location, taking into account the current shiftCellX/Y and shiftX/Y values, i.e. the cell and
@@ -216,6 +247,7 @@ class CellGridView {
     //
     private func writeCell(viewCellX: Int, viewCellY: Int)
     {
+        CellGridView._debugCellWriteCount += 1
         // This was all a lot tricker than you might expect (yes basic arithmetic).
 
         let viewCellFirstX: Bool = (viewCellX == 0)
@@ -271,26 +303,41 @@ class CellGridView {
         let size: Int = self._buffer.count
 
         self._buffer.withUnsafeMutableBytes { raw in
-            guard let base = raw.baseAddress else { return }
+            guard let base: UnsafeMutableRawPointer = raw.baseAddress else { return }
             for block in self._bufferBlocks.blocks {
                 if (truncateLeft > 0) {
+                    let debugStart = Date()
+                    /*
                     let truncatedBlocks = CellGridView.BufferBlocks.truncateLeft(block,
-                                                                                 offset: offset,
                                                                                  width: self._viewWidth,
                                                                                  shiftx: truncateLeft)
                     for block in truncatedBlocks {
                         writeCellBlock(buffer: base, block: block)
                     }
+                    */
+                    CellGridView.BufferBlocks.xtruncateLeft(block, width: self._viewWidth, shiftx: truncateLeft, writeCellBlock: xwriteCellBlock, buffer: base)
+                    // CellGridView._debugWriteTime += Date().timeIntervalSince(debugStart)
                     continue
                 }
                 else if (truncateRight > 0) {
+                    let debugStart = Date()
+                    //
+                    // This seems to be slow as the cell-size gets bigger;
+                    // actually, don't think we need to be calling this within this loop;
+                    // could do it once outside this loop for all blocks; does that save anything though.
+                    // Or maybe better do this ignoring/truncating of certain indices within Memory.fastcopy?
+                    //
+                    /*
                     let truncatedBlocks = CellGridView.BufferBlocks.truncateRight(block,
-                                                                                  offset: offset,
                                                                                   width: self._viewWidth,
                                                                                   shiftx: truncateRight)
                     for block in truncatedBlocks {
                         writeCellBlock(buffer: base, block: block)
                     }
+                    */
+                    // TODO: This for some reason gets slowing for larger cell sizes ...
+                    CellGridView.BufferBlocks.xtruncateRight(block, width: self._viewWidth, shiftx: truncateRight, writeCellBlock: xwriteCellBlock, buffer: base)
+                    CellGridView._debugWriteTime += Date().timeIntervalSince(debugStart)
                     continue
                 }
                 writeCellBlock(buffer: base, block: block)
@@ -316,17 +363,17 @@ class CellGridView {
             }
 
             let base = buffer.advanced(by: start)
-            let color: CellColor
+            let color: UInt32
 
             if (block.foreground) {
                 if (block.blend != 0.0) {
-                    color = CellColor(blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
-                                      blend(foreground.green, self._viewBackground.green, amount: block.blend),
-                                      blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
-                                      alpha: foreground.alpha)
+                    color = CellColor.valueOf(blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
+                                              blend(foreground.green, self._viewBackground.green, amount: block.blend),
+                                              blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
+                                              alpha: foreground.alpha)
                 }
                 else {
-                    color = foreground
+                    color = foreground.value
                 }
             }
             else if (foregroundOnly) {
@@ -337,11 +384,88 @@ class CellGridView {
                 return
             }
             else {
-                color = self._viewBackground
+                color = self._viewBackground.value
             }
 
-            Memory.fastcopy(to: base, count: block.count, value: color.value)
+            CellGridView._debugWriteBlockCount += block.count
+            CellGridView._debugFastCopyCount += 1
+            Memory.fastcopy(to: base, count: block.count, value: color)
         }
+
+        func xwriteCellBlock(_ buffer: UnsafeMutableRawPointer, _ block: CellGridView.BufferBlock, _ index: Int, _ count: Int)  {
+
+            func blend(_ a: UInt8, _ b: UInt8, amount: Float) -> UInt8 {
+                return UInt8(Float(a) * amount + Float(b) * (1 - amount))
+            }
+
+            let start: Int = offset + index
+
+            guard start >= 0, (start + (count * Memory.bufferBlockSize)) <= size else {
+                return
+            }
+
+            let base = buffer.advanced(by: start)
+            let color: UInt32
+
+            if (block.foreground) {
+                if (block.blend != 0.0) {
+                    color = CellColor.valueOf(blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
+                                              blend(foreground.green, self._viewBackground.green, amount: block.blend),
+                                              blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
+                                              alpha: foreground.alpha)
+                }
+                else {
+                    color = foreground.value
+                }
+            }
+            else if (foregroundOnly) {
+                //
+                // Limit the write to only the foreground; can be useful
+                // for performance as background normally doesn't change.
+                //
+                return
+            }
+            else {
+                color = self._viewBackground.value
+            }
+
+            CellGridView._debugWriteBlockCount += count
+            CellGridView._debugFastCopyCount += 1
+            Memory.fastcopy(to: base, count: count, value: color)
+        }
+    }
+
+    public func duplicate(cellSize: Int) -> CellGridView {
+        if (cellSize == self._cellSize) {
+            return self
+        }
+        return CellGridView(viewParent: self._viewParent,
+                            viewWidth: self._viewWidth,
+                            viewHeight: self._viewHeight,
+                            viewBackground: self._viewBackground,
+                            viewTransparency: self._viewTransparency,
+                            gridColumns: self._gridColumns,
+                            gridRows: self._gridRows,
+                            cellSize: cellSize,
+                            cellPadding: self._cellPadding,
+                            cellShape: self._cellShape,
+                            cellFactory: self._cellFactory,
+                            cells: self._cells)
+                /*
+                self._cells = CellGridView(viewParent: self,
+                                           viewWidth: self._displayWidth,
+                                           viewHeight: self._displayHeight,
+                                           // viewWidth: 400, // for 51
+                                           // viewHeight: 850, // for 51
+                                           viewBackground: self._cellBackground,
+                                           viewTransparency: Defaults.displayTransparency,
+                                           gridColumns: self._gridColumns,
+                                           gridRows: self._gridRows,
+                                           cellSize: self._cellSize,
+                                           cellPadding: self._cellPadding,
+                                           cellShape: self._cellShape,
+                                           cellFactory: self._cellFactory)
+                */
     }
 
     public var viewColumns: Int {
@@ -391,19 +515,56 @@ class CellGridView {
     // note that the display input location is always in unscaled units.
     //
     public func locate(_ viewLocation: CGPoint) -> CellGridPoint? {
-        let viewPoint: CellGridPoint = CellGridPoint(viewLocation)
-        guard viewPoint.x >= 0, viewPoint.x < self._viewWidthUnscaled,
-              viewPoint.y >= 0, viewPoint.y < self._viewHeightUnscaled else {
+        return self.locate(viewLocation.x, viewLocation.y)
+    }
+
+    public func locate(_ viewX: CGFloat, _ viewY: CGFloat) -> CellGridPoint? {
+        return self.locate(Int(round(viewX)), Int(round(viewY)))
+    }
+
+    public func locate(_ viewX: Int, _ viewY: Int) -> CellGridPoint? {
+        guard viewX >= 0, viewX < self._viewWidthUnscaled,
+              viewY >= 0, viewY < self._viewHeightUnscaled else {
             return nil
         }
-        let viewCellX: Int = viewPoint.x / self._cellSizeUnscaled
-        let viewCellY: Int = viewPoint.y / self._cellSizeUnscaled
-        let gridCellX: Int = viewCellX - self._shiftCellX - self._viewColumnsExtra
-        let gridCellY: Int = viewCellY - self._shiftCellY - self._viewRowsExtra
+        let viewCellX: Int = viewX / self._cellSizeUnscaled
+        let viewCellY: Int = viewY / self._cellSizeUnscaled
+        let gridCellX: Int = viewCellX - self._shiftCellX // - self._viewColumnsExtra
+        let gridCellY: Int = viewCellY - self._shiftCellY // - self._viewRowsExtra
+        // let gridCellX: Int = viewCellX - (self._dragStartShiftCellX != nil ? self._dragStartShiftCellX! : self._shiftCellX) // - self._viewColumnsExtra
+        // let gridCellY: Int = viewCellY - (self._dragStartShiftCellY != nil ? self._dragStartShiftCellY! : self._shiftCellY) // - self._viewColumnsExtra
         guard gridCellX >= 0, gridCellX < self._gridColumns, gridCellY >= 0, gridCellY < self._gridRows else {
             return nil
         }
         return CellGridPoint(gridCellX, gridCellY)
+        /*
+        if (self._dragStartLocation != nil) {
+            return CellGridPoint(gridCellX - self._dragStartLocation!.x, gridCellY - self._dragStartLocation!.y)
+        }
+        else {
+            return CellGridPoint(gridCellX, gridCellY)
+        }
+        */
+    }
+
+    public func onDrag(_ cell: Cell?) {
+        self.onDrag(cell?.location)
+    }
+
+    public func onDrag(_ location: CellGridPoint?) {
+        if (location != nil) {
+            print("CELLS-ON-DRAG: \(location!)")
+            self._dragStartLocation = location!
+            self._dragStartShiftCellX = self._shiftCellX
+            self._dragStartShiftCellY = self._shiftCellY
+        }
+    }
+
+    public func onDragEnd() {
+        print("CELLS-ON-DRAG-END")
+        self._dragStartLocation = nil
+        self._dragStartShiftCellX = nil
+        self._dragStartShiftCellY = nil
     }
 
     public var image: CGImage? {
@@ -537,14 +698,14 @@ class CellGridView {
 
         // Ignore blocks to the left of the given shiftx value.
         //
-        internal static func truncateLeft(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
-            return BufferBlocks.truncateX(block, offset: offset, width: width, shiftx: shiftx)
+        internal static func truncateLeft(_ block: BufferBlock, width: Int, shiftx: Int) -> [BufferBlock] {
+            return BufferBlocks.truncateX(block, width: width, shiftx: shiftx)
         }
 
         // Ignore blocks to the right of the given shiftx value.
         //
-        internal static func truncateRight(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
-            return BufferBlocks.truncateX(block, offset: offset, width: width, shiftx: -shiftx)
+        internal static func truncateRight(_ block: BufferBlock, width: Int, shiftx: Int) -> [BufferBlock] {
+            return BufferBlocks.truncateX(block, width: width, shiftx: -shiftx)
         }
 
         // Returns a new BufferBlock list for this/self one (possibly empty) which eliminates indices
@@ -553,9 +714,9 @@ class CellGridView {
         // A positive shiftx means to truncate the values (pixels) LEFT of the given shiftx value, and
         // a negative shiftx means to truncate the values (pixels) RIGHT of the given shiftx value.
         //
-        private static func truncateX(_ block: BufferBlock, offset: Int, width: Int, shiftx: Int) -> [BufferBlock] {
+        private static func truncateX(_ block: BufferBlock, width: Int, shiftx: Int) -> [BufferBlock] {
             var blocks: [BufferBlock] = []
-            var start: Int? = nil
+            var index: Int? = nil
             var count: Int = 0
             let shiftw: Int = abs(shiftx)
             for i in 0..<block.count {
@@ -568,24 +729,115 @@ class CellGridView {
                 //  (((shiftx > 0) && (shift >= shiftw)) || ((shiftx < 0) && (shift < shiftw)))
                 //
                 if ((shiftx != 0) && ((shiftx > 0) == (shift >= shiftw))) {
-                    if (start == nil) {
-                        start = starti
+                    if (index == nil) {
+                        index = starti
                         count = 1
                     } else {
                         count += 1
                     }
-                } else if (start != nil) {
-                    blocks.append(BufferBlock(index: start!, count: count,
+                } else if (index != nil) {
+                    blocks.append(BufferBlock(index: index!, count: count,
                                               foreground: block.foreground, blend: block.blend))
-                    start = nil
+                    index = nil
                     count = 0
                 }
             }
-            if (start != nil) {
-                blocks.append(BufferBlock(index: start!, count: count,
+            if (index != nil) {
+                blocks.append(BufferBlock(index: index!, count: count,
                                           foreground: block.foreground, blend: block.blend))
             }
             return blocks
+        }
+
+        internal static func xtruncateLeft(_ block: BufferBlock, width: Int, shiftx: Int,
+                                            writeCellBlock: CellGridView.WriteCellBlock,
+                                            buffer: UnsafeMutableRawPointer) {
+            BufferBlocks.xtruncateX(block, width: width, shiftx: shiftx, writeCellBlock: writeCellBlock, buffer: buffer)
+        }
+        internal static func xtruncateRight(_ block: BufferBlock, width: Int, shiftx: Int,
+                                            writeCellBlock: CellGridView.WriteCellBlock,
+                                            buffer: UnsafeMutableRawPointer) {
+            BufferBlocks.xtruncateX(block, width: width, shiftx: -shiftx, writeCellBlock: writeCellBlock, buffer: buffer)
+        }
+
+private static func new_xtruncateX(
+    _ block: BufferBlock,
+    width: Int,
+    shiftx: Int,
+    writeCellBlock: CellGridView.WriteCellBlock,
+    buffer: UnsafeMutableRawPointer
+) {
+    var index: Int? = nil
+    var count = 0
+    let shiftw = abs(shiftx)
+    let blockSize = Memory.bufferBlockSize
+    let baseIndex = block.index
+
+    for i in 0..<block.count {
+                Foo._debugTruncateLoopCount += 1
+        let starti = baseIndex + i * blockSize
+        let shift = (starti / blockSize) % width
+        let inRange = (shiftx > 0 && shift >= shiftw) || (shiftx < 0 && shift < shiftw)
+
+        if inRange {
+            if index == nil {
+                index = starti
+                count = 1
+            } else {
+                count += 1
+            }
+        } else {
+            if let idx = index {
+                writeCellBlock(buffer, block, idx, count)
+                // 👇 Optimization: stop here if we're sure the rest won't be in range
+                if shiftx > 0 && shift > shiftw { break }
+                if shiftx < 0 && shift >= shiftw { break }
+                index = nil
+                count = 0
+            } else {
+                // 👇 If we haven't started a valid batch and we're past the valid range, break early
+                if shiftx > 0 && shift > shiftw { break }
+                if shiftx < 0 && shift >= shiftw { break }
+            }
+        }
+    }
+
+    if let idx = index {
+        writeCellBlock(buffer, block, idx, count)
+    }
+}
+        private static func xtruncateX(_ block: BufferBlock, width: Int, shiftx: Int,
+                                       writeCellBlock: CellGridView.WriteCellBlock,
+                                       buffer: UnsafeMutableRawPointer) {
+            var index: Int? = nil
+            var count: Int = 0
+            let shiftw: Int = abs(shiftx)
+            for i in 0..<block.count {
+                Foo._debugTruncateLoopCount += 1
+                let starti: Int = block.index + i * Memory.bufferBlockSize
+                let shift: Int = (starti / Memory.bufferBlockSize) % width
+                //
+                // This the below uncommented if-expression was suggested by ChatGPT as a simplification
+                // of this if-expression; it is still not entirely clear to me why/how these are equivalent:
+                //
+                //  (((shiftx > 0) && (shift >= shiftw)) || ((shiftx < 0) && (shift < shiftw)))
+                //
+                if ((shiftx != 0) && ((shiftx > 0) == (shift >= shiftw))) {
+                    if (index == nil) {
+                        index = starti
+                        count = 1
+                    } else {
+                        count += 1
+                    }
+                } else if (index != nil) {
+                    writeCellBlock(buffer, block, index!, count)
+                    index = nil
+                    count = 0
+                }
+            }
+            if (index != nil) {
+                writeCellBlock(buffer, block, index!, count)
+            }
         }
     }
 
