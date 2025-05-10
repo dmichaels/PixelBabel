@@ -37,7 +37,7 @@ class CellGridView {
     private let _cellShape: CellShape
     private let _cellFactory: CellFactory?
     private var _cells: [Cell]
-    private var _buffer: [UInt8]
+    private let _buffer: [UInt8]
     private let _bufferBlocks: CellGridView.BufferBlocks
 
     // These change based on moving/shifting the cell-grid around the grid-view.
@@ -59,8 +59,7 @@ class CellGridView {
          cellSize: Int,
          cellPadding: Int,
          cellShape: CellShape,
-         cellFactory: CellFactory? = nil,
-         nodraw: Bool = false)
+         cellFactory: CellFactory? = nil)
     {
         self._viewParent = viewParent
         self._viewWidth = viewWidth
@@ -106,7 +105,7 @@ class CellGridView {
 
         for y in 0..<self._gridRows {
             for x in 0..<self._gridColumns {
-                self._defineCell(x: x, y: y, foreground: CellGrid.Defaults.cellForeground)
+                self.defineCell(x: x, y: y, foreground: CellGrid.Defaults.cellForeground)
             }
         }
     }
@@ -117,10 +116,6 @@ class CellGridView {
 
         var shiftX: Int = self._viewParent.scaled(shiftx), shiftCellX: Int
         var shiftY: Int = self._viewParent.scaled(shifty), shiftCellY: Int
-
-        if shiftx < -1 {
-            var x = 1
-        }
 
         if (shiftX != 0) {
             shiftCellX = shiftX / self._cellSize
@@ -205,7 +200,7 @@ class CellGridView {
             self._viewRowsExtra += 1
         }
 
-        // Now actually write/draw the cells to the view.
+        // Now actually write the cells to the view.
 
         for vy in 0...self._viewCellEndY + self._viewRowsExtra {
             for vx in 0...self._viewCellEndX + self._viewColumnsExtra {
@@ -222,22 +217,11 @@ class CellGridView {
     private func writeCell(viewCellX: Int, viewCellY: Int)
     {
         // This was all a lot tricker than you might expect (yes basic arithmetic).
-        // Set: gridCellX, gridCellY, truncateLeft, truncateRight, foreground
 
         let viewCellFirstX: Bool = (viewCellX == 0)
         let viewCellLastX: Bool = (viewCellX == self._viewCellEndX + self._viewColumnsExtra)
         var truncateLeft: Int = 0
         var truncateRight: Int = 0
-        // let foreground: CellColor = CellColor.white
-        let foregroundOnly = false
-
-        // Map the grid-view location to the cell-grid location.
-
-        let gridCellX: Int = viewCellX - self._shiftCellX - ((self._shiftX > 0) ? 1 : 0)
-        let gridCellY: Int = viewCellY - self._shiftCellY - ((self._shiftY > 0) ? 1 : 0)
-        let foreground = self.gridCell(gridCellX, gridCellY)?.foreground ?? self._viewBackground
-        // let gridCell: Cell? = gridCell(gridCellX, gridCellY)
-        // let foreground = (gridCell != nil) ? gridCell!.foreground : self._viewBackground
 
         // Get the left/right truncation amount.
 
@@ -270,6 +254,15 @@ class CellGridView {
         else if ((self._viewWidthExtra > 0) && viewCellLastX) {
             truncateRight = self._viewWidthExtra
         }
+
+        // Map the grid-view location to the cell-grid location.
+
+        let gridCellX: Int = viewCellX - self._shiftCellX - ((self._shiftX > 0) ? 1 : 0)
+        let gridCellY: Int = viewCellY - self._shiftCellY - ((self._shiftY > 0) ? 1 : 0)
+        let foreground = self.gridCell(gridCellX, gridCellY)?.foreground ?? self._viewBackground
+        let foregroundOnly = false
+
+        // Setup the offset for the buffer blocks.
 
         let shiftX = (self._shiftX > 0) ? self._shiftX - self._cellSize : self._shiftX
         let shiftY = (self._shiftY > 0) ? self._shiftY - self._cellSize : self._shiftY
@@ -311,19 +304,26 @@ class CellGridView {
         // N.B. From class scope: self._viewBackground
         //
         func writeCellBlock(buffer: UnsafeMutableRawPointer, block: CellGridView.BufferBlock)  {
+
+            func blend(_ a: UInt8, _ b: UInt8, amount: Float) -> UInt8 {
+                return UInt8(Float(a) * amount + Float(b) * (1 - amount))
+            }
+
             let start: Int = offset + block.index
+
             guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else {
                 return
             }
+
             let base = buffer.advanced(by: start)
-            var color: CellColor
+            let color: CellColor
+
             if (block.foreground) {
                 if (block.blend != 0.0) {
-                    color = CellColor(
-                        CellGridView.blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
-                        CellGridView.blend(foreground.green, self._viewBackground.green, amount: block.blend),
-                        CellGridView.blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
-                        alpha: foreground.alpha)
+                    color = CellColor(blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
+                                      blend(foreground.green, self._viewBackground.green, amount: block.blend),
+                                      blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
+                                      alpha: foreground.alpha)
                 }
                 else {
                     color = foreground
@@ -339,6 +339,7 @@ class CellGridView {
             else {
                 color = self._viewBackground
             }
+
             Memory.fastcopy(to: base, count: block.count, value: color.value)
         }
     }
@@ -426,7 +427,7 @@ class CellGridView {
         return image
     }
 
-    private func _defineCell(x: Int, y: Int, foreground: CellColor)
+    private func defineCell(x: Int, y: Int, foreground: CellColor)
     {
         let cell: Cell = (self._cellFactory != nil)
                          ? self._cellFactory!(self, x, y, foreground)
@@ -434,9 +435,7 @@ class CellGridView {
         self._cells.append(cell)
     }
 
-    typealias PreferredSize = (cellSize: Int, displayWidth: Int, displayHeight: Int)
-
-    internal class BufferBlock
+    private class BufferBlock
     {
         let index: Int
         let foreground: Bool
@@ -453,7 +452,7 @@ class CellGridView {
         }
     }
 
-    internal class BufferBlocks
+    private class BufferBlocks
     {
         var blocks: [BufferBlock] = []
 
@@ -590,7 +589,7 @@ class CellGridView {
         }
     }
 
-    internal static func createBufferBlocks(bufferSize: Int,
+    private static func createBufferBlocks(bufferSize: Int,
                                            displayWidth: Int,
                                            displayHeight: Int,
                                            cellSize: Int,
@@ -673,9 +672,7 @@ class CellGridView {
         return blocks
     }
 
-    public static func blend(_ a: UInt8, _ b: UInt8, amount: Float) -> UInt8 {
-        return UInt8(Float(a) * amount + Float(b) * (1 - amount))
-    }
+    typealias PreferredSize = (cellSize: Int, displayWidth: Int, displayHeight: Int)
 
     // Returns a list of preferred sizes for the cell size, such that the fit evenly without bleeding out
     // past the end; the given dimensions, as well as the returned ones, are assumed to unscaled values;
