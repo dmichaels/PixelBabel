@@ -456,7 +456,7 @@ class CellGridView {
     {
         var blocks: [BufferBlock] = []
 
-        func append(_ index: Int, foreground: Bool, blend: Float = 0.0) {
+        internal func append(_ index: Int, foreground: Bool, blend: Float = 0.0) {
             if let last = self.blocks.last, last.foreground == foreground, last.blend == blend,
                         index == last.lindex + Memory.bufferBlockSize {
                 last.count += 1

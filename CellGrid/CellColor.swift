@@ -105,7 +105,7 @@ struct CellColor: Equatable {
             return CellColor(value, value, value)
         }
         else {
-            var rgb = UInt32.random(in: 0...0xFFFFFF)
+            let rgb = UInt32.random(in: 0...0xFFFFFF)
             return CellColor(UInt8((rgb >> 16) & 0xFF), UInt8((rgb >> 8) & 0xFF), UInt8(rgb & 0xFF))
         }
     }
