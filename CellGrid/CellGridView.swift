@@ -276,6 +276,9 @@ class CellGridView {
                            (self._cellSize * self._viewWidth * viewCellY + shiftY * self._viewWidth)) * Screen.depth
         let size: Int = self._buffer.count
 
+        // Loop through the blocks for the cell and write each of the indices to the buffer with the right colors/blends.
+        // Being careful to truncate the left or right side of the cell appropriately (tricky stuff).
+
         self._buffer.withUnsafeMutableBytes { raw in
             guard let base: UnsafeMutableRawPointer = raw.baseAddress else { return }
             for block in self._bufferBlocks.blocks {
@@ -337,6 +340,7 @@ class CellGridView {
             else {
                 color = self._viewBackground.value
             }
+
             Memory.fastcopy(to: base, count: block.count, value: color)
         }
 
