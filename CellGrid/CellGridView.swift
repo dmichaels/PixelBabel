@@ -37,7 +37,7 @@ class CellGridView {
     private let _cellShape: CellShape
     private let _cellFactory: CellFactory?
     private var _cells: [Cell]
-    private let _buffer: [UInt8]
+    private var _buffer: [UInt8]
     private let _bufferBlocks: CellGridView.BufferBlocks
 
     // These change based on moving/shifting the cell-grid around the grid-view.
