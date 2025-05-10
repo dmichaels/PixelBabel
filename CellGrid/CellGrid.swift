@@ -152,9 +152,9 @@ class CellGrid: ObservableObject
                 }
             }
         }
-        // not working: 30, 34 (just barely - margin on right yellow),  86, 43
-        // working: 0, 30, 8, 9, 10, 12, 33, 85, 87
-        self._cells!.shift(shiftx: -30, shifty: 0)
+        // viewWidth normal (387) work all around: 0, 30, 60, 90, -30, -90, scroll around
+        // viewWidth small (377) works: 0, -30, -60, -90, -43, -53, -8, -10, scroll around (except jerks left at start but maybe drag issue), 30, 60, 90, 43, 33, 8, 10
+        self._cells!.shift(shiftx: 10, shifty: 90)
 
         print_debug()
 
