@@ -53,4 +53,15 @@ public struct Memory
             memset_pattern4(base, &rvalue, count * Memory.bufferBlockSize)
         }
     }
+
+    public static func allocate(_ size: Int, initialize: UInt8? = nil) -> [UInt8] {
+        if ((initialize != nil) && (initialize! > 0)) {
+            return [UInt8](repeating: initialize!, count: size)
+        }
+        else {
+            return [UInt8](unsafeUninitializedCapacity: size) {  buffer, initializedCount in
+                initializedCount = size
+            }
+        }
+    }
 }
