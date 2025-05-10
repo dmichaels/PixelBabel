@@ -107,9 +107,11 @@ class CellGrid: ObservableObject
                 // self._displayWidthUnscaled = 387 // 387
                 // self._displayWidth = self.scaled(self._displayWidthUnscaled)
                 // experiment for cellSize == 43 ... make viewWidth be too short
-                self._displayWidthUnscaled = 377 // a little too small for 43
-                // self._displayWidthUnscaled = 397 // a little too big for 43
+                // self._displayWidthUnscaled = 377 // a little too small for 43
+                self._displayWidthUnscaled = 397 // a little too big for 43
                 self._displayWidth = self.scaled(self._displayWidthUnscaled)
+                // self._displayHeightUnscaled = 848 // a little too small for 43
+                // self._displayHeight = self.scaled(self._displayHeightUnscaled)
                 //xyzzy
 
         self._cells = CellGridView(viewParent: self,
@@ -154,7 +156,7 @@ class CellGrid: ObservableObject
         }
         // viewWidth normal (387) work all around: 0, 30, 60, 90, -30, -90, scroll around
         // viewWidth small (377) works: 0, -30, -60, -90, -43, -53, -8, -10, scroll around (except jerks left at start but maybe drag issue), 30, 60, 90, 43, 33, 8, 10
-        self._cells!.shift(shiftx: 10, shifty: 90)
+        self._cells!.shift(shiftx: 0, shifty: 0)
 
         print_debug()
 

@@ -111,68 +111,6 @@ class CellGridView {
         }
     }
 
-    public var viewColumns: Int {
-        self._viewColumns + self._viewRowsExtra
-    }
-
-    public var viewRows: Int {
-        self._viewRows + self._viewColumnsExtra
-    }
-
-    public var viewBackground: CellColor {
-        self._viewBackground
-    }
-
-    public var gridColumns: Int {
-        self._gridColumns
-    }
-
-    public var gridRows: Int {
-        self._gridRows
-    }
-
-    public var gridCells: [Cell] {
-        self._cells
-    }
-
-    // Returns the cell-grid cell object for the given grid-view input location, or nil;
-    // note that the display input location is always in unscaled units.
-    //
-    public func gridCell<T: Cell>(_ viewLocation: CGPoint) -> T? {
-        if let gridPoint: CellGridPoint = self.locate(viewLocation) {
-            return self.gridCell(gridPoint.x, gridPoint.y)
-        }
-        return nil
-    }
-
-    // Returns the cell-grid cell object for the given cell-grid x/y cell location, or nil.
-    //
-    public func gridCell<T: Cell>(_ gridCellX: Int, _ gridCellY: Int) -> T? {
-        guard gridCellX >= 0, gridCellX < self._gridColumns, gridCellY >= 0, gridCellY < self._gridRows else {
-            return nil
-        }
-        return self._cells[gridCellY * self._gridColumns + gridCellX] as? T
-    }
-
-    // Returns the cell-grid cell location for the given grid-view input location, or nil;
-    // note that the display input location is always in unscaled units.
-    //
-    public func locate(_ viewLocation: CGPoint) -> CellGridPoint? {
-        let viewPoint: CellGridPoint = CellGridPoint(viewLocation)
-        guard viewPoint.x >= 0, viewPoint.x < self._viewWidthUnscaled,
-              viewPoint.y >= 0, viewPoint.y < self._viewHeightUnscaled else {
-            return nil
-        }
-        let viewCellX = viewPoint.x / self._cellSizeUnscaled
-        let viewCellY = viewPoint.y / self._cellSizeUnscaled
-        let gridCellX = viewCellX - self._shiftCellX - self._viewColumnsExtra
-        let gridCellY = viewCellY - self._shiftCellY - self._viewRowsExtra
-        guard gridCellX >= 0, gridCellX < self._gridColumns, gridCellY >= 0, gridCellY < self._gridRows else {
-            return nil
-        }
-        return CellGridPoint(gridCellX, gridCellY)
-    }
-
     public func shift(shiftx: Int = 0, shifty: Int = 0)
     {
         // Normalize the given pixel level shift to cell and pixel level.
@@ -203,9 +141,7 @@ class CellGridView {
             shiftCellY = 0
         }
 
-        // Restrict the shift to min/max.
-
-        // Support different rules:
+        // Restrict the shift to min/max; support different rules:
         //
         // - Disallow the left-most cell of the cell-grid being right-shifted past the right-most
         //   position of the grid-view, and the right-most cell of the grid-view being left-shifted
@@ -239,18 +175,7 @@ class CellGridView {
         self._shiftCellY = shiftCellY
         self._shiftX = shiftX
         self._shiftY = shiftY
-        // self._viewColumnsExtra = (shiftX != 0 ? 1 : 0) + (self._viewWidthExtra > 0 ? 1 : 0)
-        // self._viewRowsExtra = (shiftY != 0 ? 1 : 0) + (self._viewHeightExtra > 0 ? 1 : 0)
 
-/*
-        // chatgpt simplified of below ...
-        self._viewColumnsExtra = (self._shiftX != 0 ? 1 : 0)
-                               + ((self._shiftX > 0 && self._viewWidthExtra > self._shiftX) ||
-                                  (self._shiftX < 0 && self._viewWidthExtra > (self._cellSize - self._shiftX)) ? 1 : 0)
-        self._viewRowsExtra = (self._shiftY != 0 ? 1 : 0)
-                               + ((self._shiftY > 0 && self._viewHeightExtra > self._shiftY) ||
-                                  (self._shiftY < 0 && self._viewHeightExtra > (self._cellSize - self._shiftY)) ? 1 : 0)
-*/
         self._viewColumnsExtra = (self._shiftX != 0 ? 1 : 0)
         if (self._shiftX > 0) {
             if (self._viewWidthExtra > self._shiftX) {
@@ -284,7 +209,7 @@ class CellGridView {
 
         for vy in 0...self._viewCellEndY + self._viewRowsExtra {
             for vx in 0...self._viewCellEndX + self._viewColumnsExtra {
-                self._writeCell(viewCellX: vx, viewCellY: vy)
+                self.writeCell(viewCellX: vx, viewCellY: vy)
             }
         }
     }
@@ -294,15 +219,8 @@ class CellGridView {
     // pixel level based shift values, negative meaning to shift the grid cell left or up, and positive
     // meaning to shift the grid cell right or down.
     //
-    private func _writeCell(viewCellX: Int, viewCellY: Int)
+    private func writeCell(viewCellX: Int, viewCellY: Int)
     {
-        func xxxgridCell(_ gridCellX: Int, _ gridCellY: Int) -> Cell? {
-            //
-            // This is the same as CellGrid.gridCell but without the guard check for speed.
-            //
-            return self._cells[gridCellY * self._gridColumns + gridCellX]
-        }
-
         // This was all a lot tricker than you might expect (yes basic arithmetic).
         // Set: gridCellX, gridCellY, truncateLeft, truncateRight, foreground
 
@@ -352,71 +270,6 @@ class CellGridView {
         else if ((self._viewWidthExtra > 0) && viewCellLastX) {
             truncateRight = self._viewWidthExtra
         }
-
-/*
-        let shiftLeft: Bool = self._shiftX < 0
-        let shiftRight: Bool = self._shiftX > 0
-        let shiftDown: Bool = self._shiftY > 0
-        let gridCellX = viewCellX - self._shiftCellX - (shiftRight ? 1 : 0)
-        let gridCellY = viewCellY - self._shiftCellY - (shiftDown ? 1 : 0)
-        let viewCellFirstX: Bool = (viewCellX == 0)
-        let viewCellLastX: Bool = (viewCellX == self._viewCellEndX + self._viewColumnsExtra)
-
-        let truncateLeft = (shiftRight && viewCellFirstX)
-                           ? (self._cellSize - self._shiftX)
-                           : (shiftLeft && viewCellFirstX
-                             ? -self._shiftX : 0)
-        var truncateRight = (shiftRight && viewCellLastX)
-                            ? (self._cellSize - self._shiftX)
-                            : (shiftLeft && viewCellLastX
-                              ? -self._shiftX : 0)
-        //
-        // TODO
-        // Could have special grid-cell blocks for a sold square for background for empty cell (faster).
-        // i.e. if foreground here turns out to be self._viewBackground then instead of using
-        // self._bufferBlocks.blocks below use a special blocks which has indices for square sans padding.
-        //
-        let foreground = ((gridCellX >= 0) && (gridCellX <= self._gridCellEndX) &&
-                          (gridCellY >= 0) && (gridCellY <= self._gridCellEndY))
-                         ? gridCell(gridCellX, gridCellY)!.foreground
-                         : self._viewBackground
-        let foregroundOnly = false
-
-        if true && self._viewBleed && viewCellLastX && self._viewExtraRight > 0 {
-            // truncateRight -= self._cellSize - self._viewExtraRight // almost okay with 30, 60, -30, -60
-            // OK beelow but still scrolling issues with large size (small seems ok)
-            if truncateRight != 0 {
-                truncateRight -= self._cellSize - self._viewExtraRight
-            }
-            else {
-                truncateRight = self._viewExtraRight
-            }
-            if truncateRight > 0 {
-                // if view is too large then do nothing
-                // else if view is too small then ... -= self._viewExtraRight ? but still off if 
-                // truncateRight -= self._cellSize - self._viewExtraRight
-                // truncateRight += self._viewExtraRight
-            }
-            else {
-                // truncateRight = self._cellSize - self._viewExtraRight
-                // truncateRight = self._viewExtraRight
-            }
-        }
-        // LOTS OF TOdO HERE FOR DYNAMIC CELL-SIZE CHANGE ...
-        // Given that had sort of assumed the initial view dimensions fit the cells exactly (which it did due to the preferred size stuff).
-        if false && self._viewBleed && viewCellLastX {
-            // fix for cellSize from  43 to 51 i.e +8 -> truncateRight = 30 -> why?
-            let newCellSize = self._viewParent._cellSize // 51 // from hack in CellGrid.onTap i.e cellSize = 43 + 8
-            // truncateRight = 30
-            let cellSpaceX = self._cellSize * (self._viewColumns + self._viewColumnsExtra) // 51 * 8 = 408
-            let cellOverageX = cellSpaceX - self._viewWidth // 408 - 387 (387 for cellSize of our usual 43) = 21
-            truncateRight = newCellSize - cellOverageX // 51 - 21 = 30
-            var x = 1
-        }
-        if self._viewBleed && gridCellY == 16 {
-            var x = 1
-        }
-*/
 
         let shiftX = (self._shiftX > 0) ? self._shiftX - self._cellSize : self._shiftX
         let shiftY = (self._shiftY > 0) ? self._shiftY - self._cellSize : self._shiftY
@@ -490,6 +343,68 @@ class CellGridView {
         }
     }
 
+    public var viewColumns: Int {
+        self._viewColumns + self._viewRowsExtra
+    }
+
+    public var viewRows: Int {
+        self._viewRows + self._viewColumnsExtra
+    }
+
+    public var viewBackground: CellColor {
+        self._viewBackground
+    }
+
+    public var gridColumns: Int {
+        self._gridColumns
+    }
+
+    public var gridRows: Int {
+        self._gridRows
+    }
+
+    public var gridCells: [Cell] {
+        self._cells
+    }
+
+    // Returns the cell-grid cell object for the given grid-view input location, or nil;
+    // note that the display input location is always in unscaled units.
+    //
+    public func gridCell<T: Cell>(_ viewLocation: CGPoint) -> T? {
+        if let gridPoint: CellGridPoint = self.locate(viewLocation) {
+            return self.gridCell(gridPoint.x, gridPoint.y)
+        }
+        return nil
+    }
+
+    // Returns the cell-grid cell object for the given cell-grid x/y cell location, or nil.
+    //
+    public func gridCell<T: Cell>(_ gridCellX: Int, _ gridCellY: Int) -> T? {
+        guard gridCellX >= 0, gridCellX < self._gridColumns, gridCellY >= 0, gridCellY < self._gridRows else {
+            return nil
+        }
+        return self._cells[gridCellY * self._gridColumns + gridCellX] as? T
+    }
+
+    // Returns the cell-grid cell location for the given grid-view input location, or nil;
+    // note that the display input location is always in unscaled units.
+    //
+    public func locate(_ viewLocation: CGPoint) -> CellGridPoint? {
+        let viewPoint: CellGridPoint = CellGridPoint(viewLocation)
+        guard viewPoint.x >= 0, viewPoint.x < self._viewWidthUnscaled,
+              viewPoint.y >= 0, viewPoint.y < self._viewHeightUnscaled else {
+            return nil
+        }
+        let viewCellX = viewPoint.x / self._cellSizeUnscaled
+        let viewCellY = viewPoint.y / self._cellSizeUnscaled
+        let gridCellX = viewCellX - self._shiftCellX - self._viewColumnsExtra
+        let gridCellY = viewCellY - self._shiftCellY - self._viewRowsExtra
+        guard gridCellX >= 0, gridCellX < self._gridColumns, gridCellY >= 0, gridCellY < self._gridRows else {
+            return nil
+        }
+        return CellGridPoint(gridCellX, gridCellY)
+    }
+
     public var image: CGImage? {
         var image: CGImage?
         self._buffer.withUnsafeMutableBytes { rawBuffer in
@@ -508,7 +423,6 @@ class CellGridView {
                 image = context.makeImage()
             }
         }
-        print("MAKE-IMAGE: \(self._viewWidth) x \(self._viewHeight) cs: \(self._cellSize) vd: \(self._viewColumns) x \(self._viewRows) [\(self._viewColumnsExtra), \(self._viewRowsExtra)]")
         return image
     }
 
@@ -536,28 +450,6 @@ class CellGridView {
             self.foreground = foreground
             self.blend = blend
             self.lindex = self.index
-        }
-
-        func dump(verbose: Bool = false, code: Bool = false, width: Int = 0) {
-            if verbose {
-                for i in 0..<self.count {
-                    let index = self.index + i * Memory.bufferBlockSize
-                    print("BLOCK>" +
-                          " INDEX: \(String(format: "%08d", index))" +
-                          (i == 0 ? " COUNT: \(String(format: "%3d", self.count))" : "   ...:   -") +
-                          "  \(self.foreground ? "FG" : "BG")-\(String(format: "%.1f", self.blend))" +
-                          (width > 0 ? " -> [\(index % width), \(index / width)]" : ""))
-                }
-            }
-            else {
-                print("block>" +
-                      " index: \(String(format: "%08d", self.index))" +
-                      " count: \(String(format: "%3d", self.count))" +
-                      "  \(self.foreground ? "FG" : "BG")-\(String(format: "%.1f", self.blend))")
-            }
-            if code {
-                print("blocks.append(BufferBlock(index: \(self.index), count: \(self.count), foreground: \(self.foreground), blend: \(self.blend)))")
-            }
         }
     }
 
