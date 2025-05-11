@@ -116,8 +116,6 @@ class CellGridView {
 
     public func shift(shiftx: Int = 0, shifty: Int = 0)
     {
-        let debugStart = Date()
-
         // Normalize the given pixel level shift to cell and pixel level.
 
         var shiftX: Int = self._viewParent.scaled(shiftx), shiftCellX: Int
@@ -213,8 +211,6 @@ class CellGridView {
                 self.writeCell(viewCellX: vx, viewCellY: vy)
             }
         }
-
-        print(String(format: "SHIFT-TIME: %.5fs", Date().timeIntervalSince(debugStart)))
     }
 
     private typealias WriteCellBlock = (_ block: CellGridView.BufferBlock, _ index: Int, _ count: Int) -> Void
@@ -294,6 +290,11 @@ class CellGridView {
                 let start: Int = offset + index
 
                 guard start >= 0, (start + (count * Memory.bufferBlockSize)) <= size else {
+                    //
+                    // TODO
+                    // At least for the Y (vertical) case (maybe the X but don't think so) we get
+                    // here on shifting; why; being sloppy with the vertical, because it was easier.
+                    //
                     return
                 }
 
