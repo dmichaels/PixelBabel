@@ -116,6 +116,8 @@ class CellGridView {
 
     public func shift(shiftx: Int = 0, shifty: Int = 0)
     {
+        let debugStart = Date()
+
         // Normalize the given pixel level shift to cell and pixel level.
 
         var shiftX: Int = self._viewParent.scaled(shiftx), shiftCellX: Int
@@ -211,6 +213,8 @@ class CellGridView {
                 self.writeCell(viewCellX: vx, viewCellY: vy)
             }
         }
+
+        print(String(format: "SHIFT-TIME: %.5fs", Date().timeIntervalSince(debugStart)))
     }
 
     private typealias WriteCellBlock = (_ block: CellGridView.BufferBlock, _ index: Int, _ count: Int) -> Void
@@ -297,7 +301,7 @@ class CellGridView {
                 let color: UInt32
 
                 if (block.foreground) {
-                    if (block.blend != 0.0) {
+                    if (block.blend != 1.0) {
                         color = CellColor.blendValueOf(foreground, self._viewBackground, amount: block.blend)
                     }
                     else {
@@ -486,7 +490,7 @@ class CellGridView {
         internal var count: Int
         internal var lindex: Int
 
-        init(index: Int, count: Int, foreground: Bool = true, blend: Float = 0.0) {
+        init(index: Int, count: Int, foreground: Bool, blend: Float) {
             self.index = max(index, 0)
             self.count = max(count, 0)
             self.foreground = foreground
@@ -616,7 +620,7 @@ class CellGridView {
     {
         internal var blocks: [BufferBlock] = []
 
-        internal func append(_ index: Int, foreground: Bool, blend: Float = 0.0) {
+        internal func append(_ index: Int, foreground: Bool, blend: Float) {
             if let last = self.blocks.last,
                     last.foreground == foreground,
                     last.blend == blend,
@@ -705,7 +709,7 @@ class CellGridView {
                         blocks.append(index, foreground: true, blend: coverage)
 
                     } else {
-                        blocks.append(index, foreground: false)
+                        blocks.append(index, foreground: false, blend: 0.0)
                     }
                 }
             }
