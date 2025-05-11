@@ -653,8 +653,8 @@ class CellGridView {
         for dy in 0..<cellSize {
             for dx in 0..<cellSize {
 
-                if dx >= displayWidth || dy >= displayHeight { continue }
-                if dx < 0 || dy < 0 { continue }
+                if ((dx >= displayWidth) || (dy >= displayHeight)) { continue }
+                if ((dx < 0) || (dy < 0)) { continue }
                 var coverage: Float = 0.0
 
                 switch shape {
