@@ -213,7 +213,7 @@ class CellGridView {
         }
     }
 
-    private typealias WriteCellBlock = (_ buffer: UnsafeMutableRawPointer, _ block: CellGridView.BufferBlock, _ index: Int, _ count: Int) -> Void
+    private typealias WriteCellBlock = (_ block: CellGridView.BufferBlock, _ index: Int, _ count: Int) -> Void
 
     // Draws at the given grid view cell location (viewCellX, viewCellY), the grid cell currently corresponding
     // to that location, taking into account the current shiftCellX/Y and shiftX/Y values, i.e. the cell and
@@ -280,108 +280,62 @@ class CellGridView {
         // Being careful to truncate the left or right side of the cell appropriately (tricky stuff).
 
         self._buffer.withUnsafeMutableBytes { raw in
-            guard let base: UnsafeMutableRawPointer = raw.baseAddress else { return }
+
+            guard let buffer: UnsafeMutableRawPointer = raw.baseAddress else { return }
+
+            func writeCellBlock(_ block: CellGridView.BufferBlock, _ index: Int, _ count: Int)
+            {
+                // Uses from outer scope: buffer, offset
+
+                func blend(_ a: UInt8, _ b: UInt8, amount: Float) -> UInt8 {
+                    return UInt8(Float(a) * amount + Float(b) * (1 - amount))
+                }
+
+                let start: Int = offset + index
+
+                guard start >= 0, (start + (count * Memory.bufferBlockSize)) <= size else {
+                    return
+                }
+
+                let base = buffer.advanced(by: start)
+                let color: UInt32
+
+                if (block.foreground) {
+                    if (block.blend != 0.0) {
+                        color = CellColor.valueOf(blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
+                                                  blend(foreground.green, self._viewBackground.green, amount: block.blend),
+                                                  blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
+                                                  alpha: foreground.alpha)
+                    }
+                    else {
+                        color = foreground.value
+                }
+                }
+                else if (foregroundOnly) {
+                    //
+                    // Limit the write to only the foreground; can be useful
+                    // for performance as background normally doesn't change.
+                    //
+                    return
+                }
+                else {
+                    color = self._viewBackground.value
+                }
+
+                Memory.fastcopy(to: base, count: count, value: color)
+            }
+
             for block in self._bufferBlocks.blocks {
                 if (truncateLeft > 0) {
-                    // TODO: block.writeRight(width: self._viewWidth, shiftx: truncateLeft, write: writeCellBlock, buffer: base)
-                    CellGridView.BufferBlocks.truncateLeft(block, width: self._viewWidth, shiftx: truncateLeft,
-                                                           writeCellBlock: xwriteCellBlock, buffer: base)
-                    continue
+                    block.writeRight(width: self._viewWidth, shiftx: truncateLeft, write: writeCellBlock)
                 }
                 else if (truncateRight > 0) {
-                    // TODO: block.writeLeft(width: self._viewWidth, shiftx: truncateRight, write: writeCellBlock, buffer: base)
-                    CellGridView.BufferBlocks.truncateRight(block, width: self._viewWidth, shiftx: truncateRight,
-                                                            writeCellBlock: xwriteCellBlock, buffer: base)
-                    continue
-                }
-                writeCellBlock(buffer: base, block: block)
-            }
-        }
-
-        // Writes the given buffer block to the backing image (pixel value) buffer; each block describing a
-        // range of indices and whether the block is for a foreground or background color, and the amount
-        // it should be blended with the background if it is for a foreground color).
-        // N.B. From outer function scope: offset, size, foreground, foregroundOnly
-        // N.B. From class scope: self._viewBackground
-        //
-        func writeCellBlock(buffer: UnsafeMutableRawPointer, block: CellGridView.BufferBlock)  {
-
-            func blend(_ a: UInt8, _ b: UInt8, amount: Float) -> UInt8 {
-                return UInt8(Float(a) * amount + Float(b) * (1 - amount))
-            }
-
-            let start: Int = offset + block.index
-
-            guard start >= 0, (start + (block.count * Memory.bufferBlockSize)) <= size else {
-                return
-            }
-
-            let base = buffer.advanced(by: start)
-            let color: UInt32
-
-            if (block.foreground) {
-                if (block.blend != 0.0) {
-                    color = CellColor.valueOf(blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
-                                              blend(foreground.green, self._viewBackground.green, amount: block.blend),
-                                              blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
-                                              alpha: foreground.alpha)
+                    block.writeLeft(width: self._viewWidth, shiftx: truncateRight, write: writeCellBlock)
                 }
                 else {
-                    color = foreground.value
+                    writeCellBlock(block, block.index, block.count)
                 }
             }
-            else if (foregroundOnly) {
-                //
-                // Limit the write to only the foreground; can be useful
-                // for performance as background normally doesn't change.
-                //
-                return
-            }
-            else {
-                color = self._viewBackground.value
-            }
-
-            Memory.fastcopy(to: base, count: block.count, value: color)
-        }
-
-        func xwriteCellBlock(_ buffer: UnsafeMutableRawPointer, _ block: CellGridView.BufferBlock, _ index: Int, _ count: Int)  {
-
-            func blend(_ a: UInt8, _ b: UInt8, amount: Float) -> UInt8 {
-                return UInt8(Float(a) * amount + Float(b) * (1 - amount))
-            }
-
-            let start: Int = offset + index
-
-            guard start >= 0, (start + (count * Memory.bufferBlockSize)) <= size else {
-                return
-            }
-
-            let base = buffer.advanced(by: start)
-            let color: UInt32
-
-            if (block.foreground) {
-                if (block.blend != 0.0) {
-                    color = CellColor.valueOf(blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
-                                              blend(foreground.green, self._viewBackground.green, amount: block.blend),
-                                              blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
-                                              alpha: foreground.alpha)
-                }
-                else {
-                    color = foreground.value
-                }
-            }
-            else if (foregroundOnly) {
-                //
-                // Limit the write to only the foreground; can be useful
-                // for performance as background normally doesn't change.
-                //
-                return
-            }
-            else {
-                color = self._viewBackground.value
-            }
-
-            Memory.fastcopy(to: base, count: count, value: color)
         }
     }
 
@@ -547,29 +501,16 @@ class CellGridView {
             self.lindex = self.index
         }
 
-        // TODO
-
-        internal func writeLeft() {
+        // Write blocks using the given write function IGNORING indices to the RIGHT of the given shiftx value.
+        //
+        internal func writeLeft(width: Int, shiftx: Int, write: CellGridView.WriteCellBlock) {
+            self.writeLeftOrRight(width: width, shiftx: -shiftx, write: write)
         }
 
-        internal func writeRight() {
-        }
-    }
-
-    private class BufferBlocks
-    {
-        internal var blocks: [BufferBlock] = []
-
-        internal func append(_ index: Int, foreground: Bool, blend: Float = 0.0) {
-            if let last = self.blocks.last,
-                    last.foreground == foreground,
-                    last.blend == blend,
-                    index == last.lindex + Memory.bufferBlockSize {
-                last.count += 1
-                last.lindex = index
-            } else {
-                self.blocks.append(BufferBlock(index: index, count: 1, foreground: foreground, blend: blend))
-            }
+        // Write blocks using the given write function IGNORING indices to the LEFT Of the given shiftx value.
+        //
+        internal func writeRight(width: Int, shiftx: Int, write: CellGridView.WriteCellBlock) {
+            self.writeLeftOrRight(width: width, shiftx: shiftx, write: write)
         }
 
         // Regarding the truncating of horizontal left or right portions of buffer blocks ...
@@ -641,43 +582,17 @@ class CellGridView {
         // i.e. it already has Screen.depth factored into it; and note that
         // the BufferBlock.count refers to the number of 4-byte (UInt32) values,
 
-        // Write blocks to the given buffer ignoring indices to the left of the given shiftx value.
-        //
-        internal static func truncateLeft(_ block: BufferBlock, width: Int, shiftx: Int,
-                                           writeCellBlock: CellGridView.WriteCellBlock,
-                                           buffer: UnsafeMutableRawPointer) {
-            BufferBlocks.truncateX(block, width: width, shiftx: shiftx, writeCellBlock: writeCellBlock, buffer: buffer)
-        }
-
-        // Write blocks to the given buffer ignoring indices to the right of the given shiftx value.
-        //
-        internal static func truncateRight(_ block: BufferBlock, width: Int, shiftx: Int,
-                                           writeCellBlock: CellGridView.WriteCellBlock,
-                                           buffer: UnsafeMutableRawPointer) {
-            BufferBlocks.truncateX(block, width: width, shiftx: -shiftx, writeCellBlock: writeCellBlock, buffer: buffer)
-        }
-
-        // Writes blocks to the given buffer ignoring indices which correspond to a shifting left or right by the
-        // given (shiftx) amount; this was tricky, due to the row-major organization of grid cells/pixels in the
-        // one-dimensional buffer array. A positive shiftx means to truncate the values (pixels) LEFT of the given
-        // shiftx value, and a negative shiftx means to truncate the values (pixels) RIGHT of the given shiftx value.
-        //
-        private static func truncateX( _ block: BufferBlock, width: Int, shiftx: Int,
-                                       writeCellBlock: CellGridView.WriteCellBlock, buffer: UnsafeMutableRawPointer)
-        {
+        internal func writeLeftOrRight(width: Int, shiftx: Int, write: CellGridView.WriteCellBlock) {
             let shiftw = abs(shiftx)
             let shiftl: Bool = (shiftx < 0)
             let shiftr: Bool = (shiftx > 0)
-            let bindex = block.index
+            let bindex = self.index
             let bsize = Memory.bufferBlockSize
             var index: Int? = nil
             var count = 0
-
-            for i in 0..<block.count {
-
+            for i in 0..<self.count {
                 let starti = bindex + i * bsize
                 let shift = (starti / bsize) % width
-
                 if ((shiftr && (shift >= shiftw)) || (shiftl && (shift < shiftw))) {
                     if (index == nil) {
                         index = starti
@@ -687,7 +602,7 @@ class CellGridView {
                     }
                 } else {
                     if let j = index {
-                        writeCellBlock(buffer, block, j, count)
+                        write(self, j, count)
                         if (shiftr && (shift > shiftw)) { break }
                         else if (shiftl && (shift >= shiftw)) { break }
                         index = nil
@@ -699,64 +614,25 @@ class CellGridView {
                 }
             }
             if let j = index {
-                writeCellBlock(buffer, block, j, count)
+                write(self, j, count)
             }
         }
+    }
 
-        // These versions which returned new BufferBlock lists are OBSOLETE; more performant
-        // implementations above; these used to be called from writeCellBlock like this:
-        //
-        //   for block in CellGridView.BufferBlocks.truncateLeft(block, width: self._viewWidth, shiftx: truncateLeft) {
-        //       writeCellBlock(buffer: base, block: block)
-        //   }
-        //
-        private static func _truncateLeft(_ block: BufferBlock, width: Int, shiftx: Int) -> [BufferBlock] {
-            return BufferBlocks._truncateX(block, width: width, shiftx: shiftx)
-        }
+    private class BufferBlocks
+    {
+        internal var blocks: [BufferBlock] = []
 
-        private static func _truncateRight(_ block: BufferBlock, width: Int, shiftx: Int) -> [BufferBlock] {
-            return BufferBlocks._truncateX(block, width: width, shiftx: -shiftx)
-        }
-
-        // Returns a new BufferBlock list for this/self one (possibly empty) which eliminates indices
-        // which correspond to a shifting left or right by the given (shiftx) amount; this was tricky,
-        // due to the row-major organization of grid cells/pixels in the one-dimensional buffer array.
-        // A positive shiftx means to truncate the values (pixels) LEFT of the given shiftx value, and
-        // a negative shiftx means to truncate the values (pixels) RIGHT of the given shiftx value.
-        //
-        private static func _truncateX(_ block: BufferBlock, width: Int, shiftx: Int) -> [BufferBlock] {
-            var blocks: [BufferBlock] = []
-            var index: Int? = nil
-            var count: Int = 0
-            let shiftw: Int = abs(shiftx)
-            for i in 0..<block.count {
-                let starti: Int = block.index + i * Memory.bufferBlockSize
-                let shift: Int = (starti / Memory.bufferBlockSize) % width
-                //
-                // This the below uncommented if-expression was suggested by ChatGPT as a simplification
-                // of this if-expression; it is still not entirely clear to me why/how these are equivalent:
-                //
-                //  (((shiftx > 0) && (shift >= shiftw)) || ((shiftx < 0) && (shift < shiftw)))
-                //
-                if ((shiftx != 0) && ((shiftx > 0) == (shift >= shiftw))) {
-                    if (index == nil) {
-                        index = starti
-                        count = 1
-                    } else {
-                        count += 1
-                    }
-                } else if (index != nil) {
-                    blocks.append(BufferBlock(index: index!, count: count,
-                                              foreground: block.foreground, blend: block.blend))
-                    index = nil
-                    count = 0
-                }
+        internal func append(_ index: Int, foreground: Bool, blend: Float = 0.0) {
+            if let last = self.blocks.last,
+                    last.foreground == foreground,
+                    last.blend == blend,
+                    index == last.lindex + Memory.bufferBlockSize {
+                last.count += 1
+                last.lindex = index
+            } else {
+                self.blocks.append(BufferBlock(index: index, count: 1, foreground: foreground, blend: blend))
             }
-            if (index != nil) {
-                blocks.append(BufferBlock(index: index!, count: count,
-                                          foreground: block.foreground, blend: block.blend))
-            }
-            return blocks
         }
     }
 
