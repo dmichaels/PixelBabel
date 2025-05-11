@@ -309,7 +309,7 @@ class CellGridView {
                     }
                     else {
                         color = foreground.value
-                }
+                    }
                 }
                 else if (foregroundOnly) {
                     //
