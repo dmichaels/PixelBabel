@@ -288,8 +288,8 @@ class CellGridView {
                 guard start >= 0, (start + (count * Memory.bufferBlockSize)) <= size else {
                     //
                     // TODO
-                    // At least for the Y (vertical) case (maybe the X but don't think so) we get
-                    // here on shifting; why; being sloppy with the vertical, because it was easier.
+                    // At least (and only pretty sure) for the Y (vertical) case we get here on shifting;
+                    // why; because we are being sloppy with the vertical, because it was easier.
                     //
                     return
                 }
