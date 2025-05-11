@@ -10,7 +10,7 @@ class CellGrid: ObservableObject
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = true
+        public static let displayScaling: Bool = false
         public static let displayTransparency: UInt8 = 255
         public static let cellSize: Int = 43 // 51
         public static let cellSizeNeat: Bool = true
@@ -108,9 +108,9 @@ class CellGrid: ObservableObject
                 // self._displayWidthUnscaled = 387 // 387
                 // self._displayWidth = self.scaled(self._displayWidthUnscaled)
                 // experiment for cellSize == 43 ... make viewWidth be too short
-                self._displayWidthUnscaled = 377 // a little too small for 43
+                // self._displayWidthUnscaled = 377 // a little too small for 43
                 // self._displayWidthUnscaled = 397 // a little too big for 43
-                self._displayWidth = self.scaled(self._displayWidthUnscaled)
+                // self._displayWidth = self.scaled(self._displayWidthUnscaled)
                 // self._displayHeightUnscaled = 848 // a little too small for 43
                 // self._displayHeight = self.scaled(self._displayHeightUnscaled)
                 //xyzzy
@@ -318,7 +318,9 @@ class CellGrid: ObservableObject
     }
 
     public func onTap(_ location: CGPoint) {
+        print("on-tap: \(location) -> cell-location: [\(self._cells!.locate(location))] -> view-location: \(self._cells!.viewCellLocation(location))")
         if let cell: LifeCell = self._cells?.gridCell(location) {
+            print("ONTAP: \(location) -> cell-location: [\(cell.x),\(cell.y)] -> view-location: \(self._cells!.viewCellLocation(location))")
             if cell.x == 0 && cell.y == 0 {
 
                 let incrementCellSize = 8
