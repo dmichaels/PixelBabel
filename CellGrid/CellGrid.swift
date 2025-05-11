@@ -318,7 +318,7 @@ class CellGrid: ObservableObject
     }
 
     public func onTap(_ location: CGPoint) {
-        print("on-tap: \(location) -> cell-location: [\(self._cells!.locate(location))] -> view-location: \(self._cells!.viewCellLocation(location))")
+        print("on-tap: \(location) -> cell-location: [\(self._cells!.gridCellLocation(location))] -> view-location: \(self._cells!.viewCellLocation(location))")
         if let cell: LifeCell = self._cells?.gridCell(location) {
             print("ONTAP: \(location) -> cell-location: [\(cell.x),\(cell.y)] -> view-location: \(self._cells!.viewCellLocation(location))")
             if cell.x == 0 && cell.y == 0 {
@@ -360,7 +360,7 @@ class CellGrid: ObservableObject
     }
 
     public func locate(_ location: CGPoint) -> CellGridPoint? {
-        return self._cells?.locate(location)
+        return self._cells?.gridCellLocation(location)
     }
 
     func testingLife() {
