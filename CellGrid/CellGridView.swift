@@ -534,9 +534,9 @@ class CellGridView {
         //       ^   ^            ^   ^
         //       |   |            |   |
         //       -   -            -   -
-        // If we want to ignore the 2 (S) left-most columns due to right shift,
+        // If we want to ignore the 2 (S) left-most columns due to right-shift,
         // then we want to ignore (i.e. not write) buffer indices (I) where: I % W < S
-        // Conversely, if we want to ignore the 2 (S) right-most columns due to left shift,
+        // Conversely, if we want to ignore the 2 (S) right-most columns due to left-shift,
         // then we want to ignore (i.e. not write) buffer indices (I) where: (I % W) >= (W - S)
         //
         //      0: A -> I % W ==  0 % 6 == 0 <<< ignore on rshift-2: A
@@ -576,10 +576,24 @@ class CellGridView {
         //     34: i -> I % W == 34 % 6 == 4 <<< ignore on lshift-2: i
         //     35: j -> I % W == 35 % 6 == 5 <<< ignore on lshift-2: j
         //
+        // If we want to ignore the 2 (S) top-most columns due to down-shift,
+        // then we want to ignore (i.e. not write) buffer indices (I) where: I / W < S
+        // Conversely, if we want to ignore the 2 (S) bottom-most columns due to up-shift,
+        // then we want to ignore (i.e. not write) buffer indices (I) where: I / W >= (W - S)
+        //
         // Note that the BufferBlock.index is a byte index into the buffer,
         // i.e. it already has Screen.depth factored into it; and note that
         // the BufferBlock.count refers to the number of 4-byte (UInt32) values,
 
+        // Write blocks using the given write function IGNORING indices which correspond to
+        // a shifting left or right by the given (shiftx) amount; tricky due to the row-major
+        // organization of grid cells/pixels in the one-dimensional buffer array.
+        //
+        // A positive shiftx means to truncate the values (pixels) LEFT of the given shiftx value; and
+        // a negative shiftx means to truncate the values (pixels) RIGHT of the given shiftx value; and
+        // A positive shifty means to truncate the values (pixels) UP from the given shifty value, and
+        // a negative shifty means to truncate the values (pixels) DOWN from the given shifty value.
+        //
         internal func writeLeftOrRight(width: Int, shiftx: Int, write: CellGridView.WriteCellBlock) {
             let shiftw = abs(shiftx)
             let shiftl: Bool = (shiftx < 0)
