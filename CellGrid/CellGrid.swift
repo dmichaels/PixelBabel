@@ -38,7 +38,7 @@ class CellGrid: ObservableObject
     private var _displayHeightUnscaled: Int = Screen.initialHeight
     private var _displayScale: CGFloat = Screen.initialScale
     private var _displayScaling: Bool = Defaults.displayScaling
-    internal var _cellSize: Int = Defaults.cellSize // TODO/xyzzy make back to private eventually - debugging dynamic sizeing
+    private var _cellSize: Int = Defaults.cellSize
     private var _cellSizeUnscaled: Int = Defaults.cellSize
     private var _cellPadding: Int = Defaults.cellPadding
     private var _cellShape: CellShape = Defaults.cellShape
