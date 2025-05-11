@@ -287,10 +287,6 @@ class CellGridView {
             {
                 // Uses from outer scope: buffer, offset
 
-                func blend(_ a: UInt8, _ b: UInt8, amount: Float) -> UInt8 {
-                    return UInt8(Float(a) * amount + Float(b) * (1 - amount))
-                }
-
                 let start: Int = offset + index
 
                 guard start >= 0, (start + (count * Memory.bufferBlockSize)) <= size else {
@@ -302,10 +298,7 @@ class CellGridView {
 
                 if (block.foreground) {
                     if (block.blend != 0.0) {
-                        color = CellColor.valueOf(blend(foreground.red,   self._viewBackground.red,   amount: block.blend),
-                                                  blend(foreground.green, self._viewBackground.green, amount: block.blend),
-                                                  blend(foreground.blue,  self._viewBackground.blue,  amount: block.blend),
-                                                  alpha: foreground.alpha)
+                        color = CellColor.blendValueOf(foreground, self._viewBackground, amount: block.blend)
                     }
                     else {
                         color = foreground.value

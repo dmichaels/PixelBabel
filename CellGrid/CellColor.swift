@@ -103,6 +103,15 @@ struct CellColor: Equatable {
                (UInt32(alpha))
     }
 
+    public static func blendValueOf(_ foreground: CellColor, _ background: CellColor, amount: Float) -> UInt32 {
+        let amountr: Float = 1.0 - amount
+        // let amountr: Float = amount
+        return (UInt32(UInt8(Float(foreground.red)   * amount + Float(background.red)   * amountr)) << 24) |
+               (UInt32(UInt8(Float(foreground.green) * amount + Float(background.green) * amountr)) << 16) |
+               (UInt32(UInt8(Float(foreground.blue)  * amount + Float(background.blue)  * amountr)) <<  8) |
+               (UInt32(foreground.alpha))
+    }
+
     public static let black: CellColor = CellColor(0, 0, 0)
     public static let white: CellColor = CellColor(255, 255, 255)
     public static let dark: CellColor = CellColor(50, 50, 50)
