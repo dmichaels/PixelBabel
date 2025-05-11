@@ -37,10 +37,8 @@ class Cell
 
     public func write(foreground: CellColor, foregroundOnly: Bool = false) {
         self._foreground = foreground
-        /*
-        self._parent!.writeCell(x: self.x, y: self.y,
-                                foreground: foreground,
-                                foregroundOnly: foregroundOnly)
-        */
+        if let viewCellLocation = self._parent.viewCellFromGridCellLocation(self.x, self.y) {
+            self._parent.writeCell(viewCellX: viewCellLocation.x, viewCellY: viewCellLocation.y)
+        }
     }
 }

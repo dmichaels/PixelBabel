@@ -216,7 +216,7 @@ class CellGridView {
     // pixel level based shift values, negative meaning to shift the grid cell left or up, and positive
     // meaning to shift the grid cell right or down.
     //
-    private func writeCell(viewCellX: Int, viewCellY: Int)
+    public func writeCell(viewCellX: Int, viewCellY: Int)
     {
         // This was all a lot tricker than you might expect (yes basic arithmetic).
 
@@ -421,10 +421,17 @@ class CellGridView {
             guard gridCellX >= 0, gridCellX < self._gridColumns else { return nil }
             let gridCellY: Int = viewCellLocation.y - self._shiftCellY - ((shiftY > 0) ? 1 : 0)
             guard gridCellY >= 0, gridCellY < self._gridRows else { return nil }
-            print("LOC: screen-point: [\(viewPointX),\(viewPointY)] -> view-location: \(viewCellLocation) -> grid-location: [\(gridCellX),\(gridCellY)]")
             return CellGridPoint(gridCellX, gridCellY)
         }
         return nil
+    }
+
+    public func viewCellFromGridCellLocation(_ gridCellX: Int, _ gridCellY: Int) -> CellGridPoint? {
+        let shiftX: Int = self._viewParent.unscaled(self._shiftX)
+        let shiftY: Int = self._viewParent.unscaled(self._shiftY)
+        let viewCellX: Int = gridCellX + self._shiftCellX + ((shiftX > 0) ? 1 : 0)
+        let viewCellY: Int = gridCellY + self._shiftCellY + ((shiftY > 0) ? 1 : 0)
+        return CellGridPoint(viewCellX, viewCellY)
     }
 
     // Returns the cell location relative to the grid-view of the given grid-view input point, or nil.

@@ -57,7 +57,6 @@ class CellGrid: ObservableObject
 
     init(cellFactory: CellFactory? = nil) {
         self._cellFactory = cellFactory
-        // print("PIXELMAP-CONSTRUCTOR")
     }
 
     func configure(screen: Screen,
@@ -76,7 +75,6 @@ class CellGrid: ObservableObject
         // e.g. one-to-three on iPhone 15, by default, but only if rending rounded rectangles are
         // circles for smoother curves; no need for squares (inset or not).
 
-        // print("PIXELMAP-CONFIGURE")
         self._displayScale = screen.scale
         self._displayScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : displayScaling
         self._displayWidth = self.scaled(displayWidth)
@@ -293,7 +291,6 @@ class CellGrid: ObservableObject
             x = screenPoint.x - gridOrigin.x
             y = screenPoint.y - gridOrigin.y
         }
-        // print("NL> \(screenPoint) -> \(CGPoint(x: x, y: y)) -> \(self._cells!.locate(x, y))")
         return CGPoint(x: x, y: y)
     }
 
@@ -318,9 +315,7 @@ class CellGrid: ObservableObject
     }
 
     public func onTap(_ location: CGPoint) {
-        print("on-tap: \(location) -> cell-location: [\(self._cells!.gridCellLocation(location))] -> view-location: \(self._cells!.viewCellLocation(location))")
         if let cell: LifeCell = self._cells?.gridCell(location) {
-            print("ONTAP: \(location) -> cell-location: [\(cell.x),\(cell.y)] -> view-location: \(self._cells!.viewCellLocation(location))")
             if cell.x == 0 && cell.y == 0 {
 
                 let incrementCellSize = 8
@@ -355,6 +350,7 @@ class CellGrid: ObservableObject
             }
             else {
                 cell.toggle()
+                cell.write()
             }
         }
     }
@@ -397,7 +393,6 @@ class CellGrid: ObservableObject
         }
         let end = Date()
         let elapsed = end.timeIntervalSince(start)
-        // print(String(format: "CACHED-RANDOMIZE-TIME: %.5f sec | \(cellLimitUpdate)", elapsed))
     }
 
     func writeCell(_ cell: Cell, _ color: CellColor, limit: Bool = true) {
