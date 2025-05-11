@@ -546,6 +546,14 @@ class CellGridView {
             self.blend = blend
             self.lindex = self.index
         }
+
+        // TODO
+
+        internal func writeLeft() {
+        }
+
+        internal func writeRight() {
+        }
     }
 
     private class BufferBlocks
