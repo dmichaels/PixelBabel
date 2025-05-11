@@ -10,7 +10,7 @@ class CellGrid: ObservableObject
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = false
+        public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
         public static let cellSize: Int = 43 // 51
         public static let cellSizeNeat: Bool = true
@@ -52,11 +52,12 @@ class CellGrid: ObservableObject
     private var _gridRows: Int = 21
     private var _cells: CellGridView? = nil
     private var _cellFactory: CellFactory?
-    private var _dragCell: Cell? = nil
+    private var _dragStart: CellGridPoint? = nil
+    private var _dragStartShifted: CellGridPoint? = nil
 
     init(cellFactory: CellFactory? = nil) {
         self._cellFactory = cellFactory
-        print("PIXELMAP-CONSTRUCTOR")
+        // print("PIXELMAP-CONSTRUCTOR")
     }
 
     func configure(screen: Screen,
@@ -75,7 +76,7 @@ class CellGrid: ObservableObject
         // e.g. one-to-three on iPhone 15, by default, but only if rending rounded rectangles are
         // circles for smoother curves; no need for squares (inset or not).
 
-        print("PIXELMAP-CONFIGURE")
+        // print("PIXELMAP-CONFIGURE")
         self._displayScale = screen.scale
         self._displayScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : displayScaling
         self._displayWidth = self.scaled(displayWidth)
@@ -292,77 +293,28 @@ class CellGrid: ObservableObject
             x = screenPoint.x - gridOrigin.x
             y = screenPoint.y - gridOrigin.y
         }
-        print("NL> \(screenPoint) -> \(CGPoint(x: x, y: y)) -> \(self._cells!.locate(x, y))")
+        // print("NL> \(screenPoint) -> \(CGPoint(x: x, y: y)) -> \(self._cells!.locate(x, y))")
         return CGPoint(x: x, y: y)
     }
 
-    var _dragPoint: CGPoint?
-
     public func onDrag(_ location: CGPoint) {
-        /*
-        if let cell = self._cells?.cell(location) {
-            if ((self._dragCell == nil) || (self._dragCell!.location != cell.location)) {
-                let color = cell.foreground.tintedRed(by: 0.60)
-                cell.write(foreground: color, background: self.background, limit: true)
-                self._dragCell = cell
-            }
-        }
-        */
-        /*
-        if let cell: LifeCell = self._cells?.cell(location) {
-            if ((self._dragCell == nil) || (self._dragCell!.location != cell.location)) {
-                cell.toggle()
-                self._dragCell = cell
-            }
-        }
-        */
-        let gridCell = self._cells!.gridCell(location)
-
-        print("DRAG> \(location) -> \(gridCell)")
-            let x = location.x
-            let y = location.y
-            let gp = self._cells!.locate(location)
-            let gx = (gp != nil) ? gp!.x : -1
-            let gy = (gp != nil) ? gp!.y : -1
-            let c = self._cells!.gridCell(location)
-            let cx = (c != nil) ? c!.x : -1
-            let cy = (c != nil) ? c!.y : -1
-            // print("DRAG: [\(String(format: "%.1f", x)),\(String(format: "%.1f", y))] -> [\(gx),\(gy)] -> (\(cx),\(cy)]")
-
-        var shiftx: Int = 0
-        var shifty: Int = 0
-        if (self._dragPoint == nil) {
-            self._dragPoint = location
-            self._cells!.onDrag(gridCell)
+        if (self._dragStartShifted == nil) {
+            self._dragStart = CellGridPoint(location)
+            self._dragStartShifted = self._cells!.shiftedBy
         }
         else {
-            shiftx = Int(location.x) - Int(self._dragPoint!.x)
-            shifty = Int(location.y) - Int(self._dragPoint!.y)
-            // self._dragPoint = location
-            print("SHIFT: \(shiftx) \(shifty)")
-        }
-        if let cell: LifeCell = self._cells?.gridCell(location) {
-
-            if ((self._dragCell == nil) || (self._dragCell!.location != cell.location)) {
-                let start = Date()
-                self._cells!.shift(shiftx: shiftx, shifty: shifty)
-                print(String(format: "DRAW-TIME: %.5fs", Date().timeIntervalSince(start)))
-            }
+            let dragLocation = CellGridPoint(location)
+            let dragDeltaX = self._dragStart!.x - dragLocation.x
+            let dragDeltaY = self._dragStart!.y - dragLocation.y
+            let dragGridShiftX =  self._dragStartShifted!.x - dragDeltaX
+            let dragGridShiftY = self._dragStartShifted!.y - dragDeltaY
+            self._cells!.shift(shiftx: dragGridShiftX, shifty: dragGridShiftY)
         }
     }
 
     public func onDragEnd(_ location: CGPoint) {
-        self._dragPoint = nil
-        self._cells!.onDragEnd()
-        /*
-        if let cell = self._cells?.cell(location) {
-            self._dragCell = nil
-            let color = CellColor.random()
-            cell.write(foreground: color, background: self.background, limit: true)
-        }
-        */
-        self.onDrag(location)
-        self._dragCell = nil
+        self._dragStart = nil
+        self._dragStartShifted = nil
     }
 
     public func onTap(_ location: CGPoint) {
@@ -443,7 +395,7 @@ class CellGrid: ObservableObject
         }
         let end = Date()
         let elapsed = end.timeIntervalSince(start)
-        print(String(format: "CACHED-RANDOMIZE-TIME: %.5f sec | \(cellLimitUpdate)", elapsed))
+        // print(String(format: "CACHED-RANDOMIZE-TIME: %.5f sec | \(cellLimitUpdate)", elapsed))
     }
 
     func writeCell(_ cell: Cell, _ color: CellColor, limit: Bool = true) {

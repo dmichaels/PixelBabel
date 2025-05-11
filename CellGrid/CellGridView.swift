@@ -48,10 +48,6 @@ class CellGridView {
     private var _viewColumnsExtra: Int
     private var _viewRowsExtra: Int
 
-    private var _dragStartLocation: CellGridPoint? = nil
-    private var _dragStartShiftCellX: Int? = nil
-    private var _dragStartShiftCellY: Int? = nil
-
     init(viewParent: CellGrid,
          viewWidth: Int,
          viewHeight: Int,
@@ -337,6 +333,11 @@ class CellGridView {
         }
     }
 
+    public var shiftedBy: CellGridPoint {
+        return CellGridPoint(self._viewParent.unscaled(self._shiftCellX * self._cellSize + self._shiftX),
+                             self._viewParent.unscaled(self._shiftCellY * self._cellSize + self._shiftY))
+    }
+
     public func duplicate(cellSize: Int) -> CellGridView {
         if (cellSize == self._cellSize) {
             return self
@@ -418,40 +419,10 @@ class CellGridView {
         let viewCellY: Int = viewY / self._cellSizeUnscaled
         let gridCellX: Int = viewCellX - self._shiftCellX // - self._viewColumnsExtra
         let gridCellY: Int = viewCellY - self._shiftCellY // - self._viewRowsExtra
-        // let gridCellX: Int = viewCellX - (self._dragStartShiftCellX != nil ? self._dragStartShiftCellX! : self._shiftCellX) // - self._viewColumnsExtra
-        // let gridCellY: Int = viewCellY - (self._dragStartShiftCellY != nil ? self._dragStartShiftCellY! : self._shiftCellY) // - self._viewColumnsExtra
         guard gridCellX >= 0, gridCellX < self._gridColumns, gridCellY >= 0, gridCellY < self._gridRows else {
             return nil
         }
         return CellGridPoint(gridCellX, gridCellY)
-        /*
-        if (self._dragStartLocation != nil) {
-            return CellGridPoint(gridCellX - self._dragStartLocation!.x, gridCellY - self._dragStartLocation!.y)
-        }
-        else {
-            return CellGridPoint(gridCellX, gridCellY)
-        }
-        */
-    }
-
-    public func onDrag(_ cell: Cell?) {
-        self.onDrag(cell?.location)
-    }
-
-    public func onDrag(_ location: CellGridPoint?) {
-        if (location != nil) {
-            print("CELLS-ON-DRAG: \(location!)")
-            self._dragStartLocation = location!
-            self._dragStartShiftCellX = self._shiftCellX
-            self._dragStartShiftCellY = self._shiftCellY
-        }
-    }
-
-    public func onDragEnd() {
-        print("CELLS-ON-DRAG-END")
-        self._dragStartLocation = nil
-        self._dragStartShiftCellX = nil
-        self._dragStartShiftCellY = nil
     }
 
     public var image: CGImage? {
