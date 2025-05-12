@@ -13,7 +13,7 @@ class CellGrid: ObservableObject
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = 255
         public static let cellSize: Int = 43 // 51
-        public static let cellSizeNeat: Bool = true
+        public static let cellSizeNeat: Bool = true // TODO/xyzzy
         public static let cellPadding: Int = 1
         //
         // TODO: while dragging make the shape inset rather than rounded (or circle) for speed.
@@ -320,6 +320,16 @@ class CellGrid: ObservableObject
 
                 let incrementCellSize = 8
                 self._cellSize += self.scaled(incrementCellSize)
+
+                /* TODO - actually do this but leave out for debugging ...
+                if (self._cellSize > self._displayWidth) {
+                    self._cellSize = self._displayWidth
+                }
+                else if (self._cellSize > self._displayHeight) {
+                    self._cellSize = self._displayHeight
+                }
+                */
+
                 /*
                 self._cellSizeUnscaled = self.unscaled(self._cellSize)
                 let neatCells = CellGridView.preferredCellSizes(self._displayWidthUnscaled, self._displayHeightUnscaled,
@@ -333,6 +343,29 @@ class CellGrid: ObservableObject
                 }
                 */
 
+/*
+                let displayScaling = self._displayScaling
+                let viewWidth = self.unscaled(self._displayWidth)
+                let viewHeight = self.unscaled(self._displayHeight)
+                self._cellSize = self.unscaled(self._cellSize)
+                self._displayScaling = false
+                self._cells = CellGridView(viewParent: self,
+                                           viewWidth: viewWidth,
+                                           viewHeight: viewHeight,
+                                           // viewWidth: 400, // for 51
+                                           // viewHeight: 850, // for 51
+                                           viewBackground: self._cellBackground,
+                                           viewTransparency: Defaults.displayTransparency,
+                                           gridColumns: self._gridColumns,
+                                           gridRows: self._gridRows,
+                                           cellSize: cellSize,
+                                           cellPadding: self._cellPadding,
+                                           cellShape: self._cellShape,
+                                           cellFactory: self._cellFactory)
+                                           // cells: self._cells!._cells,
+                                           // buffer: self._cells!._buffer)
+                self._cells!.shift(shiftx: 0, shifty: 0)
+*/
                 self._cells = CellGridView(viewParent: self,
                                            viewWidth: self._displayWidth,
                                            viewHeight: self._displayHeight,
@@ -346,6 +379,8 @@ class CellGrid: ObservableObject
                                            cellPadding: self._cellPadding,
                                            cellShape: self._cellShape,
                                            cellFactory: self._cellFactory)
+                                           // cells: self._cells!._cells,
+                                           // buffer: self._cells!._buffer)
                 self._cells!.shift(shiftx: 0, shifty: 0)
             }
             else {

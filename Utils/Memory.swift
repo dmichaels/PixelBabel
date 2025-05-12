@@ -41,6 +41,7 @@ public struct Memory
     //         Memory.fastcopy(to: base, count: your_count, value: your_value)
     //     }
     //
+    @inline(__always)
     public static func fastcopy(to base: UnsafeMutableRawPointer, count: Int, value: UInt32) {
         var rvalue = value.bigEndian
         switch count {
@@ -49,6 +50,19 @@ public struct Memory
         case 2:
             base.storeBytes(of: rvalue, as: UInt32.self)
             (base + Memory.bufferBlockSize).storeBytes(of: rvalue, as: UInt32.self)
+/*
+        case 3:
+            base.storeBytes(of: rvalue, as: UInt32.self)
+            (base + 1 * Memory.bufferBlockSize).storeBytes(of: rvalue, as: UInt32.self)
+            (base + 2 * Memory.bufferBlockSize).storeBytes(of: rvalue, as: UInt32.self)
+*/
+/*
+        case 3:
+            var block = [rvalue, rvalue, rvalue]
+            block.withUnsafeBytes {
+                memcpy(base, $0.baseAddress!, 3 * bufferBlockSize)
+            }
+*/
         default:
             memset_pattern4(base, &rvalue, count * Memory.bufferBlockSize)
         }

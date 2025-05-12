@@ -8,6 +8,13 @@ import Utils
 // is called with indices which are monotonically increasing, and are not duplicated or out of order
 // or anything weird; assume called from the buffer setting loop in the PixelMap._write method.
 
+class DEBUG {
+    public static var guardCatches: Int = 0
+    public static var fastcopies: Int = 0
+    public static var blockWriteLoop: Int = 0
+    public static var blockWriteBreak: Int = 0
+}
+
 @MainActor
 class CellGridView {
 
@@ -35,8 +42,8 @@ class CellGridView {
     private let _cellPadding: Int
     private let _cellShape: CellShape
     private let _cellFactory: CellFactory?
-    private var _cells: [Cell]
-    private var _buffer: [UInt8]
+    internal var _cells: [Cell] // TODO/xyzzy private
+    internal var _buffer: [UInt8] // TODO/xyzzy private
     private let _bufferBlocks: CellGridView.BufferBlocks
 
     // These change based on moving/shifting the cell-grid around the grid-view.
@@ -59,7 +66,8 @@ class CellGridView {
          cellPadding: Int,
          cellShape: CellShape,
          cellFactory: CellFactory? = nil,
-         cells: [Cell]? = nil)
+         cells: [Cell]? = nil,
+         buffer: [UInt8]? = nil)
     {
         self._viewParent = viewParent
         self._viewWidth = viewWidth
@@ -88,7 +96,7 @@ class CellGridView {
 
         self._cellFactory = cellFactory
         self._cells = cells != nil ? cells! : []
-        self._buffer = Memory.allocate(self._viewWidth * self._viewHeight * Screen.depth)
+        self._buffer = buffer != nil ? buffer! : Memory.allocate(self._viewWidth * self._viewHeight * Screen.depth)
         self._bufferBlocks = CellGridView.createBufferBlocks(bufferSize: self._buffer.count,
                                                              displayWidth: self._viewWidth,
                                                              displayHeight: self._viewHeight,
@@ -103,15 +111,23 @@ class CellGridView {
         self._viewColumnsExtra = (self._viewWidthExtra > 0) ? 1 : 0
         self._viewRowsExtra = (self._viewHeightExtra > 0) ? 1 : 0
 
-        for y in 0..<self._gridRows {
-            for x in 0..<self._gridColumns {
-                self.defineCell(x: x, y: y, foreground: CellGrid.Defaults.cellForeground)
+        if (cells == nil) {
+            for y in 0..<self._gridRows {
+                for x in 0..<self._gridColumns {
+                    self.defineCell(x: x, y: y, foreground: CellGrid.Defaults.cellForeground)
+                }
             }
         }
     }
 
     public func shift(shiftx: Int = 0, shifty: Int = 0)
     {
+        let debugStart = Date()
+        DEBUG.guardCatches = 0
+        DEBUG.fastcopies = 0
+        DEBUG.blockWriteLoop = 0
+        DEBUG.blockWriteBreak = 0
+
         // Normalize the given pixel level shift to cell and pixel level.
 
         var shiftX: Int = self._viewParent.scaled(shiftx), shiftCellX: Int
@@ -147,17 +163,57 @@ class CellGridView {
         //   position of the grid-view, and the right-most cell of the cell-grid being left-shifted
         //   past the right-most position of the grid-view; similarly for the vertical.
 
+func adjustShift(shiftCellXY: inout Int, shiftXY: inout Int,
+                 viewCellEndXY: Int, viewColumnsRowsExtra: Int, viewWidthHeightExtra: Int,
+                 viewWidthHeight: Int, gridCellEndXY: Int, cellSize: Int) {
+
+    if shiftCellXY >= viewCellEndXY {
+        if viewColumnsRowsExtra > 0 && viewWidthHeightExtra > 0 {
+            let totalShift = (shiftCellXY * cellSize) + shiftXY
+            if (viewWidthHeight - totalShift) <= cellSize {
+                let adjusted = viewWidthHeight - cellSize
+                shiftCellXY = adjusted / cellSize
+                shiftXY = adjusted % cellSize
+            }
+        } else {
+            shiftCellXY = viewCellEndXY
+            shiftXY = 0
+        }
+    } else if -shiftCellXY >= gridCellEndXY {
+        shiftCellXY = -gridCellEndXY
+        shiftXY = 0
+    }
+}
+
         if (shiftCellX >= self._viewCellEndX) {
-            shiftCellX = self._viewCellEndX
-            shiftX = 0
+            if (self._viewWidthExtra > 0) {
+                let totalShiftX = (shiftCellX * self._cellSize) + shiftX
+                if (self._viewWidth - totalShiftX <= self._cellSize) {
+                    let adjustedTotalShiftX = self._viewWidth - self._cellSize
+                    shiftCellX = adjustedTotalShiftX / self._cellSize
+                    shiftX = adjustedTotalShiftX % self._cellSize
+                }
+            } else {
+                shiftCellX = self._viewCellEndX
+                shiftX = 0
+            }
         }
         else if (-shiftCellX >= self._gridCellEndX) {
             shiftCellX = -self._gridCellEndX
             shiftX = 0
         }
         if (shiftCellY >= self._viewCellEndY) {
-            shiftCellY = self._viewCellEndY
-            shiftY = 0
+            if (self._viewHeightExtra > 0) {
+                let totalShiftY = (shiftCellY * self._cellSize) + shiftY
+                if (self._viewHeight - totalShiftY <= self._cellSize) {
+                    let adjustedTotalShiftY = self._viewHeight - self._cellSize
+                    shiftCellY = adjustedTotalShiftY / self._cellSize
+                    shiftY = adjustedTotalShiftY % self._cellSize
+                }
+            } else {
+                shiftCellY = self._viewCellEndY
+                shiftY = 0
+            }
         }
         else if (-shiftCellY >= self._gridCellEndY) {
             shiftCellY = -self._gridCellEndY
@@ -207,6 +263,10 @@ class CellGridView {
                 self.writeCell(viewCellX: vx, viewCellY: vy)
             }
         }
+        let debugBlocksMode = self._bufferBlocks.modeSize
+        // print(String(format: "SHIFTT> %.5fs | cs: \(self._cellSize) bbc: \(self._bufferBlocks.blocks.count) bas: \(self._bufferBlocks.averageSize) bm: \(debugBlocksMode)", Date().timeIntervalSince(debugStart)))
+        print(String(format: "SHIFTT> %.5fs | cs: \(self._cellSize) bbc: \(self._bufferBlocks.blocks.count) | bs: \(self._buffer.count) | gc: \(DEBUG.guardCatches) | fc: \(DEBUG.fastcopies) bw: \(DEBUG.blockWriteLoop) bb: \(DEBUG.blockWriteBreak)", Date().timeIntervalSince(debugStart)))
+        // self._bufferBlocks.dump()
     }
 
     private typealias WriteCellBlock = (_ block: CellGridView.BufferBlock, _ index: Int, _ count: Int) -> Void
@@ -291,6 +351,7 @@ class CellGridView {
                     // At least (and only pretty sure) for the Y (vertical) case we get here on shifting;
                     // why; because we are being sloppy with the vertical, because it was easier.
                     //
+                    DEBUG.guardCatches += 1
                     return
                 }
 
@@ -316,6 +377,7 @@ class CellGridView {
                     color = self._viewBackground.value
                 }
 
+                DEBUG.fastcopies += 1
                 Memory.fastcopy(to: base, count: count, value: color)
             }
 
@@ -600,7 +662,70 @@ class CellGridView {
             let bsize = Memory.bufferBlockSize
             var index: Int? = nil
             var count = 0
+            let self_count: Int = self.count
+            let debug = (width == 1161) && (shiftx == -1161)
+            for i in 0..<self_count {
+                DEBUG.blockWriteLoop += 1
+                let starti = bindex + i * bsize
+                let shift = (starti / bsize) % width
+                if ((shiftr && (shift >= shiftw)) || (shiftl && (shift < shiftw))) {
+                    if (index == nil) {
+                        index = starti
+                        count = 1
+                    } else {
+                        count += 1
+                    }
+                } else {
+                    if let j = index {
+                        write(self, j, count)
+                        if (shiftr && (shift > shiftw)) {
+                            DEBUG.blockWriteBreak += 1
+                            if debug {
+                                print("X-BREAK-A")
+                            }
+                            break
+                        }
+                        else if (shiftl && (shift >= shiftw)) {
+                            DEBUG.blockWriteBreak += 1
+                            if debug {
+                                print("X-BREAK-B")
+                            }
+                            break
+                        }
+                        index = nil
+                        count = 0
+                    } else {
+                        if (shiftr && (shift > shiftw)) {
+                            DEBUG.blockWriteBreak += 1
+                            if debug {
+                                print("X-BREAK-C")
+                            }
+                            break
+                        }
+                        else if (shiftl && (shift >= shiftw)) {
+                            DEBUG.blockWriteBreak += 1
+                            if debug {
+                                print("X-BREAK-D")
+                            }
+                            break
+                        }
+                    }
+                }
+            }
+            if let j = index {
+                write(self, j, count)
+            }
+        }
+        internal func old_writeLeftOrRight(width: Int, shiftx: Int, write: CellGridView.WriteCellBlock) {
+            let shiftw = abs(shiftx)
+            let shiftl: Bool = (shiftx < 0)
+            let shiftr: Bool = (shiftx > 0)
+            let bindex = self.index
+            let bsize = Memory.bufferBlockSize
+            var index: Int? = nil
+            var count = 0
             for i in 0..<self.count {
+                DEBUG.blockWriteLoop += 1
                 let starti = bindex + i * bsize
                 let shift = (starti / bsize) % width
                 if ((shiftr && (shift >= shiftw)) || (shiftl && (shift < shiftw))) {
@@ -642,6 +767,39 @@ class CellGridView {
                 last.lindex = index
             } else {
                 self.blocks.append(BufferBlock(index: index, count: 1, foreground: foreground, blend: blend))
+            }
+        }
+
+        var averageSize: Float {
+            var total: Int = 0
+            for block in self.blocks {
+                total += block.count
+            }
+            return Float(total) / Float(self.blocks.count)
+        }
+
+        private static func mode(from objects: [BufferBlock]) -> (mode: Int, frequency: Int)? {
+            var frequencies: [Int: Int] = [:]
+            for obj in objects {
+                frequencies[obj.count, default: 0] += 1
+            }
+            if let result = frequencies.max(by: { $0.value < $1.value }) {
+                return (mode: result.key, frequency: result.value)
+            }
+            return nil
+        }
+
+        var modeSize: (Int, Int) {
+            if let result = BufferBlocks.mode(from: self.blocks) {
+                return result
+            }
+            return (mode: 0, frequency: 0)
+        }
+
+        func dump(verbose: Bool = false, code: Bool = false, width: Int = 0) {
+            for block in self.blocks {
+                print("BLOCK> index: \(block.index) count: \(block.count)" +
+                      "  \(block.foreground ? "FG" : "BG")-\(String(format: "%.1f", block.blend))")
             }
         }
     }

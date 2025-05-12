@@ -18,9 +18,9 @@ public class Screen: ObservableObject
     //
     public static let depth: Int = 4
 
-    var _width: Int = initialWidth
-    var _height: Int = initialHeight
-    var _scale: CGFloat = initialScale
+    private var _width: Int = initialWidth
+    private var _height: Int = initialHeight
+    private var _scale: CGFloat = initialScale
 
     public var width: Int {
         self._width
