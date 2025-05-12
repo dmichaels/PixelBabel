@@ -163,62 +163,38 @@ class CellGridView {
         //   position of the grid-view, and the right-most cell of the cell-grid being left-shifted
         //   past the right-most position of the grid-view; similarly for the vertical.
 
-func adjustShift(shiftCellXY: inout Int, shiftXY: inout Int,
-                 viewCellEndXY: Int, viewColumnsRowsExtra: Int, viewWidthHeightExtra: Int,
-                 viewWidthHeight: Int, gridCellEndXY: Int, cellSize: Int) {
-
-    if shiftCellXY >= viewCellEndXY {
-        if viewColumnsRowsExtra > 0 && viewWidthHeightExtra > 0 {
-            let totalShift = (shiftCellXY * cellSize) + shiftXY
-            if (viewWidthHeight - totalShift) <= cellSize {
-                let adjusted = viewWidthHeight - cellSize
-                shiftCellXY = adjusted / cellSize
-                shiftXY = adjusted % cellSize
-            }
-        } else {
-            shiftCellXY = viewCellEndXY
-            shiftXY = 0
-        }
-    } else if -shiftCellXY >= gridCellEndXY {
-        shiftCellXY = -gridCellEndXY
-        shiftXY = 0
-    }
-}
-
-        if (shiftCellX >= self._viewCellEndX) {
-            if (self._viewWidthExtra > 0) {
-                let totalShiftX = (shiftCellX * self._cellSize) + shiftX
-                if (self._viewWidth - totalShiftX <= self._cellSize) {
-                    let adjustedTotalShiftX = self._viewWidth - self._cellSize
-                    shiftCellX = adjustedTotalShiftX / self._cellSize
-                    shiftX = adjustedTotalShiftX % self._cellSize
+        func restrictShift(shiftCellXY: inout Int, shiftXY: inout Int, viewCellEndXY: Int,
+                           viewSizeExtra: Int, viewSize: Int, gridCellEndXY: Int) {
+            if shiftCellXY >= viewCellEndXY {
+                if viewSizeExtra > 0 {
+                    let totalShift = (shiftCellXY * self._cellSize) + shiftXY
+                    if (viewSize - totalShift) <= self._cellSize {
+                        let adjusted = viewSize - self._cellSize
+                        shiftCellXY = adjusted / self._cellSize
+                        shiftXY = adjusted % self._cellSize
+                    }
+                } else {
+                    shiftCellXY = viewCellEndXY
+                    shiftXY = 0
                 }
-            } else {
-                shiftCellX = self._viewCellEndX
-                shiftX = 0
+            } else if -shiftCellXY >= gridCellEndXY {
+                shiftCellXY = -gridCellEndXY
+                shiftXY = 0
             }
         }
-        else if (-shiftCellX >= self._gridCellEndX) {
-            shiftCellX = -self._gridCellEndX
-            shiftX = 0
-        }
-        if (shiftCellY >= self._viewCellEndY) {
-            if (self._viewHeightExtra > 0) {
-                let totalShiftY = (shiftCellY * self._cellSize) + shiftY
-                if (self._viewHeight - totalShiftY <= self._cellSize) {
-                    let adjustedTotalShiftY = self._viewHeight - self._cellSize
-                    shiftCellY = adjustedTotalShiftY / self._cellSize
-                    shiftY = adjustedTotalShiftY % self._cellSize
-                }
-            } else {
-                shiftCellY = self._viewCellEndY
-                shiftY = 0
-            }
-        }
-        else if (-shiftCellY >= self._gridCellEndY) {
-            shiftCellY = -self._gridCellEndY
-            shiftY = 0
-        }
+
+        restrictShift(shiftCellXY: &shiftCellX,
+                      shiftXY: &shiftX,
+                      viewCellEndXY: self._viewCellEndX,
+                      viewSizeExtra: self._viewWidthExtra,
+                      viewSize: self._viewWidth,
+                      gridCellEndXY: self._gridCellEndX)
+        restrictShift(shiftCellXY: &shiftCellY,
+                      shiftXY: &shiftY,
+                      viewCellEndXY: self._viewCellEndY,
+                      viewSizeExtra: self._viewHeightExtra,
+                      viewSize: self._viewHeight,
+                      gridCellEndXY: self._gridCellEndY)
 
         // Update the shift related values for the view.
 
