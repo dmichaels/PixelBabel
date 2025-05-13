@@ -100,6 +100,10 @@ class CellGridView {
                                                              cellPadding: self._cellPadding,
                                                              cellShape: self._cellShape,
                                                              cellTransparency: self._viewTransparency)
+        // print("REGULAR-BLOCKS:")
+        // self._bufferBlocks.dump()
+        // print("HOLLOW-BLOCKS:")
+        //  self._bufferBlocks.dump(hollow: true)
         self._shiftCellX = 0
         self._shiftCellY = 0
         self._shiftX = 0
@@ -228,11 +232,11 @@ class CellGridView {
 
         for vy in 0...self._viewCellEndY + self._viewRowsExtra {
             for vx in 0...self._viewCellEndX + self._viewColumnsExtra {
-                self.writeCell(viewCellX: vx, viewCellY: vy)
+                self.writeCell(viewCellX: vx, viewCellY: vy, shifting: shiftx != 0 || shifty != 0)
             }
         }
 
-        print(String(format: "SHIFTT> %.5fs | cs: \(self._cellSize)", Date().timeIntervalSince(debugStart)))
+        print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)] | cs: \(self._cellSize)", Date().timeIntervalSince(debugStart)))
     }
 
     private typealias WriteCellBlock = (_ block: CellGridView.BufferBlock, _ index: Int, _ count: Int) -> Void
@@ -242,7 +246,7 @@ class CellGridView {
     // pixel level based shift values, negative meaning to shift the grid cell left or up, and positive
     // meaning to shift the grid cell right or down.
     //
-    public func writeCell(viewCellX: Int, viewCellY: Int)
+    public func writeCell(viewCellX: Int, viewCellY: Int, shifting: Bool = false)
     {
         // This was all a lot tricker than you might expect (yes basic arithmetic).
 
@@ -358,7 +362,9 @@ class CellGridView {
                 Memory.fastcopy(to: base, count: count, value: color)
             }
 
-            for block in self._bufferBlocks.blocks {
+            // for block in self._bufferBlocks.blocks {
+            // if shifting { print("XYZ-USE-HOLLOW") }
+            for block in (shifting && false ? self._bufferBlocks.blocksHollow ?? [] : self._bufferBlocks.blocks) {
                 if (truncateLeft > 0) {
                     block.writeRight(width: self._viewWidth, shiftx: truncateLeft, write: writeCellBlock)
                 }
@@ -525,14 +531,16 @@ class CellGridView {
         internal let index: Int
         internal let foreground: Bool
         internal let blend: Float
+        internal var hollow: Bool
         internal var count: Int
         internal var lindex: Int
 
-        init(index: Int, count: Int, foreground: Bool, blend: Float) {
+        init(index: Int, count: Int, foreground: Bool, blend: Float, hollow: Bool) {
             self.index = max(index, 0)
             self.count = max(count, 0)
             self.foreground = foreground
             self.blend = blend
+            self.hollow = hollow
             self.lindex = self.index
         }
 
@@ -688,15 +696,32 @@ class CellGridView {
             self._blocksHollow
         }
 
-        internal func append(_ index: Int, foreground: Bool, blend: Float) {
+        internal func dump(hollow: Bool = false) {
+            if hollow {
+                var x = 1
+            }
+            for block in (hollow ? self._blocksHollow ?? [] : self._blocks) {
+                for index in stride(from: block.index, to: block.index + block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
+                    if index == 9304 && hollow {
+                        var x =  1
+                    }
+                    let x = (index % self._width) / Memory.bufferBlockSize
+                    let y = (index / self._width) / Memory.bufferBlockSize
+                    print("INDEX> \(String(format: "%05d", index)) x: \(String(format:"%05d", x)) y: \(String(format: "%05d", y)) blend: \(block.foreground ? "FG" : "BG")-\(String(format: "%.1f", block.blend)) \(block.hollow ? ">>> HOLLOW" : "")")
+                }
+            }
+        }
+
+        internal func append(_ index: Int, foreground: Bool, blend: Float, hollow: Bool = false) {
             if let last = self._blocks.last,
                     last.foreground == foreground,
                     last.blend == blend,
+                    last.hollow == hollow,
                     index == last.lindex + Memory.bufferBlockSize {
                 last.count += 1
                 last.lindex = index
             } else {
-                self._blocks.append(BufferBlock(index: index, count: 1, foreground: foreground, blend: blend))
+                self._blocks.append(BufferBlock(index: index, count: 1, foreground: foreground, blend: blend, hollow: hollow))
             }
         }
 
@@ -711,13 +736,16 @@ class CellGridView {
                 let cellSizeMinusPadding: Int = cellSize - cellPadding * 2
 
                 func isSolidSquareBlock(_ innerCellSize: Int) -> Bool {
-                    let startxy: Int = cellSize - innerCellSize
+                    let startxy: Int = (cellSize - innerCellSize) / 2
                     let endxy: Int = cellSize - startxy - 1
                     var found: Bool = true
                     for block in self._blocks {
                         for index in stride(from: block.index, to: block.index + block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
                             let x = (index % self._width) / Memory.bufferBlockSize
                             let y = (index / self._width) / Memory.bufferBlockSize
+                            if x == 34 && y == 1 {
+                                var x = 1
+                            }
                             if ((x >= startxy) && (x <= endxy) && (y >= startxy) && (y <= endxy)) {
                                 if (!block.foreground || (block.blend != 1.0)) {
                                     found = false
@@ -729,8 +757,8 @@ class CellGridView {
                     return found
                 }
 
-                let outerMostCellSize: Int = cellSize - cellPadding * 2
-                let innerMostCellSize: Int = outerMostCellSize - outerMostCellSize / 2 + 4
+                let outerMostCellSize: Int = cellSize - cellPadding * 2 - 8
+                let innerMostCellSize: Int = outerMostCellSize - outerMostCellSize / 2
                 for size in stride(from: outerMostCellSize, through: innerMostCellSize, by: -1) {
                     if (isSolidSquareBlock(size)) {
                         return size
@@ -744,14 +772,22 @@ class CellGridView {
             let innerCellSize: Int? = findLargestSolidInnerBlock()
 
             if (innerCellSize != nil) {
-                let startxy: Int = cellSize - innerCellSize!
+                let startxy: Int = (cellSize - innerCellSize!) / 2
                 let endxy: Int = cellSize - startxy - 1
                 for block in self._blocks {
                     for index in stride(from: block.index, to: block.index + block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
                         let x = (index % self._width) / Memory.bufferBlockSize
                         let y = (index / self._width) / Memory.bufferBlockSize
-                        if (((x < startxy) || (x > endxy)) && ((y < startxy) || (y > endxy))) {
-                            blocksHollow.append(block.index, foreground: block.foreground, blend: block.blend)
+                        // if (((x < startxy) || (x > endxy)) && ((y < startxy) || (y > endxy))) {
+                        if (((x < startxy) || (x > endxy)) || ((y < startxy) || (y > endxy))) {
+                            // blocksHollow.append(index, foreground: block.foreground, blend: block.blend)
+                            blocksHollow.append(index, foreground: block.foreground, blend: block.blend, hollow: false)
+                        }
+                        else {
+                            if x == 4 && y == 6 {
+                                var x = 1
+                            }
+                            // blocksHollow.append(index, foreground: block.foreground, blend: block.blend, hollow: true)
                         }
                     }
                 }
