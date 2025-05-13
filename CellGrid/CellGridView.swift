@@ -93,7 +93,7 @@ class CellGridView {
         self._cellFactory = cellFactory
         self._cells = cells != nil ? cells! : []
         self._buffer = buffer != nil ? buffer! : Memory.allocate(self._viewWidth * self._viewHeight * Screen.depth)
-        self._bufferBlocks = CellGridView.createBufferBlocks(bufferSize: self._buffer.count,
+        self._bufferBlocks = CellGridView.BufferBlocks.createBufferBlocks(bufferSize: self._buffer.count,
                                                              displayWidth: self._viewWidth,
                                                              displayHeight: self._viewHeight,
                                                              cellSize: self._cellSize,
@@ -526,15 +526,13 @@ class CellGridView {
         internal let foreground: Bool
         internal let blend: Float
         internal var count: Int
-        internal var interior: Bool
         internal var lindex: Int
 
-        init(index: Int, count: Int, foreground: Bool, blend: Float, interior: Bool) {
+        init(index: Int, count: Int, foreground: Bool, blend: Float) {
             self.index = max(index, 0)
             self.count = max(count, 0)
             self.foreground = foreground
             self.blend = blend
-            self.interior = interior
             self.lindex = self.index
         }
 
@@ -674,8 +672,9 @@ class CellGridView {
 
     private class BufferBlocks
     {
-        private var _blocks: [BufferBlock] = []
         private let _width: Int
+        private var _blocks: [BufferBlock] = []
+        private var _blocksHollow: [BufferBlock]? = nil
 
         init(width: Int) {
             self._width = width
@@ -685,7 +684,7 @@ class CellGridView {
             self._blocks
         }
 
-        internal func append(_ index: Int, foreground: Bool, blend: Float, interior: Bool) {
+        internal func append(_ index: Int, foreground: Bool, blend: Float) {
             if let last = self._blocks.last,
                     last.foreground == foreground,
                     last.blend == blend,
@@ -693,8 +692,7 @@ class CellGridView {
                 last.count += 1
                 last.lindex = index
             } else {
-                self._blocks.append(BufferBlock(index: index, count: 1, foreground: foreground,
-                                                blend: blend, interior: interior))
+                self._blocks.append(BufferBlock(index: index, count: 1, foreground: foreground, blend: blend))
             }
         }
 
@@ -738,7 +736,7 @@ class CellGridView {
                 return nil
             }
 
-            var hollowBlocks: BufferBlocks = BufferBlocks(width: self._width)
+            var blocksHollow: BufferBlocks = BufferBlocks(width: self._width)
             let innerCellSize: Int? = findLargestSolidInnerBlock()
 
             if (innerCellSize != nil) {
@@ -749,108 +747,100 @@ class CellGridView {
                         let x = (index % self._width) / Memory.bufferBlockSize
                         let y = (index / self._width) / Memory.bufferBlockSize
                         if (((x < startxy) || (x > endxy)) && ((y < startxy) || (y > endxy))) {
-                            hollowBlocks.append(block.index, foreground: block.foreground, blend: block.blend, interior: false)
+                            blocksHollow.append(block.index, foreground: block.foreground, blend: block.blend)
                         }
                     }
                 }
-                return hollowBlocks._blocks
+                return blocksHollow._blocks
             }
             return nil
         }
-    }
 
-    private static func createBufferBlocks(bufferSize: Int,
-                                           displayWidth: Int,
-                                           displayHeight: Int,
-                                           cellSize: Int,
-                                           cellPadding: Int,
-                                           cellShape: CellShape,
-                                           cellTransparency: UInt8) -> BufferBlocks
-    {
-        let blocks: BufferBlocks = BufferBlocks(width: displayWidth)
-        let padding: Int = ((cellPadding > 0) && (cellShape != .square))
-                           ? (((cellPadding * 2) >= cellSize)
-                             ? ((cellSize / 2) - 1)
-                             : cellPadding) : 0
-        let size: Int = cellSize - (2 * padding)
-        let shape: CellShape = (size < 3) ? .inset : cellShape
-        let fade: Float = 0.6  // smaller is smoother
-        var interior: Bool
+        internal static func createBufferBlocks(bufferSize: Int,
+                                               displayWidth: Int,
+                                               displayHeight: Int,
+                                               cellSize: Int,
+                                               cellPadding: Int,
+                                               cellShape: CellShape,
+                                               cellTransparency: UInt8) -> BufferBlocks
+        {
+            let blocks: BufferBlocks = BufferBlocks(width: displayWidth)
+            let padding: Int = ((cellPadding > 0) && (cellShape != .square))
+                               ? (((cellPadding * 2) >= cellSize)
+                                 ? ((cellSize / 2) - 1)
+                                 : cellPadding) : 0
+            let size: Int = cellSize - (2 * padding)
+            let shape: CellShape = (size < 3) ? .inset : cellShape
+            let fade: Float = 0.6  // smaller is smoother
 
-        for dy in 0..<cellSize {
-            for dx in 0..<cellSize {
+            for dy in 0..<cellSize {
+                for dx in 0..<cellSize {
+    
+                    if ((dx >= displayWidth) || (dy >= displayHeight)) { continue }
+                    if ((dx < 0) || (dy < 0)) { continue }
+                    var coverage: Float = 0.0
 
-                if ((dx >= displayWidth) || (dy >= displayHeight)) { continue }
-                if ((dx < 0) || (dy < 0)) { continue }
-                var coverage: Float = 0.0
-
-                switch shape {
-                case .square, .inset:
-                    if ((dx >= padding) && (dx < cellSize - padding) &&
-                        (dy >= padding) && (dy < cellSize - padding)) {
-                        coverage = 1.0
-                    }
-                    interior = false
-
-                case .circle:
-                    let fx: Float = Float(dx) + 0.5
-                    let fy: Float = Float(dy) + 0.5
-                    let centerX: Float = Float(cellSize / 2)
-                    let centerY: Float = Float(cellSize / 2)
-                    let dxsq: Float = (fx - centerX) * (fx - centerX)
-                    let dysq: Float = (fy - centerY) * (fy - centerY)
-                    let circleRadius: Float = Float(size) / 2.0
-                    let d: Float = circleRadius - sqrt(dxsq + dysq)
-                    coverage = max(0.0, min(1.0, d / fade))
-                    interior = false
-
-                case .rounded:
-                    let fx: Float = Float(dx) + 0.5
-                    let fy: Float = Float(dy) + 0.5
-                    let cornerRadius: Float = Float(size) * 0.25
-                    let minX: Float = Float(padding)
-                    let minY: Float = Float(padding)
-                    let maxX: Float = Float(cellSize - padding)
-                    let maxY: Float = Float(cellSize - padding)
-                    if ((fx >= minX + cornerRadius) && (fx <= maxX - cornerRadius)) {
-                        if ((fy >= minY) && (fy <= maxY)) {
+                    switch shape {
+                    case .square, .inset:
+                        if ((dx >= padding) && (dx < cellSize - padding) &&
+                            (dy >= padding) && (dy < cellSize - padding)) {
                             coverage = 1.0
                         }
-                    } else if ((fy >= minY + cornerRadius) && (fy <= maxY - cornerRadius)) {
-                        if ((fx >= minX) && (fx <= maxX)) {
-                            coverage = 1.0
-                        }
-                    } else {
-                        let cx: Float = fx < (minX + cornerRadius) ? minX + cornerRadius :
-                                        fx > (maxX - cornerRadius) ? maxX - cornerRadius : fx
-                        let cy: Float = fy < (minY + cornerRadius) ? minY + cornerRadius :
-                                        fy > (maxY - cornerRadius) ? maxY - cornerRadius : fy
-                        let dx: Float = fx - cx
-                        let dy: Float = fy - cy
-                        let d: Float = cornerRadius - sqrt(dx * dx + dy * dy)
+
+                    case .circle:
+                        let fx: Float = Float(dx) + 0.5
+                        let fy: Float = Float(dy) + 0.5
+                        let centerX: Float = Float(cellSize / 2)
+                        let centerY: Float = Float(cellSize / 2)
+                        let dxsq: Float = (fx - centerX) * (fx - centerX)
+                        let dysq: Float = (fy - centerY) * (fy - centerY)
+                        let circleRadius: Float = Float(size) / 2.0
+                        let d: Float = circleRadius - sqrt(dxsq + dysq)
                         coverage = max(0.0, min(1.0, d / fade))
+
+                    case .rounded:
+                        let fx: Float = Float(dx) + 0.5
+                        let fy: Float = Float(dy) + 0.5
+                        let cornerRadius: Float = Float(size) * 0.25
+                        let minX: Float = Float(padding)
+                        let minY: Float = Float(padding)
+                        let maxX: Float = Float(cellSize - padding)
+                        let maxY: Float = Float(cellSize - padding)
+                        if ((fx >= minX + cornerRadius) && (fx <= maxX - cornerRadius)) {
+                            if ((fy >= minY) && (fy <= maxY)) {
+                                coverage = 1.0
+                            }
+                        } else if ((fy >= minY + cornerRadius) && (fy <= maxY - cornerRadius)) {
+                            if ((fx >= minX) && (fx <= maxX)) {
+                                coverage = 1.0
+                            }
+                        } else {
+                            let cx: Float = fx < (minX + cornerRadius) ? minX + cornerRadius :
+                                            fx > (maxX - cornerRadius) ? maxX - cornerRadius : fx
+                            let cy: Float = fy < (minY + cornerRadius) ? minY + cornerRadius :
+                                            fy > (maxY - cornerRadius) ? maxY - cornerRadius : fy
+                            let dx: Float = fx - cx
+                            let dy: Float = fy - cy
+                            let d: Float = cornerRadius - sqrt(dx * dx + dy * dy)
+                            coverage = max(0.0, min(1.0, d / fade))
+                        }
                     }
-                    let isCenterX = fx >= minX + cornerRadius && fx <= maxX - cornerRadius
-                    let isCenterY = fy >= minY + cornerRadius && fy <= maxY - cornerRadius
-                    interior = (isCenterX && fy >= minY && fy <= maxY) || (isCenterY && fx >= minX && fx <= maxX)
-                }
 
-                let index: Int = (dy * displayWidth + dx) * Screen.depth
-                if ((index >= 0) && ((index + (Screen.depth - 1)) < bufferSize)) {
-                    if (coverage > 0) {
-                        interior = interior && (coverage == 1.0) && (dx >= padding) && (dx < (cellSize - padding))
-                                                                 && (dy >= padding) && (dy < (cellSize - padding))
-                        blocks.append(index, foreground: true, blend: coverage, interior: interior)
-
-                    } else {
-                        blocks.append(index, foreground: false, blend: 0.0, interior: false)
+                    let index: Int = (dy * displayWidth + dx) * Screen.depth
+                    if ((index >= 0) && ((index + (Screen.depth - 1)) < bufferSize)) {
+                        if (coverage > 0) {
+                            blocks.append(index, foreground: true, blend: coverage)
+    
+                        } else {
+                            blocks.append(index, foreground: false, blend: 0.0)
+                        }
                     }
                 }
             }
-        }
 
-        blocks.createHollowBlocks()
-        return blocks
+            blocks._blocksHollow = blocks.createHollowBlocks()
+            return blocks
+        }
     }
 
     typealias PreferredSize = (cellSize: Int, displayWidth: Int, displayHeight: Int)
