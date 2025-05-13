@@ -684,6 +684,10 @@ class CellGridView {
             self._blocks
         }
 
+        internal var blocksHollow: [BufferBlock]? {
+            self._blocksHollow
+        }
+
         internal func append(_ index: Int, foreground: Bool, blend: Float) {
             if let last = self._blocks.last,
                     last.foreground == foreground,
