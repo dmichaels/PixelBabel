@@ -8,6 +8,9 @@ import Utils
 // is called with indices which are monotonically increasing, and are not duplicated or out of order
 // or anything weird; assume called from the buffer setting loop in the PixelMap._write method.
 
+class DEBUG {
+}
+
 @MainActor
 class CellGridView {
 
@@ -229,7 +232,7 @@ class CellGridView {
             }
         }
 
-        print(String(format: "SHIFTT> %.5fs", Date().timeIntervalSince(debugStart)))
+        print(String(format: "SHIFTT> %.5fs | cs: \(self._cellSize)", Date().timeIntervalSince(debugStart)))
     }
 
     private typealias WriteCellBlock = (_ block: CellGridView.BufferBlock, _ index: Int, _ count: Int) -> Void
@@ -338,6 +341,19 @@ class CellGridView {
                 else {
                     color = self._viewBackground.value
                 }
+
+                /*
+                var rvalue = color.bigEndian
+                switch count {
+                case 1:
+                    base.storeBytes(of: rvalue, as: UInt32.self)
+                case 2:
+                    base.storeBytes(of: rvalue, as: UInt32.self)
+                    (base + Memory.bufferBlockSize).storeBytes(of: rvalue, as: UInt32.self)
+                default:
+                    memset_pattern4(base, &rvalue, count * Memory.bufferBlockSize)
+                }
+                */
 
                 Memory.fastcopy(to: base, count: count, value: color)
             }
@@ -510,13 +526,15 @@ class CellGridView {
         internal let foreground: Bool
         internal let blend: Float
         internal var count: Int
+        internal var interior: Bool
         internal var lindex: Int
 
-        init(index: Int, count: Int, foreground: Bool, blend: Float) {
+        init(index: Int, count: Int, foreground: Bool, blend: Float, interior: Bool) {
             self.index = max(index, 0)
             self.count = max(count, 0)
             self.foreground = foreground
             self.blend = blend
+            self.interior = interior
             self.lindex = self.index
         }
 
@@ -602,6 +620,8 @@ class CellGridView {
         // Conversely, if we want to ignore the 2 (S) bottom-most columns due to up-shift,
         // then we want to ignore (i.e. not write) buffer indices (I) where: I / W >= (W - S)
         //
+        // Note: ⬥  i = y * w + x  ⬥   x = i % w  ⬥   y = i / w  ⬥
+        //
         // Note that the BufferBlock.index is a byte index into the buffer,
         // i.e. it already has Screen.depth factored into it; and note that
         // the BufferBlock.count refers to the number of 4-byte (UInt32) values,
@@ -654,18 +674,88 @@ class CellGridView {
 
     private class BufferBlocks
     {
-        internal var blocks: [BufferBlock] = []
+        private var _blocks: [BufferBlock] = []
+        private let _width: Int
 
-        internal func append(_ index: Int, foreground: Bool, blend: Float) {
-            if let last = self.blocks.last,
+        init(width: Int) {
+            self._width = width
+        }
+
+        internal var blocks: [BufferBlock] {
+            self._blocks
+        }
+
+        internal func append(_ index: Int, foreground: Bool, blend: Float, interior: Bool) {
+            if let last = self._blocks.last,
                     last.foreground == foreground,
                     last.blend == blend,
                     index == last.lindex + Memory.bufferBlockSize {
                 last.count += 1
                 last.lindex = index
             } else {
-                self.blocks.append(BufferBlock(index: index, count: 1, foreground: foreground, blend: blend))
+                self._blocks.append(BufferBlock(index: index, count: 1, foreground: foreground,
+                                                blend: blend, interior: interior))
             }
+        }
+
+        internal func createHollowBlocks() -> [BufferBlock]? {
+
+            let cellSize: Int = 43 // TODO
+            let cellPadding: Int = 1 // TODO
+
+            func findLargestSolidInnerBlock() -> Int? {
+
+                let innerCellSize: Int? = nil
+                let cellSizeMinusPadding: Int = cellSize - cellPadding * 2
+
+                func isSolidSquareBlock(_ innerCellSize: Int) -> Bool {
+                    let startxy: Int = cellSize - innerCellSize
+                    let endxy: Int = cellSize - startxy - 1
+                    var found: Bool = true
+                    for block in self._blocks {
+                        for index in stride(from: block.index, to: block.index + block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
+                            let x = (index % self._width) / Memory.bufferBlockSize
+                            let y = (index / self._width) / Memory.bufferBlockSize
+                            if ((x >= startxy) && (x <= endxy) && (y >= startxy) && (y <= endxy)) {
+                                if (!block.foreground || (block.blend != 1.0)) {
+                                    found = false
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    return found
+                }
+
+                let outerMostCellSize: Int = cellSize - cellPadding * 2
+                let innerMostCellSize: Int = outerMostCellSize - outerMostCellSize / 2 + 4
+                for size in stride(from: outerMostCellSize, through: innerMostCellSize, by: -1) {
+                    if (isSolidSquareBlock(size)) {
+                        return size
+                    }
+                }
+
+                return nil
+            }
+
+            var hollowBlocks: BufferBlocks = BufferBlocks(width: self._width)
+            let innerCellSize: Int? = findLargestSolidInnerBlock()
+
+            if (innerCellSize != nil) {
+                let startxy: Int = cellSize - innerCellSize!
+                let endxy: Int = cellSize - startxy - 1
+                for block in self._blocks {
+                    for index in stride(from: block.index, to: block.index + block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
+                        let x = (index % self._width) / Memory.bufferBlockSize
+                        let y = (index / self._width) / Memory.bufferBlockSize
+                        if (((x < startxy) || (x > endxy)) && ((y < startxy) || (y > endxy))) {
+                            hollowBlocks.append(block.index, foreground: block.foreground, blend: block.blend, interior: false)
+                        }
+                    }
+                }
+                return hollowBlocks._blocks
+            }
+            return nil
         }
     }
 
@@ -677,7 +767,7 @@ class CellGridView {
                                            cellShape: CellShape,
                                            cellTransparency: UInt8) -> BufferBlocks
     {
-        let blocks: BufferBlocks = BufferBlocks()
+        let blocks: BufferBlocks = BufferBlocks(width: displayWidth)
         let padding: Int = ((cellPadding > 0) && (cellShape != .square))
                            ? (((cellPadding * 2) >= cellSize)
                              ? ((cellSize / 2) - 1)
@@ -685,6 +775,7 @@ class CellGridView {
         let size: Int = cellSize - (2 * padding)
         let shape: CellShape = (size < 3) ? .inset : cellShape
         let fade: Float = 0.6  // smaller is smoother
+        var interior: Bool
 
         for dy in 0..<cellSize {
             for dx in 0..<cellSize {
@@ -699,6 +790,7 @@ class CellGridView {
                         (dy >= padding) && (dy < cellSize - padding)) {
                         coverage = 1.0
                     }
+                    interior = false
 
                 case .circle:
                     let fx: Float = Float(dx) + 0.5
@@ -710,6 +802,7 @@ class CellGridView {
                     let circleRadius: Float = Float(size) / 2.0
                     let d: Float = circleRadius - sqrt(dxsq + dysq)
                     coverage = max(0.0, min(1.0, d / fade))
+                    interior = false
 
                 case .rounded:
                     let fx: Float = Float(dx) + 0.5
@@ -737,20 +830,26 @@ class CellGridView {
                         let d: Float = cornerRadius - sqrt(dx * dx + dy * dy)
                         coverage = max(0.0, min(1.0, d / fade))
                     }
+                    let isCenterX = fx >= minX + cornerRadius && fx <= maxX - cornerRadius
+                    let isCenterY = fy >= minY + cornerRadius && fy <= maxY - cornerRadius
+                    interior = (isCenterX && fy >= minY && fy <= maxY) || (isCenterY && fx >= minX && fx <= maxX)
                 }
 
                 let index: Int = (dy * displayWidth + dx) * Screen.depth
                 if ((index >= 0) && ((index + (Screen.depth - 1)) < bufferSize)) {
                     if (coverage > 0) {
-                        blocks.append(index, foreground: true, blend: coverage)
+                        interior = interior && (coverage == 1.0) && (dx >= padding) && (dx < (cellSize - padding))
+                                                                 && (dy >= padding) && (dy < (cellSize - padding))
+                        blocks.append(index, foreground: true, blend: coverage, interior: interior)
 
                     } else {
-                        blocks.append(index, foreground: false, blend: 0.0)
+                        blocks.append(index, foreground: false, blend: 0.0, interior: false)
                     }
                 }
             }
         }
 
+        blocks.createHollowBlocks()
         return blocks
     }
 

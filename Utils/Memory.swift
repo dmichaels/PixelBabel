@@ -43,6 +43,20 @@ public struct Memory
     //
     @inline(__always)
     public static func fastcopy(to base: UnsafeMutableRawPointer, count: Int, value: UInt32) {
+        //
+        // ChatGPT had suggested assigning value.bigEndian to rvalue here, but turns out we
+        // do not actually need it and without is slightly faster (e.g. 2.27175 vs. 3.01660).
+        // However: To make this work had to reverse the way I deal with pixel values.
+        //
+        var rvalue = value
+        memset_pattern4(base, &rvalue, count * Memory.bufferBlockSize)
+    }
+
+    // This version of the above with special cases for 1 and 2 (also tried with 3)
+    // is actually not any faster; slightly slower in fact (e.g. 3.01660 vs. 3.29970).
+    //
+    @inline(__always)
+    public static func slightly_slower_fastcopy(to base: UnsafeMutableRawPointer, count: Int, value: UInt32) {
         var rvalue = value.bigEndian
         switch count {
         case 1:
@@ -50,19 +64,6 @@ public struct Memory
         case 2:
             base.storeBytes(of: rvalue, as: UInt32.self)
             (base + Memory.bufferBlockSize).storeBytes(of: rvalue, as: UInt32.self)
-/*
-        case 3:
-            base.storeBytes(of: rvalue, as: UInt32.self)
-            (base + 1 * Memory.bufferBlockSize).storeBytes(of: rvalue, as: UInt32.self)
-            (base + 2 * Memory.bufferBlockSize).storeBytes(of: rvalue, as: UInt32.self)
-*/
-/*
-        case 3:
-            var block = [rvalue, rvalue, rvalue]
-            block.withUnsafeBytes {
-                memcpy(base, $0.baseAddress!, 3 * bufferBlockSize)
-            }
-*/
         default:
             memset_pattern4(base, &rvalue, count * Memory.bufferBlockSize)
         }

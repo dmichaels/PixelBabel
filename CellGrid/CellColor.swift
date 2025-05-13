@@ -7,6 +7,15 @@ struct CellColor: Equatable {
 
     public static var _debugInitCount: Int = 0
 
+    // These values works with Memory.fastcopy NOT using value.bigEndian;
+    // if these were the opposite (i.e. red-24, green-16, blue-8, alpha-0)
+    // then we would need to use value.bigEndian there; slightly faster without.
+    //
+    private static let RSHIFT : Int = 0
+    private static let GSHIFT : Int = 8
+    private static let BSHIFT: Int = 16
+    private static let ASHIFT: Int = 24
+
     var _red: UInt8
     var _green: UInt8
     var _blue: UInt8
@@ -30,10 +39,10 @@ struct CellColor: Equatable {
 
     public var value: UInt32 {
         get {
-            (UInt32(self._red)   << 24) |
-            (UInt32(self._green) << 16) |
-            (UInt32(self._blue)  << 8)  |
-            (UInt32(self._alpha))
+            (UInt32(self._red)   << CellColor.RSHIFT) |
+            (UInt32(self._green) << CellColor.GSHIFT) |
+            (UInt32(self._blue)  << CellColor.BSHIFT)  |
+            (UInt32(self._alpha) << CellColor.ASHIFT)
         }
     }
 
@@ -42,7 +51,6 @@ struct CellColor: Equatable {
     }
 
     init(_ red: UInt8, _ green: UInt8, _ blue: UInt8, alpha: UInt8 = 255) {
-        // CellColor._debugInitCount += 1
         self._red = red
         self._green = green
         self._blue = blue
@@ -50,7 +58,6 @@ struct CellColor: Equatable {
     }
 
     init(_ red: Int, _ green: Int, _ blue: Int, alpha: Int = 255) {
-        // CellColor._debugInitCount += 1
         self._red = UInt8(red)
         self._green = UInt8(green)
         self._blue = UInt8(blue)
@@ -85,11 +92,10 @@ struct CellColor: Equatable {
     }
 
     init(_ value: UInt32) {
-        // CellColor._debugInitCount += 1
-        self._red = UInt8((value >> 24) & 0xFF)
-        self._green = UInt8((value >> 16) & 0xFF)
-        self._blue = UInt8((value >> 8) & 0xFF)
-        self._alpha = UInt8(value & 0xFF)
+        self._red   = UInt8((value >> CellColor.RSHIFT)   & 0xFF)
+        self._green = UInt8((value >> CellColor.GSHIFT) & 0xFF)
+        self._blue  = UInt8((value >> CellColor.BSHIFT)  & 0xFF)
+        self._alpha = UInt8((value >> CellColor.ASHIFT) & 0xFF)
     }
 
     public var color: Color {
@@ -97,18 +103,18 @@ struct CellColor: Equatable {
     }
 
     public static func valueOf(_ red: UInt8, _ green: UInt8, _ blue: UInt8, alpha: UInt8 = 255) -> UInt32 {
-        return (UInt32(red)   << 24) |
-               (UInt32(green) << 16) |
-               (UInt32(blue)  << 8)  |
-               (UInt32(alpha))
+        return (UInt32(red)   << CellColor.RSHIFT)   |
+               (UInt32(green) << CellColor.GSHIFT) |
+               (UInt32(blue)  << CellColor.BSHIFT)  |
+               (UInt32(alpha) << CellColor.ASHIFT)
     }
 
     public static func blendValueOf(_ foreground: CellColor, _ background: CellColor, amount: Float) -> UInt32 {
         let amountr: Float = 1.0 - amount
-        return (UInt32(UInt8(Float(foreground.red)   * amount + Float(background.red)   * amountr)) << 24) |
-               (UInt32(UInt8(Float(foreground.green) * amount + Float(background.green) * amountr)) << 16) |
-               (UInt32(UInt8(Float(foreground.blue)  * amount + Float(background.blue)  * amountr)) <<  8) |
-               (UInt32(foreground.alpha))
+        return (UInt32(UInt8(Float(foreground.red)   * amount + Float(background.red)   * amountr)) << CellColor.RSHIFT) |
+               (UInt32(UInt8(Float(foreground.green) * amount + Float(background.green) * amountr)) << CellColor.GSHIFT) |
+               (UInt32(UInt8(Float(foreground.blue)  * amount + Float(background.blue)  * amountr)) << CellColor.BSHIFT) |
+               (UInt32(foreground.alpha)                                                            << CellColor.ASHIFT)
     }
 
     public static let black: CellColor = CellColor(0, 0, 0)
