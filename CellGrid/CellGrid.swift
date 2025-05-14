@@ -101,17 +101,6 @@ class CellGrid: ObservableObject
                 self._displayHeightUnscaled = neatCell.displayHeight
             }
         }
-                //xyzzy
-                // experiment for cellSize == 51 ... make viewWidth be too short
-                // self._displayWidthUnscaled = 387 // 387
-                // self._displayWidth = self.scaled(self._displayWidthUnscaled)
-                // experiment for cellSize == 43 ... make viewWidth be too short
-                // self._displayWidthUnscaled = 377 // a little too small for 43
-                // self._displayWidthUnscaled = 397 // a little too big for 43
-                // self._displayWidth = self.scaled(self._displayWidthUnscaled)
-                // self._displayHeightUnscaled = 848 // a little too small for 43
-                // self._displayHeight = self.scaled(self._displayHeightUnscaled)
-                //xyzzy
 
         self._cells = CellGridView(viewParent: self,
                                    viewWidth: self._displayWidth,
@@ -283,17 +272,19 @@ class CellGrid: ObservableObject
     }
 
     public func onDrag(_ location: CGPoint) {
-        if (self._dragStartShifted == nil) {
-            self._dragStart = CellLocation(location)
-            self._dragStartShifted = self._cells!.shiftedBy
-        }
-        else {
-            let dragLocation = CellLocation(location)
-            let dragDeltaX = self._dragStart!.x - dragLocation.x
-            let dragDeltaY = self._dragStart!.y - dragLocation.y
-            let dragGridShiftX =  self._dragStartShifted!.x - dragDeltaX
-            let dragGridShiftY = self._dragStartShifted!.y - dragDeltaY
-            self._cells!.shift(shiftx: dragGridShiftX, shifty: dragGridShiftY)
+        if let cells = self._cells {
+            if (self._dragStartShifted == nil) {
+                self._dragStart = CellLocation(location)
+                self._dragStartShifted = cells.shiftedBy
+            }
+            else {
+                let dragLocation = CellLocation(location)
+                let dragDeltaX = self._dragStart!.x - dragLocation.x
+                let dragDeltaY = self._dragStart!.y - dragLocation.y
+                let dragGridShiftX =  self._dragStartShifted!.x - dragDeltaX
+                let dragGridShiftY = self._dragStartShifted!.y - dragDeltaY
+                cells.shift(shiftx: dragGridShiftX, shifty: dragGridShiftY)
+            }
         }
     }
 
@@ -303,83 +294,41 @@ class CellGrid: ObservableObject
     }
 
     public func onTap(_ location: CGPoint) {
-        if let cell: LifeCell = self._cells?.gridCell(location) {
-            if cell.x == 0 && cell.y == 0 {
-
-                let incrementCellSize = 8
-                self._cellSize += self.scaled(incrementCellSize)
-
-                /* TODO - actually do this but leave out for debugging ...
-                if (self._cellSize > self._displayWidth) {
-                    self._cellSize = self._displayWidth
+        if let cells = self._cells {
+            if let cell: LifeCell = cells.gridCell(location) {
+                if cell.x == 0 && cell.y == 0 {
+                    let incrementCellSize = 8
+                    self._cellSize += self.scaled(incrementCellSize)
+                    self._cells = CellGridView(viewParent: self,
+                                               viewWidth: self._displayWidth,
+                                               viewHeight: self._displayHeight,
+                                               // viewWidth: 400, // for 51
+                                               // viewHeight: 850, // for 51
+                                               viewBackground: self._cellBackground,
+                                               viewTransparency: Defaults.displayTransparency,
+                                               gridColumns: self._gridColumns,
+                                               gridRows: self._gridRows,
+                                               cellSize: self._cellSize,
+                                               cellPadding: self._cellPadding,
+                                               cellShape: self._cellShape,
+                                               cellFactory: self._cellFactory)
+                                               // cells: self._cells!._cells,
+                                               // buffer: self._cells!._buffer)
+                    self._cells!.shift(shiftx: 0, shifty: 0)
                 }
-                else if (self._cellSize > self._displayHeight) {
-                    self._cellSize = self._displayHeight
+                else {
+                    cell.toggle()
+                    cell.write()
                 }
-                */
-
-                /*
-                self._cellSizeUnscaled = self.unscaled(self._cellSize)
-                let neatCells = CellGridView.preferredCellSizes(self._displayWidthUnscaled, self._displayHeightUnscaled,
-                                                                cellPreferredSizeMarginMax: self._cellPreferredSizeMarginMax)
-                if let neatCell = CellGridView.closestPreferredCellSize(in: neatCells, to: self._cellSizeUnscaled) {
-                    self._cellSize = self.scaled(neatCell.cellSize)
-                    self._displayWidth = self.scaled(neatCell.displayWidth)
-                    self._displayHeight = self.scaled(neatCell.displayHeight)
-                    self._displayWidthUnscaled = neatCell.displayWidth
-                    self._displayHeightUnscaled = neatCell.displayHeight
-                }
-                */
-
-/*
-                let displayScaling = self._displayScaling
-                let viewWidth = self.unscaled(self._displayWidth)
-                let viewHeight = self.unscaled(self._displayHeight)
-                self._cellSize = self.unscaled(self._cellSize)
-                self._displayScaling = false
-                self._cells = CellGridView(viewParent: self,
-                                           viewWidth: viewWidth,
-                                           viewHeight: viewHeight,
-                                           // viewWidth: 400, // for 51
-                                           // viewHeight: 850, // for 51
-                                           viewBackground: self._cellBackground,
-                                           viewTransparency: Defaults.displayTransparency,
-                                           gridColumns: self._gridColumns,
-                                           gridRows: self._gridRows,
-                                           cellSize: cellSize,
-                                           cellPadding: self._cellPadding,
-                                           cellShape: self._cellShape,
-                                           cellFactory: self._cellFactory)
-                                           // cells: self._cells!._cells,
-                                           // buffer: self._cells!._buffer)
-                self._cells!.shift(shiftx: 0, shifty: 0)
-*/
-                self._cells = CellGridView(viewParent: self,
-                                           viewWidth: self._displayWidth,
-                                           viewHeight: self._displayHeight,
-                                           // viewWidth: 400, // for 51
-                                           // viewHeight: 850, // for 51
-                                           viewBackground: self._cellBackground,
-                                           viewTransparency: Defaults.displayTransparency,
-                                           gridColumns: self._gridColumns,
-                                           gridRows: self._gridRows,
-                                           cellSize: self._cellSize,
-                                           cellPadding: self._cellPadding,
-                                           cellShape: self._cellShape,
-                                           cellFactory: self._cellFactory)
-                                           // cells: self._cells!._cells,
-                                           // buffer: self._cells!._buffer)
-                self._cells!.shift(shiftx: 0, shifty: 0)
-            }
-            else {
-                cell.toggle()
-                cell.write()
             }
         }
     }
 
     public func locate(_ screenPoint: CGPoint) -> CellLocation? {
-        return self._cells?.gridCellLocation(screenPoint)
+        if let cells = self._cells {
+            return cells.gridCellLocation(screenPoint)
+        }
+        return nil
     }
 
     func testingLife() {
@@ -389,15 +338,17 @@ class CellGrid: ObservableObject
     }
 
     func randomize() {
-        CellGrid._randomize(displayWidth: self._displayWidth,
-                            displayHeight: self._displayHeight,
-                            cellSize: self.cellSize,
-                            cellColorMode: self.cellColorMode,
-                            cellShape: self.cellShape,
-                            cellPadding: self.cellPadding,
-                            cellLimitUpdate: self._cellLimitUpdate,
-                            background: self.background,
-                            cells: self._cells!)
+        if let cells = self._cells {
+            CellGrid._randomize(displayWidth: self._displayWidth,
+                                displayHeight: self._displayHeight,
+                                cellSize: self.cellSize,
+                                cellColorMode: self.cellColorMode,
+                                cellShape: self.cellShape,
+                                cellPadding: self.cellPadding,
+                                cellLimitUpdate: self._cellLimitUpdate,
+                                background: self.background,
+                                cells: cells)
+        }
     }
 
     static func _randomize(displayWidth: Int,
