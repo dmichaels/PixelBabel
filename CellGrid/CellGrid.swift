@@ -213,26 +213,6 @@ class CellGrid: ObservableObject
         self._displayScaling ? Int(round(CGFloat(value) / self._displayScale)) : value
     }
 
-    public var cellSize: Int {
-        self._cellSize
-    }
-
-    public var cellPadding: Int {
-        self._cellPadding
-    }
-
-    public var cellShape: CellShape {
-        self._cellShape
-    }
-
-    public var cellColorMode: CellColorMode {
-        self._cellColorMode
-    }
-
-    public var background: CellColor {
-        self._cellBackground
-    }
-
     public func normalizedPoint(screenPoint: CGPoint,
                                 gridOrigin: CGPoint,
                                 orientation: OrientationObserver) -> CGPoint
@@ -337,6 +317,7 @@ class CellGrid: ObservableObject
         }
     }
 
+/*
     func randomize() {
         if let cells = self._cells {
             CellGrid._randomize(displayWidth: self._displayWidth,
@@ -350,7 +331,6 @@ class CellGrid: ObservableObject
                                 cells: cells)
         }
     }
-
     static func _randomize(displayWidth: Int,
                            displayHeight: Int,
                            cellSize: Int,
@@ -368,6 +348,7 @@ class CellGrid: ObservableObject
         let end = Date()
         let elapsed = end.timeIntervalSince(start)
     }
+*/
 
     public var image: CGImage? {
         self._cells?.image
