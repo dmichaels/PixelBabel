@@ -259,7 +259,7 @@ class CellGrid: ObservableObject
                 y = screenPoint.y - gridOrigin.y
             }
         case .landscapeRight:
-        x = screenPoint.y - gridOrigin.x
+            x = screenPoint.y - gridOrigin.x
             y = CGFloat(self._displayHeightUnscaled) - 1 - (screenPoint.x - gridOrigin.y)
         case .landscapeLeft:
             x = CGFloat(self._displayWidthUnscaled) - 1 - (screenPoint.y - gridOrigin.x)
