@@ -240,60 +240,48 @@ class CellGridView {
     //
     public func writeCell(viewCellX: Int, viewCellY: Int)
     {
+        // Get the left/right truncation amount.
         // This was all a lot tricker than you might expect (yes basic arithmetic).
 
-        let truncateLeft: Int
-        let truncateRight: Int
-
-        // Get the left/right truncation amount.
+        let truncate: Int
 
         if (self._shiftX > 0) {
             if (viewCellX == 0) {
-                truncateLeft = self._cellSize - self._shiftX
-                truncateRight = 0
+                truncate = self._cellSize - self._shiftX
             }
             else if (viewCellX == self._viewCellEndX + self._viewColumnsExtra) {
                 if (self._viewWidthExtra > 0) {
-                    truncateLeft = 0
-                    truncateRight = (self._cellSize - self._shiftX + self._viewWidthExtra) % self._cellSize
+                    truncate = -((self._cellSize - self._shiftX + self._viewWidthExtra) % self._cellSize)
                 }
                 else {
-                    truncateLeft = 0
-                    truncateRight = self._cellSize - self._shiftX
+                    truncate = -(self._cellSize - self._shiftX)
                 }
             }
             else {
-                truncateLeft = 0
-                truncateRight = 0
+                truncate = 0
             }
         }
         else if (self._shiftX < 0) {
             if (viewCellX == 0) {
-                truncateLeft = -self._shiftX
-                truncateRight = 0
+                truncate = -self._shiftX
             }
             else if (viewCellX == self._viewCellEndX + self._viewColumnsExtra) {
                 if (self._viewWidthExtra > 0) {
-                    truncateLeft = 0
-                    truncateRight = (self._viewWidthExtra - self._shiftX) % self._cellSize
+                    truncate = -((self._viewWidthExtra - self._shiftX) % self._cellSize)
                 }
                 else {
-                    truncateLeft = 0
-                    truncateRight = -self._shiftX
+                    truncate = self._shiftX
                 }
             }
             else {
-                truncateLeft = 0
-                truncateRight = 0
+                truncate = 0
             }
         }
         else if ((self._viewWidthExtra > 0) && (viewCellX == self._viewCellEndX + self._viewColumnsExtra)) {
-            truncateLeft = 0
-            truncateRight = self._viewWidthExtra
+            truncate = -self._viewWidthExtra
         }
         else {
-            truncateLeft = 0
-            truncateRight = 0
+            truncate = 0
         }
 
         // Map the grid-view location to the cell-grid location.
@@ -357,14 +345,13 @@ class CellGridView {
                 Memory.fastcopy(to: buffer.advanced(by: start), count: count, value: color)
             }
 
-            for block in self._bufferBlocks.blocks {
-                if (truncateLeft > 0) {
-                    block.writeTruncated(shiftx: truncateLeft, write: writeCellBlock)
+            if (truncate != 0) {
+                for block in self._bufferBlocks.blocks {
+                    block.writeTruncated(shiftx: truncate, write: writeCellBlock)
                 }
-                else if (truncateRight > 0) {
-                    block.writeTruncated(shiftx: -truncateRight, write: writeCellBlock)
-                }
-                else {
+            }
+            else {
+                for block in self._bufferBlocks.blocks {
                     writeCellBlock(block, block.index, block.count)
                 }
             }
