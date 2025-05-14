@@ -349,7 +349,7 @@ class CellGridView {
 
     public var shiftedBy: CellLocation {
         return CellLocation(self._viewParent.unscaled(self._shiftCellX * self._cellSize + self._shiftX),
-                             self._viewParent.unscaled(self._shiftCellY * self._cellSize + self._shiftY))
+                            self._viewParent.unscaled(self._shiftCellY * self._cellSize + self._shiftY))
     }
 
     public func duplicate(cellSize: Int) -> CellGridView {
