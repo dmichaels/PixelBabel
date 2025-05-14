@@ -35,8 +35,8 @@ class CellGridView {
     private let _cellPadding: Int
     private let _cellShape: CellShape
     private let _cellFactory: CellFactory?
-    internal var _cells: [Cell] // TODO/xyzzy private
-    internal var _buffer: [UInt8] // TODO/xyzzy private
+    private var _cells: [Cell]
+    private var _buffer: [UInt8]
     private let _bufferBlocks: CellGridView.BufferBlocks
 
     // These change based on moving/shifting the cell-grid around the grid-view.
@@ -90,7 +90,7 @@ class CellGridView {
         self._cellFactory = cellFactory
         self._cells = cells != nil ? cells! : []
         self._buffer = buffer != nil ? buffer! : Memory.allocate(self._viewWidth * self._viewHeight * Screen.depth)
-        self._bufferBlocks = CellGridView.BufferBlocks.createBufferBlocks(bufferSize: self._buffer.count,
+        self._bufferBlocks = BufferBlocks.createBufferBlocks(bufferSize: self._buffer.count,
                                                              displayWidth: self._viewWidth,
                                                              displayHeight: self._viewHeight,
                                                              cellSize: self._cellSize,
@@ -229,7 +229,7 @@ class CellGridView {
             }
         }
 
-        print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)] | cs: \(self._cellSize)", Date().timeIntervalSince(debugStart)))
+        print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)]", Date().timeIntervalSince(debugStart)))
     }
 
     // Draws at the given grid view cell location (viewCellX, viewCellY), the grid cell currently corresponding
@@ -300,7 +300,7 @@ class CellGridView {
 
             guard let buffer: UnsafeMutableRawPointer = raw.baseAddress else { return }
 
-            func writeCellBlock(_ block: BufferBlock, _ index: Int, _ count: Int)
+            func writeCellBlock(_ block: BufferBlocks.BufferBlock, _ index: Int, _ count: Int)
             {
                 // Uses from outer scope: buffer, offset
 
@@ -315,7 +315,6 @@ class CellGridView {
                     return
                 }
 
-                let base = buffer.advanced(by: start)
                 let color: UInt32
 
                 if (block.foreground) {
@@ -337,7 +336,7 @@ class CellGridView {
                     color = self._viewBackground.value
                 }
 
-                Memory.fastcopy(to: base, count: count, value: color)
+                Memory.fastcopy(to: buffer.advanced(by: start), count: count, value: color)
             }
 
             for block in self._bufferBlocks.blocks {
@@ -502,166 +501,166 @@ class CellGridView {
         self._cells.append(cell)
     }
 
-    private class BufferBlock
-    {
-        internal let index: Int
-        internal let foreground: Bool
-        internal let blend: Float
-        internal var count: Int
-        internal var width: Int
-        internal var lindex: Int
-        internal typealias WriteCellBlock = (_ block: BufferBlock, _ index: Int, _ count: Int) -> Void
-
-        init(index: Int, count: Int, foreground: Bool, blend: Float, width: Int) {
-            self.index = max(index, 0)
-            self.count = max(count, 0)
-            self.foreground = foreground
-            self.blend = blend
-            self.width = width
-            self.lindex = self.index
-        }
-
-        // Write blocks using the given write function IGNORING indices to the RIGHT of the given shiftx value.
-        //
-        internal func writeLeft(shiftx: Int, write: WriteCellBlock) {
-            self.writeTruncated(shiftx: -shiftx, write: write)
-        }
-
-        // Write blocks using the given write function IGNORING indices to the LEFT Of the given shiftx value.
-        //
-        internal func writeRight(shiftx: Int, write: WriteCellBlock) {
-            self.writeTruncated(shiftx: shiftx, write: write)
-        }
-
-        // Regarding the truncating of horizontal left or right portions of buffer blocks ...
-        // Cheat sheet on shifting right (shiftX > 0); shifting vertically just falls out,
-        // as well as shifting horizontally left, but not so for shifting horizontally right.
-        // For example, this (WxH) grid, and the one-dimensional buffer for it ...
-        //
-        //       x . . .
-        //       0   1   2   3   4   5
-        //     +---+---+---+---+---+---+
-        //     | A | B | C | J | K | L | 0  y
-        //     +---+---+---+---+---+---+    .
-        //     | D | E | F | M | N | O | 1  .
-        //     +---+---+---+---+---+---+    .
-        //     | G | H | I | P | Q | R | 2
-        //     +---+---+---+---+---+---+
-        //     | S | T | U | b | c | d | 3
-        //     +---+---+---+---+---+---+
-        //     | V | W | X | e | f | g | 4
-        //     +---+---+---+---+---+---+
-        //     | Y | Z | a | h | i | j | 5
-        //     +---+---+---+---+---+---+
-        //       ^   ^            ^   ^
-        //       |   |            |   |
-        //       -   -            -   -
-        // If we want to ignore the 2 (S) left-most columns due to right-shift,
-        // then we want to ignore (i.e. not write) buffer indices (I) where: I % W < S
-        // Conversely, if we want to ignore the 2 (S) right-most columns due to left-shift,
-        // then we want to ignore (i.e. not write) buffer indices (I) where: (I % W) >= (W - S)
-        //
-        //      0: A -> I % W ==  0 % 6 == 0 <<< ignore on rshift-2: A
-        //      1: B -> I % W ==  1 % 6 == 1 <<< ignore on rshift-2: B
-        //      2: C -> I % W ==  2 % 6 == 2
-        //      3: J -> I % W ==  3 % 6 == 3
-        //      4: K -> I % W ==  4 % 6 == 4 <<< ignore on lshift-2: K
-        //      5: L -> I % W ==  5 % 6 == 5 <<< ignore on lshift-2: L
-        //      6: D -> I % W ==  6 % 6 == 0 <<< ignore on rshift-2: D
-        //      7: E -> I % W ==  7 % 6 == 1 <<< ignore on rshift-2: E
-        //      8: F -> I % W ==  8 % 6 == 2
-        //      9: M -> I % W ==  9 % 6 == 3
-        //     10: N -> I % W == 10 % 6 == 4 <<< ignore on lshift-2: N
-        //     11: O -> I % W == 11 % 6 == 5 <<< ignore on lshift-2: O
-        //     12: G -> I % W == 12 % 6 == 0 <<< ignore on rshift-2: G
-        //     13: H -> I % W == 13 % 6 == 1 <<< ignore on rshift-2: H
-        //     14: I -> I % W == 14 % 6 == 2
-        //     15: P -> I % W == 15 % 6 == 3
-        //     16: Q -> I % W == 16 % 6 == 4 <<< ignore on lshift-2: Q
-        //     17: R -> I % W == 17 % 6 == 5 <<< ignore on lshift-2: R
-        //     18: S -> I % W == 18 % 6 == 0 <<< ignore on rshift-2: S
-        //     19: T -> I % W == 19 % 6 == 1 <<< ignore on rshift-2: T
-        //     20: U -> I % W == 20 % 6 == 2
-        //     21: b -> I % W == 21 % 6 == 3
-        //     22: c -> I % W == 22 % 6 == 4 <<< ignore on lshift-2: c
-        //     23: d -> I % W == 23 % 6 == 5 <<< ignore on lshift-2: d
-        //     24: V -> I % W == 24 % 6 == 0 <<< ignore on rshift-2: V
-        //     25: W -> I % W == 25 % 6 == 1 <<< ignore on rshift-2: W
-        //     26: X -> I % W == 26 % 6 == 2
-        //     27: e -> I % W == 27 % 6 == 3
-        //     28: f -> I % W == 28 % 6 == 4 <<< ignore on lshift-2: f
-        //     29: g -> I % W == 29 % 6 == 5 <<< ignore on lshift-2: g
-        //     30: Y -> I % W == 30 % 6 == 0 <<< ignore on rshift-2: Y
-        //     31: Z -> I % W == 31 % 6 == 1 <<< ignore on rshift-2: Z
-        //     32: a -> I % W == 32 % 6 == 2
-        //     33: h -> I % W == 33 % 6 == 3
-        //     34: i -> I % W == 34 % 6 == 4 <<< ignore on lshift-2: i
-        //     35: j -> I % W == 35 % 6 == 5 <<< ignore on lshift-2: j
-        //
-        // If we want to ignore the 2 (S) top-most columns due to down-shift,
-        // then we want to ignore (i.e. not write) buffer indices (I) where: I / W < S
-        // Conversely, if we want to ignore the 2 (S) bottom-most columns due to up-shift,
-        // then we want to ignore (i.e. not write) buffer indices (I) where: I / W >= (W - S)
-        //
-        // Note: ⬥  i = y * w + x  ⬥   x = i % w  ⬥   y = i / w  ⬥
-        //
-        // Note that the BufferBlock.index is a byte index into the buffer,
-        // i.e. it already has Screen.depth factored into it; and note that
-        // the BufferBlock.count refers to the number of 4-byte (UInt32) values,
-
-        // Write blocks using the given write function IGNORING indices which correspond to
-        // a shifting left or right by the given (shiftx) amount; tricky due to the row-major
-        // organization of grid cells/pixels in the one-dimensional buffer array.
-        //
-        // A positive shiftx means to truncate the values (pixels) LEFT of the given shiftx value; and
-        // a negative shiftx means to truncate the values (pixels) RIGHT of the given shiftx value; and
-        // A positive shifty means to truncate the values (pixels) UP from the given shifty value, and
-        // a negative shifty means to truncate the values (pixels) DOWN from the given shifty value.
-        //
-        // FYI went to a bunch of trouble experimenting with NOT writing the inner solid square portion
-        // of the cell if the shift amount is such that it does not change; this yielded
-        // at best very marginal improvements if any, and with additional complexity; simply not worth it.
-        // Find some of the experimental work in this branch:
-        // performance-work-related-to-dynamic-resizing-20250510-checkpoint-with-inner-hollow-square-stuff-202505132246
-        // Be better off trying to switch to non-scaling when dragging or resizing; which has not been done yet.
-        //
-        internal func writeTruncated(shiftx: Int, write: WriteCellBlock) {
-            let shiftw = abs(shiftx)
-            let shiftl: Bool = (shiftx < 0)
-            let shiftr: Bool = (shiftx > 0)
-            var index: Int? = nil
-            var count = 0
-            for i in 0..<self.count {
-                let starti = self.index + i * Memory.bufferBlockSize
-                let shift = (starti / Memory.bufferBlockSize) % self.width
-                if ((shiftr && (shift >= shiftw)) || (shiftl && (shift < shiftw))) {
-                    if (index == nil) {
-                        index = starti
-                        count = 1
-                    } else {
-                        count += 1
-                    }
-                } else {
-                    if let j = index {
-                        write(self, j, count)
-                        if (shiftr && (shift > shiftw)) { break }
-                        else if (shiftl && (shift >= shiftw)) { break }
-                        index = nil
-                        count = 0
-                    } else {
-                        if (shiftr && (shift > shiftw)) { break }
-                        else if (shiftl && (shift >= shiftw)) { break }
-                    }
-                }
-            }
-            if let j = index {
-                write(self, j, count)
-            }
-        }
-    }
-
     private class BufferBlocks
     {
+        internal class BufferBlock
+        {
+            internal let index: Int
+            internal let foreground: Bool
+            internal let blend: Float
+            internal var count: Int
+            internal var width: Int
+            internal var lindex: Int
+            internal typealias WriteCellBlock = (_ block: BufferBlock, _ index: Int, _ count: Int) -> Void
+
+            init(index: Int, count: Int, foreground: Bool, blend: Float, width: Int) {
+                self.index = max(index, 0)
+                self.count = max(count, 0)
+                self.foreground = foreground
+                self.blend = blend
+                self.width = width
+                self.lindex = self.index
+            }
+
+            // Write blocks using the given write function IGNORING indices to the RIGHT of the given shiftx value.
+            //
+            internal func writeLeft(shiftx: Int, write: WriteCellBlock) {
+                self.writeTruncated(shiftx: -shiftx, write: write)
+            }
+
+            // Write blocks using the given write function IGNORING indices to the LEFT Of the given shiftx value.
+            //
+            internal func writeRight(shiftx: Int, write: WriteCellBlock) {
+                self.writeTruncated(shiftx: shiftx, write: write)
+            }
+
+            // Regarding the truncating of horizontal left or right portions of buffer blocks ...
+            // Cheat sheet on shifting right (shiftX > 0); shifting vertically just falls out,
+            // as well as shifting horizontally left, but not so for shifting horizontally right.
+            // For example, this (WxH) grid, and the one-dimensional buffer for it ...
+            //
+            //       x . . .
+            //       0   1   2   3   4   5
+            //     +---+---+---+---+---+---+
+            //     | A | B | C | J | K | L | 0  y
+            //     +---+---+---+---+---+---+    .
+            //     | D | E | F | M | N | O | 1  .
+            //     +---+---+---+---+---+---+    .
+            //     | G | H | I | P | Q | R | 2
+            //     +---+---+---+---+---+---+
+            //     | S | T | U | b | c | d | 3
+            //     +---+---+---+---+---+---+
+            //     | V | W | X | e | f | g | 4
+            //     +---+---+---+---+---+---+
+            //     | Y | Z | a | h | i | j | 5
+            //     +---+---+---+---+---+---+
+            //       ^   ^            ^   ^
+            //       |   |            |   |
+            //       -   -            -   -
+            // If we want to ignore the 2 (S) left-most columns due to right-shift,
+            // then we want to ignore (i.e. not write) buffer indices (I) where: I % W < S
+            // Conversely, if we want to ignore the 2 (S) right-most columns due to left-shift,
+            // then we want to ignore (i.e. not write) buffer indices (I) where: (I % W) >= (W - S)
+            //
+            //      0: A -> I % W ==  0 % 6 == 0 <<< ignore on rshift-2: A
+            //      1: B -> I % W ==  1 % 6 == 1 <<< ignore on rshift-2: B
+            //      2: C -> I % W ==  2 % 6 == 2
+            //      3: J -> I % W ==  3 % 6 == 3
+            //      4: K -> I % W ==  4 % 6 == 4 <<< ignore on lshift-2: K
+            //      5: L -> I % W ==  5 % 6 == 5 <<< ignore on lshift-2: L
+            //      6: D -> I % W ==  6 % 6 == 0 <<< ignore on rshift-2: D
+            //      7: E -> I % W ==  7 % 6 == 1 <<< ignore on rshift-2: E
+            //      8: F -> I % W ==  8 % 6 == 2
+            //      9: M -> I % W ==  9 % 6 == 3
+            //     10: N -> I % W == 10 % 6 == 4 <<< ignore on lshift-2: N
+            //     11: O -> I % W == 11 % 6 == 5 <<< ignore on lshift-2: O
+            //     12: G -> I % W == 12 % 6 == 0 <<< ignore on rshift-2: G
+            //     13: H -> I % W == 13 % 6 == 1 <<< ignore on rshift-2: H
+            //     14: I -> I % W == 14 % 6 == 2
+            //     15: P -> I % W == 15 % 6 == 3
+            //     16: Q -> I % W == 16 % 6 == 4 <<< ignore on lshift-2: Q
+            //     17: R -> I % W == 17 % 6 == 5 <<< ignore on lshift-2: R
+            //     18: S -> I % W == 18 % 6 == 0 <<< ignore on rshift-2: S
+            //     19: T -> I % W == 19 % 6 == 1 <<< ignore on rshift-2: T
+            //     20: U -> I % W == 20 % 6 == 2
+            //     21: b -> I % W == 21 % 6 == 3
+            //     22: c -> I % W == 22 % 6 == 4 <<< ignore on lshift-2: c
+            //     23: d -> I % W == 23 % 6 == 5 <<< ignore on lshift-2: d
+            //     24: V -> I % W == 24 % 6 == 0 <<< ignore on rshift-2: V
+            //     25: W -> I % W == 25 % 6 == 1 <<< ignore on rshift-2: W
+            //     26: X -> I % W == 26 % 6 == 2
+            //     27: e -> I % W == 27 % 6 == 3
+            //     28: f -> I % W == 28 % 6 == 4 <<< ignore on lshift-2: f
+            //     29: g -> I % W == 29 % 6 == 5 <<< ignore on lshift-2: g
+            //     30: Y -> I % W == 30 % 6 == 0 <<< ignore on rshift-2: Y
+            //     31: Z -> I % W == 31 % 6 == 1 <<< ignore on rshift-2: Z
+            //     32: a -> I % W == 32 % 6 == 2
+            //     33: h -> I % W == 33 % 6 == 3
+            //     34: i -> I % W == 34 % 6 == 4 <<< ignore on lshift-2: i
+            //     35: j -> I % W == 35 % 6 == 5 <<< ignore on lshift-2: j
+            //
+            // If we want to ignore the 2 (S) top-most columns due to down-shift,
+            // then we want to ignore (i.e. not write) buffer indices (I) where: I / W < S
+            // Conversely, if we want to ignore the 2 (S) bottom-most columns due to up-shift,
+            // then we want to ignore (i.e. not write) buffer indices (I) where: I / W >= (W - S)
+            //
+            // Note: ⬥  i = y * w + x  ⬥   x = i % w  ⬥   y = i / w  ⬥
+            //
+            // Note that the BufferBlock.index is a byte index into the buffer,
+            // i.e. it already has Screen.depth factored into it; and note that
+            // the BufferBlock.count refers to the number of 4-byte (UInt32) values,
+
+            // Write blocks using the given write function IGNORING indices which correspond to
+            // a shifting left or right by the given (shiftx) amount; tricky due to the row-major
+            // organization of grid cells/pixels in the one-dimensional buffer array.
+            //
+            // A positive shiftx means to truncate the values (pixels) LEFT of the given shiftx value; and
+            // a negative shiftx means to truncate the values (pixels) RIGHT of the given shiftx value; and
+            // A positive shifty means to truncate the values (pixels) UP from the given shifty value, and
+            // a negative shifty means to truncate the values (pixels) DOWN from the given shifty value.
+            //
+            // FYI went to a bunch of trouble experimenting with NOT writing the inner solid square portion
+            // of the cell if the shift amount is such that it does not change; this yielded
+            // at best very marginal improvements if any, and with additional complexity; simply not worth it.
+            // Find some of the experimental work in this branch:
+            // performance-work-related-to-dynamic-resizing-20250510-checkpoint-with-inner-hollow-square-stuff-202505132246
+            // Be better off trying to switch to non-scaling when dragging or resizing; which has not been done yet.
+            //
+            internal func writeTruncated(shiftx: Int, write: WriteCellBlock) {
+                let shiftw = abs(shiftx)
+                let shiftl: Bool = (shiftx < 0)
+                let shiftr: Bool = (shiftx > 0)
+                var index: Int? = nil
+                var count = 0
+                for i in 0..<self.count {
+                    let starti = self.index + i * Memory.bufferBlockSize
+                    let shift = (starti / Memory.bufferBlockSize) % self.width
+                    if ((shiftr && (shift >= shiftw)) || (shiftl && (shift < shiftw))) {
+                        if (index == nil) {
+                            index = starti
+                            count = 1
+                        } else {
+                            count += 1
+                        }
+                    } else {
+                        if let j = index {
+                            write(self, j, count)
+                            if (shiftr && (shift > shiftw)) { break }
+                            else if (shiftl && (shift >= shiftw)) { break }
+                            index = nil
+                            count = 0
+                        } else {
+                            if (shiftr && (shift > shiftw)) { break }
+                            else if (shiftl && (shift >= shiftw)) { break }
+                        }
+                    }
+                }
+                if let j = index {
+                    write(self, j, count)
+                }
+            }
+        }
+
         private let _width: Int
         private var _blocks: [BufferBlock] = []
 
