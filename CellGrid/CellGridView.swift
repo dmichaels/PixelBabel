@@ -539,6 +539,16 @@ class CellGridView {
                     // can really speed things up noticably (e.g. 0.02874s vs 0.07119s).
                     // FYI for really big cell-sizes (e.g. 250 unscaled) the size of this
                     // cache could exceed 25MB; not too bad really for the performance benefit.
+                    // We could pre-populate this but it takes too longer (more than a second) for
+                    // larget cell-sizes; it would look like this at the end of createBufferBlocks:
+                    //
+                    //  for shiftx in 1...(cellSize - 1) {
+                    //    func dummyWriteCellBlock(_ block: BufferBlocks.BufferBlock, _ index: Int, _ count: Int) {}
+                    //    for block in blocks._blocks {
+                    //      block.writeTruncated(shiftx: shiftx, write: dummyWriteCellBlock, debug: false)
+                    //      block.writeTruncated(shiftx: -shiftx, write: dummyWriteCellBlock, debug: false)
+                    //    }
+                    //  }
                     //
                     for shiftxValue in shiftxValues {
                         write(self, shiftxValue.index, shiftxValue.count)
