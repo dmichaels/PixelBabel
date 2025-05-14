@@ -597,8 +597,9 @@ class CellGridView {
                                ? (((cellPadding * 2) >= cellSize)
                                  ? ((cellSize / 2) - 1)
                                  : cellPadding) : 0
-            let size: Int = cellSize - (2 * padding)
-            let shape: CellShape = (size < 3) ? .inset : cellShape
+            let cellSizeMinusPadding: Int = cellSize - padding
+            let cellSizeMinusPaddingTimesTwo: Int = cellSize - (2 * padding)
+            let shape: CellShape = (cellSizeMinusPaddingTimesTwo < 3) ? .inset : cellShape
             let fade: Float = 0.6  // smaller is smoother
 
             for dy in 0..<cellSize {
@@ -606,14 +607,15 @@ class CellGridView {
     
                     if ((dx >= displayWidth) || (dy >= displayHeight)) { continue }
                     if ((dx < 0) || (dy < 0)) { continue }
-                    var coverage: Float = 0.0
+                    let coverage: Float
 
                     switch shape {
                     case .square, .inset:
-                        if ((dx >= padding) && (dx < cellSize - padding) &&
-                            (dy >= padding) && (dy < cellSize - padding)) {
+                        if ((dx >= padding) && (dx < cellSizeMinusPadding) &&
+                            (dy >= padding) && (dy < cellSizeMinusPadding)) {
                             coverage = 1.0
                         }
+                        else { coverage = 0.0 }
 
                     case .circle:
                         let fx: Float = Float(dx) + 0.5
@@ -622,26 +624,24 @@ class CellGridView {
                         let centerY: Float = Float(cellSize / 2)
                         let dxsq: Float = (fx - centerX) * (fx - centerX)
                         let dysq: Float = (fy - centerY) * (fy - centerY)
-                        let circleRadius: Float = Float(size) / 2.0
+                        let circleRadius: Float = Float(cellSizeMinusPaddingTimesTwo) / 2.0
                         let d: Float = circleRadius - sqrt(dxsq + dysq)
                         coverage = max(0.0, min(1.0, d / fade))
 
                     case .rounded:
                         let fx: Float = Float(dx) + 0.5
                         let fy: Float = Float(dy) + 0.5
-                        let cornerRadius: Float = Float(size) * 0.25
+                        let cornerRadius: Float = Float(cellSizeMinusPaddingTimesTwo) * 0.25
                         let minX: Float = Float(padding)
                         let minY: Float = Float(padding)
-                        let maxX: Float = Float(cellSize - padding)
-                        let maxY: Float = Float(cellSize - padding)
+                        let maxX: Float = Float(cellSizeMinusPadding)
+                        let maxY: Float = Float(cellSizeMinusPadding)
                         if ((fx >= minX + cornerRadius) && (fx <= maxX - cornerRadius)) {
-                            if ((fy >= minY) && (fy <= maxY)) {
-                                coverage = 1.0
-                            }
+                            if ((fy >= minY) && (fy <= maxY)) { coverage = 1.0 }
+                            else { coverage = 0.0 }
                         } else if ((fy >= minY + cornerRadius) && (fy <= maxY - cornerRadius)) {
-                            if ((fx >= minX) && (fx <= maxX)) {
-                                coverage = 1.0
-                            }
+                            if ((fx >= minX) && (fx <= maxX)) { coverage = 1.0 }
+                            else { coverage = 0.0 }
                         } else {
                             let cx: Float = fx < (minX + cornerRadius) ? minX + cornerRadius :
                                             fx > (maxX - cornerRadius) ? maxX - cornerRadius : fx
