@@ -31,7 +31,7 @@ class CellGridView {
     private let _cellSize: Int
     private let _cellPadding: Int
     private let _cellShape: CellShape
-    private let _cellFactory: CellFactory?
+    private let _cellFactory: Cell.Factory?
     private var _cells: [Cell]
     private var _buffer: [UInt8]
     private let _bufferBlocks: CellGridView.BufferBlocks
@@ -55,7 +55,7 @@ class CellGridView {
          cellSize: Int,
          cellPadding: Int,
          cellShape: CellShape,
-         cellFactory: CellFactory? = nil,
+         cellFactory: Cell.Factory? = nil,
          cells: [Cell]? = nil,
          buffer: [UInt8]? = nil)
     {

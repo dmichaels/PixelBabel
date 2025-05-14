@@ -51,11 +51,11 @@ class CellGrid: ObservableObject
     private var _gridColumns: Int = 12
     private var _gridRows: Int = 21
     private var _cells: CellGridView? = nil
-    private var _cellFactory: CellFactory?
+    private var _cellFactory: Cell.Factory?
     private var _dragStart: CellLocation? = nil
     private var _dragStartShifted: CellLocation? = nil
 
-    init(cellFactory: CellFactory? = nil) {
+    init(cellFactory: Cell.Factory? = nil) {
         self._cellFactory = cellFactory
     }
 

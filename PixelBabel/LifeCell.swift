@@ -43,7 +43,7 @@ class LifeCell: Cell {
         self.write(foreground: CellColor(Color.black))
     }
 
-    public static func factory() -> CellFactory {
+    public static func factory() -> Cell.Factory {
         return { parent, x, y, foreground in
             return LifeCell(parent: parent, x: x, y: y, foreground: foreground, active: false)
         }

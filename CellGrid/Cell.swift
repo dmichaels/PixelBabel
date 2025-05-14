@@ -1,8 +1,6 @@
 import Foundation
 import SwiftUI
 
-typealias CellFactory = (_ parent: CellGridView, _ x: Int, _ y: Int, _ foreground: CellColor) -> Cell
-
 @MainActor
 class Cell
 {
@@ -10,6 +8,8 @@ class Cell
     private let _x: Int
     private let _y: Int
     private var _foreground: CellColor
+
+    typealias Factory = (_ parent: CellGridView, _ x: Int, _ y: Int, _ foreground: CellColor) -> Cell
 
     public var x: Int {
         self._x
@@ -36,8 +36,8 @@ class Cell
     }
 
     public func write(foreground: CellColor, foregroundOnly: Bool = false) {
-        self._foreground = foreground
         if let viewCellLocation = self._parent.viewCellFromGridCellLocation(self.x, self.y) {
+            self._foreground = foreground
             self._parent.writeCell(viewCellX: viewCellLocation.x, viewCellY: viewCellLocation.y)
         }
     }
