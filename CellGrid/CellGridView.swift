@@ -29,6 +29,7 @@ class CellGridView {
     private let _gridCellEndY: Int
 
     private let _cellSize: Int
+    private let _cellSizeTimesViewWidth: Int
     private let _cellPadding: Int
     private let _cellShape: CellShape
     private let _cellFactory: Cell.Factory?
@@ -64,6 +65,7 @@ class CellGridView {
         self._viewHeight = viewHeight
 
         self._cellSize = (cellSize > 0) ? cellSize : CellGrid.Defaults.cellSize
+        self._cellSizeTimesViewWidth = self._cellSize * self._viewWidth
         self._cellPadding = (cellPadding > 0) ? cellPadding : CellGrid.Defaults.cellPadding
         self._cellShape = cellShape
 
@@ -284,7 +286,7 @@ class CellGridView {
         let shiftX: Int = (self._shiftX > 0) ? self._shiftX - self._cellSize : self._shiftX
         let shiftY: Int = (self._shiftY > 0) ? self._shiftY - self._cellSize : self._shiftY
         let offset: Int = ((self._cellSize * viewCellX) + shiftX +
-                           (self._cellSize * self._viewWidth * viewCellY + shiftY * self._viewWidth)) * Screen.depth
+                           (self._cellSizeTimesViewWidth * viewCellY + shiftY * self._viewWidth)) * Screen.depth
         let size: Int = self._buffer.count
 
         // Loop through the blocks for the cell and write each of the indices to the buffer with the right colors/blends.
