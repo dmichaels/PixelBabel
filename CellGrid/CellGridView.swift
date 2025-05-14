@@ -569,8 +569,10 @@ class CellGridView {
 
                 if let shiftxValues = self.shiftxCache[shiftx] {
                     //
-                    // Caching block values (index, count) for x-shifting
-                    // speeds things up noticably (e.g. 0.02874s vs 0.07119s).
+                    // Caching block values (index, count) distinct shiftx values can
+                    // can really speed things up noticably (e.g. 0.02874s vs 0.07119s).
+                    // FYI for really big cell-sizes (e.g. 250 unscaled) the size of this
+                    // cache could exceed 25MB; not too bad really for the performance benefit.
                     //
                     for shiftxValue in shiftxValues {
                         write(self, shiftxValue.index, shiftxValue.count)
@@ -579,7 +581,6 @@ class CellGridView {
                 }
 
                 var shiftxValuesToCache: [(index: Int, count: Int)] = []
-
                 let shiftw: Int = abs(shiftx)
                 let shiftl: Bool = (shiftx < 0)
                 let shiftr: Bool = (shiftx > 0)
