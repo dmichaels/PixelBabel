@@ -4,9 +4,14 @@ import Utils
 
 // A main purpose of this (as first created) is for keeping track of the backing pixel buffer
 // indices for the (canonical) cell; for the purpose of being able to write the values very fast
-// using block memory copy (Memory.fastcopy). It is ASSUMED that the abufferBlocksddBufferItem function
+// using block memory copy (Memory.fastcopy). It is ASSUMED that the BufferBlocks.append function
 // is called with indices which are monotonically increasing, and are not duplicated or out of order
 // or anything weird; assume called from the buffer setting loop in the PixelMap._write method.
+//
+// Note on terminology: We say "cell-grid" to mean the virtual grid of all cells in existence,
+// and "grid-view" to mean the viewable window (image) in which is a subset of the cell-grid.
+// We say "point" to mean a pixel coordinate (coming from a gesture) which is not scaled.
+// We say "location" to mean a coordinate cell-based coordinate on the cell-grid or grid-view;
 
 @MainActor
 class CellGridView {
@@ -383,12 +388,6 @@ class CellGridView {
     public var gridCells: [Cell] {
         self._cells
     }
-
-    // Note on terminology regarding input/gesture related points:
-    // We say "point" to mean a pixel coordinate (coming from a gesture) which is not scaled.
-    // We say "location" to mean a coordinate cell-based coordinate on the cell-grid or grid-view;
-    // and by "cell-grid" we mean the virtual grid of all cells in existence, and by "grid-view"
-    // we mean the viewable window (image) in which (a subset of) the cell-grid is displayed.
 
     // Returns the cell-grid cell object for the given grid-view input location, or nil;
     // note that the display input location is always in unscaled units.
