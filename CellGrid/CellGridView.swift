@@ -232,8 +232,6 @@ class CellGridView {
         print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)] | cs: \(self._cellSize)", Date().timeIntervalSince(debugStart)))
     }
 
-    private typealias WriteCellBlock = (_ block: CellGridView.BufferBlock, _ index: Int, _ count: Int) -> Void
-
     // Draws at the given grid view cell location (viewCellX, viewCellY), the grid cell currently corresponding
     // to that location, taking into account the current shiftCellX/Y and shiftX/Y values, i.e. the cell and
     // pixel level based shift values, negative meaning to shift the grid cell left or up, and positive
@@ -302,7 +300,7 @@ class CellGridView {
 
             guard let buffer: UnsafeMutableRawPointer = raw.baseAddress else { return }
 
-            func writeCellBlock(_ block: CellGridView.BufferBlock, _ index: Int, _ count: Int)
+            func writeCellBlock(_ block: BufferBlock, _ index: Int, _ count: Int)
             {
                 // Uses from outer scope: buffer, offset
 
@@ -512,6 +510,7 @@ class CellGridView {
         internal var count: Int
         internal var width: Int
         internal var lindex: Int
+        internal typealias WriteCellBlock = (_ block: BufferBlock, _ index: Int, _ count: Int) -> Void
 
         init(index: Int, count: Int, foreground: Bool, blend: Float, width: Int) {
             self.index = max(index, 0)
@@ -524,13 +523,13 @@ class CellGridView {
 
         // Write blocks using the given write function IGNORING indices to the RIGHT of the given shiftx value.
         //
-        internal func writeLeft(shiftx: Int, write: CellGridView.WriteCellBlock) {
+        internal func writeLeft(shiftx: Int, write: WriteCellBlock) {
             self.writeTruncated(shiftx: -shiftx, write: write)
         }
 
         // Write blocks using the given write function IGNORING indices to the LEFT Of the given shiftx value.
         //
-        internal func writeRight(shiftx: Int, write: CellGridView.WriteCellBlock) {
+        internal func writeRight(shiftx: Int, write: WriteCellBlock) {
             self.writeTruncated(shiftx: shiftx, write: write)
         }
 
@@ -626,7 +625,7 @@ class CellGridView {
         // performance-work-related-to-dynamic-resizing-20250510-checkpoint-with-inner-hollow-square-stuff-202505132246
         // Be better off trying to switch to non-scaling when dragging or resizing; which has not been done yet.
         //
-        internal func writeTruncated(shiftx: Int, write: CellGridView.WriteCellBlock) {
+        internal func writeTruncated(shiftx: Int, write: WriteCellBlock) {
             let shiftw = abs(shiftx)
             let shiftl: Bool = (shiftx < 0)
             let shiftr: Bool = (shiftx > 0)
