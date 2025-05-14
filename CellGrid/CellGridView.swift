@@ -596,9 +596,8 @@ class CellGridView {
         }
 
         internal var memoryUsageBytes: Int {
-            let totalBlocks = self._blocks.count
-            let baseSize = MemoryLayout<BufferBlock>.stride
-            var totalTuples = 0
+            let totalBlocks: Int = self._blocks.count
+            var totalTuples: Int = 0
             for block in self._blocks {
                 totalTuples += block.shiftxCache.values.reduce(0) { $0 + $1.count }
             }
