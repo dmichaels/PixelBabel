@@ -220,14 +220,6 @@ class CellGrid: ObservableObject
         self._displayScaling ? self._displayScale : 1
     }
 
-    public var displayWidthUnscaled: Int {
-        self._displayWidthUnscaled
-    }
-
-    public var displayHeightUnscaled: Int {
-        self._displayHeightUnscaled
-    }
-
     internal func scaled(_ value: Int) -> Int {
         return self._displayScaling ? Int(round(CGFloat(value) * self._displayScale)) : value
     }
