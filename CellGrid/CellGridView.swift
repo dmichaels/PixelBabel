@@ -29,7 +29,6 @@ class CellGridView {
     private let _gridCellEndY: Int
 
     private let _cellSize: Int
-    private let _cellSizeUnscaled: Int
     private let _cellPadding: Int
     private let _cellShape: CellShape
     private let _cellFactory: CellFactory?
@@ -65,7 +64,6 @@ class CellGridView {
         self._viewHeight = viewHeight
 
         self._cellSize = (cellSize > 0) ? cellSize : CellGrid.Defaults.cellSize
-        self._cellSizeUnscaled = viewParent.unscaled(self._cellSize)
         self._cellPadding = (cellPadding > 0) ? cellPadding : CellGrid.Defaults.cellPadding
         self._cellShape = cellShape
 
@@ -150,10 +148,10 @@ class CellGridView {
 
         func restrictShift(shiftCellXY: inout Int, shiftXY: inout Int, viewCellEndXY: Int,
                            viewSizeExtra: Int, viewSize: Int, gridCellEndXY: Int) {
-            if shiftCellXY >= viewCellEndXY {
-                if viewSizeExtra > 0 {
+            if (shiftCellXY >= viewCellEndXY) {
+                if (viewSizeExtra > 0) {
                     let totalShift = (shiftCellXY * self._cellSize) + shiftXY
-                    if (viewSize - totalShift) <= self._cellSize {
+                    if ((viewSize - totalShift) <= self._cellSize) {
                         let adjusted = viewSize - self._cellSize
                         shiftCellXY = adjusted / self._cellSize
                         shiftXY = adjusted % self._cellSize
@@ -162,7 +160,7 @@ class CellGridView {
                     shiftCellXY = viewCellEndXY
                     shiftXY = 0
                 }
-            } else if -shiftCellXY >= gridCellEndXY {
+            } else if (-shiftCellXY >= gridCellEndXY) {
                 shiftCellXY = -gridCellEndXY
                 shiftXY = 0
             }
@@ -461,19 +459,18 @@ class CellGridView {
               viewPointY >= 0.0, viewPointY < CGFloat(self._viewHeight) else { return nil }
         let shiftX: Int = self._viewParent.unscaled(self._shiftX)
         let shiftY: Int = self._viewParent.unscaled(self._shiftY)
-        let viewCellX: Int = ((shiftX > 0) ? (Int(floor(viewPointX)) + (self._cellSizeUnscaled - shiftX))
-                                           : (Int(floor(viewPointX)) - shiftX)) / self._cellSizeUnscaled
-        let viewCellY: Int = ((shiftY > 0) ? (Int(floor(viewPointY)) + (self._cellSizeUnscaled - shiftY))
-                                           : (Int(floor(viewPointY)) - shiftY)) / self._cellSizeUnscaled
+        let cellSizeUnscaled: Int = self._viewParent.unscaled(self._cellSize)
+        let viewCellX: Int = ((shiftX > 0) ? (Int(floor(viewPointX)) + (cellSizeUnscaled - shiftX))
+                                           : (Int(floor(viewPointX)) - shiftX)) / cellSizeUnscaled
+        let viewCellY: Int = ((shiftY > 0) ? (Int(floor(viewPointY)) + (self._viewParent.unscaled(self._cellSize) - shiftY))
+                                           : (Int(floor(viewPointY)) - shiftY)) / cellSizeUnscaled
         return CellGridPoint(viewCellX, viewCellY)
     }
 
     public var image: CGImage? {
         var image: CGImage?
         self._buffer.withUnsafeMutableBytes { rawBuffer in
-            guard let baseAddress = rawBuffer.baseAddress else {
-                fatalError("Buffer has no base address")
-            }
+            guard let baseAddress = rawBuffer.baseAddress else { fatalError("No buffer base address") }
             if let context = CGContext(
                 data: baseAddress,
                 width: self._viewWidth,
@@ -530,97 +527,15 @@ class CellGridView {
                 self.writeTruncated(shiftx: shiftx, write: write)
             }
 
-            // Regarding the truncating of horizontal left or right portions of buffer blocks ...
-            // Cheat sheet on shifting right (shiftX > 0); shifting vertically just falls out,
-            // as well as shifting horizontally left, but not so for shifting horizontally right.
-            // For example, this (WxH) grid, and the one-dimensional buffer for it ...
-            //
-            //       x . . .
-            //       0   1   2   3   4   5
-            //     +---+---+---+---+---+---+
-            //     | A | B | C | J | K | L | 0  y
-            //     +---+---+---+---+---+---+    .
-            //     | D | E | F | M | N | O | 1  .
-            //     +---+---+---+---+---+---+    .
-            //     | G | H | I | P | Q | R | 2
-            //     +---+---+---+---+---+---+
-            //     | S | T | U | b | c | d | 3
-            //     +---+---+---+---+---+---+
-            //     | V | W | X | e | f | g | 4
-            //     +---+---+---+---+---+---+
-            //     | Y | Z | a | h | i | j | 5
-            //     +---+---+---+---+---+---+
-            //       ^   ^            ^   ^
-            //       |   |            |   |
-            //       -   -            -   -
-            // If we want to ignore the 2 (S) left-most columns due to right-shift,
-            // then we want to ignore (i.e. not write) buffer indices (I) where: I % W < S
-            // Conversely, if we want to ignore the 2 (S) right-most columns due to left-shift,
-            // then we want to ignore (i.e. not write) buffer indices (I) where: (I % W) >= (W - S)
-            //
-            //      0: A -> I % W ==  0 % 6 == 0 <<< ignore on rshift-2: A
-            //      1: B -> I % W ==  1 % 6 == 1 <<< ignore on rshift-2: B
-            //      2: C -> I % W ==  2 % 6 == 2
-            //      3: J -> I % W ==  3 % 6 == 3
-            //      4: K -> I % W ==  4 % 6 == 4 <<< ignore on lshift-2: K
-            //      5: L -> I % W ==  5 % 6 == 5 <<< ignore on lshift-2: L
-            //      6: D -> I % W ==  6 % 6 == 0 <<< ignore on rshift-2: D
-            //      7: E -> I % W ==  7 % 6 == 1 <<< ignore on rshift-2: E
-            //      8: F -> I % W ==  8 % 6 == 2
-            //      9: M -> I % W ==  9 % 6 == 3
-            //     10: N -> I % W == 10 % 6 == 4 <<< ignore on lshift-2: N
-            //     11: O -> I % W == 11 % 6 == 5 <<< ignore on lshift-2: O
-            //     12: G -> I % W == 12 % 6 == 0 <<< ignore on rshift-2: G
-            //     13: H -> I % W == 13 % 6 == 1 <<< ignore on rshift-2: H
-            //     14: I -> I % W == 14 % 6 == 2
-            //     15: P -> I % W == 15 % 6 == 3
-            //     16: Q -> I % W == 16 % 6 == 4 <<< ignore on lshift-2: Q
-            //     17: R -> I % W == 17 % 6 == 5 <<< ignore on lshift-2: R
-            //     18: S -> I % W == 18 % 6 == 0 <<< ignore on rshift-2: S
-            //     19: T -> I % W == 19 % 6 == 1 <<< ignore on rshift-2: T
-            //     20: U -> I % W == 20 % 6 == 2
-            //     21: b -> I % W == 21 % 6 == 3
-            //     22: c -> I % W == 22 % 6 == 4 <<< ignore on lshift-2: c
-            //     23: d -> I % W == 23 % 6 == 5 <<< ignore on lshift-2: d
-            //     24: V -> I % W == 24 % 6 == 0 <<< ignore on rshift-2: V
-            //     25: W -> I % W == 25 % 6 == 1 <<< ignore on rshift-2: W
-            //     26: X -> I % W == 26 % 6 == 2
-            //     27: e -> I % W == 27 % 6 == 3
-            //     28: f -> I % W == 28 % 6 == 4 <<< ignore on lshift-2: f
-            //     29: g -> I % W == 29 % 6 == 5 <<< ignore on lshift-2: g
-            //     30: Y -> I % W == 30 % 6 == 0 <<< ignore on rshift-2: Y
-            //     31: Z -> I % W == 31 % 6 == 1 <<< ignore on rshift-2: Z
-            //     32: a -> I % W == 32 % 6 == 2
-            //     33: h -> I % W == 33 % 6 == 3
-            //     34: i -> I % W == 34 % 6 == 4 <<< ignore on lshift-2: i
-            //     35: j -> I % W == 35 % 6 == 5 <<< ignore on lshift-2: j
-            //
-            // If we want to ignore the 2 (S) top-most columns due to down-shift,
-            // then we want to ignore (i.e. not write) buffer indices (I) where: I / W < S
-            // Conversely, if we want to ignore the 2 (S) bottom-most columns due to up-shift,
-            // then we want to ignore (i.e. not write) buffer indices (I) where: I / W >= (W - S)
-            //
-            // Note: ⬥  i = y * w + x  ⬥   x = i % w  ⬥   y = i / w  ⬥
-            //
-            // Note that the BufferBlock.index is a byte index into the buffer,
-            // i.e. it already has Screen.depth factored into it; and note that
-            // the BufferBlock.count refers to the number of 4-byte (UInt32) values,
-
             // Write blocks using the given write function IGNORING indices which correspond to
             // a shifting left or right by the given (shiftx) amount; tricky due to the row-major
             // organization of grid cells/pixels in the one-dimensional buffer array.
             //
             // A positive shiftx means to truncate the values (pixels) LEFT of the given shiftx value; and
             // a negative shiftx means to truncate the values (pixels) RIGHT of the given shiftx value; and
-            // A positive shifty means to truncate the values (pixels) UP from the given shifty value, and
-            // a negative shifty means to truncate the values (pixels) DOWN from the given shifty value.
             //
-            // FYI went to a bunch of trouble experimenting with NOT writing the inner solid square portion
-            // of the cell if the shift amount is such that it does not change; this yielded
-            // at best very marginal improvements if any, and with additional complexity; simply not worth it.
-            // Find some of the experimental work in this branch:
-            // performance-work-related-to-dynamic-resizing-20250510-checkpoint-with-inner-hollow-square-stuff-202505132246
-            // Be better off trying to switch to non-scaling when dragging or resizing; which has not been done yet.
+            // Note that the BufferBlock.index is a byte index into the buffer, i.e. it already has Screen.depth
+            // factored into it; and note that the BufferBlock.count refers to the number of 4-byte (UInt32) values,
             //
             internal func writeTruncated(shiftx: Int, write: WriteCellBlock) {
                 let shiftw = abs(shiftx)
@@ -668,7 +583,7 @@ class CellGridView {
             self._blocks
         }
 
-        internal func append(_ index: Int, foreground: Bool, blend: Float, width: Int) {
+        private func append(_ index: Int, foreground: Bool, blend: Float, width: Int) {
             if let last = self._blocks.last,
                     last.foreground == foreground,
                     last.blend == blend,
