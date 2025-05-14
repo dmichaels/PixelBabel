@@ -10,9 +10,9 @@ class CellGrid: ObservableObject
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = true
+        public static let displayScaling: Bool = false
         public static let displayTransparency: UInt8 = 255
-        public static let cellSize: Int = 9 // 51
+        public static let cellSize: Int = 43 // 51
         public static let cellSizeNeat: Bool = true // TODO/xyzzy
         public static let cellPadding: Int = 1
         //

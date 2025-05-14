@@ -8,11 +8,6 @@ import Utils
 // is called with indices which are monotonically increasing, and are not duplicated or out of order
 // or anything weird; assume called from the buffer setting loop in the PixelMap._write method.
 
-class DEBUG {
-    public static var fastcopyBytes: Int = 0
-    public static var fastcopyCount: Int = 0
-}
-
 @MainActor
 class CellGridView {
 
@@ -120,8 +115,6 @@ class CellGridView {
 
     public func shift(shiftx: Int = 0, shifty: Int = 0)
     {
-        DEBUG.fastcopyBytes = 0
-        DEBUG.fastcopyCount = 0
         let debugStart = Date()
 
         // Normalize the given pixel level shift to cell and pixel level.
@@ -232,11 +225,11 @@ class CellGridView {
 
         for vy in 0...self._viewCellEndY + self._viewRowsExtra {
             for vx in 0...self._viewCellEndX + self._viewColumnsExtra {
-                self.writeCell(viewCellX: vx, viewCellY: vy, shifting: shiftx != 0 || shifty != 0)
+                self.writeCell(viewCellX: vx, viewCellY: vy)
             }
         }
 
-        print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)] | cs: \(self._cellSize) fcb: \(DEBUG.fastcopyBytes) fcc: \(DEBUG.fastcopyCount)", Date().timeIntervalSince(debugStart)))
+        print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)] | cs: \(self._cellSize)", Date().timeIntervalSince(debugStart)))
     }
 
     private typealias WriteCellBlock = (_ block: CellGridView.BufferBlock, _ index: Int, _ count: Int) -> Void
@@ -246,7 +239,7 @@ class CellGridView {
     // pixel level based shift values, negative meaning to shift the grid cell left or up, and positive
     // meaning to shift the grid cell right or down.
     //
-    public func writeCell(viewCellX: Int, viewCellY: Int, shifting: Bool = false)
+    public func writeCell(viewCellX: Int, viewCellY: Int)
     {
         // This was all a lot tricker than you might expect (yes basic arithmetic).
 
@@ -346,17 +339,15 @@ class CellGridView {
                     color = self._viewBackground.value
                 }
 
-                DEBUG.fastcopyBytes += count
-                DEBUG.fastcopyCount += 1
                 Memory.fastcopy(to: base, count: count, value: color)
             }
 
             for block in self._bufferBlocks.blocks {
                 if (truncateLeft > 0) {
-                    block.writeRight(width: self._viewWidth, shiftx: truncateLeft, write: writeCellBlock)
+                    block.writeTruncated(shiftx: truncateLeft, write: writeCellBlock)
                 }
                 else if (truncateRight > 0) {
-                    block.writeLeft(width: self._viewWidth, shiftx: truncateRight, write: writeCellBlock)
+                    block.writeTruncated(shiftx: -truncateRight, write: writeCellBlock)
                 }
                 else {
                     writeCellBlock(block, block.index, block.count)
@@ -519,26 +510,28 @@ class CellGridView {
         internal let foreground: Bool
         internal let blend: Float
         internal var count: Int
+        internal var width: Int
         internal var lindex: Int
 
-        init(index: Int, count: Int, foreground: Bool, blend: Float) {
+        init(index: Int, count: Int, foreground: Bool, blend: Float, width: Int) {
             self.index = max(index, 0)
             self.count = max(count, 0)
             self.foreground = foreground
             self.blend = blend
+            self.width = width
             self.lindex = self.index
         }
 
         // Write blocks using the given write function IGNORING indices to the RIGHT of the given shiftx value.
         //
-        internal func writeLeft(width: Int, shiftx: Int, write: CellGridView.WriteCellBlock) {
-            self.writeLeftOrRight(width: width, shiftx: -shiftx, write: write)
+        internal func writeLeft(shiftx: Int, write: CellGridView.WriteCellBlock) {
+            self.writeTruncated(shiftx: -shiftx, write: write)
         }
 
         // Write blocks using the given write function IGNORING indices to the LEFT Of the given shiftx value.
         //
-        internal func writeRight(width: Int, shiftx: Int, write: CellGridView.WriteCellBlock) {
-            self.writeLeftOrRight(width: width, shiftx: shiftx, write: write)
+        internal func writeRight(shiftx: Int, write: CellGridView.WriteCellBlock) {
+            self.writeTruncated(shiftx: shiftx, write: write)
         }
 
         // Regarding the truncating of horizontal left or right portions of buffer blocks ...
@@ -633,17 +626,15 @@ class CellGridView {
         // performance-work-related-to-dynamic-resizing-20250510-checkpoint-with-inner-hollow-square-stuff-202505132246
         // Be better off trying to switch to non-scaling when dragging or resizing; which has not been done yet.
         //
-        internal func writeLeftOrRight(width: Int, shiftx: Int, write: CellGridView.WriteCellBlock) {
+        internal func writeTruncated(shiftx: Int, write: CellGridView.WriteCellBlock) {
             let shiftw = abs(shiftx)
             let shiftl: Bool = (shiftx < 0)
             let shiftr: Bool = (shiftx > 0)
-            let bindex = self.index
-            let bsize = Memory.bufferBlockSize
             var index: Int? = nil
             var count = 0
             for i in 0..<self.count {
-                let starti = bindex + i * bsize
-                let shift = (starti / bsize) % width
+                let starti = self.index + i * Memory.bufferBlockSize
+                let shift = (starti / Memory.bufferBlockSize) % self.width
                 if ((shiftr && (shift >= shiftw)) || (shiftl && (shift < shiftw))) {
                     if (index == nil) {
                         index = starti
@@ -683,7 +674,7 @@ class CellGridView {
             self._blocks
         }
 
-        internal func append(_ index: Int, foreground: Bool, blend: Float) {
+        internal func append(_ index: Int, foreground: Bool, blend: Float, width: Int) {
             if let last = self._blocks.last,
                     last.foreground == foreground,
                     last.blend == blend,
@@ -691,7 +682,7 @@ class CellGridView {
                 last.count += 1
                 last.lindex = index
             } else {
-                self._blocks.append(BufferBlock(index: index, count: 1, foreground: foreground, blend: blend))
+                self._blocks.append(BufferBlock(index: index, count: 1, foreground: foreground, blend: blend, width: width))
             }
         }
 
@@ -768,10 +759,10 @@ class CellGridView {
                     let index: Int = (dy * displayWidth + dx) * Screen.depth
                     if ((index >= 0) && ((index + (Screen.depth - 1)) < bufferSize)) {
                         if (coverage > 0) {
-                            blocks.append(index, foreground: true, blend: coverage)
+                            blocks.append(index, foreground: true, blend: coverage, width: displayWidth)
     
                         } else {
-                            blocks.append(index, foreground: false, blend: 0.0)
+                            blocks.append(index, foreground: false, blend: 0.0, width: displayWidth)
                         }
                     }
                 }

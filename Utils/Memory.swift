@@ -19,7 +19,9 @@ public struct Memory
         //
         // ChatGPT had suggested assigning value.bigEndian to rvalue here, but turns out we
         // do not actually need it and without is slightly faster (e.g. 2.27175 vs. 3.01660).
-        // However: To make this work had to reverse the way I deal with pixel values.
+        // However: To make this work had to reverse the way we deal with pixel values,
+        // e.g. (UInt32(red) << 0) | (UInt32(green) << 8) | (UInt32(blue) << 16) | (UInt32(alpha) << 24)
+        // not: (UInt32(red) << 24) | (UInt32(green) << 16) | (UInt32(blue) << 8) | (UInt32(alpha) << 0)
         //
         var rvalue = value
         memset_pattern4(base, &rvalue, count * Memory.bufferBlockSize)
