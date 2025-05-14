@@ -125,37 +125,37 @@ class CellGrid: ObservableObject
                                    cellShape: self._cellShape,
                                    cellFactory: self._cellFactory)
 
-        for cell in self._cells!.gridCells {
-            if let lifeCell: LifeCell = self._cells?.gridCell(cell.x, cell.y) {
-                if (lifeCell.x == 0) {
-                    lifeCell.foreground = CellColor(Color.blue)
-                }
-                else if (lifeCell.x == 1) {
-                    lifeCell.foreground = CellColor(Color.purple)
-                }
-                else if (lifeCell.x == 7) {
-                    lifeCell.foreground = CellColor(Color.mint)
-                }
-                else if (lifeCell.x == 8) {
-                    lifeCell.foreground = CellColor(Color.green)
-                }
-                else if (lifeCell.x == 9) {
-                    lifeCell.foreground = CellColor(Color.red)
-                }
-                else if (lifeCell.x == 10) {
-                    lifeCell.foreground = CellColor(Color.yellow)
-                }
-                else if (lifeCell.x == 11) {
-                    lifeCell.foreground = CellColor(Color.orange)
-                }
-                else {
-                    lifeCell.foreground = CellColor.white
+        if let cells = self._cells {
+            for cell in cells.gridCells {
+                if let lifeCell: LifeCell = cells.gridCell(cell.x, cell.y) {
+                    if (lifeCell.x == 0) {
+                        lifeCell.foreground = CellColor(Color.blue)
+                    }
+                    else if (lifeCell.x == 1) {
+                        lifeCell.foreground = CellColor(Color.purple)
+                    }
+                    else if (lifeCell.x == 7) {
+                        lifeCell.foreground = CellColor(Color.mint)
+                    }
+                    else if (lifeCell.x == 8) {
+                        lifeCell.foreground = CellColor(Color.green)
+                    }
+                    else if (lifeCell.x == 9) {
+                        lifeCell.foreground = CellColor(Color.red)
+                    }
+                    else if (lifeCell.x == 10) {
+                        lifeCell.foreground = CellColor(Color.yellow)
+                    }
+                    else if (lifeCell.x == 11) {
+                        lifeCell.foreground = CellColor(Color.orange)
+                    }
+                    else {
+                        lifeCell.foreground = CellColor.white
+                    }
                 }
             }
+            cells.shift(shiftx: 0, shifty: 0)
         }
-        // viewWidth normal (387) work all around: 0, 30, 60, 90, -30, -90, scroll around
-        // viewWidth small (377) works: 0, -30, -60, -90, -43, -53, -8, -10, scroll around (except jerks left at start but maybe drag issue), 30, 60, 90, 43, 33, 8, 10
-        self._cells!.shift(shiftx: 0, shifty: 0)
 
         print_debug()
 
@@ -171,10 +171,6 @@ class CellGrid: ObservableObject
             if (self._displayScaling) {
                 print("DISPLAY-SIZE-US:    \(self._displayWidthUnscaled) x \(self._displayHeightUnscaled)")
             }
-            // print("CELL-GRID-COLS:         \(self._cells!.gridColumns)")
-            // print("CELL-GRID-ROWS:         \(self._cells!.gridRows)")
-            // print("CELL-VIEW-COLS:         \(self._cells!.viewColumns)")
-            // print("CELL-VIEW-ROWS:         \(self._cells!.viewRows)")
             print("CELL-SIZE:              \(self._cellSize)")
             if (self._displayScaling) {
                 print("CELL-SIZE-US:       \(self._cellSizeUnscaled)")
