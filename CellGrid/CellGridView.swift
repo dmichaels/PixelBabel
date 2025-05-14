@@ -626,8 +626,8 @@ class CellGridView {
         // A positive shifty means to truncate the values (pixels) UP from the given shifty value, and
         // a negative shifty means to truncate the values (pixels) DOWN from the given shifty value.
         //
-        // FYI went to a bunch of trouble experimenting with NOT writing the portaion of the inner solid
-        // square portion of the cell if the shift amount is such that it does not change; this yielded
+        // FYI went to a bunch of trouble experimenting with NOT writing the inner solid square portion
+        // of the cell if the shift amount is such that it does not change; this yielded
         // at best very marginal improvements if any, and with additional complexity; simply not worth it.
         // Find some of the experimental work in this branch:
         // performance-work-related-to-dynamic-resizing-20250510-checkpoint-with-inner-hollow-square-stuff-202505132246
