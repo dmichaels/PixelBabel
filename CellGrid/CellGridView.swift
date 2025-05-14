@@ -631,6 +631,7 @@ class CellGridView {
         // at best very marginal improvements if any, and with additional complexity; simply not worth it.
         // Find some of the experimental work in this branch:
         // performance-work-related-to-dynamic-resizing-20250510-checkpoint-with-inner-hollow-square-stuff-202505132246
+        // Be better off trying to switch to non-scaling when dragging or resizing; which has not been done yet.
         //
         internal func writeLeftOrRight(width: Int, shiftx: Int, write: CellGridView.WriteCellBlock) {
             let shiftw = abs(shiftx)
