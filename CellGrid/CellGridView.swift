@@ -102,10 +102,6 @@ class CellGridView {
                                                              cellPadding: self._cellPadding,
                                                              cellShape: self._cellShape,
                                                              cellTransparency: self._viewTransparency)
-        print("REGULAR-BLOCKS:")
-        self._bufferBlocks.dump()
-        print("HOLLOW-BLOCKS:")
-        self._bufferBlocks.dump(hollow: true)
         self._shiftCellX = 0
         self._shiftCellY = 0
         self._shiftX = 0
@@ -355,9 +351,7 @@ class CellGridView {
                 Memory.fastcopy(to: base, count: count, value: color)
             }
 
-            // for block in self._bufferBlocks.blocks {
-            if shifting { print("XYZ-USE-HOLLOW") }
-            for block in (false &&  shifting ? self._bufferBlocks.blocksHollow ?? [] : self._bufferBlocks.blocks) {
+            for block in self._bufferBlocks.blocks {
                 if (truncateLeft > 0) {
                     block.writeRight(width: self._viewWidth, shiftx: truncateLeft, write: writeCellBlock)
                 }
@@ -524,16 +518,14 @@ class CellGridView {
         internal let index: Int
         internal let foreground: Bool
         internal let blend: Float
-        internal var hollow: Bool
         internal var count: Int
         internal var lindex: Int
 
-        init(index: Int, count: Int, foreground: Bool, blend: Float, hollow: Bool) {
+        init(index: Int, count: Int, foreground: Bool, blend: Float) {
             self.index = max(index, 0)
             self.count = max(count, 0)
             self.foreground = foreground
             self.blend = blend
-            self.hollow = hollow
             self.lindex = self.index
         }
 
@@ -634,6 +626,12 @@ class CellGridView {
         // A positive shifty means to truncate the values (pixels) UP from the given shifty value, and
         // a negative shifty means to truncate the values (pixels) DOWN from the given shifty value.
         //
+        // FYI went to a bunch of trouble experimenting with NOT writing the portaion of the inner solid
+        // square portion of the cell if the shift amount is such that it does not change; this yielded
+        // at best very marginal improvements if any, and with additional complexity; simply not worth it.
+        // Find some of the experimental work in this branch:
+        // performance-work-related-to-dynamic-resizing-20250510-checkpoint-with-inner-hollow-square-stuff-202505132246
+        //
         internal func writeLeftOrRight(width: Int, shiftx: Int, write: CellGridView.WriteCellBlock) {
             let shiftw = abs(shiftx)
             let shiftl: Bool = (shiftx < 0)
@@ -675,7 +673,6 @@ class CellGridView {
     {
         private let _width: Int
         private var _blocks: [BufferBlock] = []
-        private var _blocksHollow: [BufferBlock]? = nil
 
         init(width: Int) {
             self._width = width
@@ -685,131 +682,16 @@ class CellGridView {
             self._blocks
         }
 
-        internal var blocksHollow: [BufferBlock]? {
-            self._blocksHollow
-        }
-
-        internal func dump(hollow: Bool = false) {
-            if hollow {
-                var x = 1
-            }
-            for block in (hollow ? self._blocksHollow ?? [] : self._blocks) {
-                for index in stride(from: block.index, to: block.index + block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
-                    if index == 9304 && hollow {
-                        var x =  1
-                    }
-                    let x = (index % self._width) / Memory.bufferBlockSize
-                    let y = (index / self._width) / Memory.bufferBlockSize
-                    print("INDEX> \(String(format: "%05d", index)) x: \(String(format:"%05d", x)) y: \(String(format: "%05d", y)) blend: \(block.foreground ? "FG" : "BG")-\(String(format: "%.1f", block.blend)) \(block.hollow ? ">>> HOLLOW" : "")")
-                }
-            }
-        }
-
-        internal func append(_ index: Int, foreground: Bool, blend: Float, hollow: Bool = false) {
+        internal func append(_ index: Int, foreground: Bool, blend: Float) {
             if let last = self._blocks.last,
                     last.foreground == foreground,
                     last.blend == blend,
-                    last.hollow == hollow,
                     index == last.lindex + Memory.bufferBlockSize {
                 last.count += 1
                 last.lindex = index
             } else {
-                self._blocks.append(BufferBlock(index: index, count: 1, foreground: foreground, blend: blend, hollow: hollow))
+                self._blocks.append(BufferBlock(index: index, count: 1, foreground: foreground, blend: blend))
             }
-        }
-
-        internal func createHollowBlocks() -> [BufferBlock]? {
-
-            let cellSize: Int = 43 // TODO
-            let cellPadding: Int = 1 // TODO
-
-            func findInnerSolidSquare() -> Int? {
-
-                let innerSolidSquareSize: Int? = nil
-                let cellSizeMinusPadding: Int = cellSize - cellPadding * 2
-
-                func isSolidSquareBlock(_ innerSolidSquareSize: Int) -> Bool {
-                    let startxy: Int = (cellSize - innerSolidSquareSize) / 2
-                    let endxy: Int = cellSize - startxy - 1
-                    var found: Bool = true
-                    for block in self._blocks {
-                        for index in stride(from: block.index, to: block.index + block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
-                            let x = (index % self._width) / Memory.bufferBlockSize
-                            let y = (index / self._width) / Memory.bufferBlockSize
-                            if x == 34 && y == 1 {
-                                var x = 1
-                            }
-                            if ((x >= startxy) && (x <= endxy) && (y >= startxy) && (y <= endxy)) {
-                                if (!block.foreground || (block.blend != 1.0)) {
-                                    found = false
-                                    break
-                                }
-                            }
-                        }
-                    }
-                    return found
-                }
-
-                let outerMostCellSize: Int = cellSize - cellPadding // * 2 - 8
-                let innerMostCellSize: Int = outerMostCellSize - outerMostCellSize / 2
-                for size in stride(from: outerMostCellSize, through: innerMostCellSize, by: -1) {
-                    if (isSolidSquareBlock(size)) {
-                        return size
-                    }
-                }
-
-                return nil
-            }
-
-            var blocksHollow: BufferBlocks = BufferBlocks(width: self._width)
-
-            if let innerSolidSquareSize = findInnerSolidSquare() {
-                // for cellSize == 43 -> innerSolidSquareSize == 35 -> startxy == 4 && endxy == 38
-                let startxy: Int = (cellSize - innerSolidSquareSize) / 2 + 0 // 5
-                let endxy: Int = cellSize - startxy - 1 - 0 // 10
-                for block in self._blocks {
-                    for index in stride(from: block.index, to: block.index + block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
-                        let x = (index % self._width) / Memory.bufferBlockSize
-                        let y = (index / self._width) / Memory.bufferBlockSize
-                        if (((x < startxy) || (x > endxy)) || ((y < startxy) || (y > endxy))) {
-                            // blocksHollow.append(index, foreground: block.foreground, blend: block.blend)
-                            blocksHollow.append(index, foreground: block.foreground, blend: block.blend, hollow: false)
-                        }
-                        else {
-                            if x == 4 && y == 6 {
-                                var x = 1
-                            }
-                            // blocksHollow.append(index, foreground: block.foreground, blend: block.blend, hollow: true)
-                        }
-                    }
-                }
-                return blocksHollow._blocks
-            }
-
-            /*
-            if let innerSolidSquareSize = findInnerSolidSquare() {
-                let startxy: Int = (cellSize - innerSolidSquareSize) / 2
-                let endxy: Int = cellSize - startxy - 1
-                for block in self._blocks {
-                    for index in stride(from: block.index, to: block.index + block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
-                        let x = (index % self._width) / Memory.bufferBlockSize
-                        let y = (index / self._width) / Memory.bufferBlockSize
-                        if (((x < startxy) || (x > endxy)) || ((y < startxy) || (y > endxy))) {
-                            // blocksHollow.append(index, foreground: block.foreground, blend: block.blend)
-                            blocksHollow.append(index, foreground: block.foreground, blend: block.blend, hollow: false)
-                        }
-                        else {
-                            if x == 4 && y == 6 {
-                                var x = 1
-                            }
-                            // blocksHollow.append(index, foreground: block.foreground, blend: block.blend, hollow: true)
-                        }
-                    }
-                }
-                return blocksHollow._blocks
-            }
-            */
-            return nil
         }
 
         internal static func createBufferBlocks(bufferSize: Int,
@@ -894,7 +776,6 @@ class CellGridView {
                 }
             }
 
-            blocks._blocksHollow = blocks.createHollowBlocks()
             return blocks
         }
     }
