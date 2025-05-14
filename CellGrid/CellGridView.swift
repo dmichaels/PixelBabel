@@ -244,39 +244,58 @@ class CellGridView {
 
         let viewCellFirstX: Bool = (viewCellX == 0)
         let viewCellLastX: Bool = (viewCellX == self._viewCellEndX + self._viewColumnsExtra)
-        var truncateLeft: Int = 0
-        var truncateRight: Int = 0
+        let truncateLeft: Int
+        let truncateRight: Int
 
         // Get the left/right truncation amount.
 
         if (self._shiftX > 0) {
             if (viewCellFirstX) {
                 truncateLeft = self._cellSize - self._shiftX
+                truncateRight = 0
             }
             else if (viewCellLastX) {
                 if (self._viewWidthExtra > 0) {
+                    truncateLeft = 0
                     truncateRight = (self._cellSize - self._shiftX + self._viewWidthExtra) % self._cellSize
                 }
                 else {
+                    truncateLeft = 0
                     truncateRight = self._cellSize - self._shiftX
                 }
+            }
+            else {
+                truncateLeft = 0
+                truncateRight = 0
             }
         }
         else if (self._shiftX < 0) {
             if (viewCellFirstX) {
                 truncateLeft = -self._shiftX
+                truncateRight = 0
             }
             else if (viewCellLastX) {
                 if (self._viewWidthExtra > 0) {
+                    truncateLeft = 0
                     truncateRight = (self._viewWidthExtra - self._shiftX) % self._cellSize
                 }
                 else {
+                    truncateLeft = 0
                     truncateRight = -self._shiftX
                 }
             }
+            else {
+                truncateLeft = 0
+                truncateRight = 0
+            }
         }
         else if ((self._viewWidthExtra > 0) && viewCellLastX) {
+            truncateLeft = 0
             truncateRight = self._viewWidthExtra
+        }
+        else {
+            truncateLeft = 0
+            truncateRight = 0
         }
 
         // Map the grid-view location to the cell-grid location.
