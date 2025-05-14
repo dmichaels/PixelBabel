@@ -347,8 +347,8 @@ class CellGridView {
         }
     }
 
-    public var shiftedBy: CellGridPoint {
-        return CellGridPoint(self._viewParent.unscaled(self._shiftCellX * self._cellSize + self._shiftX),
+    public var shiftedBy: CellLocation {
+        return CellLocation(self._viewParent.unscaled(self._shiftCellX * self._cellSize + self._shiftX),
                              self._viewParent.unscaled(self._shiftCellY * self._cellSize + self._shiftY))
     }
 
@@ -404,7 +404,7 @@ class CellGridView {
     // note that the display input location is always in unscaled units.
     //
     public func gridCell<T: Cell>(_ viewPoint: CGPoint) -> T? {
-        if let gridPoint: CellGridPoint = self.gridCellLocation(viewPoint) {
+        if let gridPoint: CellLocation = self.gridCellLocation(viewPoint) {
             return self.gridCell(gridPoint.x, gridPoint.y)
         }
         return nil
@@ -422,11 +422,11 @@ class CellGridView {
     // Returns the cell-grid cell location of the given grid-view input point, or nil;
     // note that the display input location is always in unscaled units.
     //
-    public func gridCellLocation(_ viewPoint: CGPoint) -> CellGridPoint? {
+    public func gridCellLocation(_ viewPoint: CGPoint) -> CellLocation? {
         return self.gridCellLocation(viewPoint.x, viewPoint.y)
     }
 
-    public func gridCellLocation(_ viewPointX: CGFloat, _ viewPointY: CGFloat) -> CellGridPoint? {
+    public func gridCellLocation(_ viewPointX: CGFloat, _ viewPointY: CGFloat) -> CellLocation? {
 
         if let viewCellLocation = self.viewCellLocation(viewPointX, viewPointY) {
             let shiftX: Int = self._viewParent.unscaled(self._shiftX)
@@ -435,26 +435,26 @@ class CellGridView {
             guard gridCellX >= 0, gridCellX < self._gridColumns else { return nil }
             let gridCellY: Int = viewCellLocation.y - self._shiftCellY - ((shiftY > 0) ? 1 : 0)
             guard gridCellY >= 0, gridCellY < self._gridRows else { return nil }
-            return CellGridPoint(gridCellX, gridCellY)
+            return CellLocation(gridCellX, gridCellY)
         }
         return nil
     }
 
-    public func viewCellFromGridCellLocation(_ gridCellX: Int, _ gridCellY: Int) -> CellGridPoint? {
+    public func viewCellFromGridCellLocation(_ gridCellX: Int, _ gridCellY: Int) -> CellLocation? {
         let shiftX: Int = self._viewParent.unscaled(self._shiftX)
         let shiftY: Int = self._viewParent.unscaled(self._shiftY)
         let viewCellX: Int = gridCellX + self._shiftCellX + ((shiftX > 0) ? 1 : 0)
         let viewCellY: Int = gridCellY + self._shiftCellY + ((shiftY > 0) ? 1 : 0)
-        return CellGridPoint(viewCellX, viewCellY)
+        return CellLocation(viewCellX, viewCellY)
     }
 
     // Returns the cell location relative to the grid-view of the given grid-view input point, or nil.
     //
-    public func viewCellLocation(_ viewPoint: CGPoint) -> CellGridPoint? {
+    public func viewCellLocation(_ viewPoint: CGPoint) -> CellLocation? {
         return self.viewCellLocation(viewPoint.x, viewPoint.y)
     }
 
-    public func viewCellLocation(_ viewPointX: CGFloat, _ viewPointY: CGFloat) -> CellGridPoint? {
+    public func viewCellLocation(_ viewPointX: CGFloat, _ viewPointY: CGFloat) -> CellLocation? {
         guard viewPointX >= 0.0, viewPointX < CGFloat(self._viewWidth),
               viewPointY >= 0.0, viewPointY < CGFloat(self._viewHeight) else { return nil }
         let shiftX: Int = self._viewParent.unscaled(self._shiftX)
@@ -464,7 +464,7 @@ class CellGridView {
                                            : (Int(floor(viewPointX)) - shiftX)) / cellSizeUnscaled
         let viewCellY: Int = ((shiftY > 0) ? (Int(floor(viewPointY)) + (self._viewParent.unscaled(self._cellSize) - shiftY))
                                            : (Int(floor(viewPointY)) - shiftY)) / cellSizeUnscaled
-        return CellGridPoint(viewCellX, viewCellY)
+        return CellLocation(viewCellX, viewCellY)
     }
 
     public var image: CGImage? {

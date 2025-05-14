@@ -19,8 +19,8 @@ class Cell
         self._y
     }
 
-    public var location: CellGridPoint {
-        CellGridPoint(self._x, self._y)
+    public var location: CellLocation {
+        CellLocation(self._x, self._y)
     }
 
     public var foreground: CellColor {

@@ -52,8 +52,8 @@ class CellGrid: ObservableObject
     private var _gridRows: Int = 21
     private var _cells: CellGridView? = nil
     private var _cellFactory: CellFactory?
-    private var _dragStart: CellGridPoint? = nil
-    private var _dragStartShifted: CellGridPoint? = nil
+    private var _dragStart: CellLocation? = nil
+    private var _dragStartShifted: CellLocation? = nil
 
     init(cellFactory: CellFactory? = nil) {
         self._cellFactory = cellFactory
@@ -296,11 +296,11 @@ class CellGrid: ObservableObject
 
     public func onDrag(_ location: CGPoint) {
         if (self._dragStartShifted == nil) {
-            self._dragStart = CellGridPoint(location)
+            self._dragStart = CellLocation(location)
             self._dragStartShifted = self._cells!.shiftedBy
         }
         else {
-            let dragLocation = CellGridPoint(location)
+            let dragLocation = CellLocation(location)
             let dragDeltaX = self._dragStart!.x - dragLocation.x
             let dragDeltaY = self._dragStart!.y - dragLocation.y
             let dragGridShiftX =  self._dragStartShifted!.x - dragDeltaX
@@ -390,7 +390,7 @@ class CellGrid: ObservableObject
         }
     }
 
-    public func locate(_ location: CGPoint) -> CellGridPoint? {
+    public func locate(_ location: CGPoint) -> CellLocation? {
         return self._cells?.gridCellLocation(location)
     }
 
