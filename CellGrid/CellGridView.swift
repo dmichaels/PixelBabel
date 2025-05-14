@@ -230,7 +230,7 @@ class CellGridView {
             }
         }
 
-        print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)]", Date().timeIntervalSince(debugStart)))
+        print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)] | blocks-memory: \(self._bufferBlocks.memoryUsageBytes)", Date().timeIntervalSince(debugStart)))
     }
 
     // Draws at the given grid view cell location (viewCellX, viewCellY), the grid cell currently corresponding
@@ -496,7 +496,8 @@ class CellGridView {
             internal let blend: Float
             internal var count: Int
             internal var width: Int
-            internal var lindex: Int
+            internal var indexLast: Int
+            internal var shiftxCache: [Int: [(index: Int, count: Int)]] = [:]
             internal typealias WriteCellBlock = (_ block: BufferBlock, _ index: Int, _ count: Int) -> Void
 
             init(index: Int, count: Int, foreground: Bool, blend: Float, width: Int) {
@@ -505,7 +506,7 @@ class CellGridView {
                 self.foreground = foreground
                 self.blend = blend
                 self.width = width
-                self.lindex = self.index
+                self.indexLast = self.index
             }
 
             // Write blocks using the given write function IGNORING indices to the RIGHT of the given shiftx value.
@@ -530,7 +531,7 @@ class CellGridView {
             // Note that the BufferBlock.index is a byte index into the buffer, i.e. it already has Screen.depth
             // factored into it; and note that the BufferBlock.count refers to the number of 4-byte (UInt32) values,
             //
-            internal func writeTruncated(shiftx: Int, write: WriteCellBlock) {
+            internal func old_writeTruncated(shiftx: Int, write: WriteCellBlock) {
                 let shiftw: Int = abs(shiftx)
                 let shiftl: Bool = (shiftx < 0)
                 let shiftr: Bool = (shiftx > 0)
@@ -563,6 +564,57 @@ class CellGridView {
                     write(self, j, count)
                 }
             }
+
+            internal func writeTruncated(shiftx: Int, write: WriteCellBlock) {
+
+                if let shiftxValues = self.shiftxCache[shiftx] {
+                    //
+                    // Caching block values (index, count) for x-shifting
+                    // speeds things up noticably (e.g. 0.02874s vs 0.07119s).
+                    //
+                    for shiftxValue in shiftxValues {
+                        write(self, shiftxValue.index, shiftxValue.count)
+                    }
+                    return
+                }
+
+                var shiftxValuesToCache: [(index: Int, count: Int)] = []
+
+                let shiftw: Int = abs(shiftx)
+                let shiftl: Bool = (shiftx < 0)
+                let shiftr: Bool = (shiftx > 0)
+                var index: Int? = nil
+                var count: Int = 0
+                for i in 0..<self.count {
+                    let starti: Int = self.index + i * Memory.bufferBlockSize
+                    let shift: Int = (starti / Memory.bufferBlockSize) % self.width
+                    if ((shiftr && (shift >= shiftw)) || (shiftl && (shift < shiftw))) {
+                        if (index == nil) {
+                            index = starti
+                            count = 1
+                        } else {
+                            count += 1
+                        }
+                    } else {
+                        if let j: Int = index {
+                            shiftxValuesToCache.append((index: j, count: count))
+                            write(self, j, count)
+                            if (shiftr && (shift > shiftw)) { break }
+                            else if (shiftl && (shift >= shiftw)) { break }
+                            index = nil
+                            count = 0
+                        } else {
+                            if (shiftr && (shift > shiftw)) { break }
+                            else if (shiftl && (shift >= shiftw)) { break }
+                        }
+                    }
+                }
+                if let j: Int = index {
+                    shiftxValuesToCache.append((index: j, count: count))
+                    write(self, j, count)
+                }
+                self.shiftxCache[shiftx] = shiftxValuesToCache
+            }
         }
 
         private let _width: Int
@@ -576,13 +628,23 @@ class CellGridView {
             self._blocks
         }
 
+        internal var memoryUsageBytes: Int {
+            let totalBlocks = self._blocks.count
+            let baseSize = MemoryLayout<BufferBlock>.stride
+            var totalTuples = 0
+            for block in self._blocks {
+                totalTuples += block.shiftxCache.values.reduce(0) { $0 + $1.count }
+            }
+            return totalTuples * MemoryLayout<(Int, Int)>.stride
+        }
+
         private func append(_ index: Int, foreground: Bool, blend: Float, width: Int) {
             if let last: BufferBlock = self._blocks.last,
                    last.foreground == foreground,
                    last.blend == blend,
-                   index == last.lindex + Memory.bufferBlockSize {
+                   index == last.indexLast + Memory.bufferBlockSize {
                 last.count += 1
-                last.lindex = index
+                last.indexLast = index
             } else {
                 self._blocks.append(BufferBlock(index: index, count: 1, foreground: foreground, blend: blend, width: width))
             }
