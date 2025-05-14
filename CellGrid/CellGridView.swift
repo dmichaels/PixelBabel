@@ -540,7 +540,7 @@ class CellGridView {
                     // FYI for really big cell-sizes (e.g. 250 unscaled) the size of this
                     // cache could exceed 25MB; not too bad really for the performance benefit.
                     // We could pre-populate this but it takes too longer (more than a second) for
-                    // larget cell-sizes; it would look like this at the end of createBufferBlocks:
+                    // larger cell-sizes; it would look like this at the end of createBufferBlocks:
                     //
                     //  for shiftx in 1...(cellSize - 1) {
                     //    func dummyWriteCellBlock(_ block: BufferBlocks.BufferBlock, _ index: Int, _ count: Int) {}
