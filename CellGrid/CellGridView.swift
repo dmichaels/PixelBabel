@@ -244,7 +244,6 @@ class CellGridView {
 
         let truncateLeft: Int
         let truncateRight: Int
-        let viewCellLastX: Bool = (viewCellX == self._viewCellEndX + self._viewColumnsExtra)
 
         // Get the left/right truncation amount.
 
@@ -253,7 +252,7 @@ class CellGridView {
                 truncateLeft = self._cellSize - self._shiftX
                 truncateRight = 0
             }
-            else if (viewCellLastX) {
+            else if (viewCellX == self._viewCellEndX + self._viewColumnsExtra) {
                 if (self._viewWidthExtra > 0) {
                     truncateLeft = 0
                     truncateRight = (self._cellSize - self._shiftX + self._viewWidthExtra) % self._cellSize
@@ -273,7 +272,7 @@ class CellGridView {
                 truncateLeft = -self._shiftX
                 truncateRight = 0
             }
-            else if (viewCellLastX) {
+            else if (viewCellX == self._viewCellEndX + self._viewColumnsExtra) {
                 if (self._viewWidthExtra > 0) {
                     truncateLeft = 0
                     truncateRight = (self._viewWidthExtra - self._shiftX) % self._cellSize
@@ -288,7 +287,7 @@ class CellGridView {
                 truncateRight = 0
             }
         }
-        else if ((self._viewWidthExtra > 0) && viewCellLastX) {
+        else if ((self._viewWidthExtra > 0) && (viewCellX == self._viewCellEndX + self._viewColumnsExtra)) {
             truncateLeft = 0
             truncateRight = self._viewWidthExtra
         }
