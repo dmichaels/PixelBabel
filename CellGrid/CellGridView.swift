@@ -14,8 +14,6 @@ class CellGridView {
     private let _viewParent: CellGrid
     private let _viewWidth: Int
     private let _viewHeight: Int
-    private let _viewWidthUnscaled: Int
-    private let _viewHeightUnscaled: Int
     private let _viewWidthExtra: Int
     private let _viewHeightExtra: Int
     private let _viewColumns: Int
@@ -65,8 +63,6 @@ class CellGridView {
         self._viewParent = viewParent
         self._viewWidth = viewWidth
         self._viewHeight = viewHeight
-        self._viewWidthUnscaled = viewParent.unscaled(self._viewWidth)
-        self._viewHeightUnscaled = viewParent.unscaled(self._viewHeight)
 
         self._cellSize = (cellSize > 0) ? cellSize : CellGrid.Defaults.cellSize
         self._cellSizeUnscaled = viewParent.unscaled(self._cellSize)
