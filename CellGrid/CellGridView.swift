@@ -370,18 +370,6 @@ class CellGridView {
                             cells: self._cells)
     }
 
-    public var viewColumns: Int {
-        self._viewColumns + self._viewRowsExtra
-    }
-
-    public var viewRows: Int {
-        self._viewRows + self._viewColumnsExtra
-    }
-
-    public var viewBackground: CellColor {
-        self._viewBackground
-    }
-
     public var gridColumns: Int {
         self._gridColumns
     }

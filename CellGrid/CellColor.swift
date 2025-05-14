@@ -5,8 +5,6 @@ import SwiftUI
 //
 struct CellColor: Equatable {
 
-    public static var _debugInitCount: Int = 0
-
     // These values works with Memory.fastcopy NOT using value.bigEndian;
     // if these were the opposite (i.e. red-24, green-16, blue-8, alpha-0)
     // then we would need to use value.bigEndian there; slightly faster without.
@@ -73,7 +71,6 @@ struct CellColor: Equatable {
     }
 
     init(_ color: UIColor) {
-        CellColor._debugInitCount += 1
         var red: CGFloat = 0
         var green: CGFloat = 0
         var blue: CGFloat = 0

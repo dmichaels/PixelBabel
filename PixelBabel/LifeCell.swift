@@ -40,7 +40,6 @@ class LifeCell: Cell {
     }
 
     func write() {
-        // TODO
         self.write(foreground: CellColor(Color.black))
     }
 

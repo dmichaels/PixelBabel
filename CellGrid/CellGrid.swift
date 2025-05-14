@@ -171,10 +171,10 @@ class CellGrid: ObservableObject
             if (self._displayScaling) {
                 print("DISPLAY-SIZE-US:    \(self._displayWidthUnscaled) x \(self._displayHeightUnscaled)")
             }
-            print("CELL-GRID-COLS:         \(self._cells!.gridColumns)")
-            print("CELL-GRID-ROWS:         \(self._cells!.gridRows)")
-            print("CELL-VIEW-COLS:         \(self._cells!.viewColumns)")
-            print("CELL-VIEW-ROWS:         \(self._cells!.viewRows)")
+            // print("CELL-GRID-COLS:         \(self._cells!.gridColumns)")
+            // print("CELL-GRID-ROWS:         \(self._cells!.gridRows)")
+            // print("CELL-VIEW-COLS:         \(self._cells!.viewColumns)")
+            // print("CELL-VIEW-ROWS:         \(self._cells!.viewRows)")
             print("CELL-SIZE:              \(self._cellSize)")
             if (self._displayScaling) {
                 print("CELL-SIZE-US:       \(self._cellSizeUnscaled)")
@@ -248,9 +248,9 @@ class CellGrid: ObservableObject
         self._cellBackground
     }
 
-    public func normalizedLocation(screenPoint: CGPoint,
-                                   gridOrigin: CGPoint,
-                                   orientation: OrientationObserver) -> CGPoint
+    public func normalizedPoint(screenPoint: CGPoint,
+                                gridOrigin: CGPoint,
+                                orientation: OrientationObserver) -> CGPoint
     {
         // Various oddities with upside-down mode and having to know the
         // previous orientation and whether or not we are an iPad and whatnot.
@@ -382,8 +382,8 @@ class CellGrid: ObservableObject
         }
     }
 
-    public func locate(_ location: CGPoint) -> CellLocation? {
-        return self._cells?.gridCellLocation(location)
+    public func locate(_ screenPoint: CGPoint) -> CellLocation? {
+        return self._cells?.gridCellLocation(screenPoint)
     }
 
     func testingLife() {
@@ -420,10 +420,6 @@ class CellGrid: ObservableObject
         }
         let end = Date()
         let elapsed = end.timeIntervalSince(start)
-    }
-
-    func writeCell(_ cell: Cell, _ color: CellColor, limit: Bool = true) {
-        cell.write(foreground: color, foregroundOnly: limit)
     }
 
     public var image: CGImage? {
