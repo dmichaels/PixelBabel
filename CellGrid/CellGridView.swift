@@ -418,7 +418,7 @@ class CellGridView {
 
     public func gridCellLocation(_ viewPointX: CGFloat, _ viewPointY: CGFloat) -> CellLocation? {
 
-        if let viewCellLocation = self.viewCellLocation(viewPointX, viewPointY) {
+        if let viewCellLocation: CellLocation = self.viewCellLocation(viewPointX, viewPointY) {
             let shiftX: Int = self._viewParent.unscaled(self._shiftX)
             let shiftY: Int = self._viewParent.unscaled(self._shiftY)
             let gridCellX: Int = viewCellLocation.x - self._shiftCellX - ((shiftX > 0) ? 1 : 0)
@@ -461,7 +461,7 @@ class CellGridView {
         var image: CGImage?
         self._buffer.withUnsafeMutableBytes { rawBuffer in
             guard let baseAddress = rawBuffer.baseAddress else { fatalError("No buffer base address") }
-            if let context = CGContext(
+            if let context: CGContext = CGContext(
                 data: baseAddress,
                 width: self._viewWidth,
                 height: self._viewHeight,
@@ -528,14 +528,14 @@ class CellGridView {
             // factored into it; and note that the BufferBlock.count refers to the number of 4-byte (UInt32) values,
             //
             internal func writeTruncated(shiftx: Int, write: WriteCellBlock) {
-                let shiftw = abs(shiftx)
+                let shiftw: Int = abs(shiftx)
                 let shiftl: Bool = (shiftx < 0)
                 let shiftr: Bool = (shiftx > 0)
                 var index: Int? = nil
-                var count = 0
+                var count: Int = 0
                 for i in 0..<self.count {
-                    let starti = self.index + i * Memory.bufferBlockSize
-                    let shift = (starti / Memory.bufferBlockSize) % self.width
+                    let starti: Int = self.index + i * Memory.bufferBlockSize
+                    let shift: Int = (starti / Memory.bufferBlockSize) % self.width
                     if ((shiftr && (shift >= shiftw)) || (shiftl && (shift < shiftw))) {
                         if (index == nil) {
                             index = starti
@@ -544,7 +544,7 @@ class CellGridView {
                             count += 1
                         }
                     } else {
-                        if let j = index {
+                        if let j: Int = index {
                             write(self, j, count)
                             if (shiftr && (shift > shiftw)) { break }
                             else if (shiftl && (shift >= shiftw)) { break }
@@ -556,7 +556,7 @@ class CellGridView {
                         }
                     }
                 }
-                if let j = index {
+                if let j: Int = index {
                     write(self, j, count)
                 }
             }
@@ -574,10 +574,10 @@ class CellGridView {
         }
 
         private func append(_ index: Int, foreground: Bool, blend: Float, width: Int) {
-            if let last = self._blocks.last,
-                    last.foreground == foreground,
-                    last.blend == blend,
-                    index == last.lindex + Memory.bufferBlockSize {
+            if let last: BufferBlock = self._blocks.last,
+                   last.foreground == foreground,
+                   last.blend == blend,
+                   index == last.lindex + Memory.bufferBlockSize {
                 last.count += 1
                 last.lindex = index
             } else {
