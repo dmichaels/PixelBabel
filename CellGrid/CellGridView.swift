@@ -9,6 +9,8 @@ import Utils
 // or anything weird; assume called from the buffer setting loop in the PixelMap._write method.
 
 class DEBUG {
+    public static var fastcopyBytes: Int = 0
+    public static var fastcopyCount: Int = 0
 }
 
 @MainActor
@@ -100,10 +102,10 @@ class CellGridView {
                                                              cellPadding: self._cellPadding,
                                                              cellShape: self._cellShape,
                                                              cellTransparency: self._viewTransparency)
-        // print("REGULAR-BLOCKS:")
-        // self._bufferBlocks.dump()
-        // print("HOLLOW-BLOCKS:")
-        //  self._bufferBlocks.dump(hollow: true)
+        print("REGULAR-BLOCKS:")
+        self._bufferBlocks.dump()
+        print("HOLLOW-BLOCKS:")
+        self._bufferBlocks.dump(hollow: true)
         self._shiftCellX = 0
         self._shiftCellY = 0
         self._shiftX = 0
@@ -122,6 +124,8 @@ class CellGridView {
 
     public func shift(shiftx: Int = 0, shifty: Int = 0)
     {
+        DEBUG.fastcopyBytes = 0
+        DEBUG.fastcopyCount = 0
         let debugStart = Date()
 
         // Normalize the given pixel level shift to cell and pixel level.
@@ -236,7 +240,7 @@ class CellGridView {
             }
         }
 
-        print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)] | cs: \(self._cellSize)", Date().timeIntervalSince(debugStart)))
+        print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)] | cs: \(self._cellSize) fcb: \(DEBUG.fastcopyBytes) fcc: \(DEBUG.fastcopyCount)", Date().timeIntervalSince(debugStart)))
     }
 
     private typealias WriteCellBlock = (_ block: CellGridView.BufferBlock, _ index: Int, _ count: Int) -> Void
@@ -346,25 +350,14 @@ class CellGridView {
                     color = self._viewBackground.value
                 }
 
-                /*
-                var rvalue = color.bigEndian
-                switch count {
-                case 1:
-                    base.storeBytes(of: rvalue, as: UInt32.self)
-                case 2:
-                    base.storeBytes(of: rvalue, as: UInt32.self)
-                    (base + Memory.bufferBlockSize).storeBytes(of: rvalue, as: UInt32.self)
-                default:
-                    memset_pattern4(base, &rvalue, count * Memory.bufferBlockSize)
-                }
-                */
-
+                DEBUG.fastcopyBytes += count
+                DEBUG.fastcopyCount += 1
                 Memory.fastcopy(to: base, count: count, value: color)
             }
 
             // for block in self._bufferBlocks.blocks {
-            // if shifting { print("XYZ-USE-HOLLOW") }
-            for block in (shifting && false ? self._bufferBlocks.blocksHollow ?? [] : self._bufferBlocks.blocks) {
+            if shifting { print("XYZ-USE-HOLLOW") }
+            for block in (false &&  shifting ? self._bufferBlocks.blocksHollow ?? [] : self._bufferBlocks.blocks) {
                 if (truncateLeft > 0) {
                     block.writeRight(width: self._viewWidth, shiftx: truncateLeft, write: writeCellBlock)
                 }
@@ -730,13 +723,13 @@ class CellGridView {
             let cellSize: Int = 43 // TODO
             let cellPadding: Int = 1 // TODO
 
-            func findLargestSolidInnerBlock() -> Int? {
+            func findInnerSolidSquare() -> Int? {
 
-                let innerCellSize: Int? = nil
+                let innerSolidSquareSize: Int? = nil
                 let cellSizeMinusPadding: Int = cellSize - cellPadding * 2
 
-                func isSolidSquareBlock(_ innerCellSize: Int) -> Bool {
-                    let startxy: Int = (cellSize - innerCellSize) / 2
+                func isSolidSquareBlock(_ innerSolidSquareSize: Int) -> Bool {
+                    let startxy: Int = (cellSize - innerSolidSquareSize) / 2
                     let endxy: Int = cellSize - startxy - 1
                     var found: Bool = true
                     for block in self._blocks {
@@ -757,7 +750,7 @@ class CellGridView {
                     return found
                 }
 
-                let outerMostCellSize: Int = cellSize - cellPadding * 2 - 8
+                let outerMostCellSize: Int = cellSize - cellPadding // * 2 - 8
                 let innerMostCellSize: Int = outerMostCellSize - outerMostCellSize / 2
                 for size in stride(from: outerMostCellSize, through: innerMostCellSize, by: -1) {
                     if (isSolidSquareBlock(size)) {
@@ -769,16 +762,15 @@ class CellGridView {
             }
 
             var blocksHollow: BufferBlocks = BufferBlocks(width: self._width)
-            let innerCellSize: Int? = findLargestSolidInnerBlock()
 
-            if (innerCellSize != nil) {
-                let startxy: Int = (cellSize - innerCellSize!) / 2
-                let endxy: Int = cellSize - startxy - 1
+            if let innerSolidSquareSize = findInnerSolidSquare() {
+                // for cellSize == 43 -> innerSolidSquareSize == 35 -> startxy == 4 && endxy == 38
+                let startxy: Int = (cellSize - innerSolidSquareSize) / 2 + 0 // 5
+                let endxy: Int = cellSize - startxy - 1 - 0 // 10
                 for block in self._blocks {
                     for index in stride(from: block.index, to: block.index + block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
                         let x = (index % self._width) / Memory.bufferBlockSize
                         let y = (index / self._width) / Memory.bufferBlockSize
-                        // if (((x < startxy) || (x > endxy)) && ((y < startxy) || (y > endxy))) {
                         if (((x < startxy) || (x > endxy)) || ((y < startxy) || (y > endxy))) {
                             // blocksHollow.append(index, foreground: block.foreground, blend: block.blend)
                             blocksHollow.append(index, foreground: block.foreground, blend: block.blend, hollow: false)
@@ -793,6 +785,30 @@ class CellGridView {
                 }
                 return blocksHollow._blocks
             }
+
+            /*
+            if let innerSolidSquareSize = findInnerSolidSquare() {
+                let startxy: Int = (cellSize - innerSolidSquareSize) / 2
+                let endxy: Int = cellSize - startxy - 1
+                for block in self._blocks {
+                    for index in stride(from: block.index, to: block.index + block.count * Memory.bufferBlockSize, by: Memory.bufferBlockSize) {
+                        let x = (index % self._width) / Memory.bufferBlockSize
+                        let y = (index / self._width) / Memory.bufferBlockSize
+                        if (((x < startxy) || (x > endxy)) || ((y < startxy) || (y > endxy))) {
+                            // blocksHollow.append(index, foreground: block.foreground, blend: block.blend)
+                            blocksHollow.append(index, foreground: block.foreground, blend: block.blend, hollow: false)
+                        }
+                        else {
+                            if x == 4 && y == 6 {
+                                var x = 1
+                            }
+                            // blocksHollow.append(index, foreground: block.foreground, blend: block.blend, hollow: true)
+                        }
+                    }
+                }
+                return blocksHollow._blocks
+            }
+            */
             return nil
         }
 
