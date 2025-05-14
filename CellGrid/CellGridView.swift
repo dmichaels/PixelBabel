@@ -531,40 +531,6 @@ class CellGridView {
             // Note that the BufferBlock.index is a byte index into the buffer, i.e. it already has Screen.depth
             // factored into it; and note that the BufferBlock.count refers to the number of 4-byte (UInt32) values,
             //
-            internal func old_writeTruncated(shiftx: Int, write: WriteCellBlock) {
-                let shiftw: Int = abs(shiftx)
-                let shiftl: Bool = (shiftx < 0)
-                let shiftr: Bool = (shiftx > 0)
-                var index: Int? = nil
-                var count: Int = 0
-                for i in 0..<self.count {
-                    let starti: Int = self.index + i * Memory.bufferBlockSize
-                    let shift: Int = (starti / Memory.bufferBlockSize) % self.width
-                    if ((shiftr && (shift >= shiftw)) || (shiftl && (shift < shiftw))) {
-                        if (index == nil) {
-                            index = starti
-                            count = 1
-                        } else {
-                            count += 1
-                        }
-                    } else {
-                        if let j: Int = index {
-                            write(self, j, count)
-                            if (shiftr && (shift > shiftw)) { break }
-                            else if (shiftl && (shift >= shiftw)) { break }
-                            index = nil
-                            count = 0
-                        } else {
-                            if (shiftr && (shift > shiftw)) { break }
-                            else if (shiftl && (shift >= shiftw)) { break }
-                        }
-                    }
-                }
-                if let j: Int = index {
-                    write(self, j, count)
-                }
-            }
-
             internal func writeTruncated(shiftx: Int, write: WriteCellBlock) {
 
                 if let shiftxValues = self.shiftxCache[shiftx] {
