@@ -8,7 +8,7 @@ class CellGrid: ObservableObject
 {
     struct Defaults {
         public static let debug: Bool = true
-        public static let debugVerbose: Bool = false
+        public static let debugVerbose: Bool = true
 
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
@@ -80,23 +80,11 @@ class CellGrid: ObservableObject
         self._cellColorMode = cellColorMode
         self._cellBackground = cellBackground
 
-        /*
-        let neatCells = CellGridView.preferredCellSizes(self._displayWidthUnscaled, self._displayHeightUnscaled)
-        if (cellSizeNeat) {
-            if let neatCell = CellGridView.closestPreferredCellSize(in: neatCells, to: self._cellSizeUnscaled) {
-                print_debug(neatCells, neatCell, verbose: true)
-                self._cellSize = self.scaled(neatCell.cellSize)
-                self._displayWidth = self.scaled(neatCell.viewWidth)
-                self._displayHeight = self.scaled(neatCell.viewHeight)
-                self._displayWidthUnscaled = neatCell.viewWidth
-                self._displayHeightUnscaled = neatCell.viewHeight
-            }
-        }
-        */
-        let preferredSize = CellGridView.preferredSize(viewWidth: displayWidth, viewHeight: displayHeight, cellSize: cellSize, enabled: cellSizeNeat)
-                self._cellSize = self.scaled(preferredSize.cellSize)
-                self._displayWidth = self.scaled(preferredSize.viewWidth)
-                self._displayHeight = self.scaled(preferredSize.viewHeight)
+        let preferredSize = CellGridView.preferredSize(viewWidth: displayWidth, viewHeight: displayHeight,
+                                                       cellSize: cellSize, enabled: cellSizeNeat)
+        self._cellSize = self.scaled(preferredSize.cellSize)
+        self._displayWidth = self.scaled(preferredSize.viewWidth)
+        self._displayHeight = self.scaled(preferredSize.viewHeight)
 
         if (Defaults.debug) { print_debug() }
 
@@ -149,15 +137,17 @@ class CellGrid: ObservableObject
                   (self._displayScaling ? " (UN: \(screen.width) x \(screen.height))" : ""))
             print("SCREEN-SCALE>             \(screen.scale)")
             print("VIEW-SCALING>             \(self._displayScaling)")
-            print("VIEW-SIZE-INITIAL>        \(displayWidth) x \(displayHeight) (UN)" +
-                  ((displayWidth != self.unscaled(self._displayWidth) || displayHeight != self.unscaled(self._displayHeight)
-                   ? " -->> PREFERRED: \(self.unscaled(self._displayWidth)) x \(self.unscaled(self._displayHeight)) (UN)" : "")))
+            print("VIEW-SIZE-INITIAL>        \(displayWidth) x \(displayHeight)" + (self._displayScaling ? " (UN)" : "") +
+                  ((displayWidth != self.unscaled(self._displayWidth) ||
+                   displayHeight != self.unscaled(self._displayHeight)
+                   ? " -->> PREFERRED: \(self.unscaled(self._displayWidth))" +
+                     (" x \(self.unscaled(self._displayHeight))" + (self._displayScaling ? " (UN)" : "")) : "")))
+            print("CELL-SIZE-INITIAL>        \(cellSize)" + (self._displayScaling ? " (UN)" : "") +
+                   (cellSize != self.unscaled(self._cellSize)
+                    ? (" -->> PREFERRED: \(self.unscaled(self._cellSize))" + (self._displayScaling ? " (UN)" : "")) : ""))
             print("VIEW-SIZE>                \(self._displayWidth) x \(self._displayHeight)" +
                   (self._displayScaling ?
                    " (UN: \(self.unscaled(self._displayWidth)) x \(self.unscaled(self._displayHeight)))" : ""))
-            print("CELL-SIZE-INITIAL>        \(cellSize) (UN)" +
-                   (cellSize != self.unscaled(self._cellSize)
-                    ? " -->> PREFERRED: \(self.unscaled(self._cellSize)) (UN)" : ""))
             print("CELL-SIZE>                \(self._cellSize)" +
                   (self._displayScaling ? " (UN: \(self.unscaled(self._cellSize)))" : ""))
             print("CELL-PADDING>             \(self._cellPadding)" +
@@ -178,7 +168,8 @@ class CellGrid: ObservableObject
                           " MARGINS: \(String(format: "%2d", self._displayWidth - self.scaled(size.viewWidth)))" +
                           " x \(String(format: "%2d", self._displayHeight - self.scaled(size.viewHeight)))" +
                           (self._displayScaling ? (" (UN: \(String(format: "%2d", self.unscaled(self._displayWidth) - size.viewWidth))"
-                                                   + "x \(String(format: "%2d", self.unscaled(self._displayHeight) - size.viewHeight)))") : ""))
+                                                   + "x \(String(format: "%2d", self.unscaled(self._displayHeight) - size.viewHeight)))") : "") +
+                          ((size.cellSize == self.unscaled(self._cellSize)) ? " <<<" : ""))
                 }
             }
         }
