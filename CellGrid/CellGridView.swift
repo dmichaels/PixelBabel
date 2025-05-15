@@ -390,13 +390,27 @@ class CellGridView {
         let foreground: CellColor = self.gridCell(gridCellX, gridCellY)?.foreground ?? self._viewBackground
         let foregroundOnly: Bool = false
 
-        // Setup the offset for the buffer blocks.
+        // Setup the offset for the buffer blocks; offset used within writeCellBlock.
 
         let shiftX: Int = (self._shiftX > 0) ? self._shiftX - self._cellSize : self._shiftX
         let shiftY: Int = (self._shiftY > 0) ? self._shiftY - self._cellSize : self._shiftY
         let offset: Int = ((self._cellSize * viewCellX) + shiftX +
                            (self._cellSizeTimesViewWidth * viewCellY + shiftY * self._viewWidth)) * Screen.depth
         let size: Int = self._buffer.count
+
+        // Precompute as much as possible the specific color values needed in writeCellBlock;
+        // the writeCellBlock function is real tight inner loop code so squeezing out optimizations.
+
+        let fg: UInt32 = foreground.value
+        let fgr: Float = Float(foreground.red)
+        let fgg: Float = Float(foreground.green)
+        let fgb: Float = Float(foreground.blue)
+        let fga: UInt32 = UInt32(foreground.alpha) << CellColor.ASHIFT
+
+        let bg: UInt32 = self._viewBackground.value
+        let bgr: Float = Float(self._viewBackground.red)
+        let bgg: Float = Float(self._viewBackground.green)
+        let bgb: Float = Float(self._viewBackground.blue)
 
         // Loop through the blocks for the cell and write each of the indices to the buffer with the right colors/blends.
         // Being careful to truncate the left or right side of the cell appropriately (tricky stuff).
@@ -407,41 +421,36 @@ class CellGridView {
 
             func writeCellBlock(_ block: BufferBlocks.BufferBlock, _ index: Int, _ count: Int)
             {
-                // Uses from outer scope: buffer, offset
+                // Uses/captures from outer scope: buffer; offset; fg, bg, and related values.
 
                 let start: Int = offset + index
 
-                guard start >= 0, (start + (count * Memory.bufferBlockSize)) <= size else {
+                guard start >= 0, (start + (count * Memory.bufferBlockSize)) < size else {
                     //
-                    // TODO
+                    // N.B. Recently change about guard from "<= size" to  "< size" because it was off by one,
+                    // just making a not of it here in case something for some reasone breaks (2025-05-15 12:40).
+                    //
                     // At least (and only pretty sure) for the Y (vertical) case we get here on shifting;
                     // why; because we are being sloppy with the vertical, because it was easier.
                     //
                     return
                 }
-
-                let color: UInt32
-
                 if (block.foreground) {
                     if (block.blend != 1.0) {
-                        color = CellColor.blendValueOf(foreground, self._viewBackground, amount: block.blend)
+                        let blend: Float = block.blend
+                        let blendr: Float = 1.0 - block.blend
+                        Memory.fastcopy(to: buffer.advanced(by: start), count: count,
+                                        value: (UInt32(UInt8(fgr * blend + bgr * blendr)) << CellColor.RSHIFT) |
+                                               (UInt32(UInt8(fgg * blend + bgg * blendr)) << CellColor.GSHIFT) |
+                                               (UInt32(UInt8(fgb * blend + bgb * blendr)) << CellColor.BSHIFT) | fga)
                     }
                     else {
-                        color = foreground.value
+                        Memory.fastcopy(to: buffer.advanced(by: start), count: count, value: fg)
                     }
                 }
-                else if (foregroundOnly) {
-                    //
-                    // Limit the write to only the foreground; can be useful
-                    // for performance as background normally doesn't change.
-                    //
-                    return
+                else if (!foregroundOnly) {
+                    Memory.fastcopy(to: buffer.advanced(by: start), count: count, value: bg)
                 }
-                else {
-                    color = self._viewBackground.value
-                }
-
-                Memory.fastcopy(to: buffer.advanced(by: start), count: count, value: color)
             }
 
             if (truncate != 0) {
@@ -653,9 +662,7 @@ class CellGridView {
                     //    }
                     //  }
                     //
-                    for shiftxValue in shiftxValues {
-                        write(self, shiftxValue.index, shiftxValue.count)
-                    }
+                    self.shiftxCache[shiftx]?.forEach { write(self, $0.index, $0.count) }
                     return
                 }
 

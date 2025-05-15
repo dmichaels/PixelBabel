@@ -9,10 +9,10 @@ struct CellColor: Equatable {
     // if these were the opposite (i.e. red-24, green-16, blue-8, alpha-0)
     // then we would need to use value.bigEndian there; slightly faster without.
     //
-    private static let RSHIFT : Int = 0
-    private static let GSHIFT : Int = 8
-    private static let BSHIFT: Int = 16
-    private static let ASHIFT: Int = 24
+    public static let RSHIFT : Int = 0
+    public static let GSHIFT : Int = 8
+    public static let BSHIFT: Int = 16
+    public static let ASHIFT: Int = 24
 
     public static let OPAQUE: UInt8 = 255
 
