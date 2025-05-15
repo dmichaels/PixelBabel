@@ -438,7 +438,7 @@ class CellGridView {
                 if (block.foreground) {
                     if (block.blend != 1.0) {
                         let blend: Float = block.blend
-                        let blendr: Float = 1.0 - block.blend
+                        let blendr: Float = 1.0 - blend
                         Memory.fastcopy(to: buffer.advanced(by: start), count: count,
                                         value: (UInt32(UInt8(fgr * blend + bgr * blendr)) << CellColor.RSHIFT) |
                                                (UInt32(UInt8(fgg * blend + bgg * blendr)) << CellColor.GSHIFT) |
