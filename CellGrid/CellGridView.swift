@@ -17,11 +17,24 @@ import Utils
 class CellGridView {
 
     struct Defaults {
+        public static var preferredSizeMarginMax: Int = 30
         public static let cellAntialiasFade: Float = 0.6  // smaller is smoother
         public static let cellRoundedRectangleRadius: Float = 0.25
     }
 
-    private let _viewParent: CellGrid
+    // Dependent on scaling:
+    //
+    // _viewWidth
+    // _viewHeight
+    // _viewWidthExtra
+    // _viewHeightExtra
+    // _viewColumns
+    // _viewRows
+    // _viewCellEndX
+    // _viewCellEndY
+
+    private let _viewScaling: Bool
+    private let _viewScale: CGFloat
     private let _viewWidth: Int
     private let _viewHeight: Int
     private let _viewWidthExtra: Int
@@ -32,8 +45,6 @@ class CellGridView {
     private let _viewCellEndY: Int
     private let _viewBackground: CellColor
     private let _viewTransparency: UInt8
-    private let _viewScaling: Bool
-    private let _viewScale: CGFloat
 
     private let _gridColumns: Int
     private let _gridRows: Int
@@ -58,8 +69,7 @@ class CellGridView {
     private var _viewColumnsExtra: Int
     private var _viewRowsExtra: Int
 
-    init(viewParent: CellGrid,
-         viewWidth: Int,
+    init(viewWidth: Int,
          viewHeight: Int,
          viewBackground: CellColor,
          viewTransparency: UInt8 = CellColor.OPAQUE,
@@ -73,7 +83,9 @@ class CellGridView {
          cells: [Cell]? = nil,
          buffer: [UInt8]? = nil)
     {
-        self._viewParent = viewParent
+        self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
+        self._viewScale = Screen.shared.scale
+
         self._viewWidth = viewWidth
         self._viewHeight = viewHeight
 
@@ -90,8 +102,6 @@ class CellGridView {
         self._viewHeightExtra = self._viewHeight % self._cellSize
         self._viewBackground = viewBackground
         self._viewTransparency = viewTransparency
-        self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
-        self._viewScale = Screen.shared.scale
 
         self._gridColumns = gridColumns > 0 ? gridColumns : self._viewColumns
         self._gridRows = gridRows > 0 ? gridRows : self._viewRows
@@ -124,8 +134,75 @@ class CellGridView {
         }
     }
 
+    /*
+    private func initSizes(viewWidth: Int,
+                           viewHeight: Int,
+                           viewBackground: CellColor,
+                           viewScaling: Bool,
+                           gridColumns: Int,
+                           gridRows: Int,
+                           cellSize: Int,
+                           cellPadding: Int)
+    {
+        self._viewScaling = [CellShape.square, CellShape.inset].contains(self._cellShape) ? false : viewScaling
+
+        self._viewWidth = viewWidth
+        self._viewHeight = viewHeight
+
+        self._cellSize = (cellSize > 0) ? cellSize : CellGrid.Defaults.cellSize
+        self._cellSizeTimesViewWidth = self._cellSize * self._viewWidth
+        self._cellPadding = (cellPadding > 0) ? cellPadding : CellGrid.Defaults.cellPadding
+
+        self._viewColumns = self._viewWidth / self._cellSize
+        self._viewRows = self._viewHeight / self._cellSize
+        self._viewCellEndX = self._viewColumns - 1
+        self._viewCellEndY = self._viewRows - 1
+        self._viewWidthExtra = self._viewWidth % self._cellSize
+        self._viewHeightExtra = self._viewHeight % self._cellSize
+
+        self._gridColumns = gridColumns > 0 ? gridColumns : self._viewColumns
+        self._gridRows = gridRows > 0 ? gridRows : self._viewRows
+        self._gridCellEndX = self._gridColumns - 1
+        self._gridCellEndY = self._gridRows - 1
+
+        self._buffer = Memory.allocate(self._viewWidth * self._viewHeight * Screen.depth)
+        self._bufferBlocks = BufferBlocks.createBufferBlocks(bufferSize: self._buffer.count,
+                                                             viewWidth: self._viewWidth,
+                                                             viewHeight: self._viewHeight,
+                                                             cellSize: self._cellSize,
+                                                             cellPadding: self._cellPadding,
+                                                             cellShape: self._cellShape,
+                                                             cellTransparency: self._viewTransparency)
+        self._shiftCellX = 0
+        self._shiftCellY = 0
+        self._shiftX = 0
+        self._shiftY = 0
+        self._viewColumnsExtra = (self._viewWidthExtra > 0) ? 1 : 0
+        self._viewRowsExtra = (self._viewHeightExtra > 0) ? 1 : 0
+    }
+    */
+
     public var viewScale: CGFloat {
         self._viewScaling ? self._viewScale : 1.0
+    }
+
+    public var viewScaling: Bool {
+        get { self._viewScaling }
+        /*
+        set {
+            if (newValue != self._viewScaling) {
+                self._buffer = Memory.allocate(self._viewWidth * self._viewHeight * Screen.depth)
+                self._bufferBlocks = BufferBlocks.createBufferBlocks(bufferSize: self._buffer.count,
+                                                                     viewWidth: self._viewWidth,
+                                                                     viewHeight: self._viewHeight,
+                                                                     cellSize: self._cellSize,
+                                                                     cellPadding: self._cellPadding,
+                                                                     cellShape: self._cellShape,
+                                                                     cellTransparency: self._viewTransparency)
+                self._viewScaling = newValue
+            }
+        }
+        */
     }
 
     internal func scaled(_ value: Int) -> Int {
@@ -389,8 +466,7 @@ class CellGridView {
         if (cellSize == self._cellSize) {
             return self
         }
-        return CellGridView(viewParent: self._viewParent,
-                            viewWidth: self._viewWidth,
+        return CellGridView(viewWidth: self._viewWidth,
                             viewHeight: self._viewHeight,
                             viewBackground: self._viewBackground,
                             viewTransparency: self._viewTransparency,
@@ -741,13 +817,26 @@ class CellGridView {
 
     typealias PreferredSize = (cellSize: Int, viewWidth: Int, viewHeight: Int)
 
-    // Returns a list of preferred sizes for the cell size, such that the fit evenly without bleeding out
-    // past the end; the given dimensions, as well as the returned ones, are assumed to unscaled values;
+    // Returns a list of preferred sizes for the cell size, such that they fit evenly without bleeding
+    // out past the end of the view; the given and returned dimensions are assumed to be unscaled values.
     //
-    public static func preferredCellSizes(_ viewWidth: Int,
-                                          _ viewHeight: Int,
-                                          cellPreferredSizeMarginMax: Int = CellGrid.Defaults.cellPreferredSizeMarginMax)
-                                          -> [PreferredSize] {
+    public static func preferredSize(viewWidth: Int, viewHeight: Int, cellSize: Int,
+                                     preferredSizeMarginMax: Int = Defaults.preferredSizeMarginMax,
+                                     enabled: Bool = true) -> PreferredSize
+    {
+        if (enabled) {
+            let sizes = CellGridView.preferredSizes(viewWidth: viewWidth, viewHeight: viewHeight,
+                                                    preferredSizeMarginMax: preferredSizeMarginMax)
+            if let size = CellGridView.closestPreferredCellSize(in: sizes, to: cellSize) {
+                return size
+            }
+        }
+        return (viewWidth: viewWidth, viewHeight: viewHeight, cellSize: cellSize)
+    }
+
+    public static func preferredSizes(viewWidth: Int, viewHeight: Int,
+                                      preferredSizeMarginMax: Int = Defaults.preferredSizeMarginMax)
+                                      -> [PreferredSize] {
         let mindim: Int = min(viewWidth, viewHeight)
         guard mindim > 0 else { return [] }
         var results: [PreferredSize] = []
@@ -758,7 +847,7 @@ class CellGridView {
             let usedh: Int = nrows * cellSize
             let leftx: Int = viewWidth - usedw
             let lefty: Int = viewHeight - usedh
-            if ((leftx <= cellPreferredSizeMarginMax) && (lefty <= cellPreferredSizeMarginMax)) {
+            if ((leftx <= preferredSizeMarginMax) && (lefty <= preferredSizeMarginMax)) {
                 results.append((cellSize: cellSize, viewWidth: usedw, viewHeight: usedh))
             }
         }

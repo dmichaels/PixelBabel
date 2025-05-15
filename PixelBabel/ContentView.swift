@@ -118,10 +118,8 @@ struct ContentView: View
                     if (!self.cellGridConfigured) {
                         self.cellGridConfigured = true
                         self.geometrySize = geometry.size
-                        print("ON-APPEAR: geosize: \(geometrySize.width) x \(geometrySize.height)")
                         Screen.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
                         let landscape = self.orientation.current.isLandscape
-                        print("CALL-CONFIGURE")
                         self.cellGrid.configure(
                             screen: Screen.shared,
                             displayWidth: landscape ? Screen.shared.height : Screen.shared.width,
@@ -132,13 +130,9 @@ struct ContentView: View
                             cellColorMode: DefaultSettings.cellColorMode,
                             cellBackground: DefaultSettings.cellBackground)
                         // self.cellGrid.randomize()
-                        print("XYZZY-A")
                         // self.cellGrid.testingLifeSetup()
-                        print("XYZZY-B")
                         self.updateImage()
-                        print("XYZZY-C")
                         self.rotateImage()
-                        print("XYZZY-D")
                     }
                 }
                 .navigationTitle("Home")
