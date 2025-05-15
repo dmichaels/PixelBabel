@@ -11,7 +11,7 @@ class CellGrid: ObservableObject
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
-        public static let displayTransparency: UInt8 = 255
+        public static let displayTransparency: UInt8 = CellColor.OPAQUE
         public static let cellSize: Int = 43 // 51
         public static let cellSizeNeat: Bool = true // TODO/xyzzy
         public static let cellPadding: Int = 1
@@ -24,8 +24,6 @@ class CellGrid: ObservableObject
         public static let cellColorMode: CellColorMode = CellColorMode.color
         public static let cellForeground: CellColor = CellColor(Color.teal) // CellColor.black
         public static let cellBackground: CellColor = CellColor(40, 40, 40)
-        public static let cellAntialiasFade: Float = 0.6
-        public static let cellRoundedRectangleRadius: Float = 0.25
         public static var cellPreferredSizeMarginMax: Int = 30
         public static let cellLimitUpdate: Bool = true
         public static let colorSpace = CGColorSpaceCreateDeviceRGB()
@@ -44,13 +42,11 @@ class CellGrid: ObservableObject
     private var _cellShape: CellShape = Defaults.cellShape
     private var _cellColorMode: CellColorMode = Defaults.cellColorMode
     private var _cellBackground: CellColor = Defaults.cellBackground
-    private var _cellAntialiasFade: Float = Defaults.cellAntialiasFade
-    private var _cellRoundedRectangleRadius: Float = Defaults.cellRoundedRectangleRadius
     private var _cellPreferredSizeMarginMax: Int = Defaults.cellPreferredSizeMarginMax
     private var _cellLimitUpdate: Bool = Defaults.cellLimitUpdate
     private var _gridColumns: Int = 12
     private var _gridRows: Int = 21
-    private var _cells: CellGridView? = nil
+    private var _cellGridView: CellGridView? = nil
     private var _cellFactory: Cell.Factory?
     private var _dragStart: CellLocation? = nil
     private var _dragStartShifted: CellLocation? = nil
@@ -95,18 +91,19 @@ class CellGrid: ObservableObject
             if let neatCell = CellGridView.closestPreferredCellSize(in: neatCells, to: self._cellSizeUnscaled) {
                 print_debug(neatCells, neatCell, verbose: true)
                 self._cellSize = self.scaled(neatCell.cellSize)
-                self._displayWidth = self.scaled(neatCell.displayWidth)
-                self._displayHeight = self.scaled(neatCell.displayHeight)
-                self._displayWidthUnscaled = neatCell.displayWidth
-                self._displayHeightUnscaled = neatCell.displayHeight
+                self._displayWidth = self.scaled(neatCell.viewWidth)
+                self._displayHeight = self.scaled(neatCell.viewHeight)
+                self._displayWidthUnscaled = neatCell.viewWidth
+                self._displayHeightUnscaled = neatCell.viewHeight
             }
         }
 
-        self._cells = CellGridView(viewParent: self,
+        self._cellGridView = CellGridView(viewParent: self,
                                    viewWidth: self._displayWidth,
                                    viewHeight: self._displayHeight,
                                    viewBackground: self._cellBackground,
                                    viewTransparency: Defaults.displayTransparency,
+                                   viewScaling: self._displayScaling,
                                    gridColumns: self._gridColumns,
                                    gridRows: self._gridRows,
                                    cellSize: self._cellSize,
@@ -114,7 +111,7 @@ class CellGrid: ObservableObject
                                    cellShape: self._cellShape,
                                    cellFactory: self._cellFactory)
 
-        if let cells = self._cells {
+        if let cells = self._cellGridView {
             for cell in cells.gridCells {
                 if let lifeCell: LifeCell = cells.gridCell(cell.x, cell.y) {
                     if (lifeCell.x == 0) {
@@ -172,14 +169,14 @@ class CellGrid: ObservableObject
             if (verbose) {
                 for neatCell in neatCells {
                     print("NEAT-CELL-US> CELL-SIZE \(neatCell.cellSize)" +
-                          " | DISPLAY: \(neatCell.displayWidth) x \(neatCell.displayHeight)" +
+                          " | DISPLAY: \(neatCell.viewWidth) x \(neatCell.viewHeight)" +
                           (self._displayScaling ?
-                          " | DISPLAY-US: \(self.unscaled(neatCell.displayWidth)) x \(self.unscaled(neatCell.displayHeight))" : "") +
-                          " | MARGINS: [\(self._displayWidth - self.scaled(neatCell.displayWidth))" +
-                          ",\(self._displayHeight - self.scaled(neatCell.displayHeight))]" +
+                          " | DISPLAY-US: \(self.unscaled(neatCell.viewWidth)) x \(self.unscaled(neatCell.viewHeight))" : "") +
+                          " | MARGINS: [\(self._displayWidth - self.scaled(neatCell.viewWidth))" +
+                          ",\(self._displayHeight - self.scaled(neatCell.viewHeight))]" +
                           (self._displayScaling ?
-                          " | MARGINS-US: [\(self._displayWidthUnscaled - neatCell.displayWidth)" +
-                          ",\(self._displayHeightUnscaled - neatCell.displayHeight)]" : ""))
+                          " | MARGINS-US: [\(self._displayWidthUnscaled - neatCell.viewWidth)" +
+                          ",\(self._displayHeightUnscaled - neatCell.viewHeight)]" : ""))
                 }
             }
             print("INIT-DISPLAY-SIZE:         \(self._displayWidth) x \(self._displayHeight)")
@@ -190,9 +187,9 @@ class CellGrid: ObservableObject
             if (self._displayScaling) {
                 print("INIT-CELL-SIZE-US:         \(self._cellSizeUnscaled)")
             }
-            print("NEAT-DISPLAY-SIZE:         \(self.scaled(neatCell.displayWidth)) x \(self.scaled(neatCell.displayHeight))")
+            print("NEAT-DISPLAY-SIZE:         \(self.scaled(neatCell.viewWidth)) x \(self.scaled(neatCell.viewHeight))")
             if (self._displayScaling) {
-                print("NEAT-DISPLAY-SIZE-US:      \(neatCell.displayWidth) x \(neatCell.displayHeight)")
+                print("NEAT-DISPLAY-SIZE-US:      \(neatCell.viewWidth) x \(neatCell.viewHeight)")
             }
             print("NEAT-CELL-SIZE:            \(self.scaled(neatCell.cellSize))")
             if (self._displayScaling) {
@@ -202,7 +199,7 @@ class CellGrid: ObservableObject
     }
 
     public var displayScale: CGFloat {
-        self._displayScaling ? self._displayScale : 1
+        self._cellGridView!.viewScale
     }
 
     internal func scaled(_ value: Int) -> Int {
@@ -252,7 +249,7 @@ class CellGrid: ObservableObject
     }
 
     public func onDrag(_ location: CGPoint) {
-        if let cells = self._cells {
+        if let cells = self._cellGridView {
             if (self._dragStartShifted == nil) {
                 self._dragStart = CellLocation(location)
                 self._dragStartShifted = cells.shiftedBy
@@ -274,27 +271,28 @@ class CellGrid: ObservableObject
     }
 
     public func onTap(_ location: CGPoint) {
-        if let cells = self._cells {
+        if let cells = self._cellGridView {
             if let cell: LifeCell = cells.gridCell(location) {
                 if cell.x == 0 && cell.y == 0 {
                     let incrementCellSize = 8
                     self._cellSize += self.scaled(incrementCellSize)
-                    self._cells = CellGridView(viewParent: self,
+                    self._cellGridView = CellGridView(viewParent: self,
                                                viewWidth: self._displayWidth,
                                                viewHeight: self._displayHeight,
                                                // viewWidth: 400, // for 51
                                                // viewHeight: 850, // for 51
                                                viewBackground: self._cellBackground,
                                                viewTransparency: Defaults.displayTransparency,
+                                               viewScaling: self._displayScaling,
                                                gridColumns: self._gridColumns,
                                                gridRows: self._gridRows,
                                                cellSize: self._cellSize,
                                                cellPadding: self._cellPadding,
                                                cellShape: self._cellShape,
                                                cellFactory: self._cellFactory)
-                                               // cells: self._cells!._cells,
-                                               // buffer: self._cells!._buffer)
-                    self._cells!.shift(shiftx: 0, shifty: 0)
+                                               // cells: self._cellGridView!._cells,
+                                               // buffer: self._cellGridView!._buffer)
+                    self._cellGridView!.shift(shiftx: 0, shifty: 0)
                 }
                 else {
                     cell.toggle()
@@ -305,21 +303,21 @@ class CellGrid: ObservableObject
     }
 
     public func locate(_ screenPoint: CGPoint) -> CellLocation? {
-        if let cells = self._cells {
+        if let cells = self._cellGridView {
             return cells.gridCellLocation(screenPoint)
         }
         return nil
     }
 
     func testingLife() {
-        if let cells = self._cells {
+        if let cells = self._cellGridView {
             cells.nextGeneration()
         }
     }
 
 /*
     func randomize() {
-        if let cells = self._cells {
+        if let cells = self._cellGridView {
             CellGrid._randomize(displayWidth: self._displayWidth,
                                 displayHeight: self._displayHeight,
                                 cellSize: self.cellSize,
@@ -351,6 +349,6 @@ class CellGrid: ObservableObject
 */
 
     public var image: CGImage? {
-        self._cells?.image
+        self._cellGridView?.image
     }
 }

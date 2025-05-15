@@ -14,6 +14,8 @@ struct CellColor: Equatable {
     private static let BSHIFT: Int = 16
     private static let ASHIFT: Int = 24
 
+    public static let OPAQUE: UInt8 = 255
+
     var _red: UInt8
     var _green: UInt8
     var _blue: UInt8

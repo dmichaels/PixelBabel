@@ -3,7 +3,7 @@ import SwiftUI
 @MainActor
 public class Screen: ObservableObject
 {
-    public static let shared = Screen()
+    public static let shared: Screen = Screen()
 
     // These initial values are technically just guesses as the real info should be
     // be obtained via the onAppear event of the main view within a GeometryReader;

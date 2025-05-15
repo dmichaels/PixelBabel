@@ -15,8 +15,8 @@ class DefaultSettings
     public static let cellColorMode: CellColorMode      = CellGrid.Defaults.cellColorMode
     public static let cellForeground: CellColor         = CellGrid.Defaults.cellForeground
     public static let cellBackground: CellColor         = CellGrid.Defaults.cellBackground
-    public static let cellAntialiasFade: Float          = CellGrid.Defaults.cellAntialiasFade
-    public static let cellRoundedRectangleRadius: Float = CellGrid.Defaults.cellRoundedRectangleRadius
+    public static let cellAntialiasFade: Float          = CellGridView.Defaults.cellAntialiasFade
+    public static let cellRoundedRectangleRadius: Float = CellGridView.Defaults.cellRoundedRectangleRadius
     public static let cellPreferredSizeMarginMax: Int   = CellGrid.Defaults.cellPreferredSizeMarginMax
     public static let cellLimitUpdate: Bool             = CellGrid.Defaults.cellLimitUpdate
     public static let automationEnabled: Bool           = true
