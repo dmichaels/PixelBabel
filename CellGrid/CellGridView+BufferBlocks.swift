@@ -1,12 +1,4 @@
-//
-//  CellGridView+BufferBlocks.swift
-//  PixelBabel
-//
-//  Created by David Michaels on 5/16/25.
-//
-
 import Foundation
-import SwiftUI
 import Utils
 
 extension CellGridView

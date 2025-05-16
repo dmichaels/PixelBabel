@@ -59,8 +59,12 @@ class CellGridView
     private var _shiftX: Int = 0
     private var _shiftY: Int = 0
 
-    private var _buffer: [UInt8] = []
-    private var _bufferBlocks: CellGridView.BufferBlocks = BufferBlocks(width: 0)
+    private  var _bufferBlocks: CellGridView.BufferBlocks = BufferBlocks(width: 0)
+    //
+    // The only reason this _buffer is internal and not private is that we factored
+    // out the image property into CellGridView+Image.swift which needs it.
+    //
+    internal var _buffer: [UInt8] = []
 
     init(viewWidth: Int,
          viewHeight: Int,
@@ -518,25 +522,5 @@ class CellGridView
                        viewTransparency: self._viewTransparency,
                        viewScaling: self._viewScaling)
         self.shift(shiftx: currentShift.x, shifty: currentShift.y)
-    }
-
-    public var image: CGImage? {
-        var image: CGImage?
-        self._buffer.withUnsafeMutableBytes { rawBuffer in
-            guard let baseAddress = rawBuffer.baseAddress else { fatalError("No buffer base address") }
-            if let context: CGContext = CGContext(
-                data: baseAddress,
-                width: self._viewWidth,
-                height: self._viewHeight,
-                bitsPerComponent: 8,
-                bytesPerRow: self._viewWidth * Screen.depth,
-                space: CellGrid.Defaults.colorSpace,
-                bitmapInfo: CellGrid.Defaults.bitmapInfo
-            ) {
-                print("MAKE-IMAGE")
-                image = context.makeImage()
-            }
-        }
-        return image
     }
 }
