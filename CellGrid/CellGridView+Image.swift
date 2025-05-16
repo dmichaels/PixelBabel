@@ -3,6 +3,9 @@ import Utils
 
 extension CellGridView
 {
+    private static let _colorSpace = CGColorSpaceCreateDeviceRGB()
+    private static let _bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
+
     public var image: CGImage? {
         var image: CGImage?
         self._buffer.withUnsafeMutableBytes { rawBuffer in
@@ -13,8 +16,8 @@ extension CellGridView
                 height: self.scaled(self.viewHeight),
                 bitsPerComponent: 8,
                 bytesPerRow: self.scaled(self.viewWidth) * Screen.depth,
-                space: CellGridView.Defaults.colorSpace,
-                bitmapInfo: CellGridView.Defaults.bitmapInfo
+                space: CellGridView._colorSpace,
+                bitmapInfo: CellGridView._bitmapInfo
             ) {
                 image = context.makeImage()
             }
