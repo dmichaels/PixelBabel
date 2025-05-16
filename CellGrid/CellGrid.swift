@@ -140,7 +140,10 @@ class CellGrid: ObservableObject
         if let cellGridView = self._cellGridView {
             if let cell: LifeCell = cellGridView.gridCell(location) {
                 if cell.x == 0 && cell.y == 0 {
-                    self._cellGridView!.resizeCells(cellSizeIncrement: 3)
+                    self._cellGridView!.resizeCells(cellSizeIncrement: 2)
+                }
+                else if cell.x == 1 && cell.y == 1 {
+                    self._cellGridView!.resizeCells(cellSizeIncrement: -2)
                 }
                 else {
                     cell.toggle()
