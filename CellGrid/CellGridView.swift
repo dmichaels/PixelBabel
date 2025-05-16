@@ -438,6 +438,12 @@ class CellGridView {
                     // At least (and only pretty sure) for the Y (vertical) case we get here on shifting;
                     // why; because we are being sloppy with the vertical, because it was easier.
                     //
+                    // TODO but probably not because these micro optimizations are getting ridiculous:
+                    // could precompute the block background times blend values based on the current
+                    // view background (which in practice should rarely if ever change), would save
+                    // subtraction of blend from 1.0 and its multiplication by background in this
+                    // loop; if background did change would need to invalidate the blocks.
+                    //
                     return
                 }
                 if (block.foreground) {
