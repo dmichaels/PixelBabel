@@ -13,7 +13,7 @@ class CellGrid: ObservableObject
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = CellColor.OPAQUE
         public static let cellSize: Int = 44 // 51
-        public static let cellSizeNeat: Bool = true // TODO/xyzzy
+        public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 16
         //
         // TODO: while dragging make the shape inset rather than rounded (or circle) for speed.
