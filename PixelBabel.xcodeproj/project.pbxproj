@@ -130,7 +130,9 @@
 				CellColorMode.swift,
 				CellGrid.swift,
 				CellGridView.swift,
+				"CellGridView+BufferBlocks.swift",
 				"CellGridView+Debug.swift",
+				"CellGridView+PreferredSize.swift",
 				CellLocation.swift,
 				CellShape.swift,
 			);
@@ -144,7 +146,9 @@
 				CellColorMode.swift,
 				CellGrid.swift,
 				CellGridView.swift,
+				"CellGridView+BufferBlocks.swift",
 				"CellGridView+Debug.swift",
+				"CellGridView+PreferredSize.swift",
 				CellLocation.swift,
 				CellShape.swift,
 			);
