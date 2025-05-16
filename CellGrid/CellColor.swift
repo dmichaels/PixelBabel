@@ -3,45 +3,33 @@ import SwiftUI
 // This is actually only currently used for the background color of the screen/image,
 // i.e. for the backgound color if the inset margin is greater than zero.
 //
-struct CellColor: Equatable {
-
+struct CellColor: Equatable
+{
     // These values works with Memory.fastcopy NOT using value.bigEndian;
     // if these were the opposite (i.e. red-24, green-16, blue-8, alpha-0)
     // then we would need to use value.bigEndian there; slightly faster without.
     //
-    public static let RSHIFT : Int = 0
-    public static let GSHIFT : Int = 8
-    public static let BSHIFT: Int = 16
-    public static let ASHIFT: Int = 24
-
+    public static let RSHIFT: Int   =   0
+    public static let GSHIFT: Int   =   8
+    public static let BSHIFT: Int   =  16
+    public static let ASHIFT: Int   =  24
     public static let OPAQUE: UInt8 = 255
 
-    var _red: UInt8
+    var _red:   UInt8
     var _green: UInt8
-    var _blue: UInt8
+    var _blue:  UInt8
     var _alpha: UInt8 = 255
 
-    public var red: UInt8 {
-        get { self._red }
-    }
-
-    public var green: UInt8 {
-        get { self._green }
-    }
-
-    public var blue: UInt8 {
-        get { self._blue }
-    }
-
-    public var alpha: UInt8 {
-        get { self._alpha }
-    }
+    public var red:   UInt8 { self._red   }
+    public var green: UInt8 { self._green }
+    public var blue:  UInt8 { self._blue  }
+    public var alpha: UInt8 { self._alpha }
 
     public var value: UInt32 {
         get {
             (UInt32(self._red)   << CellColor.RSHIFT) |
             (UInt32(self._green) << CellColor.GSHIFT) |
-            (UInt32(self._blue)  << CellColor.BSHIFT)  |
+            (UInt32(self._blue)  << CellColor.BSHIFT) |
             (UInt32(self._alpha) << CellColor.ASHIFT)
         }
     }
@@ -51,16 +39,16 @@ struct CellColor: Equatable {
     }
 
     init(_ red: UInt8, _ green: UInt8, _ blue: UInt8, alpha: UInt8 = 255) {
-        self._red = red
+        self._red   = red
         self._green = green
-        self._blue = blue
+        self._blue  = blue
         self._alpha = alpha
     }
 
     init(_ red: Int, _ green: Int, _ blue: Int, alpha: Int = 255) {
-        self._red = UInt8(red)
+        self._red   = UInt8(red)
         self._green = UInt8(green)
-        self._blue = UInt8(blue)
+        self._blue  = UInt8(blue)
         self._alpha = UInt8(alpha)
     }
 
@@ -73,52 +61,37 @@ struct CellColor: Equatable {
     }
 
     init(_ color: UIColor) {
-        var red: CGFloat = 0
+        var red:   CGFloat = 0
         var green: CGFloat = 0
-        var blue: CGFloat = 0
+        var blue:  CGFloat = 0
         var alpha: CGFloat = 0
         if color.getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
-            self._red = UInt8(red * 255)
+            self._red   = UInt8(red   * 255)
             self._green = UInt8(green * 255)
-            self._blue = UInt8(blue * 255)
+            self._blue  = UInt8(blue  * 255)
             self._alpha = UInt8(alpha * 255)
         }
         else {
-            self._red = 0
+            self._red   = 0
             self._green = 0
-            self._blue = 0
+            self._blue  = 0
         }
     }
 
     init(_ value: UInt32) {
-        self._red   = UInt8((value >> CellColor.RSHIFT)   & 0xFF)
+        self._red   = UInt8((value >> CellColor.RSHIFT) & 0xFF)
         self._green = UInt8((value >> CellColor.GSHIFT) & 0xFF)
-        self._blue  = UInt8((value >> CellColor.BSHIFT)  & 0xFF)
+        self._blue  = UInt8((value >> CellColor.BSHIFT) & 0xFF)
         self._alpha = UInt8((value >> CellColor.ASHIFT) & 0xFF)
     }
 
     public var color: Color {
-        get { return Color(red: Double(self.red) / 255.0, green: Double(self.green) / 255.0, blue: Double(self.blue) / 255.0) }
-    }
-
-    public static func valueOf(_ red: UInt8, _ green: UInt8, _ blue: UInt8, alpha: UInt8 = 255) -> UInt32 {
-        return (UInt32(red)   << CellColor.RSHIFT)   |
-               (UInt32(green) << CellColor.GSHIFT) |
-               (UInt32(blue)  << CellColor.BSHIFT)  |
-               (UInt32(alpha) << CellColor.ASHIFT)
-    }
-
-    public static func blendValueOf(_ foreground: CellColor, _ background: CellColor, amount: Float) -> UInt32 {
-        let amountr: Float = 1.0 - amount
-        return (UInt32(UInt8(Float(foreground.red)   * amount + Float(background.red)   * amountr)) << CellColor.RSHIFT) |
-               (UInt32(UInt8(Float(foreground.green) * amount + Float(background.green) * amountr)) << CellColor.GSHIFT) |
-               (UInt32(UInt8(Float(foreground.blue)  * amount + Float(background.blue)  * amountr)) << CellColor.BSHIFT) |
-               (UInt32(foreground.alpha)                                                            << CellColor.ASHIFT)
+        Color(red: Double(self.red) / 255.0, green: Double(self.green) / 255.0, blue: Double(self.blue) / 255.0)
     }
 
     public static let black: CellColor = CellColor(0, 0, 0)
     public static let white: CellColor = CellColor(255, 255, 255)
-    public static let dark: CellColor = CellColor(50, 50, 50)
+    public static let dark:  CellColor = CellColor(50, 50, 50)
     public static let light: CellColor = CellColor(200, 200, 200)
 
     public static func random(mode: CellColorMode = CellColorMode.color) -> CellColor {
@@ -135,16 +108,4 @@ struct CellColor: Equatable {
             return CellColor(UInt8((rgb >> 16) & 0xFF), UInt8((rgb >> 8) & 0xFF), UInt8(rgb & 0xFF))
         }
     }
-
-    typealias FilterFunction = (inout [UInt8], Int) -> Void
-
-    public func tintedRed(by amount: CGFloat) -> CellColor {
-        let clampedAmount = min(max(amount, 0), 1)
-        let newRed = UInt8(clampedAmount * 255 + (1 - clampedAmount) * CGFloat(self.red))
-        let newGreen = UInt8((1 - clampedAmount) * CGFloat(self.green))
-        let newBlue = UInt8((1 - clampedAmount) * CGFloat(self.blue))
-        return CellColor(newRed, newGreen, newBlue, alpha: self.alpha)
-    }
-
-    public static let null: CellColor = CellColor(0, 0, 0, alpha: 0)
 }

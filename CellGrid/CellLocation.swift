@@ -1,7 +1,7 @@
 import Foundation
 
-struct CellLocation: Equatable, CustomStringConvertible {
-
+struct CellLocation: Equatable, CustomStringConvertible
+{
     public let x: Int
     public let y: Int
 

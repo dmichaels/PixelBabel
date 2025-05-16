@@ -13,8 +13,8 @@ extension CellGridView
                 height: self.scaled(self.viewHeight),
                 bitsPerComponent: 8,
                 bytesPerRow: self.scaled(self.viewWidth) * Screen.depth,
-                space: CellGrid.Defaults.colorSpace,
-                bitmapInfo: CellGrid.Defaults.bitmapInfo
+                space: CellGridView.Defaults.colorSpace,
+                bitmapInfo: CellGridView.Defaults.bitmapInfo
             ) {
                 image = context.makeImage()
             }
