@@ -14,7 +14,7 @@ class CellGrid: ObservableObject
         public static let displayTransparency: UInt8 = CellColor.OPAQUE
         public static let cellSize: Int = 44 // 51
         public static let cellSizeNeat: Bool = true // TODO/xyzzy
-        public static let cellPadding: Int = 1
+        public static let cellPadding: Int = 16
         //
         // TODO: while dragging make the shape inset rather than rounded (or circle) for speed.
         // For example generating grid-view with rounded is like 0.074 vs inset is like 0.018.
@@ -159,13 +159,26 @@ class CellGrid: ObservableObject
         }
     }
 
-    public func onZoom(_ zoomFactor: CGFloat) {
+    public func onZoom(_ zoom: CGFloat) {
         if let cellGridView = self._cellGridView {
-            self._zoom = zoomFactor * self._zoomLast
+            /*
+            self._zoom = zoom * self._zoomLast
             let cellSize: Int = cellGridView.cellSize
-            let cellSizeZoomed: Int = Int(CGFloat(cellSize) * zoomFactor)
+            let cellSizeZoomed: Int = Int(CGFloat(cellSize) * zoom)
             let cellSizeIncrement: Int = (cellSizeZoomed - cellSize) / 3
-            print("ON-ZOOM: \(zoomFactor) -> cell-size: \(cellSize) zoomed: \(cellSizeZoomed) inc: \(cellSizeIncrement)")
+            */
+
+            let zoomProposed: CGFloat = self._zoomLast * zoom / 3.0
+            let zoomClamped: CGFloat = min(max(zoomProposed, 0.5), 4.0)
+            self._zoom = zoomClamped
+
+
+            let cellSize: Int = cellGridView.cellSize
+            let cellSizeZoomed: Int = Int(CGFloat(cellSize) * self._zoom)
+            let cellSizeIncrement: Int = (cellSizeZoomed - cellSize)
+
+            print("ON-ZOOM: \(zoom) > proposed: \(zoomProposed) > clamped: \(zoomClamped) > -> size: \(cellSize) increment: \(cellSizeIncrement)")
+
             cellGridView.resizeCells(cellSizeIncrement: cellSizeIncrement)
         }
     }
