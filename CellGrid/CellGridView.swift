@@ -61,8 +61,8 @@ class CellGridView
     private var _shiftX: Int = 0
     private var _shiftY: Int = 0
 
-    // Store unscaled versions of commonly used properties.
-
+    // We store unscaled versions of commonly used properties.
+    //
     private var _unscaled_viewWidth: Int = 0
     private var _unscaled_viewHeight: Int = 0
     private var _unscaled_cellSize: Int = 0
@@ -112,7 +112,8 @@ class CellGridView
                        viewScaling: viewScaling)
 
         #if targetEnvironment(simulator)
-        self.printSizes(viewWidthInit: viewWidth, viewHeightInit: viewHeight, cellSizeInit: cellSize, cellFitInit: cellFit)
+            self.printSizes(viewWidthInit: viewWidth, viewHeightInit: viewHeight,
+                            cellSizeInit: cellSize, cellFitInit: cellFit)
         #endif
     }
 
@@ -164,7 +165,7 @@ class CellGridView
                                                              cellShape: self._cellShape,
                                                              cellTransparency: self._viewTransparency)
         #if targetEnvironment(simulator)
-        self.printSizes()
+            self.printSizes()
         #endif
     }
 
@@ -236,7 +237,7 @@ class CellGridView
     public func shift(shiftx: Int = 0, shifty: Int = 0)
     {
         #if targetEnvironment(simulator)
-        let debugStart = Date()
+            let debugStart = Date()
         #endif
 
         // Normalize the given pixel level shift to cell and pixel level.
@@ -354,7 +355,8 @@ class CellGridView
         }
 
         #if targetEnvironment(simulator)
-        print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)] | bmem: \(self._bufferBlocks.memoryUsageBytes)", Date().timeIntervalSince(debugStart)))
+            print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)] | bmem: \(self._bufferBlocks.memoryUsageBytes)",
+                  Date().timeIntervalSince(debugStart)))
         #endif
     }
 
