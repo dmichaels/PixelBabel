@@ -483,6 +483,7 @@ class CellGridView {
     }
 
     public func resizeCells(cellSizeIncrement: Int) {
+        let currentShift: CellLocation = self.shiftedBy
         self.configure(cellSize: self.unscaled(self._cellSize) + cellSizeIncrement,
                        cellPadding: self.unscaled(self._cellPadding),
                        cellShape: self._cellShape,
@@ -491,8 +492,7 @@ class CellGridView {
                        viewBackground: self._viewBackground,
                        viewTransparency: self._viewTransparency,
                        viewScaling: self._viewScaling)
-        let shiftedBy: CellLocation = self.shiftedBy
-        self.shift(shiftx: shiftedBy.x, shifty: shiftedBy.y)
+        self.shift(shiftx: currentShift.x, shifty: currentShift.y)
     }
 
     public var gridColumns: Int {
