@@ -14,8 +14,8 @@ import Utils
 // We say "location" to mean a coordinate cell-based coordinate on the cell-grid or grid-view;
 
 @MainActor
-class CellGridView {
-
+class CellGridView
+{
     struct Defaults {
         public static var cellPaddingMax: Int = 8
         public static var cellSizeMax: Int = 100
