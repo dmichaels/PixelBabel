@@ -35,6 +35,9 @@ class CellGrid: ObservableObject
     private var _dragStart: CellLocation? = nil
     private var _dragStartShifted: CellLocation? = nil
 
+    private var _zoom: CGFloat = 1.0
+    private var _zoomLast: CGFloat = 1.0
+
     init(cellFactory: Cell.Factory? = nil) {
         self._cellFactory = cellFactory
     }
@@ -140,16 +143,37 @@ class CellGrid: ObservableObject
         if let cellGridView = self._cellGridView {
             if let cell: LifeCell = cellGridView.gridCell(location) {
                 if cell.x == 0 && cell.y == 0 {
-                    self._cellGridView!.resizeCells(cellSizeIncrement: 2)
+                    self._cellGridView!.resizeCells(cellSizeIncrement: 1)
                 }
                 else if cell.x == 1 && cell.y == 1 {
-                    self._cellGridView!.resizeCells(cellSizeIncrement: -2)
+                    self._cellGridView!.resizeCells(cellSizeIncrement: -1)
+                }
+                else if cell.x == 2 && cell.y == 2 {
+                    self._cellGridView!.viewScaling = !self._cellGridView!.viewScaling
                 }
                 else {
                     cell.toggle()
                     cell.write()
                 }
             }
+        }
+    }
+
+    public func onZoom(_ zoomFactor: CGFloat) {
+        if let cellGridView = self._cellGridView {
+            self._zoom = zoomFactor * self._zoomLast
+            let cellSize: Int = cellGridView.cellSize
+            let cellSizeZoomed: Int = Int(CGFloat(cellSize) * zoomFactor)
+            let cellSizeIncrement: Int = (cellSizeZoomed - cellSize) / 3
+            print("ON-ZOOM: \(zoomFactor) -> cell-size: \(cellSize) zoomed: \(cellSizeZoomed) inc: \(cellSizeIncrement)")
+            cellGridView.resizeCells(cellSizeIncrement: cellSizeIncrement)
+        }
+    }
+
+    public func onZoomEnd() {
+        print("ZOOM-END")
+        if let cellGridView = self._cellGridView {
+            self._zoomLast = self._zoom
         }
     }
 

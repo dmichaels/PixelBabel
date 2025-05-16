@@ -17,6 +17,7 @@ import Utils
 class CellGridView {
 
     struct Defaults {
+        public static var cellSizePlusPaddingMin: Int = 20
         public static var preferredSizeMarginMax: Int = 30
         public static let cellAntialiasFade: Float = 0.6  // smaller is smoother
         public static let cellRoundedRectangleRadius: Float = 0.25
@@ -121,49 +122,7 @@ class CellGridView {
         self._shiftX = 0
         self._shiftY = 0
 
-        printSizes()
-
-        func printSizes() {
-            print("SCREEN-SIZE>              \(self.scaled(Screen.shared.width)) x \(self.scaled(Screen.shared.height))" +
-                  (self._viewScaling ? " (UN: \(Screen.shared.width) x \(Screen.shared.height))" : ""))
-            print("SCREEN-SCALE>             \(Screen.shared.scale())")
-            print("VIEW-SCALING>             \(self._viewScaling)")
-            print("VIEW-SIZE-INITIAL>        \(viewWidth) x \(viewHeight)" + (self._viewScaling ? " (UN)" : "") +
-                  ((viewWidth != self.unscaled(self._viewWidth) ||
-                   viewHeight != self.unscaled(self._viewHeight)
-                   ? " -> PREFERRED: \(self.unscaled(self._viewWidth))" +
-                     (" x \(self.unscaled(self._viewHeight))" + (self._viewScaling ? " (UN)" : "")) : "")))
-            print("CELL-SIZE-INITIAL>        \(cellSize)" + (self._viewScaling ? " (UN)" : "") +
-                   (cellSize != self.unscaled(self._cellSize)
-                    ? (" -> PREFERRED: \(self.unscaled(self._cellSize))" + (self._viewScaling ? " (UN)" : "")) : ""))
-            print("VIEW-SIZE>                \(self._viewWidth) x \(self._viewHeight)" +
-                  (self._viewScaling ?
-                   " (UN: \(self.unscaled(self._viewWidth)) x \(self.unscaled(self._viewHeight)))" : ""))
-            print("CELL-SIZE>                \(self._cellSize)" +
-                  (self._viewScaling ? " (UN: \(self.unscaled(self._cellSize)))" : ""))
-            print("CELL-PADDING>             \(self._cellPadding)" +
-                  (self._viewScaling ? " (UN: \(self.unscaled(self._cellPadding)))" : ""))
-            print("PREFERRED-SIZING>         \(cellFit)")
-            if (cellFit) {
-                let sizes = CellGridView.preferredSizes(viewWidth: self.unscaled(self._viewWidth),
-                                                        viewHeight: self.unscaled(self._viewHeight))
-                for size in sizes {
-                    print("PREFFERED>" +
-                          " CELL-SIZE \(String(format: "%3d", self.scaled(size.cellSize)))" +
-                          (self._viewScaling ? " (UN: \(String(format: "%3d", size.cellSize)))" : "") +
-                          " VIEW-SIZE: \(String(format: "%3d", self.scaled(size.viewWidth)))" +
-                          " x \(String(format: "%3d", self.scaled(size.viewHeight)))" +
-                          (self._viewScaling ?
-                           " (UN: \(String(format: "%3d", size.viewWidth))" +
-                           " x \(String(format: "%3d", size.viewHeight)))" : "") +
-                          " MARGINS: \(String(format: "%2d", self._viewWidth - self.scaled(size.viewWidth)))" +
-                          " x \(String(format: "%2d", self._viewHeight - self.scaled(size.viewHeight)))" +
-                          (self._viewScaling ? (" (UN: \(String(format: "%2d", self.unscaled(self._viewWidth) - size.viewWidth))"
-                                                   + "x \(String(format: "%2d", self.unscaled(self._viewHeight) - size.viewHeight)))") : "") +
-                          ((size.cellSize == self.unscaled(self._cellSize)) ? " <<<" : ""))
-                }
-            }
-        }
+        self.printSizes(viewWidthInit: viewWidth, viewHeightInit: viewHeight, cellSizeInit: cellSize, cellFitInit: cellFit)
     }
 
     private func configure(cellSize: Int,
@@ -175,13 +134,17 @@ class CellGridView {
                            viewTransparency: UInt8,
                            viewScaling: Bool)
     {
+        let adjustedCellPadding: Int = max(cellPadding, 0)
+        let adjustedCellSize: Int = max(cellSize + adjustedCellPadding,
+                                        Defaults.cellSizePlusPaddingMin) - adjustedCellPadding
+
         self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
 
         self._viewWidth = self.scaled(viewWidth)
         self._viewHeight = self.scaled(viewHeight)
-        self._cellSize = self.scaled(cellSize)
+        self._cellSize = self.scaled(adjustedCellSize)
         self._cellSizeTimesViewWidth = self._cellSize * self._viewWidth
-        self._cellPadding = self.scaled(cellPadding)
+        self._cellPadding = self.scaled(adjustedCellPadding)
 
         self._viewColumns = self._viewWidth / self._cellSize
         self._viewRows = self._viewHeight / self._cellSize
@@ -200,6 +163,7 @@ class CellGridView {
                                                              cellPadding: self._cellPadding,
                                                              cellShape: self._cellShape,
                                                              cellTransparency: self._viewTransparency)
+        self.printSizes()
     }
 
     public var viewScale: CGFloat {
@@ -208,6 +172,20 @@ class CellGridView {
 
     public var viewScaling: Bool {
         get { self._viewScaling }
+        set {
+            if (newValue != self._viewScaling) {
+                let currentShift: CellLocation = self.shiftedBy
+                self.configure(cellSize: self.unscaled(self._cellSize),
+                               cellPadding: self.unscaled(self._cellPadding),
+                               cellShape: self._cellShape,
+                               viewWidth: self.unscaled(self._viewWidth),
+                               viewHeight: self.unscaled(self._viewHeight),
+                               viewBackground: self._viewBackground,
+                               viewTransparency: self._viewTransparency,
+                               viewScaling: newValue)
+                self.shift(shiftx: currentShift.x, shifty: currentShift.y)
+            }
+        }
     }
 
     internal func scaled(_ value: Int) -> Int {
@@ -483,6 +461,7 @@ class CellGridView {
     }
 
     public func resizeCells(cellSizeIncrement: Int) {
+        print("RESIZE: \(cellSizeIncrement)")
         let currentShift: CellLocation = self.shiftedBy
         self.configure(cellSize: self.unscaled(self._cellSize) + cellSizeIncrement,
                        cellPadding: self.unscaled(self._cellPadding),
@@ -493,6 +472,15 @@ class CellGridView {
                        viewTransparency: self._viewTransparency,
                        viewScaling: self._viewScaling)
         self.shift(shiftx: currentShift.x, shifty: currentShift.y)
+    }
+
+    public func update() {
+        let currentShift: CellLocation = self.shiftedBy
+        self.shift(shiftx: currentShift.x, shifty: currentShift.y)
+    }
+
+    public var cellSize: Int {
+        self.unscaled(self._cellSize)
     }
 
     public var gridColumns: Int {
@@ -627,6 +615,7 @@ class CellGridView {
                 space: CellGrid.Defaults.colorSpace,
                 bitmapInfo: CellGrid.Defaults.bitmapInfo
             ) {
+                print("MAKE-IMAGE")
                 image = context.makeImage()
             }
         }
@@ -906,5 +895,54 @@ class CellGridView {
             let b: Int = abs($1.cellSize - target)
             return (a, $0.cellSize) < (b, $1.cellSize)
         })
+    }
+
+    func printSizes(viewWidthInit: Int = 0, viewHeightInit: Int = 0, cellSizeInit: Int = 0, cellFitInit: Bool = false) {
+        print("SCREEN>                   \(self.scaled(Screen.shared.width)) x \(self.scaled(Screen.shared.height))" +
+              (self._viewScaling ? " (UN: \(Screen.shared.width) x \(Screen.shared.height))" : "") +
+              "SCALE: \(Screen.shared.scale()) | SCALING: \(self._viewScaling)")
+        /*
+        print("SCREEN-SIZE>              \(self.scaled(Screen.shared.width)) x \(self.scaled(Screen.shared.height))" +
+              (self._viewScaling ? " (UN: \(Screen.shared.width) x \(Screen.shared.height))" : ""))
+        print("SCREEN-SCALE>             \(Screen.shared.scale())")
+        print("VIEW-SCALING>             \(self._viewScaling)")
+        */
+        if ((viewWidthInit > 0) && (viewHeightInit > 0)) {
+            print("VIEW-SIZE-INITIAL>        \(viewWidthInit) x \(viewHeightInit)" + (self._viewScaling ? " (UN)" : "") +
+                  ((viewWidthInit != self.unscaled(self._viewWidth) ||
+                   viewHeightInit != self.unscaled(self._viewHeight)
+                   ? " -> PREFERRED: \(self.unscaled(self._viewWidth))" +
+                     (" x \(self.unscaled(self._viewHeight))" + (self._viewScaling ? " (UN)" : "")) : "")))
+        }
+        print("CELL-SIZE-INITIAL>        \(cellSizeInit)" + (self._viewScaling ? " (UN)" : "") +
+               (cellSizeInit != self.unscaled(self._cellSize)
+                ? (" -> PREFERRED: \(self.unscaled(self._cellSize))" + (self._viewScaling ? " (UN)" : "")) : ""))
+        print("VIEW-SIZE>                \(self._viewWidth) x \(self._viewHeight)" +
+              (self._viewScaling ?
+               " (UN: \(self.unscaled(self._viewWidth)) x \(self.unscaled(self._viewHeight)))" : ""))
+        print("CELL-SIZE>                \(self._cellSize)" +
+              (self._viewScaling ? " (UN: \(self.unscaled(self._cellSize)))" : ""))
+        print("CELL-PADDING>             \(self._cellPadding)" +
+              (self._viewScaling ? " (UN: \(self.unscaled(self._cellPadding)))" : ""))
+        print("PREFERRED-SIZING>         \(cellFitInit)")
+        if (cellFitInit) {
+            let sizes = CellGridView.preferredSizes(viewWidth: self.unscaled(self._viewWidth),
+                                                    viewHeight: self.unscaled(self._viewHeight))
+            for size in sizes {
+                print("PREFFERED>" +
+                      " CELL-SIZE \(String(format: "%3d", self.scaled(size.cellSize)))" +
+                      (self._viewScaling ? " (UN: \(String(format: "%3d", size.cellSize)))" : "") +
+                      " VIEW-SIZE: \(String(format: "%3d", self.scaled(size.viewWidth)))" +
+                      " x \(String(format: "%3d", self.scaled(size.viewHeight)))" +
+                      (self._viewScaling ?
+                       " (UN: \(String(format: "%3d", size.viewWidth))" +
+                       " x \(String(format: "%3d", size.viewHeight)))" : "") +
+                      " MARGINS: \(String(format: "%2d", self._viewWidth - self.scaled(size.viewWidth)))" +
+                      " x \(String(format: "%2d", self._viewHeight - self.scaled(size.viewHeight)))" +
+                      (self._viewScaling ? (" (UN: \(String(format: "%2d", self.unscaled(self._viewWidth) - size.viewWidth))"
+                                               + "x \(String(format: "%2d", self.unscaled(self._viewHeight) - size.viewHeight)))") : "") +
+                      ((size.cellSize == self.unscaled(self._cellSize)) ? " <<<" : ""))
+            }
+        }
     }
 }

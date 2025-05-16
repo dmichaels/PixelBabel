@@ -107,6 +107,19 @@ struct ContentView: View
                                         }
                                     }
                             )
+
+                            .simultaneousGesture(
+                                MagnificationGesture()
+                                    .onChanged { value in
+                                        self.cellGrid.onZoom(value)
+                                        self.updateImage()
+                                    }
+                                    .onEnded { _ in
+                                        self.cellGrid.onZoomEnd()
+                                        self.updateImage()
+                                    }
+)
+
                             NavigationLink(
                                 destination: SettingsView(),
                                 isActive: $showSettingsView,
