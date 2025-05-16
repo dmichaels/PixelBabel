@@ -20,7 +20,6 @@ class CellGridView
         public static var cellPaddingMax: Int = 8
         public static var cellSizeMax: Int = 100
         public static var cellSizeInnerMin: Int = 6
-
         public static var preferredSizeMarginMax: Int = 30
         public static let cellAntialiasFade: Float = 0.6  // smaller is smoother
         public static let cellRoundedRectangleRadius: Float = 0.25
@@ -79,32 +78,18 @@ class CellGridView
          gridRows: Int,
          gridCellFactory: Cell.Factory? = nil)
     {
-        let scaling: Bool = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
-
-        func scaled(_ value: Int) -> Int {
-            return Screen.shared.scaled(value, scaling: scaling)
-        }
-
-        func unscaled(_ value: Int) -> Int {
-            return Screen.shared.unscaled(value, scaling: scaling)
-        }
-
-        func defineGridCells(gridColumns: Int, gridRows: Int,
-                             gridCellFactory: Cell.Factory?, foreground: CellColor) -> [Cell]
-        {
-            var gridCells: [Cell] = []
-            for y in 0..<gridRows {
-                for x in 0..<gridColumns {
-                    gridCells.append(gridCellFactory?(self, x, y, foreground) ??
-                                     Cell(parent: self, x: x, y: y, foreground: foreground))
-                }
-            }
-            return gridCells
-        }
+        self._gridColumns = gridColumns > 0 ? gridColumns : self._viewColumns
+        self._gridRows = gridRows > 0 ? gridRows : self._viewRows
+        self._gridCellEndX = self._gridColumns - 1
+        self._gridCellEndY = self._gridRows - 1
+        self._gridCellFactory = gridCellFactory
+        self._gridCells = self.defineGridCells(gridColumns: self._gridColumns,
+                                               gridRows: self._gridRows,
+                                               gridCellFactory: self._gridCellFactory,
+                                               foreground: CellGrid.Defaults.cellForeground)
 
         let preferredSize = CellGridView.preferredSize(viewWidth: viewWidth, viewHeight: viewHeight,
                                                        cellSize: cellSize, enabled: cellFit)
-
         self.configure(cellSize: preferredSize.cellSize,
                        cellPadding: cellPadding,
                        cellShape: cellShape,
@@ -112,21 +97,7 @@ class CellGridView
                        viewHeight: preferredSize.viewHeight,
                        viewBackground: viewBackground,
                        viewTransparency: viewTransparency,
-                       viewScaling: scaling)
-
-        self._gridColumns = gridColumns > 0 ? gridColumns : self._viewColumns
-        self._gridRows = gridRows > 0 ? gridRows : self._viewRows
-        self._gridCellEndX = self._gridColumns - 1
-        self._gridCellEndY = self._gridRows - 1
-        self._gridCellFactory = gridCellFactory
-        self._gridCells = defineGridCells(gridColumns: self._gridColumns,
-                                          gridRows: self._gridRows,
-                                          gridCellFactory: self._gridCellFactory,
-                                          foreground: CellGrid.Defaults.cellForeground)
-        self._shiftCellX = 0
-        self._shiftCellY = 0
-        self._shiftX = 0
-        self._shiftY = 0
+                       viewScaling: viewScaling)
 
         self.printSizes(viewWidthInit: viewWidth, viewHeightInit: viewHeight, cellSizeInit: cellSize, cellFitInit: cellFit)
     }
@@ -140,9 +111,14 @@ class CellGridView
                            viewTransparency: UInt8,
                            viewScaling: Bool)
     {
+        // Sanity check the cell-size and cell-padding.
+
         var cellPadding: Int = cellPadding.clamped(0...Defaults.cellPaddingMax)
         var cellSize = cellSize.clamped(Defaults.cellSizeInnerMin + (cellPadding * 2)...Defaults.cellSizeMax)
 
+        // N.B. It is important that this happens here first
+        // so that subsequent calls to self.scaled work property.
+        //
         self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
 
         self._viewWidth = self.scaled(viewWidth)
@@ -169,6 +145,19 @@ class CellGridView
                                                              cellShape: self._cellShape,
                                                              cellTransparency: self._viewTransparency)
         self.printSizes()
+    }
+
+    private func defineGridCells(gridColumns: Int, gridRows: Int,
+                                 gridCellFactory: Cell.Factory?, foreground: CellColor) -> [Cell]
+    {
+        var gridCells: [Cell] = []
+        for y in 0..<gridRows {
+            for x in 0..<gridColumns {
+                gridCells.append(gridCellFactory?(self, x, y, foreground) ??
+                                 Cell(parent: self, x: x, y: y, foreground: foreground))
+            }
+        }
+        return gridCells
     }
 
     public var viewScaling: Bool {
@@ -250,6 +239,9 @@ class CellGridView
                             self.unscaled(self._shiftCellY * self._cellSize + self._shiftY))
     }
 
+    // Sets the cell-grid within the grid-view to be shifted by the given amount,
+    // from the upper-left; note that the given shiftx and shifty values are unscaled.
+    //
     public func shift(shiftx: Int = 0, shifty: Int = 0)
     {
         let debugStart = Date()
