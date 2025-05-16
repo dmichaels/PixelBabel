@@ -77,8 +77,7 @@ class CellGridView
          cellShape: CellShape,
          gridColumns: Int,
          gridRows: Int,
-         gridCellFactory: Cell.Factory? = nil,
-         gridCells: [Cell]? = nil)
+         gridCellFactory: Cell.Factory? = nil)
     {
         let scaling: Bool = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
 
@@ -120,10 +119,10 @@ class CellGridView
         self._gridCellEndX = self._gridColumns - 1
         self._gridCellEndY = self._gridRows - 1
         self._gridCellFactory = gridCellFactory
-        self._gridCells = gridCells ?? defineGridCells(gridColumns: self._gridColumns,
-                                                       gridRows: self._gridRows,
-                                                       gridCellFactory: self._gridCellFactory,
-                                                       foreground: CellGrid.Defaults.cellForeground)
+        self._gridCells = defineGridCells(gridColumns: self._gridColumns,
+                                          gridRows: self._gridRows,
+                                          gridCellFactory: self._gridCellFactory,
+                                          foreground: CellGrid.Defaults.cellForeground)
         self._shiftCellX = 0
         self._shiftCellY = 0
         self._shiftX = 0
