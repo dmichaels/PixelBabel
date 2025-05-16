@@ -12,10 +12,10 @@ extension CellGridView
             guard let baseAddress = rawBuffer.baseAddress else { fatalError("No buffer base address") }
             if let context: CGContext = CGContext(
                 data: baseAddress,
-                width: self.scaled(self.viewWidth),
-                height: self.scaled(self.viewHeight),
+                width: self.viewWidthScaled,
+                height: self.viewHeightScaled,
                 bitsPerComponent: 8,
-                bytesPerRow: self.scaled(self.viewWidth) * Screen.depth,
+                bytesPerRow: self.viewWidthScaled * Screen.depth,
                 space: CellGridView._colorSpace,
                 bitmapInfo: CellGridView._bitmapInfo
             ) {

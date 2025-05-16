@@ -25,6 +25,9 @@ class CellGridView
         public static let cellRoundedRectangleRadius: Float = 0.25
     }
 
+    // Note that internally all size related properties are stored as scaled;
+    // but that all outward facing references to such properties and unscaled.
+
     private var _viewWidth: Int = 0
     private var _viewHeight: Int = 0
     private var _viewWidthExtra: Int = 0
@@ -42,7 +45,7 @@ class CellGridView
     private var _cellSize: Int = 0
     private var _cellSizeTimesViewWidth: Int = 0
     private var _cellPadding: Int = 0
-    private var _cellShape: CellShape = .rounded
+    private var _cellShape: CellShape = CellShape.rounded
 
     private var _gridColumns: Int = 0
     private var _gridRows: Int = 0
@@ -57,6 +60,15 @@ class CellGridView
     private var _shiftCellY: Int = 0
     private var _shiftX: Int = 0
     private var _shiftY: Int = 0
+
+    // Store unscaled versions of commonly used properties.
+
+    private var _unscaled_viewWidth: Int = 0
+    private var _unscaled_viewHeight: Int = 0
+    private var _unscaled_cellSize: Int = 0
+    private var _unscaled_cellPadding: Int = 0
+    private var _unscaled_shiftX: Int = 0
+    private var _unscaled_shiftY: Int = 0
 
     private  var _bufferBlocks: CellGridView.BufferBlocks = BufferBlocks(width: 0)
     //
@@ -99,7 +111,9 @@ class CellGridView
                        viewTransparency: viewTransparency,
                        viewScaling: viewScaling)
 
+        #if targetEnvironment(simulator)
         self.printSizes(viewWidthInit: viewWidth, viewHeightInit: viewHeight, cellSizeInit: cellSize, cellFitInit: cellFit)
+        #endif
     }
 
     private func configure(cellSize: Int,
@@ -127,6 +141,11 @@ class CellGridView
         self._cellSizeTimesViewWidth = self._cellSize * self._viewWidth
         self._cellPadding = self.scaled(cellPadding)
 
+        self._unscaled_viewWidth = viewWidth
+        self._unscaled_viewHeight = viewHeight
+        self._unscaled_cellSize = cellSize
+        self._unscaled_cellPadding = cellPadding
+
         self._viewColumns = self._viewWidth / self._cellSize
         self._viewRows = self._viewHeight / self._cellSize
         self._viewCellEndX = self._viewColumns - 1
@@ -144,7 +163,9 @@ class CellGridView
                                                              cellPadding: self._cellPadding,
                                                              cellShape: self._cellShape,
                                                              cellTransparency: self._viewTransparency)
+        #if targetEnvironment(simulator)
         self.printSizes()
+        #endif
     }
 
     private func defineGridCells(gridColumns: Int, gridRows: Int,
@@ -165,11 +186,11 @@ class CellGridView
         set {
             if (newValue != self._viewScaling) {
                 let currentShift: CellLocation = self.shiftedBy
-                self.configure(cellSize: self.unscaled(self._cellSize),
-                               cellPadding: self.unscaled(self._cellPadding),
+                self.configure(cellSize: self._unscaled_cellSize,
+                               cellPadding: self._unscaled_cellPadding,
                                cellShape: self._cellShape,
-                               viewWidth: self.unscaled(self._viewWidth),
-                               viewHeight: self.unscaled(self._viewHeight),
+                               viewWidth: self._unscaled_viewWidth,
+                               viewHeight: self._unscaled_viewHeight,
                                viewBackground: self._viewBackground,
                                viewTransparency: self._viewTransparency,
                                viewScaling: newValue)
@@ -190,53 +211,23 @@ class CellGridView
         return Screen.shared.unscaled(value, scaling: self._viewScaling)
     }
 
-    public var viewWidth: Int {
-        self.unscaled(self._viewWidth)
-    }
-
-    public var viewHeight: Int {
-        self.unscaled(self._viewHeight)
-    }
-
-    public var cellSize: Int {
-        self.unscaled(self._cellSize)
-    }
-
-    public var cellPadding: Int {
-        self.unscaled(self._cellPadding)
-    }
-
-    public var gridColumns: Int {
-        self._gridColumns
-    }
-
-    public var gridRows: Int {
-        self._gridRows
-    }
-
-    public var gridCells: [Cell] {
-        self._gridCells
-    }
-
-    public var shiftX: Int {
-        self.unscaled(self._shiftX)
-    }
-
-    public var shiftY: Int {
-        self.unscaled(self._shiftY)
-    }
-
-    public var shiftCellX: Int {
-        self._shiftCellX
-    }
-
-    public var shiftCellY: Int {
-        self._shiftCellY
-    }
+    public   var viewWidth: Int        { self._unscaled_viewWidth }
+    public   var viewHeight: Int       { self._unscaled_viewHeight }
+    internal var viewWidthScaled: Int  { self._viewWidth }
+    internal var viewHeightScaled: Int { self._viewHeight }
+    public   var cellSize: Int         { self._unscaled_cellSize }
+    public   var cellPadding: Int      { self._unscaled_cellPadding }
+    public   var gridColumns: Int      { self._gridColumns }
+    public   var gridRows: Int         { self._gridRows }
+    public   var gridCells: [Cell]     { self._gridCells }
+    public   var shiftX: Int           { self._unscaled_shiftX }
+    public   var shiftY: Int           { self._unscaled_shiftY }
+    public   var shiftCellX: Int       { self._shiftCellX }
+    public   var shiftCellY: Int       { self._shiftCellY }
 
     public var shiftedBy: CellLocation {
-        return CellLocation(self.unscaled(self._shiftCellX * self._cellSize + self._shiftX),
-                            self.unscaled(self._shiftCellY * self._cellSize + self._shiftY))
+        return CellLocation(self.shiftCellX * self.cellSize + self.shiftX,
+                            self.shiftCellY * self.cellSize + self.shiftY)
     }
 
     // Sets the cell-grid within the grid-view to be shifted by the given amount,
@@ -244,7 +235,9 @@ class CellGridView
     //
     public func shift(shiftx: Int = 0, shifty: Int = 0)
     {
+        #if targetEnvironment(simulator)
         let debugStart = Date()
+        #endif
 
         // Normalize the given pixel level shift to cell and pixel level.
 
@@ -320,6 +313,8 @@ class CellGridView
         self._shiftCellY = shiftCellY
         self._shiftX = shiftX
         self._shiftY = shiftY
+        self._unscaled_shiftX = self.unscaled(shiftX)
+        self._unscaled_shiftY = self.unscaled(shiftY)
 
         self._viewColumnsExtra = (self._shiftX != 0 ? 1 : 0)
         if (self._shiftX > 0) {
@@ -358,7 +353,9 @@ class CellGridView
             }
         }
 
-        print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)] | blocks-memory: \(self._bufferBlocks.memoryUsageBytes)", Date().timeIntervalSince(debugStart)))
+        #if targetEnvironment(simulator)
+        print(String(format: "SHIFTT> %.5fs [\(shiftx),\(shifty)] | bmem: \(self._bufferBlocks.memoryUsageBytes)", Date().timeIntervalSince(debugStart)))
+        #endif
     }
 
     // Draws at the given grid view cell location (viewCellX, viewCellY), the grid cell currently corresponding
@@ -504,11 +501,11 @@ class CellGridView
     public func resizeCells(cellSizeIncrement: Int) {
         print("RESIZE: \(cellSizeIncrement)")
         let currentShift: CellLocation = self.shiftedBy
-        self.configure(cellSize: self.unscaled(self._cellSize) + cellSizeIncrement,
-                       cellPadding: self.unscaled(self._cellPadding),
+        self.configure(cellSize: self._unscaled_cellSize + cellSizeIncrement,
+                       cellPadding: self._unscaled_cellPadding,
                        cellShape: self._cellShape,
-                       viewWidth: self.unscaled(self._viewWidth),
-                       viewHeight: self.unscaled(self._viewHeight),
+                       viewWidth: self._unscaled_viewWidth,
+                       viewHeight: self._unscaled_viewHeight,
                        viewBackground: self._viewBackground,
                        viewTransparency: self._viewTransparency,
                        viewScaling: self._viewScaling)
