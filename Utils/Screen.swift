@@ -39,8 +39,22 @@ public class Screen: ObservableObject
     // This is to Retina displays; e.g. the iPhone 15 has a scaling 
     // factor of 3.0 meaning 3 pixels per logical pixel.
     //
+    /*
     public var scale: CGFloat {
         self._scale 
+    }
+    */
+
+    public func scale(scaling: Bool = true) -> CGFloat {
+        return scaling ? self._scale : 1.0
+    }
+
+    public func scaled(_ value: Int, scaling: Bool = true) -> Int {
+        return scaling ? Int(round(CGFloat(value) * self._scale)) : value
+    }
+
+    public func unscaled(_ value: Int, scaling: Bool = true) -> Int {
+        return scaling ? Int(round(CGFloat(value) / self._scale)) : value
     }
 
     public func configure(size: CGSize, scale: CGFloat) {

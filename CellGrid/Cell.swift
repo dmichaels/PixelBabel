@@ -4,7 +4,8 @@ import SwiftUI
 @MainActor
 class Cell
 {
-    private let _parent: CellGridView
+    // private let _parent: CellGridView // xyzzy
+    public var _parent: CellGridView // xyzzy
     private let _x: Int
     private let _y: Int
     private var _foreground: CellColor

@@ -17,7 +17,6 @@ class DefaultSettings
     public static let cellBackground: CellColor         = CellGrid.Defaults.cellBackground
     public static let cellAntialiasFade: Float          = CellGridView.Defaults.cellAntialiasFade
     public static let cellRoundedRectangleRadius: Float = CellGridView.Defaults.cellRoundedRectangleRadius
-    public static let cellLimitUpdate: Bool             = CellGrid.Defaults.cellLimitUpdate
     public static let automationEnabled: Bool           = true
     public static let automationSpeed: Double           = 0.1
     public static let soundEnabled: Bool                = true
@@ -40,7 +39,6 @@ class Settings: ObservableObject
     @Published var cellBackground: CellColor         = DefaultSettings.cellBackground
     @Published var cellAntialiasFade: Float          = DefaultSettings.cellAntialiasFade
     @Published var cellRoundedRectangleRadius: Float = DefaultSettings.cellRoundedRectangleRadius
-    @Published var cellLimitUpdate: Bool             = DefaultSettings.cellLimitUpdate
     @Published var automationEnabled: Bool           = DefaultSettings.automationEnabled
     @Published var automationSpeed: Double           = DefaultSettings.automationSpeed
     @Published var soundEnabled: Bool                = DefaultSettings.soundEnabled
