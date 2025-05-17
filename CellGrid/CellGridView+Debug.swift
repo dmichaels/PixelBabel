@@ -3,7 +3,15 @@ import Utils
 extension CellGridView
 {
     func printSizes(viewWidthInit: Int = 0, viewHeightInit: Int = 0, cellSizeInit: Int = 0, cellFitInit: Bool = false) {
-        print("SCREEN>                   \(self.scaled(Screen.shared.width)) x \(self.scaled(Screen.shared.height))" +
+
+        func scaled(_ value: Int) -> Int {
+            //
+            // Here so we can leave it as private in CellGridView.
+            //
+            return Screen.shared.scaled(value, scaling: self.viewScaling)
+        }
+
+        print("SCREEN>                   \(scaled(Screen.shared.width)) x \(scaled(Screen.shared.height))" +
               (self.viewScaling ? " (unscaled: \(Screen.shared.width) x \(Screen.shared.height))" : "") +
               " | SCALE: \(Screen.shared.scale()) | SCALING: \(self.viewScaling)")
         if ((viewWidthInit > 0) && (viewHeightInit > 0)) {
@@ -17,12 +25,12 @@ extension CellGridView
                    (cellSizeInit != self.cellSize
                     ? (" -> PREFERRED: \(self.cellSize)" + (self.viewScaling ? " (unscaled)" : "")) : ""))
         }
-        print("VIEW-SIZE>                \(self.scaled(self.viewWidth)) x \(self.scaled(self.viewHeight))" +
+        print("VIEW-SIZE>                \(scaled(self.viewWidth)) x \(scaled(self.viewHeight))" +
               (self.viewScaling ?
                " (unscaled: \(self.viewWidth) x \(self.viewHeight))" : ""))
-        print("CELL-SIZE>                \(self.scaled(self.cellSize))" +
+        print("CELL-SIZE>                \(scaled(self.cellSize))" +
               (self.viewScaling ? " (unscaled: \(self.cellSize))" : ""))
-        print("CELL-PADDING>             \(self.scaled(self.cellPadding))" +
+        print("CELL-PADDING>             \(scaled(self.cellPadding))" +
               (self.viewScaling ? " (unscaled: \(self.cellPadding))" : ""))
         print("PREFERRED-SIZING>         \(cellFitInit)")
         if (cellFitInit) {
@@ -30,15 +38,15 @@ extension CellGridView
                                                     viewHeight: self.viewHeight)
             for size in sizes {
                 print("PREFFERED>" +
-                      " CELL-SIZE \(String(format: "%3d", self.scaled(size.cellSize)))" +
+                      " CELL-SIZE \(String(format: "%3d", scaled(size.cellSize)))" +
                       (self.viewScaling ? " (unscaled: \(String(format: "%3d", size.cellSize)))" : "") +
-                      " VIEW-SIZE: \(String(format: "%3d", self.scaled(size.viewWidth)))" +
-                      " x \(String(format: "%3d", self.scaled(size.viewHeight)))" +
+                      " VIEW-SIZE: \(String(format: "%3d", scaled(size.viewWidth)))" +
+                      " x \(String(format: "%3d", scaled(size.viewHeight)))" +
                       (self.viewScaling ?
                        " (unscaled: \(String(format: "%3d", size.viewWidth))" +
                        " x \(String(format: "%3d", size.viewHeight)))" : "") +
-                      " MARGINS: \(String(format: "%2d", self.scaled(self.viewWidth) - self.scaled(size.viewWidth)))" +
-                      " x \(String(format: "%2d", self.scaled(self.viewHeight) - self.scaled(size.viewHeight)))" +
+                      " MARGINS: \(String(format: "%2d", scaled(self.viewWidth) - scaled(size.viewWidth)))" +
+                      " x \(String(format: "%2d", scaled(self.viewHeight) - scaled(size.viewHeight)))" +
                       (self.viewScaling ? (" (unscaled: \(String(format: "%2d", self.viewWidth - size.viewWidth))"
                                                + " x \(String(format: "%2d", self.viewHeight - size.viewHeight)))") : "") +
                       ((size.cellSize == self.cellSize) ? " <<<" : ""))

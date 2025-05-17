@@ -30,7 +30,6 @@ extension CellGridView
     }
 
     public func gridCellLocation(_ viewPointX: CGFloat, _ viewPointY: CGFloat) -> CellLocation? {
-
         if let viewCellLocation: CellLocation = self.viewCellLocation(viewPointX, viewPointY) {
             let shiftX: Int = self.shiftX
             let shiftY: Int = self.shiftY
@@ -44,11 +43,25 @@ extension CellGridView
     }
 
     public func viewCellFromGridCellLocation(_ gridCellX: Int, _ gridCellY: Int) -> CellLocation? {
+        guard gridCellX >= 0, gridCellX < self.gridColumns,
+              gridCellY >= 0, gridCellY < self.gridRows else { return nil }
         let shiftX: Int = self.shiftX
         let shiftY: Int = self.shiftY
         let viewCellX: Int = gridCellX + self.shiftCellX + ((shiftX > 0) ? 1 : 0)
         let viewCellY: Int = gridCellY + self.shiftCellY + ((shiftY > 0) ? 1 : 0)
+        guard viewCellX >= 0, viewCellX <= self.viewCellEndX,
+              viewCellY >= 0, viewCellY <= self.viewCellEndY else { return nil }
         return CellLocation(viewCellX, viewCellY)
+    }
+
+    public func gridCellFromViewCellLocation(_ viewCellX: Int, _ viewCellY: Int) -> CellLocation? {
+        guard viewCellX >= 0, viewCellX <= self.viewCellEndX,
+              viewCellY >= 0, viewCellY <= self.viewCellEndY else { return nil }
+        let gridCellX: Int = viewCellX - self.shiftCellX - ((self.shiftX > 0) ? 1 : 0)
+        let gridCellY: Int = viewCellY - self.shiftCellY - ((self.shiftY > 0) ? 1 : 0)
+        guard gridCellX >= 0, gridCellX < self.gridColumns,
+              gridCellY >= 0, gridCellY < self.gridRows else { return nil }
+        return CellLocation(gridCellX, gridCellY)
     }
 
     // Returns the cell location relative to the grid-view of the given grid-view input point, or nil.

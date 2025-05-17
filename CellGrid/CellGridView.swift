@@ -149,12 +149,12 @@ class CellGridView
 
         self._viewColumns = self._viewWidth / self._cellSize
         self._viewRows = self._viewHeight / self._cellSize
-        self._viewCellEndX = self._viewColumns - 1
-        self._viewCellEndY = self._viewRows - 1
         self._viewWidthExtra = self._viewWidth % self._cellSize
         self._viewHeightExtra = self._viewHeight % self._cellSize
         self._viewColumnsExtra = (self._viewWidthExtra > 0) ? 1 : 0
         self._viewRowsExtra = (self._viewHeightExtra > 0) ? 1 : 0
+        self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
+        self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
 
         self._buffer = Memory.allocate(self._viewWidth * self._viewHeight * Screen.depth)
         self._bufferBlocks = BufferBlocks.createBufferBlocks(bufferSize: self._buffer.count,
@@ -204,31 +204,34 @@ class CellGridView
         Screen.shared.scale(scaling: self._viewScaling)
     }
 
-    internal func scaled(_ value: Int) -> Int {
+    private func scaled(_ value: Int) -> Int {
         return Screen.shared.scaled(value, scaling: self._viewScaling)
     }
 
-    internal func unscaled(_ value: Int) -> Int {
+    private func unscaled(_ value: Int) -> Int {
         return Screen.shared.unscaled(value, scaling: self._viewScaling)
     }
 
     public   var viewWidth: Int        { self._unscaled_viewWidth }
-    internal var viewWidthScaled: Int  { self._viewWidth }
     public   var viewHeight: Int       { self._unscaled_viewHeight }
-    internal var viewHeightScaled: Int { self._viewHeight }
+    public   var viewColumns: Int      { self._viewColumns }
+    public   var viewRows: Int         { self._viewRows }
     public   var cellSize: Int         { self._unscaled_cellSize }
-    public   var cellSizeScaled: Int   { self._cellSize }
     public   var cellPadding: Int      { self._unscaled_cellPadding }
     public   var gridColumns: Int      { self._gridColumns }
     public   var gridRows: Int         { self._gridRows }
     public   var gridCells: [Cell]     { self._gridCells }
-    public   var shiftX: Int           { self._unscaled_shiftX }
-    public   var shiftY: Int           { self._unscaled_shiftY }
-    public   var shiftCellX: Int       { self._shiftCellX }
-    public   var shiftCellY: Int       { self._shiftCellY }
 
-    public var viewColumns: Int { self._viewColumns }
-    public var viewRows: Int { self._viewRows }
+    internal var shiftX: Int           { self._unscaled_shiftX }
+    internal var shiftY: Int           { self._unscaled_shiftY }
+    internal var shiftCellX: Int       { self._shiftCellX }
+    internal var shiftCellY: Int       { self._shiftCellY }
+
+    internal var viewWidthScaled: Int  { self._viewWidth }
+    internal var viewHeightScaled: Int { self._viewHeight }
+    internal var viewCellEndX: Int     { self._viewCellEndX }
+    internal var viewCellEndY: Int     { self._viewCellEndY }
+    internal var cellSizeScaled: Int   { self._cellSize }
 
     public var shiftedBy: CellLocation {
         return CellLocation(self.shiftCellX * self.cellSize + self.shiftX,
@@ -301,13 +304,13 @@ class CellGridView
 
         restrictShift(shiftCellXY: &shiftCellX,
                       shiftXY: &shiftX,
-                      viewCellEndXY: self._viewCellEndX,
+                      viewCellEndXY: self._viewCellEndX - self._viewColumnsExtra,
                       viewSizeExtra: self._viewWidthExtra,
                       viewSize: self._viewWidth,
                       gridCellEndXY: self._gridCellEndX)
         restrictShift(shiftCellXY: &shiftCellY,
                       shiftXY: &shiftY,
-                      viewCellEndXY: self._viewCellEndY,
+                      viewCellEndXY: self._viewCellEndY - self._viewRowsExtra,
                       viewSizeExtra: self._viewHeightExtra,
                       viewSize: self._viewHeight,
                       gridCellEndXY: self._gridCellEndY)
@@ -335,6 +338,8 @@ class CellGridView
         else if (self._viewWidthExtra > 0) {
             self._viewColumnsExtra += 1
         }
+        self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
+
         self._viewRowsExtra = (self._shiftY != 0 ? 1 : 0)
         if (self._shiftY > 0) {
             if (self._viewHeightExtra > self._shiftY) {
@@ -349,11 +354,12 @@ class CellGridView
         else if (self._viewHeightExtra > 0) {
             self._viewRowsExtra += 1
         }
+        self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
 
         // Now actually write the cells to the view.
 
-        for vy in 0...self._viewCellEndY + self._viewRowsExtra {
-            for vx in 0...self._viewCellEndX + self._viewColumnsExtra {
+        for vy in 0...self._viewCellEndY {
+            for vx in 0...self._viewCellEndX {
                 self.writeCell(viewCellX: vx, viewCellY: vy)
             }
         }
@@ -380,7 +386,7 @@ class CellGridView
             if (viewCellX == 0) {
                 truncate = self._cellSize - self._shiftX
             }
-            else if (viewCellX == self._viewCellEndX + self._viewColumnsExtra) {
+            else if (viewCellX == self._viewCellEndX) {
                 if (self._viewWidthExtra > 0) {
                     truncate = -((self._cellSize - self._shiftX + self._viewWidthExtra) % self._cellSize)
                 }
@@ -396,7 +402,7 @@ class CellGridView
             if (viewCellX == 0) {
                 truncate = -self._shiftX
             }
-            else if (viewCellX == self._viewCellEndX + self._viewColumnsExtra) {
+            else if (viewCellX == self._viewCellEndX) {
                 if (self._viewWidthExtra > 0) {
                     truncate = -((self._viewWidthExtra - self._shiftX) % self._cellSize)
                 }
@@ -408,7 +414,7 @@ class CellGridView
                 truncate = 0
             }
         }
-        else if ((self._viewWidthExtra > 0) && (viewCellX == self._viewCellEndX + self._viewColumnsExtra)) {
+        else if ((self._viewWidthExtra > 0) && (viewCellX == self._viewCellEndX)) {
             truncate = -self._viewWidthExtra
         }
         else {

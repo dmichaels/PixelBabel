@@ -170,7 +170,7 @@ class CellGrid: ObservableObject
                 self._zoomStartViewRows = cellGridView.viewRows
             }
             let cellSizeZoomed: CGFloat = CGFloat(self._zoomStartCellSize!) * zoom
-            let cellSize: Int = Int(cellSizeZoomed.rounded(.toNearestOrEven))
+            let cellSize: Int = Int(cellSizeZoomed.rounded(FloatingPointRoundingRule.toNearestOrEven))
             let cellSizeIncrement: Int = cellSize - self._zoomStartCellSize!
             let shiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * (self._zoomStartViewColumns! / 2))
             let shiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * (self._zoomStartViewRows! / 2))
