@@ -175,7 +175,7 @@ class CellGrid: ObservableObject
             let shiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * (self._zoomStartViewColumns! / 2))
             let shiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * (self._zoomStartViewRows! / 2))
             // print("ZOOM: \(zoom) > zoomStartCellSize: \(self._zoomStartCellSize!) currentCellSize: \(cellGridView.cellSize) cellSize: \(cellSize)")
-            cellGridView.set_cellSize(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
+            cellGridView.setCellSize(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
         }
     }
 
