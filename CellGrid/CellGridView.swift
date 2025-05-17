@@ -519,4 +519,8 @@ class CellGridView
                        viewScaling: self._viewScaling)
         self.shift(shiftx: currentShift.x, shifty: currentShift.y)
     }
+
+    public func set_cellSize(_ cellSize: Int) {
+        self.resizeCells(cellSizeIncrement: cellSize - self._unscaled_cellSize)
+    }
 }
