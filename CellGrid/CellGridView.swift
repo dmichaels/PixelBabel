@@ -511,7 +511,7 @@ class CellGridView
     }
 
     public func resizeCells(cellSizeIncrement: Int) {
-        print("RESIZE: \(cellSizeIncrement)")
+        // print("RESIZE: \(cellSizeIncrement)")
         let currentShift: CellLocation = self.shiftedBy
         self.configure(cellSize: self._unscaled_cellSize + cellSizeIncrement,
                        cellPadding: self._unscaled_cellPadding,
@@ -529,7 +529,7 @@ class CellGridView
         self.resizeCells(cellSizeIncrement: cellSize - self._unscaled_cellSize)
         */
         if (cellSize != self.cellSize) {
-            print("RESIZE> new: \(cellSize) current: \(self.cellSize)")
+            // print("RESIZE> new: \(cellSize) current: \(self.cellSize)")
             let currentShift: CellLocation = self.shiftedBy
             self.configure(cellSize: cellSize,
                            cellPadding: self._unscaled_cellPadding,
@@ -540,11 +540,11 @@ class CellGridView
                            viewTransparency: self._viewTransparency,
                            viewScaling: self._viewScaling)
             if (cellSize == self.cellSize) {
-                print("RESIZE-AFTER-CONFIGURE-SHIFT-GIVEN> new: \(cellSize) current: \(self.cellSize)")
+                // print("RESIZE-AFTER-CONFIGURE-SHIFT-GIVEN> new: \(cellSize) current: \(self.cellSize)")
                 self.shift(shiftx: shiftX, shifty: shiftY)
             }
             else {
-                print("RESIZE-AFTER-CONFIGURE-SHIFT-CURRENT> new: \(cellSize) current: \(self.cellSize)")
+                // print("RESIZE-AFTER-CONFIGURE-SHIFT-CURRENT> new: \(cellSize) current: \(self.cellSize)")
                 self.shift(shiftx: currentShift.x, shifty: currentShift.y)
             }
         }
