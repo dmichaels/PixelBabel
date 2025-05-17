@@ -12,9 +12,9 @@ class CellGrid: ObservableObject
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = CellColor.OPAQUE
-        public static let cellSize: Int = 44 // 51
+        public static let cellSize: Int = 45 // 51
         public static let cellSizeNeat: Bool = true
-        public static let cellPadding: Int = 16
+        public static let cellPadding: Int = 1
         //
         // TODO: while dragging make the shape inset rather than rounded (or circle) for speed.
         // For example generating grid-view with rounded is like 0.074 vs inset is like 0.018.
@@ -168,16 +168,18 @@ class CellGrid: ObservableObject
             let cellSizeIncrement: Int = (cellSizeZoomed - cellSize) / 3
             */
 
-            let zoomProposed: CGFloat = self._zoomLast * zoom / 3.0
-            let zoomClamped: CGFloat = min(max(zoomProposed, 0.5), 4.0)
-            self._zoom = zoomClamped
+            // let zoomProposed: CGFloat = self._zoomLast * zoom
+            // let zoomClamped: CGFloat = min(max(zoomProposed, 0.5), 4.0)
+            // self._zoom = zoomClamped
 
 
             let cellSize: Int = cellGridView.cellSize
-            let cellSizeZoomed: Int = Int(CGFloat(cellSize) * self._zoom)
-            let cellSizeIncrement: Int = (cellSizeZoomed - cellSize)
+            // let cellSizeZoomed: Int = Int(CGFloat(cellSize) * self._zoom)
+            // let cellSizeIncrement: Int = (cellSizeZoomed - cellSize)
+            let cellSizeZoomed: Int = Int(CGFloat(cellSize) * (self._zoom / 10.0))
+            let cellSizeIncrement: Int = cellSizeZoomed
 
-            print("ON-ZOOM: \(zoom) > proposed: \(zoomProposed) > clamped: \(zoomClamped) > -> size: \(cellSize) increment: \(cellSizeIncrement)")
+            print("ZOOM: \(zoom) > proposed: \(zoomProposed) > clamped: \(zoomClamped) > -> size: \(cellSize) increment: \(cellSizeIncrement)")
 
             cellGridView.resizeCells(cellSizeIncrement: cellSizeIncrement)
         }

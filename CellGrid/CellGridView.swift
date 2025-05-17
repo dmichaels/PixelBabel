@@ -415,6 +415,12 @@ class CellGridView
 
         let gridCellX: Int = viewCellX - self._shiftCellX - ((self._shiftX > 0) ? 1 : 0)
         let gridCellY: Int = viewCellY - self._shiftCellY - ((self._shiftY > 0) ? 1 : 0)
+        //
+        // Another micro optimization could be if this view-cell does not correspond to a grid-cell
+        // at all (i.e. the below gridCell call returns nil), i.e this is an empty space, then the
+        // cell buffer block that we use can be a simplified one which just writes all background;
+        // but this is probably not really a typical/common case for things we can think of for now.
+        //
         let foreground: CellColor = self.gridCell(gridCellX, gridCellY)?.foreground ?? self._viewBackground
         let foregroundOnly: Bool = false
 

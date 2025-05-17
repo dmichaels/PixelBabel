@@ -118,7 +118,7 @@ struct ContentView: View
                                         self.cellGrid.onZoomEnd()
                                         self.updateImage()
                                     }
-)
+                            )
 
                             NavigationLink(
                                 destination: SettingsView(),
