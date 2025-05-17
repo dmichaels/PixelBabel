@@ -172,6 +172,12 @@ class CellGrid: ObservableObject
             let cellSizeZoomed: CGFloat = CGFloat(self._zoomStartCellSize!) * zoom
             let cellSize: Int = Int(cellSizeZoomed.rounded(FloatingPointRoundingRule.toNearestOrEven))
             let cellSizeIncrement: Int = cellSize - self._zoomStartCellSize!
+            //
+            // TODO
+            // If blank space then adjust shift here accordingly.
+            // Already changing shift in response to zoom based on number of rows/columns
+            // so the zoom feels more centered, but have not yet taken this case into account.
+            //
             let shiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * (self._zoomStartViewColumns! / 2))
             let shiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * (self._zoomStartViewRows! / 2))
             // print("ZOOM: \(zoom) > zoomStartCellSize: \(self._zoomStartCellSize!) currentCellSize: \(cellGridView.cellSize) cellSize: \(cellSize)")
