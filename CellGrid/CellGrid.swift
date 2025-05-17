@@ -36,6 +36,7 @@ class CellGrid: ObservableObject
     private var _dragStartShifted: CellLocation? = nil
 
     private var _zoomStartCellSize: Int? = nil
+    private var _zoomStartShiftedBy: CellLocation? = nil
     private var _zoom: CGFloat = 1.0
     private var _zoomLast: CGFloat = 1.0
 
@@ -144,13 +145,13 @@ class CellGrid: ObservableObject
         if let cellGridView = self._cellGridView {
             if let cell: LifeCell = cellGridView.gridCell(location) {
                 if cell.x == 0 && cell.y == 0 {
-                    self._cellGridView!.resizeCells(cellSizeIncrement: 1)
+                    cellGridView.resizeCells(cellSizeIncrement: 1)
                 }
                 else if cell.x == 1 && cell.y == 1 {
-                    self._cellGridView!.resizeCells(cellSizeIncrement: -1)
+                    cellGridView.resizeCells(cellSizeIncrement: -1)
                 }
                 else if cell.x == 2 && cell.y == 2 {
-                    self._cellGridView!.viewScaling = !self._cellGridView!.viewScaling
+                    cellGridView.viewScaling = !cellGridView.viewScaling
                 }
                 else {
                     cell.toggle()
@@ -161,15 +162,32 @@ class CellGrid: ObservableObject
     }
 
     public func onZoom(_ zoom: CGFloat) {
+        /*
         if zoom != 1.0, let cellGridView = self._cellGridView, zoom != 1.0 {
+            var zoom: CGFloat = zoom
             let debugCurrentCellSize: Int = cellGridView.cellSize
             if (self._zoomStartCellSize == nil) {
                 self._zoomStartCellSize = cellGridView.cellSize
             }
-            let cellSize: Int = self._zoomStartCellSize!
-            let newCellSize: Int = Int(CGFloat(cellSize) * zoom)
+            let newCellSize: Int = Int(CGFloat(self._zoomStartCellSize!) * zoom)
             print("ZOOM: \(zoom) > zoomeStartCellSize: \(self._zoomStartCellSize!) currentCellSize: \(debugCurrentCellSize) newCellSize: \(newCellSize)")
             cellGridView.set_cellSize(newCellSize)
+        }
+        */
+        if zoom != 1.0, let cellGridView = self._cellGridView {
+            var zoom: CGFloat = zoom
+            let debugCurrentCellSize: Int = cellGridView.cellSize
+            if (self._zoomStartCellSize == nil) {
+                self._zoomStartCellSize = cellGridView.cellSize
+                self._zoomStartShiftedBy = cellGridView.shiftedBy
+            }
+            let newCellSize: Int = Int(CGFloat(self._zoomStartCellSize!) * zoom)
+            print("ZOOM: \(zoom) > zoomeStartCellSize: \(self._zoomStartCellSize!) currentCellSize: \(debugCurrentCellSize) newCellSize: \(newCellSize)")
+            // cellGridView.set_cellSize(cellSize: newCellSize)
+            let cellSizeIncrement: Int = newCellSize - self._zoomStartCellSize!
+            let newShiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * 2)
+            let newShiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * 2)
+            cellGridView.set_cellSize(cellSize: newCellSize, shiftX: newShiftX, shiftY: newShiftY)
         }
     }
 

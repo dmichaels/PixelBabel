@@ -213,10 +213,11 @@ class CellGridView
     }
 
     public   var viewWidth: Int        { self._unscaled_viewWidth }
-    public   var viewHeight: Int       { self._unscaled_viewHeight }
     internal var viewWidthScaled: Int  { self._viewWidth }
+    public   var viewHeight: Int       { self._unscaled_viewHeight }
     internal var viewHeightScaled: Int { self._viewHeight }
     public   var cellSize: Int         { self._unscaled_cellSize }
+    public   var cellSizeScaled: Int   { self._cellSize }
     public   var cellPadding: Int      { self._unscaled_cellPadding }
     public   var gridColumns: Int      { self._gridColumns }
     public   var gridRows: Int         { self._gridRows }
@@ -520,7 +521,19 @@ class CellGridView
         self.shift(shiftx: currentShift.x, shifty: currentShift.y)
     }
 
-    public func set_cellSize(_ cellSize: Int) {
+    public func set_cellSize(cellSize: Int, shiftX: Int = 0, shiftY: Int = 0) {
+        /*
         self.resizeCells(cellSizeIncrement: cellSize - self._unscaled_cellSize)
+        */
+        let currentShift: CellLocation = self.shiftedBy
+        self.configure(cellSize: cellSize,
+                       cellPadding: self._unscaled_cellPadding,
+                       cellShape: self._cellShape,
+                       viewWidth: self._unscaled_viewWidth,
+                       viewHeight: self._unscaled_viewHeight,
+                       viewBackground: self._viewBackground,
+                       viewTransparency: self._viewTransparency,
+                       viewScaling: self._viewScaling)
+        self.shift(shiftx: shiftX, shifty: shiftY)
     }
 }
