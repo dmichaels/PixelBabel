@@ -227,6 +227,9 @@ class CellGridView
     public   var shiftCellX: Int       { self._shiftCellX }
     public   var shiftCellY: Int       { self._shiftCellY }
 
+    public var viewColumns: Int { self._viewColumns }
+    public var viewRows: Int { self._viewRows }
+
     public var shiftedBy: CellLocation {
         return CellLocation(self.shiftCellX * self.cellSize + self.shiftX,
                             self.shiftCellY * self.cellSize + self.shiftY)
@@ -525,15 +528,25 @@ class CellGridView
         /*
         self.resizeCells(cellSizeIncrement: cellSize - self._unscaled_cellSize)
         */
-        let currentShift: CellLocation = self.shiftedBy
-        self.configure(cellSize: cellSize,
-                       cellPadding: self._unscaled_cellPadding,
-                       cellShape: self._cellShape,
-                       viewWidth: self._unscaled_viewWidth,
-                       viewHeight: self._unscaled_viewHeight,
-                       viewBackground: self._viewBackground,
-                       viewTransparency: self._viewTransparency,
-                       viewScaling: self._viewScaling)
-        self.shift(shiftx: shiftX, shifty: shiftY)
+        if (cellSize != self.cellSize) {
+            print("RESIZE> new: \(cellSize) current: \(self.cellSize)")
+            let currentShift: CellLocation = self.shiftedBy
+            self.configure(cellSize: cellSize,
+                           cellPadding: self._unscaled_cellPadding,
+                           cellShape: self._cellShape,
+                           viewWidth: self._unscaled_viewWidth,
+                           viewHeight: self._unscaled_viewHeight,
+                           viewBackground: self._viewBackground,
+                           viewTransparency: self._viewTransparency,
+                           viewScaling: self._viewScaling)
+            if (cellSize == self.cellSize) {
+                print("RESIZE-AFTER-CONFIGURE-SHIFT-GIVEN> new: \(cellSize) current: \(self.cellSize)")
+                self.shift(shiftx: shiftX, shifty: shiftY)
+            }
+            else {
+                print("RESIZE-AFTER-CONFIGURE-SHIFT-CURRENT> new: \(cellSize) current: \(self.cellSize)")
+                self.shift(shiftx: currentShift.x, shifty: currentShift.y)
+            }
+        }
     }
 }

@@ -114,8 +114,8 @@ struct ContentView: View
                                         self.cellGrid.onZoom(value)
                                         self.updateImage()
                                     }
-                                    .onEnded { _ in
-                                        self.cellGrid.onZoomEnd()
+                                    .onEnded { value in
+                                        self.cellGrid.onZoomEnd(value)
                                         self.updateImage()
                                     }
                             )

@@ -37,8 +37,8 @@ class CellGrid: ObservableObject
 
     private var _zoomStartCellSize: Int? = nil
     private var _zoomStartShiftedBy: CellLocation? = nil
-    private var _zoom: CGFloat = 1.0
-    private var _zoomLast: CGFloat = 1.0
+    private var _zoomStartViewColumns: Int? = nil
+    private var _zoomStartViewRows: Int? = nil
 
     init(cellFactory: Cell.Factory? = nil) {
         self._cellFactory = cellFactory
@@ -162,16 +162,29 @@ class CellGrid: ObservableObject
     }
 
     public func onZoom(_ zoom: CGFloat) {
-        /*
-        if zoom != 1.0, let cellGridView = self._cellGridView, zoom != 1.0 {
+        if zoom != 1.0, let cellGridView = self._cellGridView {
             var zoom: CGFloat = zoom
             let debugCurrentCellSize: Int = cellGridView.cellSize
             if (self._zoomStartCellSize == nil) {
                 self._zoomStartCellSize = cellGridView.cellSize
+                self._zoomStartShiftedBy = cellGridView.shiftedBy
+                self._zoomStartViewColumns = cellGridView.viewColumns
+                self._zoomStartViewRows = cellGridView.viewRows
             }
             let newCellSize: Int = Int(CGFloat(self._zoomStartCellSize!) * zoom)
             print("ZOOM: \(zoom) > zoomeStartCellSize: \(self._zoomStartCellSize!) currentCellSize: \(debugCurrentCellSize) newCellSize: \(newCellSize)")
-            cellGridView.set_cellSize(newCellSize)
+            let cellSizeIncrement: Int = newCellSize - self._zoomStartCellSize!
+            let newShiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * (self._zoomStartViewColumns! / 2))
+            let newShiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * (self._zoomStartViewRows! / 2))
+            cellGridView.set_cellSize(cellSize: newCellSize, shiftX: newShiftX, shiftY: newShiftY)
+        }
+    }
+
+    public func onZoomEnd(_ zoom: CGFloat) {
+        print("ZOOM-END")
+        /*
+        if let cellGridView = self._cellGridView {
+            self._zoomStartCellSize = nil
         }
         */
         if zoom != 1.0, let cellGridView = self._cellGridView {
@@ -180,23 +193,20 @@ class CellGrid: ObservableObject
             if (self._zoomStartCellSize == nil) {
                 self._zoomStartCellSize = cellGridView.cellSize
                 self._zoomStartShiftedBy = cellGridView.shiftedBy
+                self._zoomStartViewColumns = cellGridView.viewColumns
+                self._zoomStartViewRows = cellGridView.viewRows
             }
             let newCellSize: Int = Int(CGFloat(self._zoomStartCellSize!) * zoom)
             print("ZOOM: \(zoom) > zoomeStartCellSize: \(self._zoomStartCellSize!) currentCellSize: \(debugCurrentCellSize) newCellSize: \(newCellSize)")
-            // cellGridView.set_cellSize(cellSize: newCellSize)
             let cellSizeIncrement: Int = newCellSize - self._zoomStartCellSize!
-            let newShiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * 2)
-            let newShiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * 2)
+            let newShiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * (self._zoomStartViewColumns! / 2))
+            let newShiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * (self._zoomStartViewRows! / 2))
             cellGridView.set_cellSize(cellSize: newCellSize, shiftX: newShiftX, shiftY: newShiftY)
         }
-    }
-
-    public func onZoomEnd() {
-        print("ZOOM-END")
-        if let cellGridView = self._cellGridView {
-            self._zoomLast = self._zoom
-            self._zoomStartCellSize = nil
-        }
+        self._zoomStartCellSize = nil
+        self._zoomStartShiftedBy = nil
+        self._zoomStartViewColumns = nil
+        self._zoomStartViewRows = nil
     }
 
     public func locate(_ screenPoint: CGPoint) -> CellLocation? {
