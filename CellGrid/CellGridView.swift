@@ -642,11 +642,11 @@ class CellGridView
                                  viewTransparency: self._viewTransparency,
                                  viewScaling: self._viewScaling)
             if (true || cellSize == self.cellSize) {
-                print("RESIZE-AFTER-CONFIGURE-SHIFT-GIVEN> new: \(cellSize) current: \(self.cellSize)")
+                // print("RESIZE-AFTER-CONFIGURE-SHIFT-GIVEN> new: \(cellSize) current: \(self.cellSize)")
                 self.shiftScaled(shiftx: shiftX, shifty: shiftY)
             }
             else {
-                print("RESIZE-AFTER-CONFIGURE-SHIFT-CURRENT> new: \(cellSize) current: \(self.cellSize)")
+                // print("RESIZE-AFTER-CONFIGURE-SHIFT-CURRENT> new: \(cellSize) current: \(self.cellSize)")
                 self.shiftScaled(shiftx: currentShift.x, shifty: currentShift.y)
             }
         }
