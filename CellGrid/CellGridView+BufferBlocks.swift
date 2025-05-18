@@ -142,13 +142,15 @@ extension CellGridView
         }
 
         internal static func createBufferBlocks(bufferSize: Int,
-                                               viewWidth: Int,
-                                               viewHeight: Int,
-                                               cellSize: Int,
-                                               cellPadding: Int,
-                                               cellShape: CellShape,
-                                               cellTransparency: UInt8) -> BufferBlocks
+                                                viewWidth: Int,
+                                                viewHeight: Int,
+                                                cellSize: Int,
+                                                cellPadding: Int,
+                                                cellShape: CellShape,
+                                                cellTransparency: UInt8) -> BufferBlocks
         {
+            // Note that all size related arguments here are assume to be scaled.
+
             let blocks: BufferBlocks = BufferBlocks(width: viewWidth)
             let padding: Int = ((cellPadding > 0) && (cellShape != .square))
                                ? (((cellPadding * 2) >= cellSize)

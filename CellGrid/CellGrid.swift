@@ -161,7 +161,7 @@ class CellGrid: ObservableObject
         }
     }
 
-    public func onZoom(_ zoom: CGFloat) {
+    public func unscaled_onZoom(_ zoom: CGFloat) {
         if zoom != 1.0, let cellGridView = self._cellGridView {
             if (self._zoomStartCellSize == nil) {
                 self._zoomStartCellSize = cellGridView.cellSize
@@ -182,6 +182,30 @@ class CellGrid: ObservableObject
             let shiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * (self._zoomStartViewRows! / 2))
             // print("ZOOM: \(zoom) > zoomStartCellSize: \(self._zoomStartCellSize!) currentCellSize: \(cellGridView.cellSize) cellSize: \(cellSize)")
             cellGridView.setCellSize(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
+        }
+    }
+
+    public func onZoom(_ zoom: CGFloat) {
+        if zoom != 1.0, let cellGridView = self._cellGridView {
+            if (self._zoomStartCellSize == nil) {
+                self._zoomStartCellSize = cellGridView.cellSizeScaled
+                self._zoomStartShiftedBy = cellGridView.shiftedByScaled
+                self._zoomStartViewColumns = cellGridView.viewColumns
+                self._zoomStartViewRows = cellGridView.viewRows
+            }
+            let cellSizeZoomed: CGFloat = CGFloat(self._zoomStartCellSize!) * zoom
+            let cellSize: Int = Int(cellSizeZoomed.rounded(FloatingPointRoundingRule.toNearestOrEven))
+            let cellSizeIncrement: Int = cellSize - self._zoomStartCellSize!
+            //
+            // TODO
+            // If blank space then adjust shift here accordingly.
+            // Already changing shift in response to zoom based on number of rows/columns
+            // so the zoom feels more centered, but have not yet taken this case into account.
+            //
+            let shiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * (self._zoomStartViewColumns!) / 2)
+            let shiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * (self._zoomStartViewRows!) / 2)
+            print("ZOOM: \(zoom) > zoomStartCellSize: \(self._zoomStartCellSize!) currentCellSize: \(cellGridView.cellSizeScaled) cellSize: \(cellSize)")
+            cellGridView.setCellSizeScaled(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
         }
     }
 
