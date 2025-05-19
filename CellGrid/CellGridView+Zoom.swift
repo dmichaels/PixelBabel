@@ -21,6 +21,9 @@ extension CellGridView
             cellGridView.resizeCells(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY, scaled: self.scaled)
         }
 
+        // TODO
+        // OR maybe just use init; more straight-forwared; thought there was but no real reason for static creation.
+        //
         public static func start(cellGridView: CellGridView, zoom: CGFloat, scaled: Bool = false) -> Zoom {
             let shifted: CellLocation = scaled ? cellGridView.shiftedByScaled : cellGridView.shiftedBy
             let zoomer: Zoom = Zoom(cellGridView: cellGridView,
