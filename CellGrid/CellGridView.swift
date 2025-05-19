@@ -441,8 +441,12 @@ class CellGridView
         }
 
         #if targetEnvironment(simulator)
-            print(String(format: "SHIFTT> %.5fs [\(self.unscaled(shiftx)),\(self.unscaled(shifty))] " +
-                                 "scaled: [\(shiftx),\(shifty)] bm: \(self._bufferBlocks.memoryUsageBytes)",
+            print(String(format: "SHIFTT> %.5fs [\(self.unscaled(shiftx)),\(self.unscaled(shifty))]" +
+                                 " scaled: [\(shiftx),\(shifty)]" +
+                                 " bm: \(self._bufferBlocks.memoryUsageBytes)" +
+                                 " cs: [\(self._cellSize)" +
+                                 " sb: [\(self.shiftedBy.x),\(self.shiftedBy.y)]" +
+                                 " vc: \(self.viewColumns) vce: \(self._viewColumnsExtra) vcv: \(self.viewColumnsVisible)",
                   Date().timeIntervalSince(debugStart)))
         #endif
     }
