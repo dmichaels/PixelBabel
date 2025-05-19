@@ -10,7 +10,7 @@ class CellGrid: ObservableObject
         public static let displayWidth: Int = Screen.initialWidth
         public static let displayHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = true
+        public static let displayScaling: Bool = false
         public static let displayTransparency: UInt8 = CellColor.OPAQUE
         public static let cellSize: Int = 45 // 51
         public static let cellSizeNeat: Bool = true
@@ -39,6 +39,7 @@ class CellGrid: ObservableObject
     private var _zoomStartShiftedBy: CellLocation? = nil
     private var _zoomStartViewColumns: Int? = nil
     private var _zoomStartViewRows: Int? = nil
+    private var _zoomer: CellGridView.Zoom? = nil
 
     init(cellFactory: Cell.Factory? = nil) {
         self._cellFactory = cellFactory
@@ -144,11 +145,18 @@ class CellGrid: ObservableObject
     public func onTap(_ location: CGPoint) {
         if let cellGridView = self._cellGridView {
             if let cell: LifeCell = cellGridView.gridCell(location) {
-                if cell.x == 0 && cell.y == 0 {
-                    cellGridView.resizeCells(cellSizeIncrement: 1)
+                if (((cell.x == 0) && (cell.y == 0)) || ((cell.x == 3) && (cell.y == 3))) {
+                    let cellSizeIncrement: Int = 1
+                    let cellSize: Int = cellGridView.cellSizeScaled + cellSizeIncrement
+                    let (shiftX, shiftY) = cellGridView.calculateShiftForCellResizeScaled(cellSize: cellSize)
+                    cellGridView.setCellSizeScaled(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
                 }
                 else if cell.x == 1 && cell.y == 1 {
-                    cellGridView.resizeCells(cellSizeIncrement: -1)
+                    // cellGridView.resizeCells(cellSizeIncrement: -1)
+                    let cellSizeIncrement: Int = -1
+                    let cellSize: Int = cellGridView.cellSizeScaled + cellSizeIncrement
+                    let (shiftX, shiftY) = cellGridView.calculateShiftForCellResizeScaled(cellSize: cellSize)
+                    cellGridView.setCellSizeScaled(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
                 }
                 else if cell.x == 2 && cell.y == 2 {
                     cellGridView.viewScaling = !cellGridView.viewScaling
@@ -161,7 +169,7 @@ class CellGrid: ObservableObject
         }
     }
 
-    public func unscaled_onZoom(_ zoom: CGFloat) {
+    public func old_unscaled_onZoom(_ zoom: CGFloat) {
         if zoom != 1.0, let cellGridView = self._cellGridView {
             if (self._zoomStartCellSize == nil) {
                 self._zoomStartCellSize = cellGridView.cellSize
@@ -185,7 +193,7 @@ class CellGrid: ObservableObject
         }
     }
 
-    public func onZoom(_ zoom: CGFloat) {
+    public func old_onZoom(_ zoom: CGFloat) {
         if zoom != 1.0, let cellGridView = self._cellGridView {
             if (self._zoomStartCellSize == nil) {
                 self._zoomStartCellSize = cellGridView.cellSizeScaled
@@ -206,19 +214,34 @@ class CellGrid: ObservableObject
             // let shiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * (self._zoomStartViewRows!) / 2)
             // let shiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * (self._zoomStartViewColumns! / 2))
             // let shiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * (self._zoomStartViewRows! / 2))
-            let shiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * ((self._zoomStartViewColumns! + 1) / 2))
-            let shiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * ((self._zoomStartViewRows! + 1) / 2))
-            // print("ZOOM: \(zoom) > zoomStartCellSize: \(self._zoomStartCellSize!) currentCellSize: \(cellGridView.cellSizeScaled) cellSize: \(cellSize)")
+            let shiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * ((self._zoomStartViewColumns! + 0) / 2))
+            let shiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * ((self._zoomStartViewRows! + 0) / 2))
+            print("ZOOM: \(zoom) > zoomStartCellSize: \(self._zoomStartCellSize!) currentCellSize: \(cellGridView.cellSizeScaled) cellSize: \(cellSize) zoomStartShiftedBy: \(self._zoomStartShiftedBy!) shift: [\(shiftX),\(shiftY)]")
             cellGridView.setCellSizeScaled(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
         }
     }
 
-    public func onZoomEnd(_ zoom: CGFloat) {
+    public func old_onZoomEnd(_ zoom: CGFloat) {
         self.onZoom(zoom)
         self._zoomStartCellSize = nil
         self._zoomStartShiftedBy = nil
         self._zoomStartViewColumns = nil
         self._zoomStartViewRows = nil
+    }
+
+    public func onZoom(_ zoom: CGFloat) {
+        if let zoomer: CellGridView.Zoom = self._zoomer {
+            zoomer.zoom(zoom)
+        }
+        else if let cellGridView: CellGridView = self._cellGridView {
+            self._zoomer = CellGridView.Zoom.start(cellGridView: cellGridView, zoom: zoom, scaled: true)
+        }
+    }
+
+    public func onZoomEnd(_ zoom: CGFloat) {
+        if let zoomer: CellGridView.Zoom = self._zoomer {
+            self._zoomer = zoomer.end(zoom)
+        }
     }
 
     public func locate(_ screenPoint: CGPoint) -> CellLocation? {

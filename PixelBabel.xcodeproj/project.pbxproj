@@ -135,6 +135,7 @@
 				"CellGridView+Image.swift",
 				"CellGridView+Locations.swift",
 				"CellGridView+PreferredSize.swift",
+				"CellGridView+Zoom.swift",
 				CellLocation.swift,
 				CellShape.swift,
 			);
@@ -153,6 +154,7 @@
 				"CellGridView+Image.swift",
 				"CellGridView+Locations.swift",
 				"CellGridView+PreferredSize.swift",
+				"CellGridView+Zoom.swift",
 				CellLocation.swift,
 				CellShape.swift,
 			);
