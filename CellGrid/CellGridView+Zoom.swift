@@ -49,8 +49,16 @@ extension CellGridView
             // odd or even) ensures we don't tend toward the right/left or down as we expand/shrink.
             //
             let fudgeShift: Int = cellSizeIncrement > 0 ? cellSize % 2 : -(cellSize % 2)
-            let resultingShiftRight: Int = self.cellGridView.viewColumnsVisible * cellSizeIncrement + fudgeShift
-            let resultingShiftDown: Int = self.cellGridView.viewRowsVisible * cellSizeIncrement + fudgeShift
+            //
+            // TODO
+            // Actually, we want the count of the number of FULLY visible cells, on the right/bottom
+            // that is, i.e. if the left/top is only partially visible then we DO count it but if the
+            // right/bottom is only partially visible then we do NOT count it. I THINK that's right.
+            //
+            let viewColumnsVisible: Int = self.cellGridView.viewColumnsVisible
+            let viewRowsVisible: Int = self.cellGridView.viewRowsVisible
+            let resultingShiftRight: Int = viewColumnsVisible * cellSizeIncrement + fudgeShift
+            let resultingShiftDown: Int = viewRowsVisible * cellSizeIncrement + fudgeShift
             let shiftX: Int = shiftedCurrent.x - (resultingShiftRight / 2)
             let shiftY: Int = shiftedCurrent.y - (resultingShiftDown / 2)
             return (x: shiftX, y: shiftY)
