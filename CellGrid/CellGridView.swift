@@ -39,6 +39,8 @@ class CellGridView
     private var _viewColumns: Int = 0
     private var _viewRows: Int = 0
     private var _viewColumnsExtra: Int = 0
+    private var _viewColumnsPartialLeft: Int = 0
+    private var _viewColumnsPartialRight: Int = 0
     private var _viewRowsExtra: Int = 0
     private var _viewCellEndX: Int = 0
     private var _viewCellEndY: Int = 0
@@ -151,11 +153,16 @@ class CellGridView
         self._unscaled_cellSize = cellSize
         self._unscaled_cellPadding = cellPadding
 
+        // Note that viewColumns/Rows is the number of cells the
+        // view CAN (possibly) fully display horizontally/vertically.
+
         self._viewColumns = self._viewWidth / self._cellSize
         self._viewRows = self._viewHeight / self._cellSize
         self._viewWidthExtra = self._viewWidth % self._cellSize
         self._viewHeightExtra = self._viewHeight % self._cellSize
         self._viewColumnsExtra = (self._viewWidthExtra > 0) ? 1 : 0
+        self._viewColumnsPartialLeft = 0
+        self._viewColumnsPartialRight = (self._viewWidthExtra > 0) ? 1 : 0
         self._viewRowsExtra = (self._viewHeightExtra > 0) ? 1 : 0
         self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
         self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
@@ -211,6 +218,8 @@ class CellGridView
         self._viewWidthExtra = self._viewWidth % self._cellSize
         self._viewHeightExtra = self._viewHeight % self._cellSize
         self._viewColumnsExtra = (self._viewWidthExtra > 0) ? 1 : 0
+        self._viewColumnsPartialLeft = 0
+        self._viewColumnsPartialRight = (self._viewWidthExtra > 0) ? 1 : 0
         self._viewRowsExtra = (self._viewHeightExtra > 0) ? 1 : 0
         self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
         self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
@@ -295,6 +304,8 @@ class CellGridView
     internal var viewCellEndY: Int       { self._viewCellEndY }
     internal var cellSizeScaled: Int     { self._cellSize }
     internal var cellPaddingScaled: Int  { self._cellPadding }
+    internal var shiftScaledX: Int       { self._shiftX }
+    internal var shiftScaledY: Int       { self._shiftY }
 
     public var shiftedBy: CellLocation {
         return CellLocation(self.shiftCellX * self.cellSize + self.shiftX,
@@ -401,18 +412,22 @@ class CellGridView
         self._unscaled_shiftY = self.unscaled(shiftY)
 
         self._viewColumnsExtra = (self._shiftX != 0 ? 1 : 0)
+        self._viewColumnsPartialLeft = (self._shiftX != 0 ? 1 : 0)
         if (self._shiftX > 0) {
             if (self._viewWidthExtra > self._shiftX) {
                 self._viewColumnsExtra += 1
+                self._viewColumnsPartialRight = 1
             }
         }
         else if (self._shiftX < 0) {
             if (self._viewWidthExtra > (self._cellSize + self._shiftX)) {
                 self._viewColumnsExtra += 1
+                self._viewColumnsPartialRight = 1
             }
         }
         else if (self._viewWidthExtra > 0) {
             self._viewColumnsExtra += 1
+            self._viewColumnsPartialRight = 1
         }
         self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
 
@@ -446,7 +461,8 @@ class CellGridView
                                  " bm: \(self._bufferBlocks.memoryUsageBytes)" +
                                  " cs: [\(self._cellSize)" +
                                  " sb: [\(self.shiftedBy.x),\(self.shiftedBy.y)]" +
-                                 " vc: \(self.viewColumns) vce: \(self._viewColumnsExtra) vcv: \(self.viewColumnsVisible)",
+                                 " vc: \(self.viewColumns) vce: \(self._viewColumnsExtra) vcv: \(self.viewColumnsVisible)" +
+                                 " vcpl: \(self._viewColumnsPartialLeft) vcpr: \(self._viewColumnsPartialRight)",
                   Date().timeIntervalSince(debugStart)))
         #endif
     }
@@ -504,6 +520,9 @@ class CellGridView
 
         // Map the grid-view location to the cell-grid location.
 
+        // TODO
+        // after resize scalled up by 1 and then down by 1 gridCellLocation(viewCellX, viewCellY) = gridCellFromViewCellLocation
+        // give okay result but not below ( i think ) ...
         let gridCellX: Int = viewCellX - self._shiftCellX - ((self._shiftX > 0) ? 1 : 0)
         let gridCellY: Int = viewCellY - self._shiftCellY - ((self._shiftY > 0) ? 1 : 0)
         //
@@ -513,6 +532,9 @@ class CellGridView
         // but this is probably not really a typical/common case for things we can think of for now.
         //
         let foreground: CellColor = self.gridCell(gridCellX, gridCellY)?.foreground ?? self._viewBackground
+        // let foreground: CellColor = self.gridCell(viewCellX: viewCellX, viewCellY: viewCellY)?.foreground ?? self._viewBackground
+        let x1 = self.gridCellLocation(viewCellX: viewCellX, viewCellY: viewCellY)
+        let x2 = self.gridCell(viewCellX: viewCellX, viewCellY: viewCellY)
         let foregroundOnly: Bool = false
 
         // Setup the offset for the buffer blocks; offset used within writeCellBlock.
@@ -698,7 +720,7 @@ class CellGridView
         return self.calculateShiftForCellResizeScaled(cellSize: self._cellSize - cellSizeIncrement)
     }
 
-    public func calculateShiftForCellResizeScaled(cellSize: Int) -> (x: Int, y: Int) {
+    public func old_calculateShiftForCellResizeScaled(cellSize: Int) -> (x: Int, y: Int) {
         let cellSizeIncrement: Int = cellSize - self._cellSize
         guard cellSizeIncrement != 0 else { return (x: 0, y: 0) }
         //
@@ -713,6 +735,32 @@ class CellGridView
         let shiftY: Int = shiftedBy.y - (resultingShiftDown / 2)
         return (x: shiftX, y: shiftY)
     }
+
+        // from zoom module temp
+        public func calculateShiftForCellResizeScaled(cellSize: Int, scaled: Bool = true) -> (x: Int, y: Int) {
+            let cellSizeCurrent: Int = scaled ? self.cellSizeScaled : self.cellSize 
+            let cellSizeIncrement: Int = cellSize - cellSizeCurrent
+            guard cellSizeIncrement != 0 else { return (x: 0, y: 0) }
+            let shiftedCurrent: CellLocation = scaled ? self.shiftedByScaled : self.shiftedBy
+            //
+            // The addition of cellSize % 2 (either one or zero depending on the new cell-size being
+            // odd or even) ensures we don't tend toward the right/left or down as we expand/shrink.
+            //
+            let fudgeShift: Int = cellSizeIncrement > 0 ? cellSize % 2 : -(cellSize % 2)
+            //
+            // TODO
+            // Actually, we want the count of the number of FULLY visible cells, on the right/bottom
+            // that is, i.e. if the left/top is only partially visible then we DO count it but if the
+            // right/bottom is only partially visible then we do NOT count it. I THINK that's right.
+            //
+            let viewColumnsVisible: Int = self.viewColumnsVisible
+            let viewRowsVisible: Int = self.viewRowsVisible
+            let resultingShiftRight: Int = viewColumnsVisible * cellSizeIncrement + fudgeShift
+            let resultingShiftDown: Int = viewRowsVisible * cellSizeIncrement + fudgeShift
+            let shiftX: Int = shiftedCurrent.x - (resultingShiftRight / 2)
+            let shiftY: Int = shiftedCurrent.y - (resultingShiftDown / 2)
+            return (x: shiftX, y: shiftY)
+        }
 
     // Combining scaled  and unscaled together ...
 
@@ -748,6 +796,7 @@ class CellGridView
         }
     }
 
+    /*
     public func calculateShiftForResizeCells(cellSize: Int, scaled: Bool = false) -> (x: Int, y: Int) {
         let cellSizeCurrent: Int = scaled ? self.cellSizeScaled : self.cellSize 
         let cellSizeIncrement: Int = cellSize - cellSizeCurrent
@@ -764,4 +813,5 @@ class CellGridView
         let shiftY: Int = shiftedByCurrent.y - (resultingShiftDown / 2)
         return (x: shiftX, y: shiftY)
     }
+    */
 }

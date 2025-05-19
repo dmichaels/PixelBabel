@@ -9,8 +9,6 @@ extension CellGridView
         public var startCellSize: Int
         public var startShiftedX: Int
         public var startShiftedY: Int
-        public var startViewColumns: Int
-        public var startViewRows: Int
         public var scaled: Bool
 
         public func zoom(_ zoom: CGFloat) {
@@ -30,8 +28,6 @@ extension CellGridView
                                     startCellSize: scaled ? cellGridView.cellSizeScaled : cellGridView.cellSize,
                                     startShiftedX: shifted.x,
                                     startShiftedY: shifted.y,
-                                    startViewColumns: cellGridView.viewColumns,
-                                    startViewRows: cellGridView.viewRows,
                                     scaled: scaled)
             zoomer.zoom(zoom)
             return zoomer

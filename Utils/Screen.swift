@@ -34,17 +34,11 @@ public class Screen: ObservableObject
         CGSize(width: CGFloat(self.width), height: CGFloat(self.height))
     }
 
-    // Returns the scaling factor for the screen/display.
-    // This is the nunmber physical pixels per logical pixel (points).
-    // This is to Retina displays; e.g. the iPhone 15 has a scaling 
-    // factor of 3.0 meaning 3 pixels per logical pixel.
+    // Returns the scaling factor for the screen. This is the nunmber physical pixels
+    // per logical pixel (points); i.e. for Retina displays; e.g. the iPhone 15 Pro has
+    // a scaling factor of 3.0 meaning 3 pixels per logical pixel per dimension, i.e per
+    // horizontal/vertical, i.e. meaning 9 (3 * 3) physical pixels per one logical pixels.
     //
-    /*
-    public var scale: CGFloat {
-        self._scale 
-    }
-    */
-
     public func scale(scaling: Bool = true) -> CGFloat {
         return scaling ? self._scale : 1.0
     }
@@ -53,8 +47,16 @@ public class Screen: ObservableObject
         return scaling ? Int(round(CGFloat(value) * self._scale)) : value
     }
 
+    public func scaled(_ value: CGFloat, scaling: Bool = true) -> CGFloat {
+        return scaling ? value * self._scale : value
+    }
+
     public func unscaled(_ value: Int, scaling: Bool = true) -> Int {
         return scaling ? Int(round(CGFloat(value) / self._scale)) : value
+    }
+
+    public func unscaled(_ value: CGFloat, scaling: Bool = true) -> CGFloat {
+        return scaling ? value / self._scale : value
     }
 
     public func configure(size: CGSize, scale: CGFloat) {

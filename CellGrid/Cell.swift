@@ -36,7 +36,7 @@ class Cell
     }
 
     public func write(foreground: CellColor, foregroundOnly: Bool = false) {
-        if let viewCellLocation = self._parent.viewCellFromGridCellLocation(self._x, self._y) {
+        if let viewCellLocation = self._parent.viewCellLocation(gridCellX: self._x, gridCellY: self._y) {
             if viewCellLocation.x < 0 {
                 var x = 1
             }

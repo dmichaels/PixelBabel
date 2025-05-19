@@ -115,8 +115,7 @@ class CellGrid: ObservableObject
 
     public func normalizedPoint(screenPoint: CGPoint,
                                 gridOrigin viewOrigin: CGPoint,
-                                orientation: OrientationObserver) -> CGPoint
-    {
+                                orientation: OrientationObserver) -> CGPoint {
         return self._cellGridView!.normalizedPoint(screenPoint: screenPoint, viewOrigin: viewOrigin, orientation: orientation)
     }
 
@@ -144,7 +143,7 @@ class CellGrid: ObservableObject
 
     public func onTap(_ location: CGPoint) {
         if let cellGridView = self._cellGridView {
-            if let cell: LifeCell = cellGridView.gridCell(location) {
+            if let cell: LifeCell = cellGridView.gridCell(viewPoint: location) {
                 if (((cell.x == 0) && (cell.y == 0)) || ((cell.x == 3) && (cell.y == 3))) {
                     let cellSizeIncrement: Int = 1
                     let cellSize: Int = cellGridView.cellSizeScaled + cellSizeIncrement
@@ -246,7 +245,7 @@ class CellGrid: ObservableObject
 
     public func locate(_ screenPoint: CGPoint) -> CellLocation? {
         if let cells = self._cellGridView {
-            return cells.gridCellLocation(screenPoint)
+            return cells.gridCellLocation(viewPoint: screenPoint)
         }
         return nil
     }
