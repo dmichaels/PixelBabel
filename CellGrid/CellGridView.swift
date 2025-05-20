@@ -280,32 +280,34 @@ class CellGridView
         return Screen.shared.unscaled(value, scaling: self._viewScaling)
     }
 
-    public   var viewWidth: Int          { self._unscaled_viewWidth }
-    public   var viewHeight: Int         { self._unscaled_viewHeight }
-    public   var viewColumns: Int        { self._viewColumns }
-    public   var viewColumnsVisible: Int { self._viewColumns + self._viewColumnsExtra }
-    public   var viewRowsVisible: Int    { self._viewRows + self._viewRowsExtra }
-    public   var viewRows: Int           { self._viewRows }
-    public   var cellSize: Int           { self._unscaled_cellSize }
-    public   var cellPadding: Int        { self._unscaled_cellPadding }
-    public   var cellShape: CellShape    { self._cellShape }
-    public   var gridColumns: Int        { self._gridColumns }
-    public   var gridRows: Int           { self._gridRows }
-    public   var gridCells: [Cell]       { self._gridCells }
+    public   var viewWidth: Int            { self._unscaled_viewWidth }
+    public   var viewHeight: Int           { self._unscaled_viewHeight }
+    public   var viewColumns: Int          { self._viewColumns }
+    public   var viewColumnsVisible: Int   { self._viewColumns + self._viewColumnsExtra }
+    public   var viewRowsVisible: Int      { self._viewRows + self._viewRowsExtra }
+    public   var viewRows: Int             { self._viewRows }
+    public   var viewBackground: CellColor { self._viewBackground }
+    public   var viewTransparency: UInt8   { self._viewTransparency }
+    public   var cellSize: Int             { self._unscaled_cellSize }
+    public   var cellPadding: Int          { self._unscaled_cellPadding }
+    public   var cellShape: CellShape      { self._cellShape }
+    public   var gridColumns: Int          { self._gridColumns }
+    public   var gridRows: Int             { self._gridRows }
+    public   var gridCells: [Cell]         { self._gridCells }
 
-    internal var shiftX: Int             { self._unscaled_shiftX }
-    internal var shiftY: Int             { self._unscaled_shiftY }
-    internal var shiftCellX: Int         { self._shiftCellX }
-    internal var shiftCellY: Int         { self._shiftCellY }
+    internal var shiftX: Int               { self._unscaled_shiftX }
+    internal var shiftY: Int               { self._unscaled_shiftY }
+    internal var shiftCellX: Int           { self._shiftCellX }
+    internal var shiftCellY: Int           { self._shiftCellY }
 
-    internal var viewWidthScaled: Int    { self._viewWidth }
-    internal var viewHeightScaled: Int   { self._viewHeight }
-    internal var viewCellEndX: Int       { self._viewCellEndX }
-    internal var viewCellEndY: Int       { self._viewCellEndY }
-    internal var cellSizeScaled: Int     { self._cellSize }
-    internal var cellPaddingScaled: Int  { self._cellPadding }
-    internal var shiftScaledX: Int       { self._shiftX }
-    internal var shiftScaledY: Int       { self._shiftY }
+    internal var viewWidthScaled: Int      { self._viewWidth }
+    internal var viewHeightScaled: Int     { self._viewHeight }
+    internal var viewCellEndX: Int         { self._viewCellEndX }
+    internal var viewCellEndY: Int         { self._viewCellEndY }
+    internal var cellSizeScaled: Int       { self._cellSize }
+    internal var cellPaddingScaled: Int    { self._cellPadding }
+    internal var shiftScaledX: Int         { self._shiftX }
+    internal var shiftScaledY: Int         { self._shiftY }
 
     public var shiftedBy: CellLocation {
         return CellLocation(self.shiftCellX * self.cellSize + self.shiftX,
@@ -628,165 +630,30 @@ class CellGridView
         }
     }
 
-    public func resizeCells(cellSizeIncrement: Int) {
-        // print("RESIZE: \(cellSizeIncrement)")
-        let currentShift: CellLocation = self.shiftedBy
-        self.configure(cellSize: self._unscaled_cellSize + cellSizeIncrement,
-                       cellPadding: self._unscaled_cellPadding,
-                       cellShape: self._cellShape,
-                       viewWidth: self._unscaled_viewWidth,
-                       viewHeight: self._unscaled_viewHeight,
-                       viewBackground: self._viewBackground,
-                       viewTransparency: self._viewTransparency,
-                       viewScaling: self._viewScaling)
-        self.shift(shiftx: currentShift.x, shifty: currentShift.y)
-    }
-
-    public func resizeCellsScaled(cellSizeIncrement: Int) {
-        let currentShift: CellLocation = self.shiftedByScaled
-        self.configureScaled(cellSize: self._cellSize + cellSizeIncrement,
-                             cellPadding: self._cellPadding,
-                             cellShape: self._cellShape,
-                             viewWidth: self._viewWidth,
-                             viewHeight: self._viewHeight,
-                             viewBackground: self._viewBackground,
-                             viewTransparency: self._viewTransparency,
-                             viewScaling: self._viewScaling)
-        self.shiftScaled(shiftx: currentShift.x, shifty: currentShift.y)
-    }
-
-    public func setCellSize(cellSize: Int, shiftX: Int = 0, shiftY: Int = 0) {
-        /*
-        self.resizeCells(cellSizeIncrement: cellSize - self._unscaled_cellSize)
-        */
-        if (cellSize != self.cellSize) {
-            // print("RESIZE> new: \(cellSize) current: \(self.cellSize)")
-            let currentShift: CellLocation = self.shiftedBy
-            self.configure(cellSize: cellSize,
-                           cellPadding: self._unscaled_cellPadding,
-                           cellShape: self._cellShape,
-                           viewWidth: self._unscaled_viewWidth,
-                           viewHeight: self._unscaled_viewHeight,
-                           viewBackground: self._viewBackground,
-                           viewTransparency: self._viewTransparency,
-                           viewScaling: self._viewScaling)
-            if (cellSize == self.cellSize) {
-                // print("RESIZE-AFTER-CONFIGURE-SHIFT-GIVEN> new: \(cellSize) current: \(self.cellSize)")
-                self.shift(shiftx: shiftX, shifty: shiftY)
-            }
-            else {
-                // print("RESIZE-AFTER-CONFIGURE-SHIFT-CURRENT> new: \(cellSize) current: \(self.cellSize)")
-                self.shift(shiftx: currentShift.x, shifty: currentShift.y)
-            }
-        }
-    }
-
-    public func setCellSizeScaled(cellSize: Int, shiftX: Int = 0, shiftY: Int = 0) {
-        if (cellSize != self._cellSize) {
-            // print("RESIZE> new: \(cellSize) current: \(self.cellSize)")
-            let currentShift: CellLocation = self.shiftedByScaled
-            self.configureScaled(cellSize: cellSize,
-                                 cellPadding: self._cellPadding,
-                                 cellShape: self._cellShape,
-                                 viewWidth: self._viewWidth,
-                                 viewHeight: self._viewHeight,
-                                 viewBackground: self._viewBackground,
-                                 viewTransparency: self._viewTransparency,
-                                 viewScaling: self._viewScaling)
-            if (cellSize != self._cellSize) {
-                // print("RESIZE-AFTER-CONFIGURE-SHIFT-GIVEN> new: \(cellSize) current: \(self.cellSize)")
-                //
-                // Here we must have reached the max cell-size.
-                //
-                self.shiftScaled(shiftx: currentShift.x, shifty: currentShift.y)
-            }
-            else {
-                // print("RESIZE-AFTER-CONFIGURE-SHIFT-CURRENT> new: \(cellSize) current: \(self.cellSize)")
-                self.shiftScaled(shiftx: shiftX, shifty: shiftY)
-            }
-        }
-    }
-
-    public func calculateShiftForCellResize(cellSizeIncrement: Int) -> (x: Int, y: Int) {
-        return self.calculateShiftForCellResize(cellSize: self.cellSize - cellSizeIncrement)
-    }
-
-    public func calculateShiftForCellResize(cellSize: Int) -> (x: Int, y: Int) {
-        let cellSizeIncrement: Int = cellSize - self.cellSize
-        //
-        // The addition of cellSize % 2 (either one or zero depending on the new cell-size being
-        // odd or even) ensures we don't tend toward the right/left or down as we expand/shrink.
-        //
-        let resultingShiftRight: Int = self.viewColumnsVisible * cellSizeIncrement + (cellSize % 2)
-        let resultingShiftDown: Int = self.viewRowsVisible * cellSizeIncrement + (cellSize % 2)
-        let shiftedBy: CellLocation = self.shiftedBy
-        let shiftX: Int = shiftedBy.x - (resultingShiftRight / 2)
-        let shiftY: Int = shiftedBy.y - (resultingShiftDown / 2)
-        return (x: shiftX, y: shiftY)
-    }
-
-    public func calculateShiftForCellResizeScaled(cellSizeIncrement: Int) -> (x: Int, y: Int) {
-        return self.calculateShiftForCellResizeScaled(cellSize: self._cellSize - cellSizeIncrement)
-    }
-
-    public func old_calculateShiftForCellResizeScaled(cellSize: Int) -> (x: Int, y: Int) {
-        let cellSizeIncrement: Int = cellSize - self._cellSize
-        guard cellSizeIncrement != 0 else { return (x: 0, y: 0) }
-        //
-        // The addition of cellSize % 2 (either one or zero depending on the new cell-size being
-        // odd or even) ensures we don't tend toward the right/left or down as we expand/shrink.
-        //
-        let fudgeShift: Int = cellSizeIncrement > 0 ? cellSize % 2 : -(cellSize % 2)
-        let resultingShiftRight: Int = self.viewColumnsVisible * cellSizeIncrement + fudgeShift
-        let resultingShiftDown: Int = self.viewRowsVisible * cellSizeIncrement + fudgeShift
-        let shiftedBy: CellLocation = self.shiftedByScaled
-        let shiftX: Int = shiftedBy.x - (resultingShiftRight / 2)
-        let shiftY: Int = shiftedBy.y - (resultingShiftDown / 2)
-        return (x: shiftX, y: shiftY)
-    }
-
-        // from zoom module temp
-        public func calculateShiftForCellResizeScaled(cellSize: Int, scaled: Bool = true) -> (x: Int, y: Int) {
-            let cellSizeCurrent: Int = scaled ? self.cellSizeScaled : self.cellSize 
-            let cellSizeIncrement: Int = cellSize - cellSizeCurrent
-            guard cellSizeIncrement != 0 else { return (x: 0, y: 0) }
-            let shiftedCurrent: CellLocation = scaled ? self.shiftedByScaled : self.shiftedBy
-            //
-            // The addition of cellSize % 2 (either one or zero depending on the new cell-size being
-            // odd or even) ensures we don't tend toward the right/left or down as we expand/shrink.
-            //
-            let fudgeShift: Int = cellSizeIncrement > 0 ? cellSize % 2 : -(cellSize % 2)
-            //
-            // TODO
-            // Actually, we want the count of the number of FULLY visible cells, on the right/bottom
-            // that is, i.e. if the left/top is only partially visible then we DO count it but if the
-            // right/bottom is only partially visible then we do NOT count it. I THINK that's right.
-            //
-            let viewColumnsVisible: Int = self.viewColumnsVisible
-            let viewRowsVisible: Int = self.viewRowsVisible
-            let resultingShiftRight: Int = viewColumnsVisible * cellSizeIncrement + fudgeShift
-            let resultingShiftDown: Int = viewRowsVisible * cellSizeIncrement + fudgeShift
-            let shiftX: Int = shiftedCurrent.x - (resultingShiftRight / 2)
-            let shiftY: Int = shiftedCurrent.y - (resultingShiftDown / 2)
-            return (x: shiftX, y: shiftY)
-        }
-
-    // Combining scaled  and unscaled together ...
-
     public func resizeCells(cellSize: Int, shiftX: Int = 0, shiftY: Int = 0, scaled: Bool = false) {
-    // Same as setCellSize/Scaled above (not resizeCells above that which will be obsolete I think) ...
-    //
         let cellSizeCurrent: Int = scaled ? self.cellSizeScaled : self.cellSize
         if (cellSize != cellSizeCurrent) {
             let cellPaddingCurrent: Int = scaled ? self.cellPaddingScaled : self.cellPadding
-            self.configureScaled(cellSize: cellSize,
-                                 cellPadding: cellPaddingCurrent,
-                                 cellShape: self._cellShape,
-                                 viewWidth: self._viewWidth,
-                                 viewHeight: self._viewHeight,
-                                 viewBackground: self._viewBackground,
-                                 viewTransparency: self._viewTransparency,
-                                 viewScaling: self._viewScaling)
+            if (scaled) {
+                self.configureScaled(cellSize: cellSize,
+                                     cellPadding: cellPaddingCurrent,
+                                     cellShape: self.cellShape,
+                                     viewWidth: self.viewWidthScaled,
+                                     viewHeight: self.viewHeightScaled,
+                                     viewBackground: self.viewBackground,
+                                     viewTransparency: self.viewTransparency,
+                                     viewScaling: self.viewScaling)
+            }
+            else {
+                self.configure(cellSize: cellSize,
+                               cellPadding: cellPaddingCurrent,
+                               cellShape: self.cellShape,
+                               viewWidth: self.viewWidth,
+                               viewHeight: self.viewHeight,
+                               viewBackground: self.viewBackground,
+                               viewTransparency: self.viewTransparency,
+                               viewScaling: self.viewScaling)
+            }
             let cellSizeCurrent: Int = scaled ? self.cellSizeScaled : self.cellSize
             if (cellSize != cellSizeCurrent) {
                 //
@@ -804,23 +671,4 @@ class CellGridView
             }
         }
     }
-
-    /*
-    public func calculateShiftForResizeCells(cellSize: Int, scaled: Bool = false) -> (x: Int, y: Int) {
-        let cellSizeCurrent: Int = scaled ? self.cellSizeScaled : self.cellSize 
-        let cellSizeIncrement: Int = cellSize - cellSizeCurrent
-        guard cellSizeIncrement != 0 else { return (x: 0, y: 0) }
-        let shiftedByCurrent: CellLocation = scaled ? self.shiftedByScaled : self.shiftedBy
-        //
-        // The addition of cellSize % 2 (either one or zero depending on the new cell-size being
-        // odd or even) ensures we don't tend toward the right/left or down as we expand/shrink.
-        //
-        let fudgeShift: Int = cellSizeIncrement > 0 ? cellSize % 2 : -(cellSize % 2)
-        let resultingShiftRight: Int = self.viewColumnsVisible * cellSizeIncrement + fudgeShift
-        let resultingShiftDown: Int = self.viewRowsVisible * cellSizeIncrement + fudgeShift
-        let shiftX: Int = shiftedByCurrent.x - (resultingShiftRight / 2)
-        let shiftY: Int = shiftedByCurrent.y - (resultingShiftDown / 2)
-        return (x: shiftX, y: shiftY)
-    }
-    */
 }

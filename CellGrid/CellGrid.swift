@@ -163,7 +163,6 @@ class CellGrid: ObservableObject
                 let dragGridShiftX =  self._dragStartShifted!.x - dragDeltaX
                 let dragGridShiftY = self._dragStartShifted!.y - dragDeltaY
                 cells.shift(shiftx: dragGridShiftX, shifty: dragGridShiftY)
-                // testing ... cells.shiftScaled(shiftx: dragGridShiftX, shifty: dragGridShiftY)
             }
         }
     }
@@ -176,129 +175,52 @@ class CellGrid: ObservableObject
     public func onTap(_ location: CGPoint) {
         if let cellGridView = self._cellGridView {
             if let cell: LifeCell = cellGridView.gridCell(viewPoint: location) {
-
-                    let increment: Int = 1
-
-                    if      ((cell.x == 3) && (cell.y == 3)) { // shift -1 unscaled | blue
-                        cellGridView.shift(shiftx: cellGridView.shiftedBy.x - increment, shifty: cellGridView.shiftedBy.y)
-                    }
-                    else if ((cell.x == 4) && (cell.y == 3)) { // shift +1 unscaled | red
-                        cellGridView.shift(shiftx: cellGridView.shiftedBy.x + increment, shifty: cellGridView.shiftedBy.y)
-                    }
-                    else if ((cell.x == 3) && (cell.y == 4)) { // resize -1 unscaled | green
-                        let cellSize: Int = cellGridView.cellSize - increment
-                        let (shiftX, shiftY) = cellGridView.calculateShiftForCellResize(cellSize: cellSize)
-                        cellGridView.setCellSize(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
-                    }
-                    else if ((cell.x == 4) && (cell.y == 4)) { // resize +1 unscaled | purple
-                        let cellSize: Int = cellGridView.cellSize + increment
-                        let (shiftX, shiftY) = cellGridView.calculateShiftForCellResize(cellSize: cellSize)
-                        cellGridView.setCellSize(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
-                    }
-                    else if ((cell.x == 3) && (cell.y == 5)) { // shift -1 scaled | dark blue
-                        cellGridView.shiftScaled(shiftx: cellGridView.shiftedByScaled.x - increment, shifty: cellGridView.shiftedByScaled.y)
-                    }
-                    else if ((cell.x == 4) && (cell.y == 5)) { // shift +1 scaled | dark red
-                        cellGridView.shiftScaled(shiftx: cellGridView.shiftedByScaled.x + increment, shifty: cellGridView.shiftedByScaled.y)
-                    }
-                    else if ((cell.x == 3) && (cell.y == 6)) { // resize -1 scaled | dark green
-                        let cellSize: Int = cellGridView.cellSizeScaled - increment
-                        let (shiftX, shiftY) = cellGridView.calculateShiftForCellResizeScaled(cellSize: cellSize)
-                        cellGridView.setCellSizeScaled(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
-                    }
-                    else if ((cell.x == 4) && (cell.y == 6)) { // resize +1 scaled | dark purple
-                        let cellSize: Int = cellGridView.cellSizeScaled + increment
-                        let (shiftX, shiftY) = cellGridView.calculateShiftForCellResizeScaled(cellSize: cellSize)
-                        cellGridView.setCellSizeScaled(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
-                    }
-                    else if ((cell.x == 5) && (cell.y == 7)) { // toggle scaled | yellow
-                        cellGridView.viewScaling = !cellGridView.viewScaling
-                    }
-
-                /*
-                else if (((cell.x == 0) && (cell.y == 0)) || ((cell.x == 3) && (cell.y == 3))) {
-                    let cellSizeIncrement: Int = 1
-                    let cellSize: Int = cellGridView.cellSizeScaled + cellSizeIncrement
-                    let (shiftX, shiftY) = cellGridView.calculateShiftForCellResizeScaled(cellSize: cellSize)
-                    cellGridView.setCellSizeScaled(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
+                let increment: Int = 1
+                if      ((cell.x == 3) && (cell.y == 3)) { // shift -1 unscaled | blue
+                    cellGridView.shift(shiftx: cellGridView.shiftedBy.x - increment, shifty: cellGridView.shiftedBy.y)
                 }
-                else if cell.x == 1 && cell.y == 1 {
-                    // cellGridView.resizeCells(cellSizeIncrement: -1)
-                    let cellSizeIncrement: Int = -1
-                    let cellSize: Int = cellGridView.cellSizeScaled + cellSizeIncrement
-                    let (shiftX, shiftY) = cellGridView.calculateShiftForCellResizeScaled(cellSize: cellSize)
-                    cellGridView.setCellSizeScaled(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
+                else if ((cell.x == 4) && (cell.y == 3)) { // shift +1 unscaled | red
+                    cellGridView.shift(shiftx: cellGridView.shiftedBy.x + increment, shifty: cellGridView.shiftedBy.y)
                 }
-                else if cell.x == 2 && cell.y == 2 {
+                else if ((cell.x == 3) && (cell.y == 4)) { // resize -1 unscaled | green
+                    let cellSize: Int = cellGridView.cellSize - increment
+                    let (shiftX, shiftY) = CellGridView.Zoom.calculateShiftForResizeCells(cellGridView: cellGridView, cellSize: cellSize, scaled: false)
+                    // cellGridView.setCellSize(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
+                    cellGridView.resizeCells(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY, scaled: false)
+                }
+                else if ((cell.x == 4) && (cell.y == 4)) { // resize +1 unscaled | purple
+                    let cellSize: Int = cellGridView.cellSize + increment
+                    let (shiftX, shiftY) = CellGridView.Zoom.calculateShiftForResizeCells(cellGridView: cellGridView, cellSize: cellSize, scaled: false)
+                    // cellGridView.setCellSize(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
+                    cellGridView.resizeCells(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY, scaled: false)
+                }
+                else if ((cell.x == 3) && (cell.y == 5)) { // shift -1 scaled | dark blue
+                    cellGridView.shiftScaled(shiftx: cellGridView.shiftedByScaled.x - increment, shifty: cellGridView.shiftedByScaled.y)
+                }
+                else if ((cell.x == 4) && (cell.y == 5)) { // shift +1 scaled | dark red
+                    cellGridView.shiftScaled(shiftx: cellGridView.shiftedByScaled.x + increment, shifty: cellGridView.shiftedByScaled.y)
+                }
+                else if ((cell.x == 3) && (cell.y == 6)) { // resize -1 scaled | dark green
+                    let cellSize: Int = cellGridView.cellSizeScaled - increment
+                    let (shiftX, shiftY) = CellGridView.Zoom.calculateShiftForResizeCells(cellGridView: cellGridView, cellSize: cellSize, scaled: true)
+                    // cellGridView.setCellSizeScaled(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
+                    cellGridView.resizeCells(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY, scaled: true)
+                }
+                else if ((cell.x == 4) && (cell.y == 6)) { // resize +1 scaled | dark purple
+                    let cellSize: Int = cellGridView.cellSizeScaled + increment
+                    let (shiftX, shiftY) = CellGridView.Zoom.calculateShiftForResizeCells(cellGridView: cellGridView, cellSize: cellSize, scaled: true)
+                    // cellGridView.setCellSizeScaled(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
+                    cellGridView.resizeCells(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY, scaled: true)
+                }
+                else if ((cell.x == 5) && (cell.y == 7)) { // toggle scaled | yellow
                     cellGridView.viewScaling = !cellGridView.viewScaling
                 }
-                */
                 else {
                     cell.toggle()
                     cell.write()
                 }
             }
         }
-    }
-
-    public func old_unscaled_onZoom(_ zoom: CGFloat) {
-        if zoom != 1.0, let cellGridView = self._cellGridView {
-            if (self._zoomStartCellSize == nil) {
-                self._zoomStartCellSize = cellGridView.cellSize
-                self._zoomStartShiftedBy = cellGridView.shiftedBy
-                self._zoomStartViewColumns = cellGridView.viewColumns
-                self._zoomStartViewRows = cellGridView.viewRows
-            }
-            let cellSizeZoomed: CGFloat = CGFloat(self._zoomStartCellSize!) * zoom
-            let cellSize: Int = Int(cellSizeZoomed.rounded(FloatingPointRoundingRule.toNearestOrEven))
-            let cellSizeIncrement: Int = cellSize - self._zoomStartCellSize!
-            //
-            // TODO
-            // If blank space then adjust shift here accordingly.
-            // Already changing shift in response to zoom based on number of rows/columns
-            // so the zoom feels more centered, but have not yet taken this case into account.
-            //
-            let shiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * (self._zoomStartViewColumns! / 2))
-            let shiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * (self._zoomStartViewRows! / 2))
-            // print("ZOOM: \(zoom) > zoomStartCellSize: \(self._zoomStartCellSize!) currentCellSize: \(cellGridView.cellSize) cellSize: \(cellSize)")
-            cellGridView.setCellSize(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
-        }
-    }
-
-    public func old_onZoom(_ zoom: CGFloat) {
-        if zoom != 1.0, let cellGridView = self._cellGridView {
-            if (self._zoomStartCellSize == nil) {
-                self._zoomStartCellSize = cellGridView.cellSizeScaled
-                self._zoomStartShiftedBy = cellGridView.shiftedByScaled
-                self._zoomStartViewColumns = cellGridView.viewColumns
-                self._zoomStartViewRows = cellGridView.viewRows
-            }
-            let cellSizeZoomed: CGFloat = CGFloat(self._zoomStartCellSize!) * zoom
-            let cellSize: Int = Int(cellSizeZoomed.rounded(FloatingPointRoundingRule.toNearestOrEven))
-            let cellSizeIncrement: Int = cellSize - self._zoomStartCellSize!
-            //
-            // TODO
-            // If blank space then adjust shift here accordingly.
-            // Already changing shift in response to zoom based on number of rows/columns
-            // so the zoom feels more centered, but have not yet taken this case into account.
-            //
-            // let shiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * (self._zoomStartViewColumns!) / 2)
-            // let shiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * (self._zoomStartViewRows!) / 2)
-            // let shiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * (self._zoomStartViewColumns! / 2))
-            // let shiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * (self._zoomStartViewRows! / 2))
-            let shiftX: Int = self._zoomStartShiftedBy!.x - (cellSizeIncrement * ((self._zoomStartViewColumns! + 0) / 2))
-            let shiftY: Int = self._zoomStartShiftedBy!.y - (cellSizeIncrement * ((self._zoomStartViewRows! + 0) / 2))
-            print("ZOOM: \(zoom) > zoomStartCellSize: \(self._zoomStartCellSize!) currentCellSize: \(cellGridView.cellSizeScaled) cellSize: \(cellSize) zoomStartShiftedBy: \(self._zoomStartShiftedBy!) shift: [\(shiftX),\(shiftY)]")
-            cellGridView.setCellSizeScaled(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
-        }
-    }
-
-    public func old_onZoomEnd(_ zoom: CGFloat) {
-        self.onZoom(zoom)
-        self._zoomStartCellSize = nil
-        self._zoomStartShiftedBy = nil
-        self._zoomStartViewColumns = nil
-        self._zoomStartViewRows = nil
     }
 
     public func onZoom(_ zoom: CGFloat) {

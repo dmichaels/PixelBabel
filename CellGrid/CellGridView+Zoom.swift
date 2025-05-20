@@ -39,6 +39,7 @@ extension CellGridView
         }
 
         private func calculateShiftForResizeCells(cellSize: Int, scaled: Bool = false) -> (x: Int, y: Int) {
+            /*
             let cellSizeCurrent: Int = scaled ? self.cellGridView.cellSizeScaled : self.cellGridView.cellSize 
             let cellSizeIncrement: Int = cellSize - cellSizeCurrent
             guard cellSizeIncrement != 0 else { return (x: 0, y: 0) }
@@ -56,6 +57,33 @@ extension CellGridView
             //
             let viewColumnsVisible: Int = self.cellGridView.viewColumnsVisible
             let viewRowsVisible: Int = self.cellGridView.viewRowsVisible
+            let resultingShiftRight: Int = viewColumnsVisible * cellSizeIncrement + fudgeShift
+            let resultingShiftDown: Int = viewRowsVisible * cellSizeIncrement + fudgeShift
+            let shiftX: Int = shiftedCurrent.x - (resultingShiftRight / 2)
+            let shiftY: Int = shiftedCurrent.y - (resultingShiftDown / 2)
+            return (x: shiftX, y: shiftY)
+            */
+            return Zoom.calculateShiftForResizeCells(cellGridView: self.cellGridView, cellSize: cellSize, scaled: scaled)
+        }
+
+        public static func calculateShiftForResizeCells(cellGridView: CellGridView, cellSize: Int, scaled: Bool = false) -> (x: Int, y: Int) {
+            let cellSizeCurrent: Int = scaled ? cellGridView.cellSizeScaled : cellGridView.cellSize 
+            let cellSizeIncrement: Int = cellSize - cellSizeCurrent
+            guard cellSizeIncrement != 0 else { return (x: 0, y: 0) }
+            let shiftedCurrent: CellLocation = scaled ? cellGridView.shiftedByScaled : cellGridView.shiftedBy
+            //
+            // The addition of cellSize % 2 (either one or zero depending on the new cell-size being
+            // odd or even) ensures we don't tend toward the right/left or down as we expand/shrink.
+            //
+            let fudgeShift: Int = cellSizeIncrement > 0 ? cellSize % 2 : -(cellSize % 2)
+            //
+            // TODO
+            // Actually, we want the count of the number of FULLY visible cells, on the right/bottom
+            // that is, i.e. if the left/top is only partially visible then we DO count it but if the
+            // right/bottom is only partially visible then we do NOT count it. I THINK that's right.
+            //
+            let viewColumnsVisible: Int = cellGridView.viewColumnsVisible
+            let viewRowsVisible: Int = cellGridView.viewRowsVisible
             let resultingShiftRight: Int = viewColumnsVisible * cellSizeIncrement + fudgeShift
             let resultingShiftDown: Int = viewRowsVisible * cellSizeIncrement + fudgeShift
             let shiftX: Int = shiftedCurrent.x - (resultingShiftRight / 2)
