@@ -78,7 +78,38 @@ class CellGrid: ObservableObject
         if let cells = self._cellGridView {
             for cell in cells.gridCells {
                 if let lifeCell: LifeCell = cells.gridCell(cell.x, cell.y) {
-                    if (lifeCell.x == 0) {
+
+                    // Testing ... 
+                    if      ((lifeCell.x == 3) && (lifeCell.y == 3)) { // shift -1 unscaled | blue
+                        lifeCell.foreground = CellColor(Color.blue)
+                    }
+                    else if ((lifeCell.x == 4) && (lifeCell.y == 3)) { // shift +1 unscaled | green
+                        lifeCell.foreground = CellColor(Color.red)
+                    }
+                    else if ((lifeCell.x == 3) && (lifeCell.y == 4)) { // resize -1 unscaled | red
+                        lifeCell.foreground = CellColor(Color.green)
+                    }
+                    else if ((lifeCell.x == 4) && (lifeCell.y == 4)) { // resize +1 unscaled | purple
+                        lifeCell.foreground = CellColor(Color.teal)
+                    }
+                    else if ((lifeCell.x == 3) && (lifeCell.y == 5)) { // shift -1 scaled | blue
+                        lifeCell.foreground = CellColor(CellColor.darken(Color.blue))
+                    }
+                    else if ((lifeCell.x == 4) && (lifeCell.y == 5)) { // shift +1 scaled | green
+                        lifeCell.foreground = CellColor(CellColor.darken(Color.red))
+                    }
+                    else if ((lifeCell.x == 3) && (lifeCell.y == 6)) { // resize -1 scaled | red
+                        lifeCell.foreground = CellColor(CellColor.darken(Color.green))
+                    }
+                    else if ((lifeCell.x == 4) && (lifeCell.y == 6)) { // resize +1 scaled | purple
+                        lifeCell.foreground = CellColor(CellColor.darken(Color.teal))
+                    }
+                    else if ((lifeCell.x == 5) && (lifeCell.y == 7)) { // toggle scaled | yellow
+                        lifeCell.foreground = CellColor(Color.yellow)
+                    }
+                    // Testing ... 
+
+                    else  if (lifeCell.x == 0) {
                         lifeCell.foreground = CellColor(Color.blue)
                     }
                     else if (lifeCell.x == 1) {
@@ -145,7 +176,47 @@ class CellGrid: ObservableObject
     public func onTap(_ location: CGPoint) {
         if let cellGridView = self._cellGridView {
             if let cell: LifeCell = cellGridView.gridCell(viewPoint: location) {
-                if (((cell.x == 0) && (cell.y == 0)) || ((cell.x == 3) && (cell.y == 3))) {
+
+                    let increment: Int = 1
+
+                    if      ((cell.x == 3) && (cell.y == 3)) { // shift -1 unscaled | blue
+                        cellGridView.shift(shiftx: cellGridView.shiftedBy.x - increment, shifty: cellGridView.shiftedBy.y)
+                    }
+                    else if ((cell.x == 4) && (cell.y == 3)) { // shift +1 unscaled | green
+                        cellGridView.shift(shiftx: cellGridView.shiftedBy.x + increment, shifty: cellGridView.shiftedBy.y)
+                    }
+                    else if ((cell.x == 3) && (cell.y == 4)) { // resize -1 unscaled | red
+                        let cellSize: Int = cellGridView.cellSize - increment
+                        let (shiftX, shiftY) = cellGridView.calculateShiftForCellResize(cellSize: cellSize)
+                        cellGridView.setCellSize(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
+                    }
+                    else if ((cell.x == 4) && (cell.y == 4)) { // resize +1 unscaled | purple
+                        let cellSize: Int = cellGridView.cellSize + increment
+                        let (shiftX, shiftY) = cellGridView.calculateShiftForCellResize(cellSize: cellSize)
+                        cellGridView.setCellSize(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
+                    }
+                    else if ((cell.x == 3) && (cell.y == 5)) { // shift -1 scaled | blue
+                        cellGridView.shiftScaled(shiftx: cellGridView.shiftedByScaled.x - increment, shifty: cellGridView.shiftedByScaled.y)
+                    }
+                    else if ((cell.x == 4) && (cell.y == 5)) { // shift +1 scaled | green
+                        cellGridView.shiftScaled(shiftx: cellGridView.shiftedByScaled.x + increment, shifty: cellGridView.shiftedByScaled.y)
+                    }
+                    else if ((cell.x == 3) && (cell.y == 6)) { // resize -1 scaled | red
+                        let cellSize: Int = cellGridView.cellSizeScaled - increment
+                        let (shiftX, shiftY) = cellGridView.calculateShiftForCellResizeScaled(cellSize: cellSize)
+                        cellGridView.setCellSizeScaled(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
+                    }
+                    else if ((cell.x == 4) && (cell.y == 6)) { // resize +1 scaled | purple
+                        let cellSize: Int = cellGridView.cellSizeScaled + increment
+                        let (shiftX, shiftY) = cellGridView.calculateShiftForCellResizeScaled(cellSize: cellSize)
+                        cellGridView.setCellSizeScaled(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY)
+                    }
+                    else if ((cell.x == 5) && (cell.y == 7)) { // toggle scaled | yellow
+                        cellGridView.viewScaling = !cellGridView.viewScaling
+                    }
+
+                /*
+                else if (((cell.x == 0) && (cell.y == 0)) || ((cell.x == 3) && (cell.y == 3))) {
                     let cellSizeIncrement: Int = 1
                     let cellSize: Int = cellGridView.cellSizeScaled + cellSizeIncrement
                     let (shiftX, shiftY) = cellGridView.calculateShiftForCellResizeScaled(cellSize: cellSize)
@@ -161,6 +232,7 @@ class CellGrid: ObservableObject
                 else if cell.x == 2 && cell.y == 2 {
                     cellGridView.viewScaling = !cellGridView.viewScaling
                 }
+                */
                 else {
                     cell.toggle()
                     cell.write()

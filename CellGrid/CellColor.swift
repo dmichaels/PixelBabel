@@ -108,4 +108,13 @@ struct CellColor: Equatable
             return CellColor(UInt8((rgb >> 16) & 0xFF), UInt8((rgb >> 8) & 0xFF), UInt8(rgb & 0xFF))
         }
     }
+
+    public static func darken(_ color: Color, by amount: CGFloat = 0.3) -> Color {
+        let uiColor = UIColor(color)
+        var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
+        if uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha) {
+            return Color(hue: hue, saturation: saturation, brightness: max(brightness - amount, 0), opacity: alpha)
+        }
+        return color // fallback
+    }
 }
