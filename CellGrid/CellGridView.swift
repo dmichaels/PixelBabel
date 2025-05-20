@@ -154,7 +154,7 @@ class CellGridView
         self._unscaled_cellPadding = cellPadding
 
         // Note that viewColumns/Rows is the number of cells the
-        // view CAN (possibly) fully display horizontally/vertically.
+        // view CAN (possibly) FULLY display horizontally/vertically.
 
         self._viewColumns = self._viewWidth / self._cellSize
         self._viewRows = self._viewHeight / self._cellSize
@@ -413,21 +413,27 @@ class CellGridView
 
         self._viewColumnsExtra = (self._shiftX != 0 ? 1 : 0)
         self._viewColumnsPartialLeft = (self._shiftX != 0 ? 1 : 0)
+        self._viewColumnsPartialRight = 0 // NEW
         if (self._shiftX > 0) {
             if (self._viewWidthExtra > self._shiftX) {
                 self._viewColumnsExtra += 1
+                self._viewColumnsPartialRight = 1
+            }
+            else if (self._viewWidthExtra == 0) { // NEW
                 self._viewColumnsPartialRight = 1
             }
         }
         else if (self._shiftX < 0) {
             if (self._viewWidthExtra > (self._cellSize + self._shiftX)) {
                 self._viewColumnsExtra += 1
+            }
+            if ((self._viewWidthExtra - self._shiftX) != self._cellSize) { // NEW
                 self._viewColumnsPartialRight = 1
             }
         }
         else if (self._viewWidthExtra > 0) {
             self._viewColumnsExtra += 1
-            self._viewColumnsPartialRight = 1
+            self._viewColumnsPartialRight = 1 // NEW
         }
         self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
 
@@ -456,11 +462,14 @@ class CellGridView
         }
 
         #if targetEnvironment(simulator)
-            print(String(format: "SHIFTT> %.5fs [\(self.unscaled(shiftx)),\(self.unscaled(shifty))]" +
-                                 " scaled: [\(shiftx),\(shifty)]" +
+            print(String(format: "SHIFTSC(\(shiftx),\(shifty))> %.5fs" +
+                                 " sh: [\(self.shiftScaledX),\(shiftScaledY)]" +
+                                 " sh-un: [\(self.shiftX),\(self.shiftY)]" +
+                                 " shb: [\(self.shiftedByScaled.x),\(self.shiftedByScaled.y)]" +
+                                 " shb-un: [\(self.shiftedBy.x),\(self.shiftedBy.y)]" +
                                  " bm: \(self._bufferBlocks.memoryUsageBytes)" +
-                                 " cs: [\(self._cellSize)" +
-                                 " sb: [\(self.shiftedBy.x),\(self.shiftedBy.y)]" +
+                                 " cs: \(self.cellSizeScaled)" +
+                                 " cs-un: \(self.cellSize)" +
                                  " vc: \(self.viewColumns) vce: \(self._viewColumnsExtra) vcv: \(self.viewColumnsVisible)" +
                                  " vcpl: \(self._viewColumnsPartialLeft) vcpr: \(self._viewColumnsPartialRight)",
                   Date().timeIntervalSince(debugStart)))

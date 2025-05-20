@@ -132,6 +132,7 @@ class CellGrid: ObservableObject
                 let dragGridShiftX =  self._dragStartShifted!.x - dragDeltaX
                 let dragGridShiftY = self._dragStartShifted!.y - dragDeltaY
                 cells.shift(shiftx: dragGridShiftX, shifty: dragGridShiftY)
+                // testing ... cells.shiftScaled(shiftx: dragGridShiftX, shifty: dragGridShiftY)
             }
         }
     }

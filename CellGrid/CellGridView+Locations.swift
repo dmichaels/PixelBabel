@@ -61,18 +61,6 @@ extension CellGridView
         return CellLocation(gridCellX, gridCellY)
     }
 
-    // Returns the grid-view cell location of the given cell-grid cell location, or nil.
-    //
-    public func viewCellLocation(gridCellX: Int, gridCellY: Int) -> CellLocation? {
-        guard gridCellX >= 0, gridCellX < self.gridColumns,
-              gridCellY >= 0, gridCellY < self.gridRows else { return nil }
-        let viewCellX: Int = gridCellX + self.shiftCellX + ((self.shiftScaledX > 0) ? 1 : 0)
-        let viewCellY: Int = gridCellY + self.shiftCellY + ((self.shiftScaledY > 0) ? 1 : 0)
-        guard viewCellX >= 0, viewCellX <= self.viewCellEndX,
-              viewCellY >= 0, viewCellY <= self.viewCellEndY else { return nil }
-        return CellLocation(viewCellX, viewCellY)
-    }
-
     // Returns the cell location relative to the grid-view of the given grid-view input point, or nil.
     //
     public func viewCellLocation(viewPoint: CGPoint) -> CellLocation? {
@@ -84,6 +72,18 @@ extension CellGridView
                                            : (Int(floor(viewPointX)) - self.shiftScaledX)) / self.cellSizeScaled
         let viewCellY: Int = ((self.shiftScaledY > 0) ? (Int(floor(viewPointY)) + (self.cellSizeScaled - self.shiftScaledY))
                                            : (Int(floor(viewPointY)) - self.shiftScaledY)) / self.cellSizeScaled
+        return CellLocation(viewCellX, viewCellY)
+    }
+
+    // Returns the grid-view cell location of the given cell-grid cell location, or nil.
+    //
+    public func viewCellLocation(gridCellX: Int, gridCellY: Int) -> CellLocation? {
+        guard gridCellX >= 0, gridCellX < self.gridColumns,
+              gridCellY >= 0, gridCellY < self.gridRows else { return nil }
+        let viewCellX: Int = gridCellX + self.shiftCellX + ((self.shiftScaledX > 0) ? 1 : 0)
+        let viewCellY: Int = gridCellY + self.shiftCellY + ((self.shiftScaledY > 0) ? 1 : 0)
+        guard viewCellX >= 0, viewCellX <= self.viewCellEndX,
+              viewCellY >= 0, viewCellY <= self.viewCellEndY else { return nil }
         return CellLocation(viewCellX, viewCellY)
     }
 
