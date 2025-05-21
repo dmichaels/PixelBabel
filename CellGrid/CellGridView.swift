@@ -39,9 +39,9 @@ class CellGridView
     private var _viewColumns: Int = 0
     private var _viewRows: Int = 0
     private var _viewColumnsExtra: Int = 0
-    private var _viewColumnsPartialLeft: Int = 0
-    private var _viewColumnsPartialRight: Int = 0
     private var _viewRowsExtra: Int = 0
+    private var _viewColumnEndsVisible: Int = 0
+    private var _viewRowEndsVisible: Int = 0
     private var _viewCellEndX: Int = 0
     private var _viewCellEndY: Int = 0
     private var _viewBackground: CellColor = CellColor.black
@@ -156,14 +156,14 @@ class CellGridView
         // Note that viewColumns/Rows is the number of cells the
         // view CAN (possibly) FULLY display horizontally/vertically.
 
-        self._viewColumns = self._viewWidth / self._cellSize
-        self._viewRows = self._viewHeight / self._cellSize
         self._viewWidthExtra = self._viewWidth % self._cellSize
         self._viewHeightExtra = self._viewHeight % self._cellSize
+        self._viewColumns = self._viewWidth / self._cellSize
+        self._viewRows = self._viewHeight / self._cellSize
         self._viewColumnsExtra = (self._viewWidthExtra > 0) ? 1 : 0
-        self._viewColumnsPartialLeft = 0
-        self._viewColumnsPartialRight = (self._viewWidthExtra > 0) ? 1 : 0
         self._viewRowsExtra = (self._viewHeightExtra > 0) ? 1 : 0
+        self._viewColumnEndsVisible = self._viewColumns
+        self._viewRowEndsVisible = self._viewRows
         self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
         self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
 
@@ -213,14 +213,14 @@ class CellGridView
         self._unscaled_cellSize = self.unscaled(cellSize)
         self._unscaled_cellPadding = self.unscaled(cellPadding)
 
-        self._viewColumns = self._viewWidth / self._cellSize
-        self._viewRows = self._viewHeight / self._cellSize
         self._viewWidthExtra = self._viewWidth % self._cellSize
         self._viewHeightExtra = self._viewHeight % self._cellSize
+        self._viewColumns = self._viewWidth / self._cellSize
+        self._viewRows = self._viewHeight / self._cellSize
         self._viewColumnsExtra = (self._viewWidthExtra > 0) ? 1 : 0
-        self._viewColumnsPartialLeft = 0
-        self._viewColumnsPartialRight = (self._viewWidthExtra > 0) ? 1 : 0
         self._viewRowsExtra = (self._viewHeightExtra > 0) ? 1 : 0
+        self._viewColumnEndsVisible = self._viewColumns
+        self._viewRowEndsVisible = self._viewRows
         self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
         self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
 
@@ -254,16 +254,16 @@ class CellGridView
         get { self._viewScaling }
         set {
             if (newValue != self._viewScaling) {
-                let currentShift: CellLocation = self.shiftedBy
-                self.configure(cellSize: self._unscaled_cellSize,
-                               cellPadding: self._unscaled_cellPadding,
-                               cellShape: self._cellShape,
-                               viewWidth: self._unscaled_viewWidth,
-                               viewHeight: self._unscaled_viewHeight,
-                               viewBackground: self._viewBackground,
-                               viewTransparency: self._viewTransparency,
+                let shiftedCurrent: CellLocation = self.shifted
+                self.configure(cellSize: self.cellSize,
+                               cellPadding: self.cellPadding,
+                               cellShape: self.cellShape,
+                               viewWidth: self.viewWidth,
+                               viewHeight: self.viewHeight,
+                               viewBackground: self.viewBackground,
+                               viewTransparency: self.viewTransparency,
                                viewScaling: newValue)
-                self.shift(shiftx: currentShift.x, shifty: currentShift.y)
+                self.shift(shiftx: shiftedCurrent.x, shifty: shiftedCurrent.y)
             }
         }
     }
@@ -272,19 +272,17 @@ class CellGridView
         Screen.shared.scale(scaling: self._viewScaling)
     }
 
-    private func scaled(_ value: Int) -> Int {
+    internal func scaled(_ value: Int) -> Int {
         return Screen.shared.scaled(value, scaling: self._viewScaling)
     }
 
-    private func unscaled(_ value: Int) -> Int {
+    internal func unscaled(_ value: Int) -> Int {
         return Screen.shared.unscaled(value, scaling: self._viewScaling)
     }
 
     public   var viewWidth: Int            { self._unscaled_viewWidth }
     public   var viewHeight: Int           { self._unscaled_viewHeight }
     public   var viewColumns: Int          { self._viewColumns }
-    public   var viewColumnsVisible: Int   { self._viewColumns + self._viewColumnsExtra }
-    public   var viewRowsVisible: Int      { self._viewRows + self._viewRowsExtra }
     public   var viewRows: Int             { self._viewRows }
     public   var viewBackground: CellColor { self._viewBackground }
     public   var viewTransparency: UInt8   { self._viewTransparency }
@@ -295,51 +293,59 @@ class CellGridView
     public   var gridRows: Int             { self._gridRows }
     public   var gridCells: [Cell]         { self._gridCells }
 
-    internal var shiftX: Int               { self._unscaled_shiftX }
-    internal var shiftY: Int               { self._unscaled_shiftY }
     internal var shiftCellX: Int           { self._shiftCellX }
     internal var shiftCellY: Int           { self._shiftCellY }
-
-    internal var viewWidthScaled: Int      { self._viewWidth }
-    internal var viewHeightScaled: Int     { self._viewHeight }
-    internal var viewCellEndX: Int         { self._viewCellEndX }
-    internal var viewCellEndY: Int         { self._viewCellEndY }
-    internal var cellSizeScaled: Int       { self._cellSize }
-    internal var cellPaddingScaled: Int    { self._cellPadding }
+    internal var shiftX: Int               { self._unscaled_shiftX }
+    internal var shiftY: Int               { self._unscaled_shiftY }
     internal var shiftScaledX: Int         { self._shiftX }
     internal var shiftScaledY: Int         { self._shiftY }
+    internal var shiftScaledXR: Int        { modulo(self._cellSize + self._shiftX - self._viewWidthExtra, self._cellSize) }
+    internal var shiftScaledYB: Int        { modulo(self._cellSize + self._shiftY - self._viewHeightExtra, self._cellSize) }
 
-    public var shiftedBy: CellLocation {
+    internal var viewWidthScaled: Int       { self._viewWidth }
+    internal var viewHeightScaled: Int      { self._viewHeight }
+    internal var viewColumnEndsVisible: Int { self._viewColumnEndsVisible }
+    internal var viewRowEndsVisible: Int    { self._viewRowEndsVisible }
+    internal var viewCellEndX: Int          { self._viewCellEndX }
+    internal var viewCellEndY: Int          { self._viewCellEndY }
+    internal var cellSizeScaled: Int        { self._cellSize }
+    internal var cellPaddingScaled: Int     { self._cellPadding }
+
+    internal var viewColumnsVisible: Int    { self._viewColumns + self._viewColumnsExtra }
+    internal var viewRowsVisible: Int       { self._viewRows + self._viewRowsExtra }
+
+    public var shifted: CellLocation {
         return CellLocation(self.shiftCellX * self.cellSize + self.shiftX,
                             self.shiftCellY * self.cellSize + self.shiftY)
     }
 
-    public var shiftedByScaled: CellLocation {
-        // let shiftedBy: CellLocation = self.shiftedBy
-        // return CellLocation(self.scaled(shiftedBy.x), self.scaled(shiftedBy.y))
-        return CellLocation(self._shiftCellX * self._cellSize + self._shiftX,
-                            self._shiftCellY * self._cellSize + self._shiftY)
+    public func shifted(scaled: Bool = false) -> CellLocation {
+        return scaled ? CellLocation(self.shiftCellX * self.cellSizeScaled + self.shiftScaledX,
+                                     self.shiftCellY * self.cellSizeScaled + self.shiftScaledY)
+                      : CellLocation(self.shiftCellX * self.cellSize + self.shiftX,
+                                     self.shiftCellY * self.cellSize + self.shiftY)
     }
 
     public func shift(shiftx: Int, shifty: Int) {
-        self.shiftScaled(shiftx: self.scaled(shiftx), shifty: self.scaled(shifty))
+        self.shift(shiftx: shiftx, shifty: shifty, scaled: false)
     }
 
     // Sets the cell-grid within the grid-view to be shifted by the given amount,
     // from the upper-left; note that the given shiftx and shifty values are unscaled.
     //
-    public func shiftScaled(shiftx: Int, shifty: Int)
+    public func shift(shiftx: Int, shifty: Int, scaled: Bool)
     {
         #if targetEnvironment(simulator)
             let debugStart = Date()
         #endif
 
-        // Normalize the given pixel level shift to cell and pixel level.
+        // If the given scaled argument is false then the passed shiftx/shifty arguments are
+        // assumed to be unscaled and so we scale them; as this function operates on scaled values.
 
-        // var shiftX: Int = self.scaled(shiftx), shiftCellX: Int
-        // var shiftY: Int = self.scaled(shifty), shiftCellY: Int
-        var shiftX: Int = shiftx, shiftCellX: Int
-        var shiftY: Int = shifty, shiftCellY: Int
+        var shiftX: Int = !scaled ? self.scaled(shiftx) : shiftx, shiftCellX: Int
+        var shiftY: Int = !scaled ? self.scaled(shifty) : shifty, shiftCellY: Int
+
+        // Normalize the given pixel level shift to cell and pixel level.
 
         if (shiftX != 0) {
             shiftCellX = shiftX / self._cellSize
@@ -414,28 +420,18 @@ class CellGridView
         self._unscaled_shiftY = self.unscaled(shiftY)
 
         self._viewColumnsExtra = (self._shiftX != 0 ? 1 : 0)
-        self._viewColumnsPartialLeft = (self._shiftX != 0 ? 1 : 0)
-        self._viewColumnsPartialRight = 0 // NEW
         if (self._shiftX > 0) {
             if (self._viewWidthExtra > self._shiftX) {
                 self._viewColumnsExtra += 1
-                self._viewColumnsPartialRight = 1
-            }
-            else if (self._viewWidthExtra == 0) { // NEW
-                self._viewColumnsPartialRight = 1
             }
         }
         else if (self._shiftX < 0) {
             if (self._viewWidthExtra > (self._cellSize + self._shiftX)) {
                 self._viewColumnsExtra += 1
             }
-            if ((self._viewWidthExtra - self._shiftX) != self._cellSize) { // NEW
-                self._viewColumnsPartialRight = 1
-            }
         }
         else if (self._viewWidthExtra > 0) {
             self._viewColumnsExtra += 1
-            self._viewColumnsPartialRight = 1 // NEW
         }
         self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
 
@@ -455,6 +451,34 @@ class CellGridView
         }
         self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
 
+        // Update the view{Column,Row}EndsVisible values; maybe this can
+        // be unified with the view{Columns,Rows}Extra values; maybe not.
+        //
+        if (self._viewWidthExtra == 0) {
+            self._viewColumnEndsVisible = self._viewColumns
+        }
+        else if (self._shiftX == 0) {
+            self._viewColumnEndsVisible = self._viewColumns
+        }
+        else if (self._viewWidthExtra > (self._cellSize + self._shiftX)) {
+            self._viewColumnEndsVisible = self._viewColumns + 1
+        }
+        else {
+            self._viewColumnEndsVisible = self._viewColumns
+        }
+        if (self._viewHeightExtra == 0) {
+            self._viewRowEndsVisible = self._viewRows
+        }
+        else if (self._shiftY == 0) {
+            self._viewRowEndsVisible = self._viewRows
+        }
+        else if (self._viewHeightExtra > (self._cellSize + self._shiftY)) {
+            self._viewRowEndsVisible = self._viewRows + 1
+        }
+        else {
+            self._viewRowEndsVisible = self._viewRows
+        }
+
         // Now actually write the cells to the view.
 
         for vy in 0...self._viewCellEndY {
@@ -465,15 +489,21 @@ class CellGridView
 
         #if targetEnvironment(simulator)
             print(String(format: "SHIFTSC(\(shiftx),\(shifty))> %.5fs" +
+                                 " vw: [\(self._viewWidth)]" +
+                                 " vwe: [\(self._viewWidthExtra)]" +
+                                 " shc: [\(self.shiftCellX),\(shiftCellY)]" +
                                  " sh: [\(self.shiftScaledX),\(shiftScaledY)]" +
                                  " sh-un: [\(self.shiftX),\(self.shiftY)]" +
-                                 " shb: [\(self.shiftedByScaled.x),\(self.shiftedByScaled.y)]" +
-                                 " shb-un: [\(self.shiftedBy.x),\(self.shiftedBy.y)]" +
+                                 " sht: [\(self.shifted(scaled: true).x),\(self.shifted(scaled: true).y)]" +
+                                 " sht-un: [\(self.shifted.x),\(self.shifted.y)]" +
                                  " bm: \(self._bufferBlocks.memoryUsageBytes)" +
                                  " cs: \(self.cellSizeScaled)" +
                                  " cs-un: \(self.cellSize)" +
-                                 " vc: \(self.viewColumns) vce: \(self._viewColumnsExtra) vcv: \(self.viewColumnsVisible)" +
-                                 " vcpl: \(self._viewColumnsPartialLeft) vcpr: \(self._viewColumnsPartialRight)",
+                                 " vc: \(self.viewColumns)" +
+                                 " vce: \(self._viewColumnsExtra)" +
+                                 " vcv: \(self.viewColumnsVisible)" +
+                                 " vcev: \(self._viewColumnEndsVisible)" +
+                                 " shr: \(self.shiftScaledXR)",
                   Date().timeIntervalSince(debugStart)))
         #endif
     }
@@ -543,9 +573,6 @@ class CellGridView
         // but this is probably not really a typical/common case for things we can think of for now.
         //
         let foreground: CellColor = self.gridCell(gridCellX, gridCellY)?.foreground ?? self._viewBackground
-        // let foreground: CellColor = self.gridCell(viewCellX: viewCellX, viewCellY: viewCellY)?.foreground ?? self._viewBackground
-        let x1 = self.gridCellLocation(viewCellX: viewCellX, viewCellY: viewCellY)
-        let x2 = self.gridCell(viewCellX: viewCellX, viewCellY: viewCellY)
         let foregroundOnly: Bool = false
 
         // Setup the offset for the buffer blocks; offset used within writeCellBlock.
@@ -630,7 +657,7 @@ class CellGridView
         }
     }
 
-    public func resizeCells(cellSize: Int, shiftX: Int = 0, shiftY: Int = 0, scaled: Bool = false) {
+    public func resizeCells(cellSize: Int, shiftX: Int = 0, shiftY: Int = 0, scaled: Bool = false, adjustShift: Bool = false) {
         let cellSizeCurrent: Int = scaled ? self.cellSizeScaled : self.cellSize
         if (cellSize != cellSizeCurrent) {
             let cellPaddingCurrent: Int = scaled ? self.cellPaddingScaled : self.cellPadding
@@ -658,16 +685,38 @@ class CellGridView
             if (cellSize != cellSizeCurrent) {
                 //
                 // Here we must have reached the max cell-size.
-                // TODO
-                // Combine shift/shiftScaled into a single function (name) one taking scaled bool and one not.
                 //
-                let shiftedByCurrent: CellLocation = scaled ? self.shiftedByScaled : self.shiftedBy
-                scaled ? self.shiftScaled(shiftx: shiftedByCurrent.x, shifty: shiftedByCurrent.y)
-                       : self.shift      (shiftx: shiftedByCurrent.x, shifty: shiftedByCurrent.y)
+                // let shiftedCurrent: CellLocation = scaled ? self.shifted(scaled: true) : self.shifted
+                let shiftedCurrent: CellLocation = self.shifted(scaled: scaled)
+                self.shift(shiftx: shiftedCurrent.x, shifty: shiftedCurrent.y, scaled: scaled)
             }
             else {
-                scaled ? self.shiftScaled(shiftx: shiftX, shifty: shiftY)
-                       : self.shift      (shiftx: shiftX, shifty: shiftY)
+                self.shift(shiftx: shiftX, shifty: shiftY, scaled: scaled)
+            }
+        }
+    }
+
+    public func resizeCells(cellSize: Int, adjustShift: Bool, scaled: Bool = false) {
+        let cellSize: Int = !scaled ? self.scaled(cellSize) : cellSize
+        if (cellSize != self.cellSizeScaled) {
+            let (shiftX, shiftY) = Zoom.calculateShiftForResizeCells(cellGridView: self, cellSize: cellSize, scaled: true)
+            self.configureScaled(cellSize: cellSize,
+                                 cellPadding: self.cellPaddingScaled,
+                                 cellShape: self.cellShape,
+                                 viewWidth: self.viewWidthScaled,
+                                 viewHeight: self.viewHeightScaled,
+                                 viewBackground: self.viewBackground,
+                                 viewTransparency: self.viewTransparency,
+                                 viewScaling: self.viewScaling)
+            if (adjustShift && (cellSize == self.cellSizeScaled)) {
+                self.shift(shiftx: shiftX, shifty: shiftY, scaled: true)
+            }
+            else {
+                //
+                // Here we must have reached the max cell-size (or adjustShift is false).
+                //
+                let shiftedCurrent: CellLocation = self.shifted(scaled: true)
+                self.shift(shiftx: shiftedCurrent.x, shifty: shiftedCurrent.y, scaled: true)
             }
         }
     }

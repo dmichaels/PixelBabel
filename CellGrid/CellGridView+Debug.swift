@@ -32,8 +32,8 @@ extension CellGridView
               (self.viewScaling ? " (unscaled: \(self.cellSize))" : ""))
         print("CELL-PAD>      \(self.cellPaddingScaled)" +
               (self.viewScaling ? " (unscaled: \(self.cellPadding))" : ""))
-        let shifteBy: CellLocation = self.shiftedBy
-        let shifteByScaled: CellLocation = self.shiftedByScaled
+        let shifteBy: CellLocation = self.shifted
+        let shifteByScaled: CellLocation = self.shifted(scaled: true)
         print("SHIFT>         \(shifteByScaled)" +
               (self.viewScaling ? " (unscaled: \(shifteBy))" : ""))
         if (cellFitInit) {

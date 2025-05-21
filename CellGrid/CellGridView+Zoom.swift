@@ -20,10 +20,10 @@ extension CellGridView
         }
 
         // TODO
-        // OR maybe just use init; more straight-forwared; thought there was but no real reason for static creation.
+        // OR maybe just use init; more straight-forward; thought there was but no real reason for static creation.
         //
         public static func start(cellGridView: CellGridView, zoom: CGFloat, scaled: Bool = false) -> Zoom {
-            let shifted: CellLocation = scaled ? cellGridView.shiftedByScaled : cellGridView.shiftedBy
+            let shifted: CellLocation = scaled ? cellGridView.shifted(scaled: true) : cellGridView.shifted
             let zoomer: Zoom = Zoom(cellGridView: cellGridView,
                                     startCellSize: scaled ? cellGridView.cellSizeScaled : cellGridView.cellSize,
                                     startShiftedX: shifted.x,
@@ -39,38 +39,14 @@ extension CellGridView
         }
 
         private func calculateShiftForResizeCells(cellSize: Int, scaled: Bool = false) -> (x: Int, y: Int) {
-            /*
-            let cellSizeCurrent: Int = scaled ? self.cellGridView.cellSizeScaled : self.cellGridView.cellSize 
-            let cellSizeIncrement: Int = cellSize - cellSizeCurrent
-            guard cellSizeIncrement != 0 else { return (x: 0, y: 0) }
-            let shiftedCurrent: CellLocation = scaled ? self.cellGridView.shiftedByScaled : self.cellGridView.shiftedBy
-            //
-            // The addition of cellSize % 2 (either one or zero depending on the new cell-size being
-            // odd or even) ensures we don't tend toward the right/left or down as we expand/shrink.
-            //
-            let fudgeShift: Int = cellSizeIncrement > 0 ? cellSize % 2 : -(cellSize % 2)
-            //
-            // TODO
-            // Actually, we want the count of the number of FULLY visible cells, on the right/bottom
-            // that is, i.e. if the left/top is only partially visible then we DO count it but if the
-            // right/bottom is only partially visible then we do NOT count it. I THINK that's right.
-            //
-            let viewColumnsVisible: Int = self.cellGridView.viewColumnsVisible
-            let viewRowsVisible: Int = self.cellGridView.viewRowsVisible
-            let resultingShiftRight: Int = viewColumnsVisible * cellSizeIncrement + fudgeShift
-            let resultingShiftDown: Int = viewRowsVisible * cellSizeIncrement + fudgeShift
-            let shiftX: Int = shiftedCurrent.x - (resultingShiftRight / 2)
-            let shiftY: Int = shiftedCurrent.y - (resultingShiftDown / 2)
-            return (x: shiftX, y: shiftY)
-            */
             return Zoom.calculateShiftForResizeCells(cellGridView: self.cellGridView, cellSize: cellSize, scaled: scaled)
         }
 
-        public static func calculateShiftForResizeCells(cellGridView: CellGridView, cellSize: Int, scaled: Bool = false) -> (x: Int, y: Int) {
+        public static func old_calculateShiftForResizeCells(cellGridView: CellGridView, cellSize: Int, scaled: Bool = false) -> (x: Int, y: Int) {
             let cellSizeCurrent: Int = scaled ? cellGridView.cellSizeScaled : cellGridView.cellSize 
             let cellSizeIncrement: Int = cellSize - cellSizeCurrent
             guard cellSizeIncrement != 0 else { return (x: 0, y: 0) }
-            let shiftedCurrent: CellLocation = scaled ? cellGridView.shiftedByScaled : cellGridView.shiftedBy
+            let shiftedCurrent: CellLocation = cellGridView.shifted(scaled: scaled)
             //
             // The addition of cellSize % 2 (either one or zero depending on the new cell-size being
             // odd or even) ensures we don't tend toward the right/left or down as we expand/shrink.
@@ -82,13 +58,50 @@ extension CellGridView
             // that is, i.e. if the left/top is only partially visible then we DO count it but if the
             // right/bottom is only partially visible then we do NOT count it. I THINK that's right.
             //
-            let viewColumnsVisible: Int = cellGridView.viewColumnsVisible
-            let viewRowsVisible: Int = cellGridView.viewRowsVisible
-            let resultingShiftRight: Int = viewColumnsVisible * cellSizeIncrement + fudgeShift
-            let resultingShiftDown: Int = viewRowsVisible * cellSizeIncrement + fudgeShift
+            // let viewColumnsVisible: Int = cellGridView.viewColumnsVisible
+            // let viewRowsVisible: Int = cellGridView.viewRowsVisible
+            // let resultingShiftRight: Int = viewColumnsVisible * cellSizeIncrement + fudgeShift
+            // let resultingShiftDown: Int = viewRowsVisible * cellSizeIncrement + fudgeShift
+
+            // let resultingShiftRight: Int = cellGridView.viewColumnEndsVisible * cellSizeIncrement + fudgeShift
+            // let resultingShiftDown: Int = cellGridView.viewRowEndsVisible * cellSizeIncrement + fudgeShift
+
+            let resultingShiftRight: Int = cellGridView.viewColumnEndsVisible * cellSizeIncrement
+            let resultingShiftDown: Int = cellGridView.viewRowEndsVisible * cellSizeIncrement
+
+            // let shiftX: Int = shiftedCurrent.x - (resultingShiftRight / 2)
+            // let shiftY: Int = shiftedCurrent.y - (resultingShiftDown / 2)
+
+            let shiftX: Int = shiftedCurrent.x - (resultingShiftRight / 2) + fudgeShift
+            let shiftY: Int = shiftedCurrent.y - (resultingShiftDown / 2) + fudgeShift
+
+            return (x: shiftX, y: shiftY)
+        }
+
+        public static func calculateShiftForResizeCells(cellGridView: CellGridView, cellSize: Int, scaled: Bool = false) -> (x: Int, y: Int) {
+            let cellSize = !scaled ? cellGridView.scaled(cellSize) : cellSize
+            let cellSizeCurrent: Int = cellGridView.cellSizeScaled
+            let cellSizeIncrement: Int = cellSize - cellSizeCurrent
+            guard cellSizeIncrement != 0 else { return (x: 0, y: 0) }
+            let shiftedCurrent: CellLocation = cellGridView.shifted(scaled: true)
+            //
+            // The addition of cellSize % 2 (either one or zero depending on the new cell-size being
+            // odd or even) ensures we don't tend toward the right/left or down as we expand/shrink.
+            //
+            let fudgeShift: Int = (cellSizeIncrement > 0) ? (cellSize % 2) : -(cellSize % 2)
+            // let resultingShiftRight: Int = cellGridView.viewColumnEndsVisible * cellSizeIncrement + fudgeShift
+            // let resultingShiftDown: Int = cellGridView.viewRowEndsVisible * cellSizeIncrement + fudgeShift
+            // let resultingShiftRight: Int = (cellGridView.viewColumnEndsVisible + 1) * cellSizeIncrement + fudgeShift
+            // let resultingShiftDown: Int = (cellGridView.viewRowEndsVisible + 1) * cellSizeIncrement + fudgeShift
+            let resultingShiftRight: Int = cellGridView.viewColumnsVisible * cellSizeIncrement + fudgeShift
+            let resultingShiftDown: Int = cellGridView.viewRowsVisible * cellSizeIncrement + fudgeShift
             let shiftX: Int = shiftedCurrent.x - (resultingShiftRight / 2)
             let shiftY: Int = shiftedCurrent.y - (resultingShiftDown / 2)
-            return (x: shiftX, y: shiftY)
+            //
+            // For debugging to get the right shift value (at least when shiftX is negative): 
+            // cellSize - (viewWidth - ((viewWidth + shiftfX) - viewWidthExtra)) == cellSize + shiftX - viewWidthExtra
+            //
+            return !scaled ? (x: cellGridView.unscaled(shiftX), y: cellGridView.unscaled(shiftY)) : (x: shiftX, y: shiftY)
         }
     }
 }
