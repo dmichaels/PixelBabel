@@ -34,11 +34,6 @@ class CellGrid: ObservableObject
     private var _cellFactory: Cell.Factory?
     private var _dragStart: CellLocation? = nil
     private var _dragStartShifted: CellLocation? = nil
-
-    private var _zoomStartCellSize: Int? = nil
-    private var _zoomStartShifted: CellLocation? = nil
-    private var _zoomStartViewColumns: Int? = nil
-    private var _zoomStartViewRows: Int? = nil
     private var _zoomer: CellGridView.Zoom? = nil
 
     init(cellFactory: Cell.Factory? = nil) {

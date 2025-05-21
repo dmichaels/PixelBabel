@@ -94,6 +94,10 @@ extension CellGridView
             // let viewColumnsVisible: Int = cellGridView.viewColumnsVisible
             // let viewColumnsVisible: Int = cellGridView.viewColumnsVisible == 7 ? 9 : cellGridView.viewColumnsVisible
             // let viewColumnsVisible: Int = cellGridView.viewColumns
+            //
+            // Weird this works  ...  setting viewColumnsVisible to hardcoded 9, for an initial
+            // cellSize of 43 anyways (i.e. where the initial viewColumns is 9); but why???
+            //
             let viewColumnsVisible: Int = 9
             let viewRowsVisible: Int = cellGridView.viewRowsVisible
             let resultingShiftRight: Int = viewColumnsVisible * cellSizeIncrement + fudgeShift
