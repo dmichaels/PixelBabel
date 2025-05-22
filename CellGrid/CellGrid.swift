@@ -12,7 +12,7 @@ class CellGrid: ObservableObject
         public static let displayScale: CGFloat = Screen.initialScale
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = CellColor.OPAQUE
-        public static let cellSize: Int = 43 // 51 // ... resizing up/down 33 is all good it seems
+        public static let cellSize: Int = 33 // 43 // 51 // ... resizing up/down 33 is all good it seems
         public static let cellSizeNeat: Bool = true
         public static let cellPadding: Int = 1
         //
@@ -77,31 +77,31 @@ class CellGrid: ObservableObject
                 if let lifeCell: LifeCell = cells.gridCell(cell.x, cell.y) {
 
                     // Testing ... 
-                    if      ((lifeCell.x == 3) && (lifeCell.y == 3)) { // shift -1 unscaled | blue
+                    if      ((lifeCell.x == 3) && (lifeCell.y == 5)) { // shift -1 unscaled | blue
                         lifeCell.foreground = CellColor(Color.blue)
                     }
-                    else if ((lifeCell.x == 4) && (lifeCell.y == 3)) { // shift +1 unscaled | red
+                    else if ((lifeCell.x == 4) && (lifeCell.y == 5)) { // shift +1 unscaled | red
                         lifeCell.foreground = CellColor(Color.red)
                     }
-                    else if ((lifeCell.x == 3) && (lifeCell.y == 4)) { // resize -1 unscaled | green
+                    else if ((lifeCell.x == 3) && (lifeCell.y == 6)) { // resize -1 unscaled | green
                         lifeCell.foreground = CellColor(Color.green)
                     }
-                    else if ((lifeCell.x == 4) && (lifeCell.y == 4)) { // resize +1 unscaled | purple
+                    else if ((lifeCell.x == 4) && (lifeCell.y == 6)) { // resize +1 unscaled | purple
                         lifeCell.foreground = CellColor(Color.purple)
                     }
-                    else if ((lifeCell.x == 3) && (lifeCell.y == 5)) { // shift -1 scaled | dark blue
+                    else if ((lifeCell.x == 3) && (lifeCell.y == 7)) { // shift -1 scaled | dark blue
                         lifeCell.foreground = CellColor(CellColor.darken(Color.blue))
                     }
-                    else if ((lifeCell.x == 4) && (lifeCell.y == 5)) { // shift +1 scaled | dark red
+                    else if ((lifeCell.x == 4) && (lifeCell.y == 7)) { // shift +1 scaled | dark red
                         lifeCell.foreground = CellColor(CellColor.darken(Color.red))
                     }
-                    else if ((lifeCell.x == 3) && (lifeCell.y == 6)) { // resize -1 scaled | dark green
+                    else if ((lifeCell.x == 3) && (lifeCell.y == 8)) { // resize -1 scaled | dark green
                         lifeCell.foreground = CellColor(CellColor.darken(Color.green))
                     }
-                    else if ((lifeCell.x == 4) && (lifeCell.y == 6)) { // resize +1 scaled | dark purple
+                    else if ((lifeCell.x == 4) && (lifeCell.y == 8)) { // resize +1 scaled | dark purple
                         lifeCell.foreground = CellColor(CellColor.darken(Color.purple))
                     }
-                    else if ((lifeCell.x == 5) && (lifeCell.y == 7)) { // toggle scaled | yellow
+                    else if ((lifeCell.x == 5) && (lifeCell.y == 9)) { // toggle scaled | yellow
                         lifeCell.foreground = CellColor(Color.yellow)
                     }
                     // Testing ... 
@@ -173,39 +173,39 @@ class CellGrid: ObservableObject
         if let cellGridView = self._cellGridView {
             if let cell: LifeCell = cellGridView.gridCell(viewPoint: location) {
                 let increment: Int = 1
-                if      ((cell.x == 3) && (cell.y == 3)) { // shift -1 unscaled | blue
+                if      ((cell.x == 3) && (cell.y == 5)) { // shift -1 unscaled | blue
                     cellGridView.shift(shiftx: cellGridView.shifted.x - increment, shifty: cellGridView.shifted.y)
                 }
-                else if ((cell.x == 4) && (cell.y == 3)) { // shift +1 unscaled | red
+                else if ((cell.x == 4) && (cell.y == 5)) { // shift +1 unscaled | red
                     cellGridView.shift(shiftx: cellGridView.shifted.x + increment, shifty: cellGridView.shifted.y)
                 }
-                else if ((cell.x == 3) && (cell.y == 4)) { // resize -1 unscaled | green
+                else if ((cell.x == 3) && (cell.y == 6)) { // resize -1 unscaled | green
                     let cellSize: Int = cellGridView.cellSize - increment
                     cellGridView.resizeCells(cellSize: cellSize, adjustShift: true, scaled: false)
                 }
-                else if ((cell.x == 4) && (cell.y == 4)) { // resize +1 unscaled | purple
+                else if ((cell.x == 4) && (cell.y == 6)) { // resize +1 unscaled | purple
                     let cellSize: Int = cellGridView.cellSize + increment
                     cellGridView.resizeCells(cellSize: cellSize, adjustShift: true, scaled: false)
                 }
-                else if ((cell.x == 3) && (cell.y == 5)) { // shift -1 scaled | dark blue
+                else if ((cell.x == 3) && (cell.y == 7)) { // shift -1 scaled | dark blue
                     cellGridView.shift(shiftx: cellGridView.shifted(scaled: true).x - increment, shifty: cellGridView.shifted(scaled: true).y, scaled: true)
                 }
-                else if ((cell.x == 4) && (cell.y == 5)) { // shift +1 scaled | dark red
+                else if ((cell.x == 4) && (cell.y == 7)) { // shift +1 scaled | dark red
                     cellGridView.shift(shiftx: cellGridView.shifted(scaled: true).x + increment, shifty: cellGridView.shifted(scaled: true).y, scaled: true)
                 }
-                else if ((cell.x == 3) && (cell.y == 6)) { // resize -1 scaled | dark green
+                else if ((cell.x == 3) && (cell.y == 8)) { // resize -1 scaled | dark green
                     let cellSize: Int = cellGridView.cellSizeScaled - increment
                     // let (shiftX, shiftY) = CellGridView.Zoom.calculateShiftForResizeCells(cellGridView: cellGridView, cellSize: cellSize, scaled: true)
                     // cellGridView.resizeCells(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY, scaled: true)
                     cellGridView.resizeCells(cellSize: cellSize, adjustShift: true, scaled: true)
                 }
-                else if ((cell.x == 4) && (cell.y == 6)) { // resize +1 scaled | dark purple
+                else if ((cell.x == 4) && (cell.y == 8)) { // resize +1 scaled | dark purple
                     let cellSize: Int = cellGridView.cellSizeScaled + increment
                     // let (shiftX, shiftY) = CellGridView.Zoom.calculateShiftForResizeCells(cellGridView: cellGridView, cellSize: cellSize, scaled: true)
                     // cellGridView.resizeCells(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY, scaled: true)
                     cellGridView.resizeCells(cellSize: cellSize, adjustShift: true, scaled: true)
                 }
-                else if ((cell.x == 5) && (cell.y == 7)) { // toggle scaled | yellow
+                else if ((cell.x == 5) && (cell.y == 9)) { // toggle scaled | yellow
                     cellGridView.viewScaling = !cellGridView.viewScaling
                 }
                 else {
