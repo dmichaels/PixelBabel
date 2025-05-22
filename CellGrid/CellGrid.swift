@@ -28,7 +28,7 @@ class CellGrid: ObservableObject
         public static let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
     }
 
-    private var _gridColumns: Int = 12
+    private var _gridColumns: Int = 120
     private var _gridRows: Int = 21
     private var _cellGridView: CellGridView? = nil
     private var _cellFactory: Cell.Factory?

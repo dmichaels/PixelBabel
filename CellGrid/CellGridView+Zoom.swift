@@ -175,8 +175,11 @@ extension CellGridView
             //
             // let viewColumnsRelevant: Int = 9 // cellGridView.viewColumnsVisible
             // let viewRowsRelevant: Int = 20 // cellGridView.viewRowsVisible
-            let viewColumnsRelevant: Int = cellGridView._viewColumnsDebugInitial // 9
-            let viewRowsRelevant: Int = cellGridView._viewRowsDebugInitial // 20
+            // let viewColumnsRelevant: Int = cellGridView._viewColumnsDebugInitial // 9
+            // let viewRowsRelevant: Int = cellGridView._viewRowsDebugInitial // 20
+
+            let viewColumnsRelevant: Int = cellGridView._viewColumnsDebugInitial - cellGridView.shiftCellX
+            let viewRowsRelevant: Int = cellGridView._viewRowsDebugInitial - cellGridView.shiftCellY
 
             let resultingShiftRight: Int = viewColumnsRelevant * cellSizeIncrement + fudgeShift
             let resultingShiftDown: Int = viewRowsRelevant * cellSizeIncrement + fudgeShift
