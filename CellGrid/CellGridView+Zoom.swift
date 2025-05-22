@@ -44,116 +44,6 @@ extension CellGridView
             return Zoom.calculateShiftForResizeCells(cellGridView: self.cellGridView, cellSize: cellSize, scaled: scaled)
         }
 
-        public static func older_calculateShiftForResizeCells(cellGridView: CellGridView, cellSize: Int, scaled: Bool = false) -> (shiftx: Int, shifty: Int) {
-            let cellSize = !scaled ? cellGridView.scaled(cellSize) : cellSize
-            let cellSizeCurrent: Int = cellGridView.cellSizeScaled
-            let cellSizeIncrement: Int = cellSize - cellSizeCurrent
-            guard cellSizeIncrement != 0 else { return (shiftx: 0, shifty: 0) }
-            let shiftedCurrent: CellLocation = cellGridView.shifted(scaled: true)
-            //
-            // The addition of cellSize % 2 (either one or zero depending on the new cell-size being
-            // odd or even) ensures we don't tend toward the right/left or down as we expand/shrink.
-            //
-            let fudgeShift: Int = (cellSizeIncrement > 0) ? (cellSize % 2) : -(cellSize % 2)
-            // let fudgeShift: Int = (cellSizeIncrement > 0) ? (1 - (cellSize % 2)) : -(1 - (cellSize % 2))
-            // let viewColumnsVisible: Int = cellGridView.viewColumnsVisible
-            // let viewColumnsVisible: Int = cellGridView.viewColumnsVisible == 7 ? 9 : cellGridView.viewColumnsVisible
-            // let viewColumnsVisible: Int = cellGridView.viewColumns
-            //
-            // Weird this works  ...  setting viewColumnsVisible to hardcoded 9, for an initial
-            // cellSize of 43 anyways (i.e. where the initial viewColumns is 9); but why???
-            //
-            let viewColumnsVisible: Int = 9
-            // let viewRowsVisible: Int = cellGridView.viewRowsVisible
-            let viewRowsVisible: Int = 20
-            let resultingShiftRight: Int = viewColumnsVisible * cellSizeIncrement + fudgeShift
-            let resultingShiftDown: Int = viewRowsVisible * cellSizeIncrement + fudgeShift
-            let shiftX: Int = shiftedCurrent.x - (resultingShiftRight / 2)
-            let shiftY: Int = shiftedCurrent.y - (resultingShiftDown / 2)
-
-            let newViewWidthExtra = cellGridView.viewWidthScaled % cellSize
-            let newShiftX = shiftX % cellSize
-            let newShiftXR = modulo(cellSize + shiftX - newViewWidthExtra, cellSize)
-            let okay = (abs(abs(newShiftX) - abs(newShiftXR)) == 0) || (abs(abs(newShiftX) - abs(newShiftXR)) == 1)
-            print("RESIZE-CALC: cs: \(cellSize) ci: \(cellSizeIncrement) csc: \(cellSizeCurrent) vc: \(cellGridView.viewColumns) vcv: \(viewColumnsVisible) shc: \(shiftedCurrent.x) rsr: \(resultingShiftRight) f: \(fudgeShift) nvwe: \(newViewWidthExtra) > sh: \(newShiftX) shr: \(newShiftXR) OK: \(okay)")
-
-            //
-            // For debugging to get the right shift value (at least when shiftX is negative): 
-            // cellSize - (viewWidth - ((viewWidth + shiftfX) - viewWidthExtra)) == cellSize + shiftX - viewWidthExtra
-            //
-            return !scaled ? (shiftx: cellGridView.unscaled(shiftX), shifty: cellGridView.unscaled(shiftY)) : (shiftx: shiftX, shifty: shiftY)
-        }
-
-        public static func old_calculateShiftForResizeCells(cellGridView: CellGridView, cellSize: Int, scaled: Bool = false) -> (shiftx: Int, shifty: Int) {
-            let cellSize = !scaled ? cellGridView.scaled(cellSize) : cellSize
-            let cellSizeCurrent: Int = cellGridView.cellSizeScaled
-            let cellSizeIncrement: Int = cellSize - cellSizeCurrent
-            guard cellSizeIncrement != 0 else { return (shiftx: 0, shifty: 0) }
-            let shiftedCurrent: CellLocation = cellGridView.shifted(scaled: true)
-            //
-            // The addition of cellSize % 2 (either one or zero depending on the new cell-size being
-            // odd or even) ensures we don't tend toward the right/left or down as we expand/shrink.
-            //
-            let fudgeShift: Int = (cellSizeIncrement > 0) ? (cellSize % 2) : -(cellSize % 2)
-
-            // Weird this works  ...  setting viewColumnsVisible to hardcoded 9, for an initial
-            // cellSize of 43 anyways (i.e. where the initial viewColumns is 9); but why???
-
-            // let viewColumnsVisible: Int = 9 // cellGridView.viewColumnsVisible
-            // let viewRowsVisible: Int = 20 // cellGridView.viewRowsVisible
-
-            // Maybe use viewColumns for resultingShiftRight and then adjust current shift to be in the
-            // context of newCellSize, so assuming viewWidth == 1161 (with initial cellSize == 43), and
-            // implying viewColumns == 6 (i.e. 1161 / 167), and assuming currentCellSize == 166 and
-            // newCellSize == 167, and then if the current shift values are:
-            //
-            //   shifted.x: -166 -> shiftCellX: -1 shiftX: 0
-            //
-            // then relative to the newCellSize (167) this is now:
-            //
-            //   shifted.x: -166 -> shiftCellX: 0 shiftX: -166
-            //
-            // which means we additionally are shifting right by cellSize + shiftX == 167 + -166 == 1,
-            // so we have resultingShiftRight = viewColumns * cellSizeIncrement == 6 * 1 == 6, but then
-            // we need to add this additional shift value (from the current shift value in the new context),
-            // i.e. add 1 to 6 to get 7, but also our fudgeShift for 167 is 1 so that makes it 8, and then
-            // dividing by 2 we get 4.
-            //
-            var relevantViewColumns: Int = cellGridView.viewColumnsVisible
-            var relevantViewRows: Int = cellGridView.viewRowsVisible
-
-            var additionalShiftX: Int = 0
-            var additionalShiftY: Int = 0
-
-            if (cellGridView.shiftCellX != 0) {
-                relevantViewColumns += 1
-                relevantViewRows += 1
-                let currentShiftResizedX: Int = shiftedCurrent.x % cellSize // -166 for shiftCurrent.x == -166 and cellSize == 167
-                let currentShiftResizedY: Int = shiftedCurrent.y % cellSize
-                additionalShiftX = currentShiftResizedX != 0 ? cellSize + currentShiftResizedX : 0 // assuming is negative TODO otherwise
-                additionalShiftY = currentShiftResizedY != 0 ? cellSize + currentShiftResizedY : 0
-            }
-
-            let resultingShiftRight: Int = relevantViewColumns * cellSizeIncrement + additionalShiftX + fudgeShift
-            let resultingShiftDown: Int = relevantViewRows * cellSizeIncrement + additionalShiftY + fudgeShift
-
-            let shiftX: Int = shiftedCurrent.x - (resultingShiftRight / 2)
-            let shiftY: Int = shiftedCurrent.y - (resultingShiftDown / 2)
-
-            let newViewWidthExtra = cellGridView.viewWidthScaled % cellSize
-            let newShiftX = shiftX % cellSize
-            let newShiftXR = modulo(cellSize + shiftX - newViewWidthExtra, cellSize)
-            let okay = (abs(abs(newShiftX) - abs(newShiftXR)) == 0) || (abs(abs(newShiftX) - abs(newShiftXR)) == 1)
-
-            print("RESIZE-CALC: cs: \(cellSize) ci: \(cellSizeIncrement) csc: \(cellSizeCurrent) vc: \(cellGridView.viewColumns) vcv: \(cellGridView.viewColumnsVisible) rvc: \(relevantViewColumns) sh: \(cellGridView.shiftScaledX) shc: \(cellGridView.shiftCellX) sht: \(shiftedCurrent.x) rsr: \(resultingShiftRight) f: \(fudgeShift) nvwe: \(newViewWidthExtra) > sh: \(newShiftX) shr: \(newShiftXR) OK: \(okay)")
-
-            //
-            // For debugging to get the right shift value (at least when shiftX is negative): 
-            // cellSize - (viewWidth - ((viewWidth + shiftfX) - viewWidthExtra)) == cellSize + shiftX - viewWidthExtra
-            //
-            return !scaled ? (shiftx: cellGridView.unscaled(shiftX), shifty: cellGridView.unscaled(shiftY)) : (shiftx: shiftX, shifty: shiftY)
-        }
-
         public static func calculateShiftForResizeCells(cellGridView: CellGridView, cellSize: Int, scaled: Bool = false) -> (shiftx: Int, shifty: Int) {
             let cellSize = !scaled ? cellGridView.scaled(cellSize) : cellSize
             let cellSizeCurrent: Int = cellGridView.cellSizeScaled
@@ -178,8 +68,10 @@ extension CellGridView
             // let viewColumnsRelevant: Int = cellGridView._viewColumnsDebugInitial // 9
             // let viewRowsRelevant: Int = cellGridView._viewRowsDebugInitial // 20
 
-            let viewColumnsRelevant: Int = cellGridView._viewColumnsDebugInitial - cellGridView.shiftCellX
-            let viewRowsRelevant: Int = cellGridView._viewRowsDebugInitial - cellGridView.shiftCellY
+            // let viewColumnsRelevant: Int = cellGridView._viewColumnsDebugInitial - cellGridView.shiftCellX
+            // let viewRowsRelevant: Int = cellGridView._viewRowsDebugInitial - cellGridView.shiftCellY
+            let viewColumnsRelevant: Int = cellGridView._viewColumnsDebugInitial // - cellGridView.shiftCellX
+            let viewRowsRelevant: Int = cellGridView._viewRowsDebugInitial // - cellGridView.shiftCellY
 
             let resultingShiftRight: Int = viewColumnsRelevant * cellSizeIncrement + fudgeShift
             let resultingShiftDown: Int = viewRowsRelevant * cellSizeIncrement + fudgeShift
@@ -192,7 +84,7 @@ extension CellGridView
             let newShiftXR = modulo(cellSize + shiftX - newViewWidthExtra, cellSize)
             let okay = (abs(abs(newShiftX) - abs(newShiftXR)) == 0) || (abs(abs(newShiftX) - abs(newShiftXR)) == 1)
 
-            print("RCALC> cs: \(cellSize) ci: \(cellSizeIncrement) | csc: \(cellSizeCurrent) csht: \(shiftedCurrent.x) csh: \(cellGridView.shiftScaledX) cshc: \(cellGridView.shiftCellX) vc: \(cellGridView.viewColumns) vcv: \(cellGridView.viewColumnsVisible) vcr: \(viewColumnsRelevant) rsr: \(resultingShiftRight) shd: \(resultingShiftRight / 2) f: \(fudgeShift) nvwe: \(newViewWidthExtra) -> sh: \(newShiftX) shr: \(newShiftXR) -> " + (okay ? "OK" : "NOT-OK"))
+            print("RCALC> cs: \(cellSize) ci: \(cellSizeIncrement) | ccs: \(cellSizeCurrent) csht: \(shiftedCurrent.x) csh: \(cellGridView.shiftScaledX) cshc: \(cellGridView.shiftCellX) vc: \(cellGridView.viewColumns) vcv: \(cellGridView.viewColumnsVisible) vcr: \(viewColumnsRelevant) rsr: \(resultingShiftRight) shd: \(resultingShiftRight / 2) f: \(fudgeShift) nvwe: \(newViewWidthExtra) -> sh: \(newShiftX) shr: \(newShiftXR) -> " + (okay ? "OK" : "NOT-OK"))
 
             //
             // For debugging to get the right shift value (at least when shiftX is negative): 
