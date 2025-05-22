@@ -48,6 +48,9 @@ class CellGridView
     private var _viewTransparency: UInt8 = 0
     private var _viewScaling: Bool = true
 
+    internal var _viewColumnsDebugInitial: Int = 0
+    internal var _viewRowsDebugInitial: Int = 0
+
     private var _cellSize: Int = 0
     private var _cellSizeTimesViewWidth: Int = 0
     private var _cellPadding: Int = 0
@@ -96,7 +99,7 @@ class CellGridView
          gridRows: Int,
          gridCellFactory: Cell.Factory? = nil)
     {
-        self._gridColumns = gridColumns > 0 ? gridColumns : self._viewColumns
+        self._gridColumns = gridColumns > 0 ? gridColumns : self._viewColumns // TODO the else on this doesnt make sense (0)
         self._gridRows = gridRows > 0 ? gridRows : self._viewRows
         self._gridCellEndX = self._gridColumns - 1
         self._gridCellEndY = self._gridRows - 1
@@ -166,6 +169,9 @@ class CellGridView
         self._viewRowEndsVisible = self._viewRows
         self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
         self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
+
+        self._viewColumnsDebugInitial = self._viewColumns
+        self._viewRowsDebugInitial = self._viewRows
 
         self._buffer = Memory.allocate(self._viewWidth * self._viewHeight * Screen.depth)
         self._bufferBlocks = BufferBlocks.createBufferBlocks(bufferSize: self._buffer.count,
