@@ -76,37 +76,35 @@ func test(cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int, f: AdjustShift
 // test(cellSize: 130, cellSizeIncrement: 1, shiftTotal:  -4, f: adjustShiftTotal) // -> from 130 to 131 by 1 -> sh:  -9 shr:  9
 
 print()
-test(cellSize: 129, cellSizeIncrement: 1, shiftTotal:   0, f: adjustShiftTotal) // -> from 129 to 130 by 1 -> sh:  -4 shr:  5
-test(cellSize: 130, cellSizeIncrement: 1, shiftTotal:  -4, f: adjustShiftTotal) // -> from 130 to 131 by 1 -> sh:  -9 shr:  9
-test(cellSize: 131, cellSizeIncrement: 1, shiftTotal:  -9, f: adjustShiftTotal) // -> from 131 to 132 by 1 -> sh: -13 shr: 14
-test(cellSize: 132, cellSizeIncrement: 1, shiftTotal: -13, f: adjustShiftTotal) // -> from 132 to 133 by 1 -> sh: -18 shr: 18
-test(cellSize: 133, cellSizeIncrement: 1, shiftTotal: -18, f: adjustShiftTotal) // -> from 133 to 134 by 1 -> sh: -22 shr: 23
-test(cellSize: 134, cellSizeIncrement: 1, shiftTotal: -22, f: adjustShiftTotal) // -> from 134 to 135 by 1 -> sh: -27 shr: 27
+test(cellSize: 129, cellSizeIncrement: 1, shiftTotal:   0, f: adjustShiftTotal) // -> from 129 to 130 by 1 -> sh:  -4 shr:  5 -> OK
+test(cellSize: 130, cellSizeIncrement: 1, shiftTotal:  -4, f: adjustShiftTotal) // -> from 130 to 131 by 1 -> sh:  -9 shr:  9 -> OK
+test(cellSize: 131, cellSizeIncrement: 1, shiftTotal:  -9, f: adjustShiftTotal) // -> from 131 to 132 by 1 -> sh: -13 shr: 14 -> OK
+test(cellSize: 132, cellSizeIncrement: 1, shiftTotal: -13, f: adjustShiftTotal) // -> from 132 to 133 by 1 -> sh: -18 shr: 18 -> OK
+test(cellSize: 133, cellSizeIncrement: 1, shiftTotal: -18, f: adjustShiftTotal) // -> from 133 to 134 by 1 -> sh: -22 shr: 23 -> OK
+test(cellSize: 134, cellSizeIncrement: 1, shiftTotal: -22, f: adjustShiftTotal) // -> from 134 to 135 by 1 -> sh: -27 shr: 27 -> OK
 
 print()
-test(cellSize: 130, cellSizeIncrement: 1, shiftTotal:  -4, f: adjustShiftTotalGPT) // -> from 130 to 131 by 1 -> sh:  -8 shr: 10 -> WRONG
-test(cellSize: 131, cellSizeIncrement: 1, shiftTotal:  -9, f: adjustShiftTotalGPT) // -> from 131 to 132 by 1 -> sh: -14 shr: 13 -> WRONG
-test(cellSize: 132, cellSizeIncrement: 1, shiftTotal: -13, f: adjustShiftTotalGPT) // -> from 132 to 133 by 1 -> sh: -17 shr: 19 -> WRONG
-test(cellSize: 133, cellSizeIncrement: 1, shiftTotal: -18, f: adjustShiftTotalGPT) // -> from 133 to 134 by 1 -> sh: -23 shr: 22 -> WRONG
-test(cellSize: 134, cellSizeIncrement: 1, shiftTotal: -22, f: adjustShiftTotalGPT) // -> from 134 to 135 by 1 -> sh: -26 shr: 28 -> WRONG
+test(cellSize: 129, cellSizeIncrement: 1, shiftTotal:   0, f: adjustShiftTotalGPT) // -> from 129 to 130 by 1 -> sh:  -5 shr:  4 -> WRONG should be sh:  -4 shr:  5
+test(cellSize: 130, cellSizeIncrement: 1, shiftTotal:  -4, f: adjustShiftTotalGPT) // -> from 130 to 131 by 1 -> sh:  -8 shr: 10 -> WRONG should be sh:  -9 shr:  9
+test(cellSize: 131, cellSizeIncrement: 1, shiftTotal:  -9, f: adjustShiftTotalGPT) // -> from 131 to 132 by 1 -> sh: -14 shr: 13 -> WRONG should be sh: -13 shr: 14
+test(cellSize: 132, cellSizeIncrement: 1, shiftTotal: -13, f: adjustShiftTotalGPT) // -> from 132 to 133 by 1 -> sh: -17 shr: 19 -> WRONG should be sh: -18 shr: 18
+test(cellSize: 133, cellSizeIncrement: 1, shiftTotal: -18, f: adjustShiftTotalGPT) // -> from 133 to 134 by 1 -> sh: -23 shr: 22 -> WRONG should be sh: -23 shr: 22
+test(cellSize: 134, cellSizeIncrement: 1, shiftTotal: -22, f: adjustShiftTotalGPT) // -> from 134 to 135 by 1 -> sh: -26 shr: 28 -> WRONG should be sh: -27 shr: 27
 
 print()
-test(cellSize: 129, cellSizeIncrement: 2, shiftTotal:   0, f: adjustShiftTotal) // -> from 129 to 131 by 2 -> sh:  -8 shr: 10 -> WRONG should be sh: -9 shr: 9
-test(cellSize: 129, cellSizeIncrement: 3, shiftTotal:   0, f: adjustShiftTotal) // -> from 129 to 132 by 3 -> sh: -12 shr: 15 -> WRONG should be sh: -9 shr: 9
-test(cellSize: 129, cellSizeIncrement: 4, shiftTotal:   0, f: adjustShiftTotal) // -> from 129 to 133 by 4 -> sh: -16 shr: 20 -> WRONG should be sh: -9 shr: 9
-test(cellSize: 129, cellSizeIncrement: 5, shiftTotal:   0, f: adjustShiftTotal) // -> from 129 to 134 by 5 -> sh: -20 shr: 25 -> WRONG should be sh: -9 shr: 9
+test(cellSize: 129, cellSizeIncrement: 2, shiftTotal:   0, f: adjustShiftTotalGPT) // -> from 129 to 131 by 2 -> sh: -75 shr: 74 -> WRONG should be sh:  -9 shr:  9
+test(cellSize: 129, cellSizeIncrement: 3, shiftTotal:   0, f: adjustShiftTotalGPT) // -> from 129 to 132 by 3 -> sh: -80 shr: 79 -> WRONG should be sh: -13 shr: 14
+test(cellSize: 129, cellSizeIncrement: 4, shiftTotal:   0, f: adjustShiftTotalGPT) // -> from 129 to 133 by 4 -> sh: -85 shr: 84 -> WRONG should be sh: -18 shr: 18
+test(cellSize: 129, cellSizeIncrement: 5, shiftTotal:   0, f: adjustShiftTotalGPT) // -> from 129 to 134 by 5 -> sh: -90 shr: 89 -> WRONG should be sh: -22 shr: 23
 
 print()
-test(cellSize: 129, cellSizeIncrement: 2, shiftTotal:   0, f: adjustShiftTotalGPT) // -> from 129 to 131 by 2 -> sh: -75 shr: 74
-test(cellSize: 129, cellSizeIncrement: 3, shiftTotal:   0, f: adjustShiftTotalGPT) // -> from 129 to 132 by 3 -> sh: -80 shr: 79
-test(cellSize: 129, cellSizeIncrement: 4, shiftTotal:   0, f: adjustShiftTotalGPT) // -> from 129 to 133 by 4 -> sh: -85 shr: 84
-test(cellSize: 129, cellSizeIncrement: 5, shiftTotal:   0, f: adjustShiftTotalGPT) // -> from 129 to 134 by 5 -> sh: -90 shr: 89
+test(cellSize: 129, cellSizeIncrement: 2, shiftTotal:   0, f: adjustShiftTotal) // -> from 129 to 131 by 2 -> sh:  -8 shr: 10 -> WRONG should be sh:  -9 shr:  9
+test(cellSize: 129, cellSizeIncrement: 3, shiftTotal:   0, f: adjustShiftTotal) // -> from 129 to 132 by 3 -> sh: -12 shr: 15 -> WRONG should be sh: -13 shr: 14
+test(cellSize: 129, cellSizeIncrement: 4, shiftTotal:   0, f: adjustShiftTotal) // -> from 129 to 133 by 4 -> sh: -16 shr: 20 -> WRONG should be sh: -18 shr: 18
+test(cellSize: 129, cellSizeIncrement: 5, shiftTotal:   0, f: adjustShiftTotal) // -> from 129 to 134 by 5 -> sh: -20 shr: 25 -> WRONG should be sh: -22 shr: 23
 
 print()
-test(cellSize: 129, cellSizeIncrement: 2, shiftTotal:   0, f: adjustShiftTotalBrute) // -> from 129 to 131 by 2 -> sh:  -9 shr:  9
-test(cellSize: 129, cellSizeIncrement: 3, shiftTotal:   0, f: adjustShiftTotalBrute) // -> from 129 to 132 by 3 -> sh: -13 shr: 14
-test(cellSize: 129, cellSizeIncrement: 4, shiftTotal:   0, f: adjustShiftTotalBrute) // -> from 129 to 133 by 4 -> sh: -18 shr: 18
-test(cellSize: 129, cellSizeIncrement: 5, shiftTotal:   0, f: adjustShiftTotalBrute) // -> from 129 to 134 by 5 -> sh: -22 shr: 23
-
-// print()
-// test(cellSize: 129, cellSizeIncrement: -1, shiftTotal: 0) // -> from 129 to 128 by -1 -> sh: ?27 shr: ?7
+test(cellSize: 129, cellSizeIncrement: 2, shiftTotal:   0, f: adjustShiftTotalBrute) // -> from 129 to 131 by 2 -> sh:  -9 shr:  9 -> OK
+test(cellSize: 129, cellSizeIncrement: 3, shiftTotal:   0, f: adjustShiftTotalBrute) // -> from 129 to 132 by 3 -> sh: -13 shr: 14 -> OK
+test(cellSize: 129, cellSizeIncrement: 4, shiftTotal:   0, f: adjustShiftTotalBrute) // -> from 129 to 133 by 4 -> sh: -18 shr: 18 -> OK
+test(cellSize: 129, cellSizeIncrement: 5, shiftTotal:   0, f: adjustShiftTotalBrute) // -> from 129 to 134 by 5 -> sh: -22 shr: 23 -> OK
