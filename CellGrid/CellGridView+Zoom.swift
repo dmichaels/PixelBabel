@@ -184,13 +184,6 @@ extension CellGridView
                 let cellsFromCenter: Int = Int(round((viewCenter - Double(shiftTotal)) / Double(cellSize)))
                 return shiftTotal - (cellsFromCenter * cellSizeIncrement)
             }
-            func adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int) -> Int {
-                let viewAnchorFactor: Double = 0.5
-                let viewCenter: Double = Double(viewSize) * viewAnchorFactor
-                let round = cellSizeIncrement > 0 ? (cellSize % 2 == 0 ? ceil : floor) : (cellSize % 2 == 0 ? floor : ceil)
-                let cellsFromCenter: Int = Int(round((viewCenter - Double(shiftTotal)) / Double(cellSize)))
-                return shiftTotal - (cellsFromCenter * cellSizeIncrement)
-            }
 
             let cellSize = !scaled ? cellGridView.scaled(cellSize) : cellSize
             let cellSizeCurrent: Int = cellGridView.cellSizeScaled
@@ -207,6 +200,15 @@ extension CellGridView
                                                             shiftTotal: shiftTotalCurrent.y)
             return !scaled ? (shiftx: cellGridView.unscaled(shiftTotalAdjustedX), shifty: cellGridView.unscaled(shiftTotalAdjustedY))
                            : (shiftx: shiftTotalAdjustedX, shifty: shiftTotalAdjustedY)
+        }
+
+        private static func adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
+                                             shiftTotal: Int, viewAnchor: Double = 0.5) -> Int {
+            let viewCenter: Double = Double(viewSize) * viewAnchor
+            let round: (Double) -> Double = cellSizeIncrement > 0 ? (cellSize % 2 == 0 ? ceil : floor)
+                                                                  : (cellSize % 2 == 0 ? floor : ceil)
+            let cellsFromCenter: Int = Int(round((viewCenter - Double(shiftTotal)) / Double(cellSize)))
+            return shiftTotal - (cellsFromCenter * cellSizeIncrement)
         }
     }
 }
