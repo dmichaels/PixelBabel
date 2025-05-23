@@ -494,6 +494,8 @@ class CellGridView
         }
 
         #if targetEnvironment(simulator)
+            let xyzzy = abs(abs(self.shiftScaledXR) - abs(self.shiftScaledX))
+            let okay =  (xyzzy == 1) || (xyzzy == 0)
             print(String(format: "SHIFTSC(\(shiftx),\(shifty))> %.5fs" +
                                  " vw: [\(self._viewWidth)]" +
                                  " vwe: [\(self._viewWidthExtra)]" +
@@ -509,7 +511,8 @@ class CellGridView
                                  " vce: \(self._viewColumnsExtra)" +
                                  " vcv: \(self.viewColumnsVisible)" +
                                  " vcev: \(self._viewColumnEndsVisible)" +
-                                 " shr: \(self.shiftScaledXR)",
+                                 " shr: \(self.shiftScaledXR)" +
+                                 " ok: \(okay)",
                   Date().timeIntervalSince(debugStart)))
         #endif
     }
