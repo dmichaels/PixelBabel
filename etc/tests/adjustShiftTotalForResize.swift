@@ -67,34 +67,6 @@ func shiftOpposite(cellSize: Int, shiftX: Int, viewWidthExtra: Int) -> Int {
     return modulo(cellSize + shiftX - viewWidthExtra, cellSize)
 }
 
-func old_T(cellSize: Int, cellIncrement: Int, shiftTotal: Int, f: AdjustShiftTotalFunction, expect: (sh: Int, sho: Int)? = nil) {
-    let newShiftTotal: Int = f(viewSize, cellSize, cellIncrement, shiftTotal)
-    let newCellSize: Int = cellSize + cellIncrement
-    let newShiftCell: Int = newShiftTotal / newCellSize
-    let newShift: Int = newShiftTotal % newCellSize
-    let newViewSizeExtra: Int = viewSize % newCellSize
-    let newShiftOpposite: Int = shiftOpposite(cellSize: newCellSize, shiftX: newShift, viewWidthExtra: newViewSizeExtra)
-    let isAdjustmentEven: Bool = [0, 1].contains(abs(abs(newShiftOpposite) - abs(newShift)))
-    var result: String = ""
-    if (expect != nil) {
-        result = ((expect!.sh == newShift) && (expect!.sho == newShiftOpposite)) ? "OK" : "✗"
-    }
-    // let x = (f == adjustShiftTotal)
-    // let ftype: String = (f == adjustShiftTotal) ? "REG" : "X"
-    print("cs: \(String(format: "%4d", cellSize))  " +
-          "ci: \(String(format: "%2d", cellIncrement))  " +
-          "csht: \(String(format: "%4d", shiftTotal))  ->  " +
-          "cs: \(String(format: "%4d", newCellSize))  " +
-          "vwe: \(String(format: "%4d", newViewSizeExtra))  " +
-          "sht: \(String(format: "%4d", newShiftTotal))  " +
-          "shc: \(String(format: "%4d", newShiftCell))  " +
-          "sh: \(String(format: "%4d", newShift))  " +
-          "sho: \(String(format: "%4d", shiftOpposite(cellSize: newCellSize, shiftX: newShift, viewWidthExtra: newViewSizeExtra)))  " +
-          (isAdjustmentEven ? "even  " : "uneven") +
-          // "even: \(isAdjustmentEven)" +
-          ((expect != nil) ? " -> \(result)" : "")
-    )
-}
 func T(cellSize: Int, cellIncrement: Int, shiftTotal: Int, f: AdjustShiftTotal, expect: (sh: Int, sho: Int)? = nil) {
     let newShiftTotal: Int = f.function(viewSize, cellSize, cellIncrement, shiftTotal)
     let newCellSize: Int = cellSize + cellIncrement
@@ -122,11 +94,6 @@ func T(cellSize: Int, cellIncrement: Int, shiftTotal: Int, f: AdjustShiftTotal, 
           ((expect != nil) ? " -> \(result)" : "")
     )
 }
-
-
-
-// T(cellSize: 130, cellIncrement: 1, shiftTotal:  -4, f: adjustShiftTotalBrute) // -> from 130 to 131 by 1 -> sh:  -9 sho:  9
-// T(cellSize: 130, cellIncrement: 1, shiftTotal:  -4, f: adjustShiftTotal) // -> from 130 to 131 by 1 -> sh:  -9 sho:  9
 
 print()
 T(cellSize: 129, cellIncrement: 1, shiftTotal:   0, f: AdjustShiftTotal.DEFAULT, expect: ( -4,  5)) // from 129 to 130 by 1 -> OK
