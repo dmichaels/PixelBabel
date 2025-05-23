@@ -13,10 +13,10 @@ struct AdjustShiftTotal {
         self.function = function
         self.name = name
     }
-    public static let DEFAULT: AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotal,      "DEF")
+    public static let DEFAULT: AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotal,      "DEFAULT")
     public static let GPT: AdjustShiftTotal     = AdjustShiftTotal(adjustShiftTotalGPT,   "GPT")
-    public static let GPT2: AdjustShiftTotal     = AdjustShiftTotal(adjustShiftTotalGPT2, "GP2")
-    public static let BRUTE: AdjustShiftTotal   = AdjustShiftTotal(adjustShiftTotalBrute, "BRF")
+    public static let GPTv2: AdjustShiftTotal   = AdjustShiftTotal(adjustShiftTotalGPT2,  "GPTv2")
+    public static let BRUTE: AdjustShiftTotal   = AdjustShiftTotal(adjustShiftTotalBrute, "BRUTE")
 }
 
 func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
@@ -79,7 +79,7 @@ func T(cellSize: Int, cellIncrement: Int, shiftTotal: Int, f: AdjustShiftTotal, 
     if (expect != nil) {
         result = ((expect!.sh == newShift) && (expect!.sho == newShiftOpposite)) ? "✓ OK" : "✗"
     }
-    print(f.name + "> " +
+    print((f.name + ">").padding(toLength: 10, withPad: " ", startingAt: 0) +
           "cs: \(String(format: "%3d", cellSize))  " +
           "[\(String(format: "%2+d", cellIncrement))]  " +
           "csht: \(String(format: "%4d", shiftTotal))  ->  " +
@@ -112,12 +112,12 @@ T(cellSize: 133, cellIncrement: 1, shiftTotal: -18, f: AdjustShiftTotal.GPT,    
 T(cellSize: 134, cellIncrement: 1, shiftTotal: -22, f: AdjustShiftTotal.GPT,     expect: (-27, 27)) // from 134 to 135 by 1 -> WRONG -> sh: -26 sho: 28
 
 print()
-T(cellSize: 129, cellIncrement: 1, shiftTotal:   0, f: AdjustShiftTotal.GPT2,     expect: ( -4,  5)) // from 129 to 130 by 1 -> WRONG -> sh:  -5 sho:  4
-T(cellSize: 130, cellIncrement: 1, shiftTotal:  -4, f: AdjustShiftTotal.GPT2,     expect: ( -9,  9)) // from 130 to 131 by 1 -> WRONG -> sh:  -8 sho: 10
-T(cellSize: 131, cellIncrement: 1, shiftTotal:  -9, f: AdjustShiftTotal.GPT2,     expect: (-13, 14)) // from 131 to 132 by 1 -> WRONG -> sh: -14 sho: 13
-T(cellSize: 132, cellIncrement: 1, shiftTotal: -13, f: AdjustShiftTotal.GPT2,     expect: (-18, 18)) // from 132 to 133 by 1 -> WRONG -> sh: -17 sho: 19
-T(cellSize: 133, cellIncrement: 1, shiftTotal: -18, f: AdjustShiftTotal.GPT2,     expect: (-22, 23)) // from 133 to 134 by 1 -> WRONG -> sh: -23 sho: 22
-T(cellSize: 134, cellIncrement: 1, shiftTotal: -22, f: AdjustShiftTotal.GPT2,     expect: (-27, 27)) // from 134 to 135 by 1 -> WRONG -> sh: -26 sho: 28
+T(cellSize: 129, cellIncrement: 1, shiftTotal:   0, f: AdjustShiftTotal.GPTv2,   expect: ( -4,  5)) // from 129 to 130 by 1 -> WRONG -> sh:  -5 sho:  4
+T(cellSize: 130, cellIncrement: 1, shiftTotal:  -4, f: AdjustShiftTotal.GPTv2,   expect: ( -9,  9)) // from 130 to 131 by 1 -> WRONG -> sh:  -8 sho: 10
+T(cellSize: 131, cellIncrement: 1, shiftTotal:  -9, f: AdjustShiftTotal.GPTv2,   expect: (-13, 14)) // from 131 to 132 by 1 -> WRONG -> sh: -14 sho: 13
+T(cellSize: 132, cellIncrement: 1, shiftTotal: -13, f: AdjustShiftTotal.GPTv2,   expect: (-18, 18)) // from 132 to 133 by 1 -> WRONG -> sh: -17 sho: 19
+T(cellSize: 133, cellIncrement: 1, shiftTotal: -18, f: AdjustShiftTotal.GPTv2,   expect: (-22, 23)) // from 133 to 134 by 1 -> WRONG -> sh: -23 sho: 22
+T(cellSize: 134, cellIncrement: 1, shiftTotal: -22, f: AdjustShiftTotal.GPTv2,   expect: (-27, 27)) // from 134 to 135 by 1 -> WRONG -> sh: -26 sho: 28
 
 print()
 T(cellSize: 129, cellIncrement: 2, shiftTotal:   0, f: AdjustShiftTotal.DEFAULT, expect: ( -9,  9)) // from 129 to 131 by 2 -> WRONG -> sh:  -8 sho: 10
@@ -132,10 +132,10 @@ T(cellSize: 129, cellIncrement: 4, shiftTotal:   0, f: AdjustShiftTotal.GPT,    
 T(cellSize: 129, cellIncrement: 5, shiftTotal:   0, f: AdjustShiftTotal.GPT,     expect: (-22, 23)) // from 129 to 134 by 5 -> WRONG -> sh: -23 sho: 22
 
 print()
-T(cellSize: 129, cellIncrement: 2, shiftTotal:   0, f: AdjustShiftTotal.GPT2,     expect: ( -9,  9)) // from 129 to 131 by 2 -> OK
-T(cellSize: 129, cellIncrement: 3, shiftTotal:   0, f: AdjustShiftTotal.GPT,     expect: (-13, 14)) // from 129 to 132 by 3 -> WRONG -> sh: -13 sho: 14
-T(cellSize: 129, cellIncrement: 4, shiftTotal:   0, f: AdjustShiftTotal.GPT2,     expect: (-18, 18)) // from 129 to 133 by 4 -> OK
-T(cellSize: 129, cellIncrement: 5, shiftTotal:   0, f: AdjustShiftTotal.GPT2,     expect: (-22, 23)) // from 129 to 134 by 5 -> WRONG -> sh: -23 sho: 22
+T(cellSize: 129, cellIncrement: 2, shiftTotal:   0, f: AdjustShiftTotal.GPTv2,   expect: ( -9,  9)) // from 129 to 131 by 2 -> OK
+T(cellSize: 129, cellIncrement: 3, shiftTotal:   0, f: AdjustShiftTotal.GPTv2,   expect: (-13, 14)) // from 129 to 132 by 3 -> WRONG -> sh: -13 sho: 14
+T(cellSize: 129, cellIncrement: 4, shiftTotal:   0, f: AdjustShiftTotal.GPTv2,   expect: (-18, 18)) // from 129 to 133 by 4 -> OK
+T(cellSize: 129, cellIncrement: 5, shiftTotal:   0, f: AdjustShiftTotal.GPTv2,   expect: (-22, 23)) // from 129 to 134 by 5 -> WRONG -> sh: -23 sho: 22
 
 print()
 T(cellSize: 129, cellIncrement: 2, shiftTotal:   0, f: AdjustShiftTotal.BRUTE,   expect: ( -9,  9)) // from 129 to 131 by 2 -> OK
