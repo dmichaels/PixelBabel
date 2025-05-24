@@ -20,14 +20,17 @@ struct AdjustShiftTotalData {
 
 struct AdjustShiftTotal {
     typealias Function = (Int, Int, Int, Int) -> Int
+    typealias DebugFunction = (Int, Int, Int, Int) -> String
     public let function: Function
     public let name: String
-    init(_ function: @escaping Function, _ name: String) {
+    public let debug: DebugFunction?
+    init(_ function: @escaping Function, _ name: String, debug: DebugFunction?) {
         self.function = function
         self.name = name
+        self.debug = debug
     }
-    public static let DEFAULT:  AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotal, "DEFAULT")
-    public static let ORIGINAL: AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotal, "ORIGINAL")
+    public static let DEFAULT:  AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotal, "DEFAULT",  debug: adjustShiftTotalDebug)
+    public static let ORIGINAL: AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotal, "ORIGINAL", debug: nil)
 }
 
 func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
@@ -50,11 +53,36 @@ func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTot
     // issues with this but this is a crucial distinction we just realized to be the case. Need to manually redo test cases.
     //
     let viewCenter: Double = Double(viewSize) * viewAnchorFactor
-    let cellCenter: Double = (viewCenter - Double(shiftTotal)) / Double(cellSize)
-    let shiftDelta: Double = cellCenter * Double(cellSize + cellIncrement) - (viewCenter - Double(shiftTotal))
-    let round: (Double) -> Double = cellIncrement < 0 ? (cellSize % 2 == 0 ? ceil : floor) : (cellSize % 2 == 0 ? floor : ceil)
-    // let round = floor
-    return Int(round(Double(shiftTotal) - shiftDelta))
+    let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
+    let cellCenter: Double = viewCenterAdjusted / Double(cellSize)
+    let shiftDelta: Double = cellCenter * Double(cellSize + cellIncrement) - viewCenterAdjusted
+    // let round: (Double) -> Double = cellIncrement < 0 ? (cellSize % 2 == 0 ? ceil : floor) : (cellSize % 2 == 0 ? floor : ceil)
+    let round: (Double) -> Double = floor
+    let shiftTotal: Int = Int(round(Double(shiftTotal) - shiftDelta))
+    return shiftTotal
+}
+
+func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> String {
+    func cellIndexFromCellOffset(_ cellOffset: Double, _ cellSize: Int) -> String {
+        let cellIndex: Int = Int(cellOffset)
+        let cellIndexOffset: Int = Int((cellOffset - Double(cellIndex)) * Double(cellSize))
+        return "\(cellIndex)_\(cellIndexOffset)"
+    }
+    let viewCenter: Double = Double(viewSize) * viewAnchorFactor
+    let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
+    let cellCenter: Double = viewCenterAdjusted / Double(cellSize)
+    let cellOffset = cellCenter * Double(cellSize + cellIncrement)
+    let shiftDelta: Double = cellOffset - viewCenterAdjusted
+    // let round: (Double) -> Double = cellIncrement < 0 ? (cellSize % 2 == 0 ? ceil : floor) : (cellSize % 2 == 0 ? floor : ceil)
+    let round: (Double) -> Double = round
+    let shiftTotal: Int = Int(round(Double(shiftTotal) - shiftDelta))
+    return "vc: \(String(format: "%*.2f", 5, viewCenter)) " +
+           "vca: \(String(format: "%*.2f", 5, viewCenterAdjusted)) " +
+           "cc: \(String(format: "%*.2f", 5, cellCenter)) " +
+           "\(cellIndexFromCellOffset(cellCenter, cellSize)) \(cellIndexFromCellOffset(cellCenter, cellSize + cellIncrement)) " +
+        // "co: \(String(format: "%*.2f", 5, cellOffset)) " +
+           "shd: \(String(format: "%*.2f", 5, shiftDelta)) " +
+           "sht: \(String(format: "%3d", shiftTotal))"
 }
 
 func adjustShiftTotalOriginal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
@@ -79,6 +107,8 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
 
     let f: AdjustShiftTotal = f ?? AdjustShiftTotal.DEFAULT
     let newShiftTotal: Int = f.function(viewSize, cellSize, cellIncrement, shiftTotal)
+    let newShiftDelta: Int = shiftTotal - newShiftTotal
+    let debugInfo: String = f.debug?(viewSize, cellSize, cellIncrement, shiftTotal) ?? ""
     let newCellSize: Int = cellSize + cellIncrement
     let newShiftCell: Int = newShiftTotal / newCellSize
     let newShift: Int = newShiftTotal % newCellSize
@@ -102,7 +132,7 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
             if (expect!.sho! != newShiftOpposite!) { okay = false }
             nchecks += 1
         }
-        if (nchecks > 0) { result = okay ? "✓ OK" : "✗" } else { result = "?" }
+        if (nchecks > 0) { result = okay ? "✓ OK" : "✗   " } else { result = "?" }
     }
     print((f.name + ">").padding(toLength: 12, withPad: " ", startingAt: 0) +
           "vs: \(String(format: "%3d", viewSize))  " +
@@ -111,12 +141,14 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
           "sht: \(String(format: "%4d", shiftTotal))  >>>  " +
           "cs: \(String(format: "%3d", newCellSize))  " +
        // "vse: \(String(format: "%3d", newViewSizeExtra))  " +
+          "shd: \(String(format: "%4d", newShiftDelta))  " +
           "sht: \(String(format: "%4d", newShiftTotal))  " +
           "shc: \(String(format: "%3d", newShiftCell))  " +
           "sh: \(String(format: "%3d", newShift))  " +
           "sho: \(newShiftOppositeTest ? String(format: "%2d-", newShiftOpposite!) : " -  ")" +
           (newShiftOppositeTest ? (newShiftOppositeEven! ? "E" : "U") : "") +
-          ((expect != nil) ? "  \(result)" : "")
+          ((expect != nil) ? "  \(result)" : "") +
+          ((debugInfo != "") ? " >>> \(debugInfo)" : "")
     )
 }
 
@@ -130,7 +162,7 @@ func test(_ data: [AdjustShiftTotalData], f: AdjustShiftTotal? = nil) {
 
 
 let dataIncOne: [AdjustShiftTotalData] =  [
-    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:   0, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:   0, ex: (sht: -2, sh: -2, sho: 2)),
     AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:  -1, ex: (sht: nil, sh: nil, sho: 0)),
     AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:  -2, ex: (sht: nil, sh: nil, sho: 0)),
     AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:  -3, ex: (sht: nil, sh: nil, sho: 0)),
