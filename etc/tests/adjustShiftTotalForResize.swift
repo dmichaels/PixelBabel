@@ -15,6 +15,7 @@ struct AdjustShiftTotal {
     }
     public static let DEFAULT:    AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotal,         "DEFAULT")
     public static let DEFAULTv2:  AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotalV2,       "DEFAULTv2")
+    public static let DEFAULTv3:  AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotalV3,       "DEFAULTv3")
     public static let GPT:        AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotalGPT,      "GPT")
     public static let GPTv2:      AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotalGPTv2,    "GPTv2")
     public static let BRUTE:      AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotalBrute,    "BRUTE")
@@ -30,6 +31,53 @@ func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTot
 }
 
 func adjustShiftTotalV2(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
+    // 
+    // Actually think this MIGHT be right but NOT we've been calculating some thing wrong manually for testing.
+    // So for example for the below, the center point is in cell 2 at offset 3 within that cell (2#3); previously
+    // we were thinking that that is the point that we wanted to maintain constantly centered on resize, but that
+    // is not really correct; we should rather be dealing with this in percentages (i.e. floating point), so rather
+    // than saying that cell 2#3 should remain centered we should say cell 2.6 should remain centered; 2.6 being
+    // cell 2 and 0.6 being the cell offset within the cell (3) divided by the cell size (5); and if we then
+    // increment to cell size 7 (from 5) the 2.6 for that cell size (7) is cell 2#4.2 (4.2 == 7 * 0.6).
+    //
+    // viewSize:      20
+    // cellSize:       5
+    // cellIncrement: +2
+    // shiftTotal:    -3
+    //
+    // What this means is that for this example, whereas we'd previously confidently said that resuling shiftTotal,
+    // upon resize (from 5 to 7) should be -7 it should actually be -8. Still may be some rounding (floor vs ceil etc)
+    // issues with this but this is a crucial distinction we just realized to be the case. Need to manually redo test cases.
+    //
+    let viewCenter: Double = Double(viewSize) * viewAnchorFactor
+    let cellCenter: Double = (viewCenter - Double(shiftTotal)) / Double(cellSize)
+    let shiftDelta: Double = cellCenter * Double(cellSize + cellIncrement) - (viewCenter - Double(shiftTotal))
+    let round: (Double) -> Double = cellIncrement < 0 ? (cellSize % 2 == 0 ? ceil : floor)
+                                                      : (cellSize % 2 == 0 ? floor : ceil)
+    return Int(round(Double(shiftTotal) - shiftDelta))
+}
+
+func adjustShiftTotalV2_0(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
+    let viewCenter: Double = Double(viewSize) * viewAnchorFactor
+    let cellCenter: Double = floor((viewCenter - Double(shiftTotal)) / Double(cellSize))
+    let shiftDelta: Double = cellCenter * Double(cellSize + cellIncrement) - viewCenter
+    let round: (Double) -> Double = cellIncrement < 0 ? (cellSize % 2 == 0 ? ceil : floor)
+                                                      : (cellSize % 2 == 0 ? floor : ceil)
+    return Int(round(Double(shiftTotal) - shiftDelta))
+}
+
+// DEFAULTv2>  vs:  20  cs:   5  [+1]  csht:   -1  ->  cs:   6  vse:   2  sht:   -4  shc:   0  sh:  -4  sho:   0  unev  ✗
+
+func adjustShiftTotalV3(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
+    let viewCenter: Double = Double(viewSize) * viewAnchorFactor
+    let cellCenter: Double = (viewCenter - Double(shiftTotal)) / Double(cellSize)
+    let shiftDelta: Double = cellCenter * Double(cellIncrement)
+    let round: (Double) -> Double = cellIncrement > 0 ? (cellSize % 2 == 0 ? ceil : floor)
+                                                      : (cellSize % 2 == 0 ? floor : ceil)
+    return Int(round(Double(shiftTotal) - shiftDelta))
+}
+
+func adjustShiftTotalV4(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
     let viewCenter: Double = Double(viewSize) * viewAnchorFactor
     let round: (Double) -> Double = cellIncrement > 0 ? (cellSize % 2 == 0 ? ceil : floor)
                                                       : (cellSize % 2 == 0 ? floor : ceil)
@@ -109,19 +157,32 @@ func T(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int, f: Adj
         result = okay ? "✓ OK" : "✗"
     }
     print((f.name + ">").padding(toLength: 12, withPad: " ", startingAt: 0) +
+          "vs: \(String(format: "%3d", viewSize))  " +
           "cs: \(String(format: "%3d", cellSize))  " +
           "[\(String(format: "%2+d", cellIncrement))]  " +
           "csht: \(String(format: "%4d", shiftTotal))  ->  " +
           "cs: \(String(format: "%3d", newCellSize))  " +
-          "vwe: \(String(format: "%3d", newViewSizeExtra))  " +
+          "vse: \(String(format: "%3d", newViewSizeExtra))  " +
           "sht: \(String(format: "%4d", newShiftTotal))  " +
           "shc: \(String(format: "%3d", newShiftCell))  " +
           "sh: \(String(format: "%3d", newShift))  " +
           "sho: \(String(format: "%3d", newShiftOpposite))  " +
-          (isAdjustmentEven ? "even  " : "uneven") +
-          ((expect != nil) ? " -> \(result)" : "")
+          (isAdjustmentEven ? "even" : "unev") +
+          ((expect != nil) ? "  \(result)" : "")
     )
 }
+
+T(viewSize: 20,        cellSize:   5, cellIncrement: 2, shiftTotal:  -3, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -7, sh: nil, sho: nil))
+// exit(0)
+
+print()
+T(viewSize: 17, cellSize: 5, cellIncrement: 4, shiftTotal:   -1, f: AdjustShiftTotal.DEFAULT, expect: (sht:  nil, sh:  -5, sho:  nil)) // from 129 to 130 by 1 -> OK
+T(viewSize: 17, cellSize: 5, cellIncrement: 4, shiftTotal:   -1, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  nil, sh:  -5, sho:  nil)) // from 129 to 130 by 1 -> OK
+
+print()
+// ??? what should this rightly be? coming out as sht: -5 sh: -5 (remember not sure yet if sho even makes sense to try if starting out shifted)
+T(viewSize: viewWidth, cellSize: 129, cellIncrement: 1, shiftTotal:   -1, f: AdjustShiftTotal.DEFAULT, expect: (sht:  nil, sh:  -5, sho:  nil)) // from 129 to 130 by 1 -> OK
+T(viewSize: viewWidth, cellSize: 129, cellIncrement: 1, shiftTotal:   -1, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  nil, sh:  -5, sho:  nil)) // from 129 to 130 by 1 -> OK
 
 print()
 T(viewSize: viewWidth, cellSize: 129, cellIncrement: 1, shiftTotal:   0, f: AdjustShiftTotal.DEFAULT, expect: (sht:  nil, sh:  -4, sho:  5)) // from 129 to 130 by 1 -> OK
@@ -181,6 +242,12 @@ T(viewSize: viewWidth, cellSize: 129, cellIncrement: 2, shiftTotal:   0, f: Adju
 T(viewSize: viewWidth, cellSize: 129, cellIncrement: 3, shiftTotal:   0, f: AdjustShiftTotal.GPTv2,   expect: (sht:  nil, sh: -13, sho: 14)) // from 129 to 132 by 3 -> WRONG -> sh: -13 sho: 14
 T(viewSize: viewWidth, cellSize: 129, cellIncrement: 4, shiftTotal:   0, f: AdjustShiftTotal.GPTv2,   expect: (sht:  nil, sh: -18, sho: 18)) // from 129 to 133 by 4 -> OK
 T(viewSize: viewWidth, cellSize: 129, cellIncrement: 5, shiftTotal:   0, f: AdjustShiftTotal.GPTv2,   expect: (sht:  nil, sh: -22, sho: 23)) // from 129 to 134 by 5 -> WRONG -> sh: -23 sho: 22
+
+print()
+T(viewSize: viewWidth, cellSize: 129, cellIncrement: 2, shiftTotal:   0, f: AdjustShiftTotal.DEFAULTv2,   expect: (sht: nil, sh:  -9, sho:  9)) // from 129 to 131 by 2 -> OK
+T(viewSize: viewWidth, cellSize: 129, cellIncrement: 3, shiftTotal:   0, f: AdjustShiftTotal.DEFAULTv2,   expect: (sht: nil, sh: -13, sho: 14)) // from 129 to 132 by 3 -> OK
+T(viewSize: viewWidth, cellSize: 129, cellIncrement: 4, shiftTotal:   0, f: AdjustShiftTotal.DEFAULTv2,   expect: (sht: nil, sh: -18, sho: 18)) // from 129 to 133 by 4 -> OK
+T(viewSize: viewWidth, cellSize: 129, cellIncrement: 5, shiftTotal:   0, f: AdjustShiftTotal.DEFAULTv2,   expect: (sht: nil, sh: -22, sho: 23)) // from 129 to 134 by 5 -> OK
 
 print()
 T(viewSize: viewWidth, cellSize: 129, cellIncrement: 2, shiftTotal:   0, f: AdjustShiftTotal.BRUTE,   expect: (sht: nil, sh:  -9, sho:  9)) // from 129 to 131 by 2 -> OK
@@ -254,3 +321,68 @@ T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal: -14, f: Adju
 T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal: -15, f: AdjustShiftTotal.DEFAULT, expect: (sht: -23, sh: nil, sho: nil))
 T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal: -16, f: AdjustShiftTotal.DEFAULT, expect: (sht: -24, sh: nil, sho: nil))
 T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal: -17, f: AdjustShiftTotal.DEFAULT, expect: (sht: -27, sh: nil, sho: nil))
+
+print()
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal:   0, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -2, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal:  -1, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -3, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal:  -2, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -4, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal:  -3, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -5, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal:  -4, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -6, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal:  -5, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -8, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal:  -6, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -9, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal:  -7, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -10, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal:  -8, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -11, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal:  -9, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -12, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal: -10, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -14, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal: -11, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -15, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal: -12, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -16, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal: -13, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -17, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal: -14, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -18, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal: -15, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -20, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 1, shiftTotal: -16, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -21, sh: nil, sho: nil))
+
+T(viewSize: 20,        cellSize:   5, cellIncrement: 2, shiftTotal:   0, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -4, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 2, shiftTotal:  -1, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -5, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 2, shiftTotal:  -2, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -6, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 2, shiftTotal:  -3, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -7, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 2, shiftTotal:  -4, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -8, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 2, shiftTotal:  -5, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -11, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 2, shiftTotal:  -6, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -12, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 2, shiftTotal:  -7, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -13, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 2, shiftTotal:  -8, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -14, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 2, shiftTotal:  -9, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -15, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 2, shiftTotal: -10, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -18, sh: nil, sho: nil))
+T(viewSize: 20,        cellSize:   5, cellIncrement: 2, shiftTotal: -11, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -19, sh: nil, sho: nil))
+
+T(viewSize: 17,        cellSize:   5, cellIncrement: 1, shiftTotal:   0, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -1, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 1, shiftTotal:  -1, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -2, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 1, shiftTotal:  -2, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -4, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 1, shiftTotal:  -3, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -5, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 1, shiftTotal:  -4, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -6, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 1, shiftTotal:  -5, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -7, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 1, shiftTotal:  -6, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -8, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 1, shiftTotal:  -7, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -10, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 1, shiftTotal:  -8, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -11, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 1, shiftTotal:  -9, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -12, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 1, shiftTotal: -10, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -13, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 1, shiftTotal: -11, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -14, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 1, shiftTotal: -12, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -16, sh: nil, sho: nil))
+
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal:   0, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -2, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal:  -1, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -3, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal:  -2, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -6, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal:  -3, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -7, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal:  -4, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -8, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal:  -5, f: AdjustShiftTotal.DEFAULTv2, expect: (sht:  -9, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal:  -6, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -10, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal:  -7, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -13, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal:  -8, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -14, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal:  -9, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -15, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal: -10, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -16, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal: -11, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -17, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal: -12, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -20, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal: -13, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -21, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal: -14, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -22, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal: -15, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -23, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal: -16, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -24, sh: nil, sho: nil))
+T(viewSize: 17,        cellSize:   5, cellIncrement: 2, shiftTotal: -17, f: AdjustShiftTotal.DEFAULTv2, expect: (sht: -27, sh: nil, sho: nil))
