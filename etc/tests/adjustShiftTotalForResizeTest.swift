@@ -52,8 +52,8 @@ func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTot
     let viewCenter: Double = Double(viewSize) * viewAnchorFactor
     let cellCenter: Double = (viewCenter - Double(shiftTotal)) / Double(cellSize)
     let shiftDelta: Double = cellCenter * Double(cellSize + cellIncrement) - (viewCenter - Double(shiftTotal))
-    let round: (Double) -> Double = cellIncrement < 0 ? (cellSize % 2 == 0 ? ceil : floor)
-                                                      : (cellSize % 2 == 0 ? floor : ceil)
+    let round: (Double) -> Double = cellIncrement < 0 ? (cellSize % 2 == 0 ? ceil : floor) : (cellSize % 2 == 0 ? floor : ceil)
+    // let round = floor
     return Int(round(Double(shiftTotal) - shiftDelta))
 }
 
@@ -122,16 +122,54 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
 
 func test(_ data: [AdjustShiftTotalData], f: AdjustShiftTotal? = nil) {
     let f: AdjustShiftTotal = f ?? AdjustShiftTotal.DEFAULT
+    print()
     for item in data {
         test(vs: item.viewSize, cs: item.cellSize, ci: item.cellIncrement, sht: item.shiftTotal, ex: item.expect, f: f)
     }
 }
 
 
-let data: [AdjustShiftTotalData] =  [
-    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:  0, ex: (sht: nil, sh: nil, sho: 3)),
-    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht: -1, ex: (sht: nil, sh: nil, sho: nil))
+let dataIncOne: [AdjustShiftTotalData] =  [
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:   0, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:  -1, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:  -2, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:  -3, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:  -4, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:  -5, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:  -6, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:  -7, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:  -8, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht:  -9, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht: -10, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht: -11, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht: -12, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht: -13, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht: -14, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht: -15, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht: -16, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht: -17, ex: (sht: nil, sh: nil, sho: 0))
 ]
 
-test(data, f: AdjustShiftTotal.DEFAULT)
-test(data, f: AdjustShiftTotal.ORIGINAL)
+let dataIncTwo: [AdjustShiftTotalData] =  [
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht:   0, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht:  -1, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht:  -2, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht:  -3, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht:  -4, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht:  -5, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht:  -6, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht:  -7, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht:  -8, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht:  -9, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht: -10, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht: -11, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht: -12, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht: -13, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht: -14, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht: -15, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht: -16, ex: (sht: nil, sh: nil, sho: 0)),
+    AdjustShiftTotalData(vs: 20, cs: 5, ci: 2, sht: -17, ex: (sht: nil, sh: nil, sho: 0))
+]
+
+test(dataIncOne, f: AdjustShiftTotal.DEFAULT)
+test(dataIncTwo, f: AdjustShiftTotal.DEFAULT)
