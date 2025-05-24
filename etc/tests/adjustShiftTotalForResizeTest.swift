@@ -26,7 +26,8 @@ struct AdjustShiftTotal {
         self.function = function
         self.name = name
     }
-    public static let DEFAULT: AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotal, "DEFAULT")
+    public static let DEFAULT:  AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotal, "DEFAULT")
+    public static let ORIGINAL: AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotal, "ORIGINAL")
 }
 
 func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
@@ -54,6 +55,14 @@ func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTot
     let round: (Double) -> Double = cellIncrement < 0 ? (cellSize % 2 == 0 ? ceil : floor)
                                                       : (cellSize % 2 == 0 ? floor : ceil)
     return Int(round(Double(shiftTotal) - shiftDelta))
+}
+
+func adjustShiftTotalOriginal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
+    let viewCenter: Double = Double(viewSize) * viewAnchorFactor
+    let round: (Double) -> Double = cellIncrement > 0 ? (cellSize % 2 == 0 ? ceil : floor)
+                                                      : (cellSize % 2 == 0 ? floor : ceil)
+    let cellCenter: Int = Int(round((viewCenter - Double(shiftTotal)) / Double(cellSize)))
+    return shiftTotal - (cellCenter * cellIncrement)
 }
 
 func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTotal: Int,
@@ -99,7 +108,7 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
           "vs: \(String(format: "%3d", viewSize))  " +
           "cs: \(String(format: "%3d", cellSize)) " +
           "[\(String(format: "%2+d", cellIncrement))]  " +
-          "sht: \(String(format: "%4d", shiftTotal))  ->  " +
+          "sht: \(String(format: "%4d", shiftTotal))  >>>  " +
           "cs: \(String(format: "%3d", newCellSize))  " +
        // "vse: \(String(format: "%3d", newViewSizeExtra))  " +
           "sht: \(String(format: "%4d", newShiftTotal))  " +
@@ -124,4 +133,5 @@ let data: [AdjustShiftTotalData] =  [
     AdjustShiftTotalData(vs: 20, cs: 5, ci: 1, sht: -1, ex: (sht: nil, sh: nil, sho: nil))
 ]
 
-test(data)
+test(data, f: AdjustShiftTotal.DEFAULT)
+test(data, f: AdjustShiftTotal.ORIGINAL)
