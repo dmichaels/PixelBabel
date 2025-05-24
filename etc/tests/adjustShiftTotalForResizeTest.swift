@@ -105,7 +105,7 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
           "sht: \(String(format: "%4d", newShiftTotal))  " +
           "shc: \(String(format: "%3d", newShiftCell))  " +
           "sh: \(String(format: "%3d", newShift))  " +
-          "sho: \(newShiftOppositeTest ? String(format: "%2d-", newShiftOpposite!) : "   -")" +
+          "sho: \(newShiftOppositeTest ? String(format: "%2d-", newShiftOpposite!) : " -  ")" +
           (newShiftOppositeTest ? (newShiftOppositeEven! ? "E" : "U") : "") +
           ((expect != nil) ? "  \(result)" : "")
     )
