@@ -41,16 +41,22 @@ struct AdjustShiftTotalData {
 struct AdjustShiftTotal {
     typealias Function = (Int, Int, Int, Int) -> Int
     typealias DebugFunction = (Int, Int, Int, Int) -> String
+    typealias DebugVerboseFunction = (Int, Int, Int, Int) -> Void
     public let function: Function
     public let name: String
     public let debug: DebugFunction?
-    init(_ function: @escaping Function, _ name: String, debug: DebugFunction?) {
+    public let debugVerbose: DebugVerboseFunction?
+    init(_ name: String, _ function: @escaping Function, debug: DebugFunction?, debugVerbose: DebugVerboseFunction?) {
         self.function = function
         self.name = name
         self.debug = debug
+        self.debugVerbose = debugVerbose
     }
-    public static let DEFAULT:  AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotal, "DEFAULT",  debug: adjustShiftTotalDebug)
-    public static let ORIGINAL: AdjustShiftTotal = AdjustShiftTotal(adjustShiftTotal, "ORIGINAL", debug: nil)
+    public static let DEFAULT:  AdjustShiftTotal = AdjustShiftTotal("DEFAULT",  adjustShiftTotal,
+                                                                     debug: adjustShiftTotalDebug,
+                                                                     debugVerbose: adjustShiftTotalDebugVerbose)
+    public static let ORIGINAL: AdjustShiftTotal = AdjustShiftTotal("ORIGINAL", adjustShiftTotal,
+                                                                     debug: nil, debugVerbose: nil)
 }
 
 func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
@@ -72,13 +78,12 @@ func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTot
     // upon resize (from 5 to 7) should be -7 it should actually be -8. Still may be some rounding (floor vs ceil etc)
     // issues with this but this is a crucial distinction we just realized to be the case. Need to manually redo test cases.
     //
-    let viewCenter: Double = Double(viewSize) * viewAnchorFactor
+    let round                      = floor
+    let viewCenter:         Double = Double(viewSize) * viewAnchorFactor
     let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
-    let cellCenter: Double = viewCenterAdjusted / Double(cellSize)
-    let shiftDelta: Double = cellCenter * Double(cellSize + cellIncrement) - viewCenterAdjusted
-    // let round: (Double) -> Double = cellIncrement < 0 ? (cellSize % 2 == 0 ? ceil : floor) : (cellSize % 2 == 0 ? floor : ceil)
-    let round: (Double) -> Double = floor
-    let shiftTotal: Int = Int(round(Double(shiftTotal) - shiftDelta))
+    let cellCenter:         Double = viewCenterAdjusted / Double(cellSize)
+    let shiftDelta:         Double = cellCenter * Double(cellSize + cellIncrement) - viewCenterAdjusted
+    let shiftTotal:         Int    = Int(round(Double(shiftTotal) - shiftDelta))
     return shiftTotal
 }
 
@@ -98,6 +103,9 @@ struct AdjustShiftTotalDebugData {
     public let resultCellCenterIndex: String
     public let resultShiftTotal: Int
     public let shiftDelta: Double
+
+    public var resultShiftCell: Int { self.resultShiftTotal / self.resultCellSize }
+    public var resultShift: Int     { self.resultShiftTotal / self.resultCellSize }
 }
 
 func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> AdjustShiftTotalDebugData {
@@ -106,15 +114,14 @@ func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int,
         let cellIndex: Int = Int(cellCenter)
         let cellIndexOffset: Double = (cellCenter - Double(cellIndex)) * Double(cellSize)
         let cellIndexOffsetEven: Bool = Double(Int(cellIndexOffset)) == cellIndexOffset
-        return "\(cellIndex)#\(cellIndexOffsetEven ? String(Int(cellIndexOffset)) : String(format: "%.1f", cellIndexOffset))"
+        return "\(cellIndex)#" +
+               "\(cellIndexOffsetEven ? String(Int(cellIndexOffset)) : String(format: "%.1f", cellIndexOffset))"
     }
 
+    let round                         = floor
     let viewCenter:            Double = Double(viewSize) * viewAnchorFactor
     let viewCenterAdjusted:    Double = viewCenter - Double(shiftTotal)
     let cellCenter:            Double = viewCenterAdjusted / Double(cellSize)
-    let cellCenterIndex:       String = cellCenterIndexString(cellCenter, cellSize)
-    let resultCellSize:        Int    = cellSize + cellIncrement
-    let resultCellCenterIndex: String = cellCenterIndexString(cellCenter, resultCellSize)
     let shiftDelta:            Double = cellCenter * Double(cellSize + cellIncrement) - viewCenterAdjusted
     let resultShiftTotal:      Int    = Int(round(Double(shiftTotal) - shiftDelta))
 
@@ -125,9 +132,9 @@ func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int,
                                      viewCenter:            viewCenter,
                                      viewCenterAdjusted:    viewCenterAdjusted,
                                      cellCenter:            cellCenter,
-                                     cellCenterIndex:       cellCenterIndex,
-                                     resultCellSize:        resultCellSize,
-                                     resultCellCenterIndex: resultCellCenterIndex,
+                                     cellCenterIndex:       cellCenterIndexString(cellCenter, cellSize),
+                                     resultCellSize:        cellSize + cellIncrement,
+                                     resultCellCenterIndex: cellCenterIndexString(cellCenter, cellSize + cellIncrement),
                                      resultShiftTotal:      resultShiftTotal,
                                      shiftDelta:            shiftDelta)
 }
@@ -144,6 +151,17 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shi
            "\(data.resultCellCenterIndex.rpad(5)) " +
            "shd: \(String(format: "%*.2f", 5, data.shiftDelta)) " +
            "sht: \(String(format: "%3d", data.resultShiftTotal))"
+}
+
+func adjustShiftTotalDebugVerbose(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) {
+    let data  = adjustShiftTotalDebugData(viewSize: viewSize,
+                                          cellSize: cellSize,
+                                          cellIncrement: cellIncrement,
+                                          shiftTotal: shiftTotal)
+    //
+    // TODO
+    //
+    print(data)
 }
 
 func adjustShiftTotalOriginal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
@@ -221,6 +239,14 @@ func test(_ data: [AdjustShiftTotalData], f: AdjustShiftTotal? = nil) {
     }
 }
 
+func debug(_ data: [AdjustShiftTotalData], f: AdjustShiftTotal? = nil) {
+    let f: AdjustShiftTotal = f ?? AdjustShiftTotal.DEFAULT
+    for item in data {
+        if let debugVerbose = f.debugVerbose {
+            debugVerbose(item.viewSize, item.cellSize, item.cellIncrement, item.shiftTotal)
+        }
+    }
+}
 
 typealias Data = AdjustShiftTotalData
 
@@ -278,5 +304,6 @@ let dataShiftTotalPositive: [Data] =  [
 
 test(dataIncOne, f: AdjustShiftTotal.DEFAULT)
 test(dataIncTwo, f: AdjustShiftTotal.DEFAULT)
+debug(dataIncTwo, f: AdjustShiftTotal.DEFAULT)
 // test(dataViewSize17, f: AdjustShiftTotal.DEFAULT)
 test(dataShiftTotalPositive, f: AdjustShiftTotal.DEFAULT)
