@@ -82,27 +82,68 @@ func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTot
     return shiftTotal
 }
 
-func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> String {
-    func cellIndexFromCellOffset(_ cellOffset: Double, _ cellSize: Int) -> String {
-        let cellIndex: Int = Int(cellOffset)
-        let cellIndexOffset: Int = Int((cellOffset - Double(cellIndex)) * Double(cellSize))
-        return "\(cellIndex)_\(cellIndexOffset)"
+struct AdjustShiftTotalDebugData {
+
+    public let viewSize: Int
+    public let cellSize: Int
+    public let cellIncrement: Int
+    public let shiftTotal: Int
+
+    public let viewCenter: Double
+    public let viewCenterAdjusted: Double
+    public let cellCenter: Double
+    public let cellCenterIndex: String
+
+    public let resultCellSize: Int
+    public let resultCellCenterIndex: String
+    public let resultShiftTotal: Int
+    public let shiftDelta: Double
+}
+
+func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> AdjustShiftTotalDebugData {
+
+    func cellCenterIndexString(_ cellCenter: Double, _ cellSize: Int) -> String {
+        let cellIndex: Int = Int(cellCenter)
+        let cellIndexOffset: Double = (cellCenter - Double(cellIndex)) * Double(cellSize)
+        let cellIndexOffsetEven: Bool = Double(Int(cellIndexOffset)) == cellIndexOffset
+        return "\(cellIndex)#\(cellIndexOffsetEven ? String(Int(cellIndexOffset)) : String(format: "%.1f", cellIndexOffset))"
     }
-    let viewCenter: Double = Double(viewSize) * viewAnchorFactor
-    let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
-    let cellCenter: Double = viewCenterAdjusted / Double(cellSize)
-    let cellOffset = cellCenter * Double(cellSize + cellIncrement)
-    let shiftDelta: Double = cellOffset - viewCenterAdjusted
-    // let round: (Double) -> Double = cellIncrement < 0 ? (cellSize % 2 == 0 ? ceil : floor) : (cellSize % 2 == 0 ? floor : ceil)
-    let round: (Double) -> Double = round
-    let shiftTotal: Int = Int(round(Double(shiftTotal) - shiftDelta))
-    return "vc: \(String(format: "%*.2f", 5, viewCenter)) " +
-           "vca: \(String(format: "%*.2f", 5, viewCenterAdjusted)) " +
-           "cc: \(String(format: "%*.2f", 5, cellCenter)) " +
-           "\(cellIndexFromCellOffset(cellCenter, cellSize).lpad(5)) " +
-           "\(cellIndexFromCellOffset(cellCenter, cellSize + cellIncrement).lpad(5)) " +
-           "shd: \(String(format: "%*.2f", 5, shiftDelta)) " +
-           "sht: \(String(format: "%3d", shiftTotal))"
+
+    let viewCenter:            Double = Double(viewSize) * viewAnchorFactor
+    let viewCenterAdjusted:    Double = viewCenter - Double(shiftTotal)
+    let cellCenter:            Double = viewCenterAdjusted / Double(cellSize)
+    let cellCenterIndex:       String = cellCenterIndexString(cellCenter, cellSize)
+    let resultCellSize:        Int    = cellSize + cellIncrement
+    let resultCellCenterIndex: String = cellCenterIndexString(cellCenter, resultCellSize)
+    let shiftDelta:            Double = cellCenter * Double(cellSize + cellIncrement) - viewCenterAdjusted
+    let resultShiftTotal:      Int    = Int(round(Double(shiftTotal) - shiftDelta))
+
+    return AdjustShiftTotalDebugData(viewSize:              viewSize,
+                                     cellSize:              cellSize,
+                                     cellIncrement:         cellIncrement,
+                                     shiftTotal:            shiftTotal,
+                                     viewCenter:            viewCenter,
+                                     viewCenterAdjusted:    viewCenterAdjusted,
+                                     cellCenter:            cellCenter,
+                                     cellCenterIndex:       cellCenterIndex,
+                                     resultCellSize:        resultCellSize,
+                                     resultCellCenterIndex: resultCellCenterIndex,
+                                     resultShiftTotal:      resultShiftTotal,
+                                     shiftDelta:            shiftDelta)
+}
+
+func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> String {
+    let data  = adjustShiftTotalDebugData(viewSize: viewSize,
+                                          cellSize: cellSize,
+                                          cellIncrement: cellIncrement,
+                                          shiftTotal: shiftTotal)
+    return "vc: \(String(format: "%*.2f", 5, data.viewCenter)) " +
+           "vca: \(String(format: "%*.2f", 5, data.viewCenterAdjusted)) " +
+           "cc: \(String(format: "%*.2f", 5, data.cellCenter)) " +
+           "\(data.cellCenterIndex.rpad(5)) " +
+           "\(data.resultCellCenterIndex.rpad(5)) " +
+           "shd: \(String(format: "%*.2f", 5, data.shiftDelta)) " +
+           "sht: \(String(format: "%3d", data.resultShiftTotal))"
 }
 
 func adjustShiftTotalOriginal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
@@ -152,7 +193,7 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
             if (expect!.sho! != newShiftOpposite!) { okay = false }
             nchecks += 1
         }
-        if (nchecks > 0) { result = okay ? "✓ OK" : "✗   " } else { result = "?" }
+        if (nchecks > 0) { result = okay ? "✓ OK" : "✗   " } else { result = "?   " }
     }
     print((f.name + ">").padding(toLength: 12, withPad: " ", startingAt: 0) +
           "vs: \(String(format: "%3d", viewSize))  " +
@@ -230,6 +271,12 @@ let dataViewSize17: [Data] =  [
     Data(vs: 17, cs: 5, ci: 8, sht:  -1, expect: (sht: nil, sh: nil, sho: nil), confirmed: false),
 ]
 
+
+let dataShiftTotalPositive: [Data] =  [
+    Data(vs: 20, cs: 5, ci: 2, sht:   1, expect: (sht: nil, sh: nil, sho: nil), confirmed: false)
+]
+
 test(dataIncOne, f: AdjustShiftTotal.DEFAULT)
 test(dataIncTwo, f: AdjustShiftTotal.DEFAULT)
 // test(dataViewSize17, f: AdjustShiftTotal.DEFAULT)
+test(dataShiftTotalPositive, f: AdjustShiftTotal.DEFAULT)
