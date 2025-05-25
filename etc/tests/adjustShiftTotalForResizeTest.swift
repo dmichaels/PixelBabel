@@ -99,13 +99,12 @@ struct AdjustShiftTotalDebugData {
     public let cellCenter: Double
     public let cellCenterIndex: String
 
-    public let resultCellSize: Int
-    public let resultCellCenterIndex: String
-    public let resultShiftTotal: Int
+    public let cellSizeResult: Int
+    public let cellCenterIndexResult: String
+    public let shiftTotalResult: Int
+    public var shiftCellResult: Int { self.shiftTotalResult / self.cellSizeResult }
+    public var shiftResult: Int { self.shiftTotalResult / self.cellSizeResult }
     public let shiftDelta: Double
-
-    public var resultShiftCell: Int { self.resultShiftTotal / self.resultCellSize }
-    public var resultShift: Int     { self.resultShiftTotal / self.resultCellSize }
 }
 
 func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> AdjustShiftTotalDebugData {
@@ -123,7 +122,7 @@ func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int,
     let viewCenterAdjusted:    Double = viewCenter - Double(shiftTotal)
     let cellCenter:            Double = viewCenterAdjusted / Double(cellSize)
     let shiftDelta:            Double = cellCenter * Double(cellSize + cellIncrement) - viewCenterAdjusted
-    let resultShiftTotal:      Int    = Int(round(Double(shiftTotal) - shiftDelta))
+    let shiftTotalResult:      Int    = Int(round(Double(shiftTotal) - shiftDelta))
 
     return AdjustShiftTotalDebugData(viewSize:              viewSize,
                                      cellSize:              cellSize,
@@ -133,9 +132,9 @@ func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int,
                                      viewCenterAdjusted:    viewCenterAdjusted,
                                      cellCenter:            cellCenter,
                                      cellCenterIndex:       cellCenterIndexString(cellCenter, cellSize),
-                                     resultCellSize:        cellSize + cellIncrement,
-                                     resultCellCenterIndex: cellCenterIndexString(cellCenter, cellSize + cellIncrement),
-                                     resultShiftTotal:      resultShiftTotal,
+                                     cellSizeResult:        cellSize + cellIncrement,
+                                     cellCenterIndexResult: cellCenterIndexString(cellCenter, cellSize + cellIncrement),
+                                     shiftTotalResult:      shiftTotalResult,
                                      shiftDelta:            shiftDelta)
 }
 
@@ -148,9 +147,9 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shi
            "vca: \(String(format: "%*.2f", 5, data.viewCenterAdjusted)) " +
            "cc: \(String(format: "%*.2f", 5, data.cellCenter)) " +
            "\(data.cellCenterIndex.rpad(5)) " +
-           "\(data.resultCellCenterIndex.rpad(5)) " +
+           "\(data.cellCenterIndexResult.rpad(5)) " +
            "shd: \(String(format: "%*.2f", 5, data.shiftDelta)) " +
-           "sht: \(String(format: "%3d", data.resultShiftTotal))"
+           "sht: \(String(format: "%3d", data.shiftTotalResult))"
 }
 
 func adjustShiftTotalDebugVerbose(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) {
