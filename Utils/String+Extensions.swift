@@ -5,7 +5,7 @@ extension String {
     func lpad(_ length: Int, _ pad: Character = " ") -> String {
         let selfLength = self.count
         guard selfLength < length else { return self }
-        return padding + String(repeating: pad, count: length - selfLength)
+        return String(repeating: pad, count: length - selfLength) + self
     }
 
     func rpad(_ length: Int, _ pad: Character = " ") -> String {
