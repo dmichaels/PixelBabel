@@ -101,8 +101,8 @@ struct AdjustShiftTotalDebugData {
     public let cellSize: Int
     public let cellIncrement: Int
     public let shiftTotal: Int
-    public let shiftCell: Int
-    public let shift: Int
+    public var shiftCell: Int { self.shiftTotal / self.cellSize }
+    public var shift: Int { self.shiftTotal % self.cellSize }
 
     public let viewCenter: Double
     public let viewCenterAdjusted: Double
@@ -113,7 +113,7 @@ struct AdjustShiftTotalDebugData {
     public let cellCenterIndexResult: String
     public let shiftTotalResult: Int
     public var shiftCellResult: Int { self.shiftTotalResult / self.cellSizeResult }
-    public var shiftResult: Int { self.shiftTotalResult / self.cellSizeResult }
+    public var shiftResult: Int { self.shiftTotalResult % self.cellSizeResult }
     public let shiftDelta: Double
 }
 
@@ -143,8 +143,6 @@ func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int,
                                      cellSize:              cellSize,
                                      cellIncrement:         cellIncrement,
                                      shiftTotal:            shiftTotal,
-                                     shiftCell:             shiftTotal / cellSize,
-                                     shift:                 shiftTotal % cellSize,
                                      viewCenter:            viewCenter,
                                      viewCenterAdjusted:    viewCenterAdjusted,
                                      cellCenter:            cellCenter,
@@ -192,21 +190,21 @@ func adjustShiftTotalDebugVerbose(viewSize: Int, cellSize: Int, cellIncrement: I
             " \("sh".lpad(4))" +
         "")
         print(
-            " \("--".lpad(5))" +
+            " \("==".lpad(5))" +
             " \("--".lpad(7))" +
             " \("---".lpad(7))" +
-            " \("--".lpad(4))" +
-            " \("--".lpad(4))" +
+            " \("==".lpad(4))" +
+            " \("==".lpad(4))" +
             " \("--".lpad(5))" +
             "  \("---".rpad(6))" +
-            " \("---".lpad(5))" +
+            " \("===".lpad(5))" +
             " \("---".lpad(4))" +
             " \("---".lpad(4))" +
             " \("  >>>")" +
             " \("--".lpad(4))" +
             "  \("---".rpad(6))" +
             " \("---".lpad(5))" +
-            " \("---".lpad(5))" +
+            " \("===".lpad(5))" +
             " \("---".lpad(4))" +
             " \("--".lpad(4))" +
         "")
@@ -382,6 +380,7 @@ test(dataIncTwo, f: AdjustShiftTotal.DEFAULT)
 test(dataViewSize17, f: AdjustShiftTotal.DEFAULT)
 test(dataShiftTotalPositive, f: AdjustShiftTotal.DEFAULT)
 
+debug(dataIncOne, f: AdjustShiftTotal.DEFAULT)
 debug(dataIncTwo, f: AdjustShiftTotal.DEFAULT)
 
 //    vs      vc     vca   cs   ci    cc  cci      sht  shc   sh   >>>   cs  cci      shd   sht  shc   sh
