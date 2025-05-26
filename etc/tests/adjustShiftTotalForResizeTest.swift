@@ -102,6 +102,7 @@ struct AdjustShiftTotalDebugData {
     public let cellSize: Int
     public let cellIncrement: Int
     public let shiftTotal: Int
+
     public var shiftCell: Int { self.shiftTotal / self.cellSize }
     public var shift: Int { self.shiftTotal % self.cellSize }
 
