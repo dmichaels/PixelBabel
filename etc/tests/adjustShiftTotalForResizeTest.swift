@@ -362,7 +362,7 @@ let dataIncTwo: [AdjustShiftTotalTestData] =  [
 
 let dataViewSize17: [AdjustShiftTotalTestData] =  [
     AdjustShiftTotalTestData(vs: 17, cs: 5, ci: 1, sht:   0, expect: (sht: nil, sh: nil, sho: nil), confirmed: false),
-    AdjustShiftTotalTestData(vs: 17, cs: 5, ci: 8, sht:  -1, expect: (sht: nil, sh: nil, sho: nil), confirmed: false),
+    AdjustShiftTotalTestData(vs: 17, cs: 5, ci: 1, sht:  -1, expect: (sht: nil, sh: nil, sho: nil), confirmed: false),
 ]
 
 
@@ -377,6 +377,7 @@ test(dataShiftTotalPositive, f: AdjustShiftTotalAlgorithm.DEFAULT)
 
 debug(dataIncOne, f: AdjustShiftTotalAlgorithm.DEFAULT)
 debug(dataIncTwo, f: AdjustShiftTotalAlgorithm.DEFAULT)
+debug(dataViewSize17, f: AdjustShiftTotalAlgorithm.DEFAULT)
 
 //  vs      vc     vca   cs   ci    cc  cci      sht  shc   sh   >>>   cs  cci      shd   sht  shc   sh  sho
 //  ==      --     ---   ==   ==    --  ---      ===  ---  ---   >>>   --  ---      ---   ===  ---   --   --
