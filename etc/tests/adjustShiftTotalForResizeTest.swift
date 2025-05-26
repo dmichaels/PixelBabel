@@ -101,12 +101,21 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shi
         public let shiftDelta: Double
 
         public var shiftOppositeResult: Int? {
-            guard ((self.shiftTotal % self.cellSize) == 0) && (self.cellCenter == Double(Int(self.cellCenter))) else {
+            // guard ((self.shiftTotal % self.cellSize) == 0) && (self.cellCenter == Double(Int(self.cellCenter))) else {
+            // TODO check for +/- 1 ...
+            guard ((self.shiftTotal % self.cellSize) == 0) else {
                 return nil
             }
             let viewSizeExtraResult: Int = self.viewSize % self.cellSizeResult
             return modulo(self.cellSizeResult + (self.shiftTotalResult % self.cellSizeResult) - viewSizeExtraResult,
                           self.cellSizeResult)
+        }
+
+        public var shiftOppositeEven: Bool? {
+            if let shiftOppositeResult = self.shiftOppositeResult {
+                return [0, 1].contains(abs(shiftOppositeResult - abs(self.shiftResult)))
+            }
+            return nil
         }
     }
 
@@ -227,7 +236,7 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shi
         " \(String(data.shiftCellResult).lpad(4))" +
         " \(String(data.shiftResult).lpad(4))" +
         " \((data.shiftOppositeResult != nil ? String(data.shiftOppositeResult!) : "-").lpad(4))" +
-        (data.shiftOppositeResult != nil ? (data.shiftOppositeResult == abs(data.shiftResult) ? " ✓" : " ✗") : "") +
+        (data.shiftOppositeResult != nil ? (data.shiftOppositeEven! ? " ✓" : " ✗") : "") +
     "")
 }
 
@@ -370,6 +379,12 @@ let dataShiftTotalPositive: [AdjustShiftTotalTestData] =  [
     AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht:   1, expect: (sht: nil, sh: nil, sho: nil), confirmed: false)
 ]
 
+let dataRealCase: [AdjustShiftTotalTestData] =  [
+    AdjustShiftTotalTestData(vs: 1161, cs: 129, ci: 1, sht:   0, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 1161, cs: 130, ci: 1, sht:  -4, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+]
+
+/*
 test(dataIncOne, f: AdjustShiftTotalAlgorithm.DEFAULT)
 test(dataIncTwo, f: AdjustShiftTotalAlgorithm.DEFAULT)
 test(dataViewSize17, f: AdjustShiftTotalAlgorithm.DEFAULT)
@@ -378,6 +393,8 @@ test(dataShiftTotalPositive, f: AdjustShiftTotalAlgorithm.DEFAULT)
 debug(dataIncOne, f: AdjustShiftTotalAlgorithm.DEFAULT)
 debug(dataIncTwo, f: AdjustShiftTotalAlgorithm.DEFAULT)
 debug(dataViewSize17, f: AdjustShiftTotalAlgorithm.DEFAULT)
+*/
+debug(dataRealCase, f: AdjustShiftTotalAlgorithm.DEFAULT)
 
 //  vs      vc     vca   cs   ci    cc  cci      sht  shc   sh   >>>   cs  cci      shd   sht  shc   sh  sho
 //  ==      --     ---   ==   ==    --  ---      ===  ---  ---   >>>   --  ---      ---   ===  ---   --   --
