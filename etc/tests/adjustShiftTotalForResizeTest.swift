@@ -69,25 +69,6 @@ struct AdjustShiftTotal {
 }
 
 func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
-    // 
-    // Actually think this MIGHT be right but NOT we've been calculating some thing wrong manually for testing.
-    // So for example for the below, the center point is in cell 2 at offset 3 within that cell (2#3); previously
-    // we were thinking that that is the point that we wanted to maintain constantly centered on resize, but that
-    // is not really correct; we should rather be dealing with this in percentages (i.e. floating point), so rather
-    // than saying that cell 2#3 should remain centered we should say cell 2.6 should remain centered; 2.6 being
-    // cell 2 and 0.6 being the cell offset within the cell (3) divided by the cell size (5); and if we then
-    // increment to cell size 7 (from 5) the 2.6 for that cell size (7) is cell 2#4.2 (4.2 == 7 * 0.6).
-    //
-    // viewSize:      20
-    // cellSize:       5
-    // cellIncrement: +2
-    // shiftTotal:    -3
-    //
-    // What this means is that for this example, whereas we'd previously confidently said that resuling shiftTotal,
-    // upon resize (from 5 to 7) should be -7 it should actually be -8. Still may be some rounding (floor vs ceil etc)
-    // issues with this but this is a crucial distinction we just realized to be the case. Need to manually redo test cases.
-    //
-    let round                      = round // floor
     let viewCenter:         Double = Double(viewSize) * viewAnchorFactor
     let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
     let cellCenter:         Double = viewCenterAdjusted / Double(cellSize)
@@ -139,7 +120,23 @@ func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int,
                "\(cellIndexOffsetEven ? String(Int(cellIndexOffset)) : String(format: "%.1f", cellIndexOffset))"
     }
 
-    let round                       = round // floor
+    // Actually think this MIGHT be right but NOT we've been calculating some thing wrong manually for testing.
+    // So for example for the below, the center point is in cell 2 at offset 3 within that cell (2#3); previously
+    // we were thinking that that is the point that we wanted to maintain constantly centered on resize, but that
+    // is not really correct; we should rather be dealing with this in percentages (i.e. floating point), so rather
+    // than saying that cell 2#3 should remain centered we should say cell 2.6 should remain centered; 2.6 being
+    // cell 2 and 0.6 being the cell offset within the cell (3) divided by the cell size (5); and if we then
+    // increment to cell size 7 (from 5) the 2.6 for that cell size (7) is cell 2#4.2 (4.2 == 7 * 0.6).
+    //
+    // viewSize:      20
+    // cellSize:       5
+    // cellIncrement: +2
+    // shiftTotal:    -3
+    //
+    // What this means is that for this example, whereas we'd previously confidently said that resuling shiftTotal,
+    // upon resize (from 5 to 7) should be -7 it should actually be -8. Still may be some rounding (floor vs ceil etc)
+    // issues with this but this is a crucial distinction we just realized to be the case. Need to manually redo test cases.
+    //
     let viewCenter:          Double = Double(viewSize) * viewAnchorFactor
     let viewCenterAdjusted:  Double = viewCenter - Double(shiftTotal)
     let cellCenter:          Double = viewCenterAdjusted / Double(cellSize)
