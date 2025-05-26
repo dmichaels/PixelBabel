@@ -113,7 +113,7 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shi
 
     func debugData(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> DebugData {
 
-        func cellCenterIndexString(_ cellCenter: Double, _ cellSize: Int) -> String {
+        func cellCenterIndex(_ cellCenter: Double, _ cellSize: Int) -> String {
             let cellIndex: Int = Int(cellCenter)
             let cellIndexOffset: Double = (cellCenter - Double(cellIndex)) * Double(cellSize)
             let cellIndexOffsetRounded: Double = cellIndexOffset.rounded(2)
@@ -157,9 +157,9 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shi
                          viewCenter:            viewCenter,
                          viewCenterAdjusted:    viewCenterAdjusted,
                          cellCenter:            cellCenter,
-                         cellCenterIndex:       cellCenterIndexString(cellCenter, cellSize),
+                         cellCenterIndex:       cellCenterIndex(cellCenter, cellSize),
                          cellSizeResult:        cellSize + cellIncrement,
-                         cellCenterIndexResult: cellCenterIndexString(cellCenter, cellSize + cellIncrement),
+                         cellCenterIndexResult: cellCenterIndex(cellCenter, cellSize + cellIncrement),
                          shiftTotalResult:      shiftTotalResult,
                          shiftDelta:            shiftDelta)
     }
