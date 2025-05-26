@@ -228,6 +228,7 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shi
         " \(String(data.shiftCellResult).lpad(4))" +
         " \(String(data.shiftResult).lpad(4))" +
         " \((data.shiftOppositeResult != nil ? String(data.shiftOppositeResult!) : "-").lpad(4))" +
+        (data.shiftOppositeResult != nil ? (data.shiftOppositeResult == abs(data.shiftResult) ? " ✓" : " ✗") : "") +
     "")
 }
 
