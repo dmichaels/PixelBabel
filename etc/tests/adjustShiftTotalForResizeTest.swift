@@ -23,6 +23,11 @@ extension BinaryFloatingPoint {
     }
 }
 
+func modulo(_ value: Int, _ modulus: Int) -> Int {
+    let remainder: Int = value % modulus
+    return remainder >= 0 ? remainder : remainder + modulus
+}
+
 let viewAnchorFactor: Double = 0.5
 
 struct AdjustShiftTotalData {
@@ -115,6 +120,15 @@ struct AdjustShiftTotalDebugData {
     public var shiftCellResult: Int { self.shiftTotalResult / self.cellSizeResult }
     public var shiftResult: Int { self.shiftTotalResult % self.cellSizeResult }
     public let shiftDelta: Double
+
+    public var shiftOppositeResult: Int? {
+        guard ((self.shiftTotal % self.cellSize) == 0) && (self.cellCenter == Double(Int(self.cellCenter))) else {
+            return nil
+        }
+        let viewSizeExtraResult: Int = self.viewSize % self.cellSizeResult
+        return modulo(self.cellSizeResult + (self.shiftTotalResult % self.cellSizeResult) - viewSizeExtraResult,
+                      self.cellSizeResult)
+    }
 }
 
 func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> AdjustShiftTotalDebugData {
@@ -122,22 +136,18 @@ func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int,
     func cellCenterIndexString(_ cellCenter: Double, _ cellSize: Int) -> String {
         let cellIndex: Int = Int(cellCenter)
         let cellIndexOffset: Double = (cellCenter - Double(cellIndex)) * Double(cellSize)
-        // let cellIndexOffsetRounded: Double = ((cellIndexOffset * 1000).rounded() / 1000)
         let cellIndexOffsetRounded: Double = cellIndexOffset.rounded(2)
-        // let cellIndexOffsetRoundedString: String = "\(cellIndexOffsetRounded)"
-        // let cellIndexOffsetEven: Bool = Double(Int(cellIndexOffset)) == cellIndexOffset
-        // let cellIndexOffsetEven = ((cellIndexOffset * 1000).rounded() / 1000) == Double(Int(cellIndexOffset))
         let cellIndexOffsetEven = cellIndexOffsetRounded == Double(Int(cellIndexOffset))
         return "\(cellIndex)#" +
                "\(cellIndexOffsetEven ? String(Int(cellIndexOffset)) : String(format: "%.1f", cellIndexOffset))"
     }
 
-    let round                         = round // floor
-    let viewCenter:            Double = Double(viewSize) * viewAnchorFactor
-    let viewCenterAdjusted:    Double = viewCenter - Double(shiftTotal)
-    let cellCenter:            Double = viewCenterAdjusted / Double(cellSize)
-    let shiftDelta:            Double = cellCenter * Double(cellSize + cellIncrement) - viewCenterAdjusted
-    let shiftTotalResult:      Int    = Int(round(Double(shiftTotal) - shiftDelta))
+    let round                       = round // floor
+    let viewCenter:          Double = Double(viewSize) * viewAnchorFactor
+    let viewCenterAdjusted:  Double = viewCenter - Double(shiftTotal)
+    let cellCenter:          Double = viewCenterAdjusted / Double(cellSize)
+    let shiftDelta:          Double = cellCenter * Double(cellSize + cellIncrement) - viewCenterAdjusted
+    let shiftTotalResult:    Int    = Int(round(Double(shiftTotal) - shiftDelta))
 
     return AdjustShiftTotalDebugData(viewSize:              viewSize,
                                      cellSize:              cellSize,
@@ -150,7 +160,8 @@ func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int,
                                      cellSizeResult:        cellSize + cellIncrement,
                                      cellCenterIndexResult: cellCenterIndexString(cellCenter, cellSize + cellIncrement),
                                      shiftTotalResult:      shiftTotalResult,
-                                     shiftDelta:            shiftDelta)
+                                     shiftDelta:            shiftDelta) // ,
+                                     // shiftOppositeResult:   shiftOppositeResult)
 }
 
 func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> String {
@@ -188,6 +199,7 @@ func adjustShiftTotalDebugVerbose(viewSize: Int, cellSize: Int, cellIncrement: I
             " \("sht".lpad(5))" +
             " \("shc".lpad(4))" +
             " \("sh".lpad(4))" +
+            " \("sho".lpad(4))" +
         "")
         print(
             " \("==".lpad(5))" +
@@ -206,6 +218,7 @@ func adjustShiftTotalDebugVerbose(viewSize: Int, cellSize: Int, cellIncrement: I
             " \("---".lpad(5))" +
             " \("===".lpad(5))" +
             " \("---".lpad(4))" +
+            " \("--".lpad(4))" +
             " \("--".lpad(4))" +
         "")
         return
@@ -233,6 +246,7 @@ func adjustShiftTotalDebugVerbose(viewSize: Int, cellSize: Int, cellIncrement: I
         " \(String(data.shiftTotalResult).lpad(5))" +
         " \(String(data.shiftCellResult).lpad(4))" +
         " \(String(data.shiftResult).lpad(4))" +
+        " \((data.shiftOppositeResult != nil ? String(data.shiftOppositeResult!) : "-").lpad(4))" +
     "")
 }
 
@@ -247,16 +261,12 @@ func adjustShiftTotalOriginal(viewSize: Int, cellSize: Int, cellIncrement: Int, 
 func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTotal: Int,
           expect: AdjustShiftTotalData.Expect? = nil, f: AdjustShiftTotal? = nil) {
 
-    func modulo(_ value: Int, _ modulus: Int) -> Int {
-        let remainder: Int = value % modulus
-        return remainder >= 0 ? remainder : remainder + modulus
-    }
-
     func shiftOpposite(cellSize: Int, shiftX: Int, viewSizeExtra: Int) -> Int {
         return modulo(cellSize + shiftX - viewSizeExtra, cellSize)
     }
 
     let f: AdjustShiftTotal = f ?? AdjustShiftTotal.DEFAULT
+
     let newShiftTotal: Int = f.function(viewSize, cellSize, cellIncrement, shiftTotal)
     let newShiftDelta: Int = shiftTotal - newShiftTotal
     let debugInfo: String = f.debug?(viewSize, cellSize, cellIncrement, shiftTotal) ?? ""
@@ -264,10 +274,18 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
     let newShiftCell: Int = newShiftTotal / newCellSize
     let newShift: Int = newShiftTotal % newCellSize
     let newViewSizeExtra: Int = viewSize % newCellSize
-    let newShiftOppositeTest: Bool = (expect != nil) && (expect!.sho != nil)
+
+    let viewCenter:               Double = Double(viewSize) * viewAnchorFactor
+    let viewCenterAdjusted:       Double = viewCenter - Double(shiftTotal)
+    let cellCenter:               Double = (viewCenterAdjusted) / Double(cellSize)
+    let newShiftOppositeRelevant: Bool = ((shiftTotal % cellSize) == 0) && (cellCenter == Double(Int(cellCenter)))
+
+    let newShiftOppositeTest: Bool = (expect != nil) && (expect!.sho != nil) && newShiftOppositeRelevant
     let newShiftOpposite: Int? = newShiftOppositeTest ? shiftOpposite(cellSize: newCellSize, shiftX: newShift, viewSizeExtra: newViewSizeExtra) : nil
     let newShiftOppositeEven: Bool? = newShiftOppositeTest ? [0, 1].contains(abs(abs(newShiftOpposite!) - abs(newShift))) : nil
+
     var result: String = ""
+
     if (expect != nil) {
         var nchecks: Int = 0
         var okay: Bool = true
@@ -279,7 +297,7 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
             if (expect!.sh! != newShift) { okay = false }
             nchecks += 1
         }
-        if (expect!.sho != nil) {
+        if ((expect!.sho != nil) && (newShiftOpposite != nil)) {
             if (expect!.sho! != newShiftOpposite!) { okay = false }
             nchecks += 1
         }
