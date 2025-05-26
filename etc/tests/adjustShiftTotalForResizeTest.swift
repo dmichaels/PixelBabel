@@ -15,6 +15,14 @@ extension String {
     }
 }
 
+extension BinaryFloatingPoint {
+    func rounded(_ places: Int) -> Self {
+        guard places >= 0 else { return self }
+        let multiplier = Self(pow(10.0, Double(places)))
+        return (self * multiplier).rounded() / multiplier
+    }
+}
+
 let viewAnchorFactor: Double = 0.5
 
 struct AdjustShiftTotalData {
@@ -93,6 +101,8 @@ struct AdjustShiftTotalDebugData {
     public let cellSize: Int
     public let cellIncrement: Int
     public let shiftTotal: Int
+    public let shiftCell: Int
+    public let shift: Int
 
     public let viewCenter: Double
     public let viewCenterAdjusted: Double
@@ -112,7 +122,12 @@ func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int,
     func cellCenterIndexString(_ cellCenter: Double, _ cellSize: Int) -> String {
         let cellIndex: Int = Int(cellCenter)
         let cellIndexOffset: Double = (cellCenter - Double(cellIndex)) * Double(cellSize)
-        let cellIndexOffsetEven: Bool = Double(Int(cellIndexOffset)) == cellIndexOffset
+        // let cellIndexOffsetRounded: Double = ((cellIndexOffset * 1000).rounded() / 1000)
+        let cellIndexOffsetRounded: Double = cellIndexOffset.rounded(2)
+        // let cellIndexOffsetRoundedString: String = "\(cellIndexOffsetRounded)"
+        // let cellIndexOffsetEven: Bool = Double(Int(cellIndexOffset)) == cellIndexOffset
+        // let cellIndexOffsetEven = ((cellIndexOffset * 1000).rounded() / 1000) == Double(Int(cellIndexOffset))
+        let cellIndexOffsetEven = cellIndexOffsetRounded == Double(Int(cellIndexOffset))
         return "\(cellIndex)#" +
                "\(cellIndexOffsetEven ? String(Int(cellIndexOffset)) : String(format: "%.1f", cellIndexOffset))"
     }
@@ -128,6 +143,8 @@ func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int,
                                      cellSize:              cellSize,
                                      cellIncrement:         cellIncrement,
                                      shiftTotal:            shiftTotal,
+                                     shiftCell:             shiftTotal / cellSize,
+                                     shift:                 shiftTotal % cellSize,
                                      viewCenter:            viewCenter,
                                      viewCenterAdjusted:    viewCenterAdjusted,
                                      cellCenter:            cellCenter,
@@ -153,14 +170,72 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shi
 }
 
 func adjustShiftTotalDebugVerbose(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) {
+
+    if ((viewSize == 0) && (cellSize == 0) && (cellIncrement == 0) && (shiftTotal == 0)) {
+        print(
+            " \("vs".lpad(5))" +
+            " \("vc".lpad(7))" +
+            " \("vca".lpad(7))" +
+            " \("cs".lpad(4))" +
+            " \("ci".lpad(4))" +
+            " \("cc".lpad(5))" +
+            "  \("cci".rpad(6))" +
+            " \("sht".lpad(5))" +
+            " \("shc".lpad(4))" +
+            " \("sh".lpad(4))" +
+            "   >>>" +
+            " \("cs".lpad(4))" +
+            "  \("cci".rpad(6))" +
+            " \("shd".lpad(5))" +
+            " \("sht".lpad(5))" +
+            " \("shc".lpad(4))" +
+            " \("sh".lpad(4))" +
+        "")
+        print(
+            " \("--".lpad(5))" +
+            " \("--".lpad(7))" +
+            " \("---".lpad(7))" +
+            " \("--".lpad(4))" +
+            " \("--".lpad(4))" +
+            " \("--".lpad(5))" +
+            "  \("---".rpad(6))" +
+            " \("---".lpad(5))" +
+            " \("---".lpad(4))" +
+            " \("---".lpad(4))" +
+            " \("  >>>")" +
+            " \("--".lpad(4))" +
+            "  \("---".rpad(6))" +
+            " \("---".lpad(5))" +
+            " \("---".lpad(5))" +
+            " \("---".lpad(4))" +
+            " \("--".lpad(4))" +
+        "")
+        return
+    }
+
     let data  = adjustShiftTotalDebugData(viewSize: viewSize,
                                           cellSize: cellSize,
                                           cellIncrement: cellIncrement,
                                           shiftTotal: shiftTotal)
-    //
-    // TODO
-    //
-    print(data)
+    print(
+        " \(String(data.viewSize).lpad(5))" +
+        " \(String(format: "%.1f", data.viewCenter).lpad(7))" +
+        " \(String(format: "%.1f", data.viewCenterAdjusted).lpad(7))" +
+        " \(String(data.cellSize).lpad(4))" +
+        " \(String(format: "%+d", data.cellIncrement).lpad(4))" +
+        " \(String(format: "%.1f", data.cellCenter).lpad(5))" +
+        "  \(data.cellCenterIndex.rpad(6))" +
+        " \(String(data.shiftTotal).lpad(5))" +
+        " \(String(data.shiftCell).lpad(4))" +
+        " \(String(data.shift).lpad(4))" +
+        "   >>>" +
+        " \(String(format: "%4d", data.cellSizeResult))" +
+        "  \(data.cellCenterIndexResult.rpad(6))" +
+        " \(String(format: "%.1f", data.shiftDelta).lpad(5))" +
+        " \(String(data.shiftTotalResult).lpad(5))" +
+        " \(String(data.shiftCellResult).lpad(4))" +
+        " \(String(data.shiftResult).lpad(4))" +
+    "")
 }
 
 func adjustShiftTotalOriginal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
@@ -218,7 +293,6 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
           "[\(String(format: "%2+d", cellIncrement))]  " +
           "sht: \(String(format: "%4d", shiftTotal))  >>>  " +
           "cs: \(String(format: "%3d", newCellSize))  " +
-       // "vse: \(String(format: "%3d", newViewSizeExtra))  " +
           "shd: \(String(format: "%4d", newShiftDelta))  " +
           "sht: \(String(format: "%4d", newShiftTotal))  " +
           "shc: \(String(format: "%3d", newShiftCell))  " +
@@ -240,8 +314,10 @@ func test(_ data: [AdjustShiftTotalData], f: AdjustShiftTotal? = nil) {
 
 func debug(_ data: [AdjustShiftTotalData], f: AdjustShiftTotal? = nil) {
     let f: AdjustShiftTotal = f ?? AdjustShiftTotal.DEFAULT
-    for item in data {
-        if let debugVerbose = f.debugVerbose {
+    if let debugVerbose = f.debugVerbose {
+        print()
+        debugVerbose(0, 0, 0, 0)
+        for item in data {
             debugVerbose(item.viewSize, item.cellSize, item.cellIncrement, item.shiftTotal)
         }
     }
@@ -303,6 +379,7 @@ let dataShiftTotalPositive: [Data] =  [
 
 test(dataIncOne, f: AdjustShiftTotal.DEFAULT)
 test(dataIncTwo, f: AdjustShiftTotal.DEFAULT)
-debug(dataIncTwo, f: AdjustShiftTotal.DEFAULT)
-// test(dataViewSize17, f: AdjustShiftTotal.DEFAULT)
+test(dataViewSize17, f: AdjustShiftTotal.DEFAULT)
 test(dataShiftTotalPositive, f: AdjustShiftTotal.DEFAULT)
+
+debug(dataIncTwo, f: AdjustShiftTotal.DEFAULT)
