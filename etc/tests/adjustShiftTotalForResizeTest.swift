@@ -30,7 +30,7 @@ func modulo(_ value: Int, _ modulus: Int) -> Int {
 
 let viewAnchorFactor: Double = 0.5
 
-struct AdjustShiftTotalData {
+struct AdjustShiftTotalTestData {
     typealias Expect = (sht: Int?, sh: Int?, sho: Int?)
     let viewSize: Int
     let cellSize: Int
@@ -157,8 +157,7 @@ func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int,
                                      cellSizeResult:        cellSize + cellIncrement,
                                      cellCenterIndexResult: cellCenterIndexString(cellCenter, cellSize + cellIncrement),
                                      shiftTotalResult:      shiftTotalResult,
-                                     shiftDelta:            shiftDelta) // ,
-                                     // shiftOppositeResult:   shiftOppositeResult)
+                                     shiftDelta:            shiftDelta)
 }
 
 func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) {
@@ -242,7 +241,7 @@ func adjustShiftTotalOriginal(viewSize: Int, cellSize: Int, cellIncrement: Int, 
 }
 
 func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTotal: Int,
-          expect: AdjustShiftTotalData.Expect? = nil, f: AdjustShiftTotal? = nil) {
+          expect: AdjustShiftTotalTestData.Expect? = nil, f: AdjustShiftTotal? = nil) {
 
     func shiftOpposite(cellSize: Int, shiftX: Int, viewSizeExtra: Int) -> Int {
         return modulo(cellSize + shiftX - viewSizeExtra, cellSize)
@@ -301,7 +300,7 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
     )
 }
 
-func test(_ data: [AdjustShiftTotalData], f: AdjustShiftTotal? = nil) {
+func test(_ data: [AdjustShiftTotalTestData], f: AdjustShiftTotal? = nil) {
     let f: AdjustShiftTotal = f ?? AdjustShiftTotal.DEFAULT
     print()
     for item in data {
@@ -309,7 +308,7 @@ func test(_ data: [AdjustShiftTotalData], f: AdjustShiftTotal? = nil) {
     }
 }
 
-func debug(_ data: [AdjustShiftTotalData], f: AdjustShiftTotal? = nil) {
+func debug(_ data: [AdjustShiftTotalTestData], f: AdjustShiftTotal? = nil) {
     let f: AdjustShiftTotal = f ?? AdjustShiftTotal.DEFAULT
     if let debugVerbose = f.debugVerbose {
         print()
@@ -320,58 +319,56 @@ func debug(_ data: [AdjustShiftTotalData], f: AdjustShiftTotal? = nil) {
     }
 }
 
-typealias Data = AdjustShiftTotalData
-
-let dataIncOne: [Data] =  [
-    Data(vs: 20, cs: 5, ci: 1, sht:   0, expect: (sht: -2,  sh: -2,  sho: 2), confirmed: true),
-    Data(vs: 20, cs: 5, ci: 1, sht:  -1, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht:  -2, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht:  -3, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht:  -4, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht:  -5, expect: (sht: nil, sh: nil, sho: 2), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht:  -6, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht:  -7, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht:  -8, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht:  -9, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht: -10, expect: (sht: nil, sh: nil, sho: 2), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht: -11, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht: -12, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht: -13, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht: -14, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht: -15, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht: -16, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 1, sht: -17, expect: (sht: nil, sh: nil, sho: 0), confirmed: false)
+let dataIncOne: [AdjustShiftTotalTestData] =  [
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht:   0, expect: (sht: -2,  sh: -2,  sho: 2), confirmed: true),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht:  -1, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht:  -2, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht:  -3, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht:  -4, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht:  -5, expect: (sht: nil, sh: nil, sho: 2), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht:  -6, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht:  -7, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht:  -8, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht:  -9, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht: -10, expect: (sht: nil, sh: nil, sho: 2), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht: -11, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht: -12, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht: -13, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht: -14, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht: -15, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht: -16, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 1, sht: -17, expect: (sht: nil, sh: nil, sho: 0), confirmed: false)
 ]
 
-let dataIncTwo: [Data] =  [
-    Data(vs: 20, cs: 5, ci: 2, sht:   0, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht:  -1, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht:  -2, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht:  -3, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht:  -4, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht:  -5, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht:  -6, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht:  -7, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht:  -8, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht:  -9, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht: -10, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht: -11, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht: -12, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht: -13, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht: -14, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht: -15, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht: -16, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    Data(vs: 20, cs: 5, ci: 2, sht: -17, expect: (sht: nil, sh: nil, sho: 0), confirmed: false)
+let dataIncTwo: [AdjustShiftTotalTestData] =  [
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht:   0, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht:  -1, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht:  -2, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht:  -3, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht:  -4, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht:  -5, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht:  -6, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht:  -7, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht:  -8, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht:  -9, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht: -10, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht: -11, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht: -12, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht: -13, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht: -14, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht: -15, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht: -16, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht: -17, expect: (sht: nil, sh: nil, sho: 0), confirmed: false)
 ]
 
-let dataViewSize17: [Data] =  [
-    Data(vs: 17, cs: 5, ci: 1, sht:   0, expect: (sht: nil, sh: nil, sho: nil), confirmed: false),
-    Data(vs: 17, cs: 5, ci: 8, sht:  -1, expect: (sht: nil, sh: nil, sho: nil), confirmed: false),
+let dataViewSize17: [AdjustShiftTotalTestData] =  [
+    AdjustShiftTotalTestData(vs: 17, cs: 5, ci: 1, sht:   0, expect: (sht: nil, sh: nil, sho: nil), confirmed: false),
+    AdjustShiftTotalTestData(vs: 17, cs: 5, ci: 8, sht:  -1, expect: (sht: nil, sh: nil, sho: nil), confirmed: false),
 ]
 
 
-let dataShiftTotalPositive: [Data] =  [
-    Data(vs: 20, cs: 5, ci: 2, sht:   1, expect: (sht: nil, sh: nil, sho: nil), confirmed: false)
+let dataShiftTotalPositive: [AdjustShiftTotalTestData] =  [
+    AdjustShiftTotalTestData(vs: 20, cs: 5, ci: 2, sht:   1, expect: (sht: nil, sh: nil, sho: nil), confirmed: false)
 ]
 
 test(dataIncOne, f: AdjustShiftTotal.DEFAULT)
