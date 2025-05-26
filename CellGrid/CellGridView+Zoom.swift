@@ -72,6 +72,17 @@ extension CellGridView
 
         private static func adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int,
                                              viewAnchorFactor: Double = 0.5) -> Int {
+            let viewCenter:          Double = Double(viewSize) * viewAnchorFactor
+            let viewCenterAdjusted:  Double = viewCenter - Double(shiftTotal)
+            let cellSizeIncremented: Int    = cellSize + cellSizeIncrement
+            let cellCenter:          Double = viewCenterAdjusted / Double(cellSize)
+            let shiftDelta:          Double = cellCenter * Double(cellSizeIncremented) - viewCenterAdjusted
+            let round                       = ((cellSizeIncremented) % 2 == 0) ? ceil : floor
+            return Int(round(Double(shiftTotal) - shiftDelta))
+        }
+
+        private static func old_adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int,
+                                                 viewAnchorFactor: Double = 0.5) -> Int {
             let viewCenter:         Double = Double(viewSize) * viewAnchorFactor
             let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
             let cellCenter:         Double = viewCenterAdjusted / Double(cellSize)
@@ -79,8 +90,8 @@ extension CellGridView
             return Int(round(Double(shiftTotal) - shiftDelta))
         }
 
-        private static func old_adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
-                                                 shiftTotal: Int, viewAnchorFactor: Double = 0.5) -> Int {
+        private static func older_adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
+                                                   shiftTotal: Int, viewAnchorFactor: Double = 0.5) -> Int {
             let viewCenter: Double = Double(viewSize) * viewAnchorFactor
             let round: (Double) -> Double = cellSizeIncrement > 0 ? (cellSize % 2 == 0 ? ceil : floor)
                                                                   : (cellSize % 2 == 0 ? floor : ceil)

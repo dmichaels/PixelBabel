@@ -34,16 +34,16 @@ struct AdjustShiftTotalTestData {
     typealias Expect = (sht: Int?, sh: Int?, sho: Int?)
     let viewSize: Int
     let cellSize: Int
-    let cellIncrement: Int
+    let cellSizeIncrement: Int
     let shiftTotal: Int
     let expect: Expect?
     let confirmed: Bool
     let debug: Bool
-    init(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTotal: Int,
+    init(vs viewSize: Int, cs cellSize: Int, ci cellSizeIncrement: Int, sht shiftTotal: Int,
          expect: Expect?, confirmed: Bool = false, debug: Bool = false) {
         self.viewSize = viewSize
         self.cellSize = cellSize
-        self.cellIncrement = cellIncrement
+        self.cellSizeIncrement = cellSizeIncrement
         self.shiftTotal = shiftTotal
         self.expect = expect
         self.confirmed = confirmed
@@ -68,21 +68,23 @@ struct AdjustShiftTotalAlgorithm {
                                                                                       debug: nil)
 }
 
-func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
-    let viewCenter:         Double = Double(viewSize) * viewAnchorFactor
-    let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
-    let cellCenter:         Double = viewCenterAdjusted / Double(cellSize)
-    let shiftDelta:         Double = cellCenter * Double(cellSize + cellIncrement) - viewCenterAdjusted
+func adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int) -> Int {
+    let viewCenter:          Double = Double(viewSize) * viewAnchorFactor
+    let viewCenterAdjusted:  Double = viewCenter - Double(shiftTotal)
+    let cellSizeIncremented: Int    = cellSize + cellSizeIncrement
+    let cellCenter:          Double = viewCenterAdjusted / Double(cellSize)
+    let shiftDelta:          Double = cellCenter * Double(cellSizeIncremented) - viewCenterAdjusted
+    let round                       = ((cellSizeIncremented) % 2 == 0) ? ceil : floor
     return Int(round(Double(shiftTotal) - shiftDelta))
 }
 
-func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) {
+func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int) {
 
     struct DebugData {
 
         public let viewSize: Int
         public let cellSize: Int
-        public let cellIncrement: Int
+        public let cellSizeIncrement: Int
         public let shiftTotal: Int
 
         public var shiftCell: Int { self.shiftTotal / self.cellSize }
@@ -119,7 +121,7 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shi
         }
     }
 
-    func debugData(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> DebugData {
+    func debugData(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int) -> DebugData {
 
         func cellCenterIndex(_ cellCenter: Double, _ cellSize: Int) -> String {
             let cellIndex: Int = Int(cellCenter)
@@ -139,39 +141,41 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shi
         //
         // viewSize:      20
         // cellSize:       5
-        // cellIncrement: +2
+        // cellSizeIncrement: +2
         // shiftTotal:    -3
         //
         // What this means is that for this example, whereas we'd previously confidently said that resuling shiftTotal,
         // upon resize (from 5 to 7) should be -7 it should actually be -8. Still may be some rounding (floor vs ceil etc)
         // issues with this but this is a crucial distinction we just realized to be the case. Need to manually redo test cases.
         //
-        let viewCenter:         Double = Double(viewSize) * viewAnchorFactor
-        let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
-        let cellCenter:         Double = viewCenterAdjusted / Double(cellSize)
-        let shiftDelta:         Double = cellCenter * Double(cellSize + cellIncrement) - viewCenterAdjusted
-        let shiftTotalResult:   Int    = Int(round(Double(shiftTotal) - shiftDelta))
+        let viewCenter:          Double = Double(viewSize) * viewAnchorFactor
+        let viewCenterAdjusted:  Double = viewCenter - Double(shiftTotal)
+        let cellSizeIncremented: Int    = cellSize + cellSizeIncrement
+        let cellCenter:          Double = viewCenterAdjusted / Double(cellSize)
+        let shiftDelta:          Double = cellCenter * Double(cellSizeIncremented) - viewCenterAdjusted
+        let round                       = ((cellSizeIncremented) % 2 == 0) ? ceil : floor
+        let shiftTotalResult:    Int    = Int(round(Double(shiftTotal) - shiftDelta))
 
         guard shiftTotalResult == adjustShiftTotal(viewSize: viewSize, cellSize: cellSize,
-                                                   cellIncrement: cellIncrement, shiftTotal: shiftTotal) else {
+                                                   cellSizeIncrement: cellSizeIncrement, shiftTotal: shiftTotal) else {
             fatalError("TESTING ERROR")
         }
 
         return DebugData(viewSize:              viewSize,
                          cellSize:              cellSize,
-                         cellIncrement:         cellIncrement,
+                         cellSizeIncrement:         cellSizeIncrement,
                          shiftTotal:            shiftTotal,
                          viewCenter:            viewCenter,
                          viewCenterAdjusted:    viewCenterAdjusted,
                          cellCenter:            cellCenter,
                          cellCenterIndex:       cellCenterIndex(cellCenter, cellSize),
-                         cellSizeResult:        cellSize + cellIncrement,
-                         cellCenterIndexResult: cellCenterIndex(cellCenter, cellSize + cellIncrement),
+                         cellSizeResult:        cellSizeIncremented,
+                         cellCenterIndexResult: cellCenterIndex(cellCenter, cellSize + cellSizeIncrement),
                          shiftTotalResult:      shiftTotalResult,
                          shiftDelta:            shiftDelta)
     }
 
-    if ((viewSize == 0) && (cellSize == 0) && (cellIncrement == 0) && (shiftTotal == 0)) {
+    if ((viewSize == 0) && (cellSize == 0) && (cellSizeIncrement == 0) && (shiftTotal == 0)) {
         print(
             " \("vs".lpad(5))" +
             " \("vc".lpad(7))" +
@@ -215,14 +219,14 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shi
         return
     }
 
-    let data  = debugData(viewSize: viewSize, cellSize: cellSize, cellIncrement: cellIncrement, shiftTotal: shiftTotal)
+    let data  = debugData(viewSize: viewSize, cellSize: cellSize, cellSizeIncrement: cellSizeIncrement, shiftTotal: shiftTotal)
 
     print(
         " \(String(data.viewSize).lpad(5))" +
         " \(String(format: "%.1f", data.viewCenter).lpad(7))" +
         " \(String(format: "%.1f", data.viewCenterAdjusted).lpad(7))" +
         " \(String(data.cellSize).lpad(4))" +
-        " \(String(format: "%+d", data.cellIncrement).lpad(4))" +
+        " \(String(format: "%+d", data.cellSizeIncrement).lpad(4))" +
         " \(String(format: "%.1f", data.cellCenter).lpad(5))" +
         "  \(data.cellCenterIndex.rpad(6))" +
         " \(String(data.shiftTotal).lpad(5))" +
@@ -240,15 +244,15 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shi
     "")
 }
 
-func adjustShiftTotalOriginal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
+func adjustShiftTotalOriginal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int) -> Int {
     let viewCenter: Double = Double(viewSize) * viewAnchorFactor
-    let round: (Double) -> Double = cellIncrement > 0 ? (cellSize % 2 == 0 ? ceil : floor)
+    let round: (Double) -> Double = cellSizeIncrement > 0 ? (cellSize % 2 == 0 ? ceil : floor)
                                                       : (cellSize % 2 == 0 ? floor : ceil)
     let cellCenter: Int = Int(round((viewCenter - Double(shiftTotal)) / Double(cellSize)))
-    return shiftTotal - (cellCenter * cellIncrement)
+    return shiftTotal - (cellCenter * cellSizeIncrement)
 }
 
-func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTotal: Int,
+func test(vs viewSize: Int, cs cellSize: Int, ci cellSizeIncrement: Int, sht shiftTotal: Int,
           expect: AdjustShiftTotalTestData.Expect? = nil, f: AdjustShiftTotalAlgorithm? = nil) {
 
     func shiftOpposite(cellSize: Int, shiftX: Int, viewSizeExtra: Int) -> Int {
@@ -257,9 +261,9 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
 
     let f: AdjustShiftTotalAlgorithm = f ?? AdjustShiftTotalAlgorithm.DEFAULT
 
-    let newShiftTotal: Int = f.function(viewSize, cellSize, cellIncrement, shiftTotal)
+    let newShiftTotal: Int = f.function(viewSize, cellSize, cellSizeIncrement, shiftTotal)
     let newShiftDelta: Int = shiftTotal - newShiftTotal
-    let newCellSize: Int = cellSize + cellIncrement
+    let newCellSize: Int = cellSize + cellSizeIncrement
     let newShiftCell: Int = newShiftTotal / newCellSize
     let newShift: Int = newShiftTotal % newCellSize
     let newViewSizeExtra: Int = viewSize % newCellSize
@@ -295,7 +299,7 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
     print((f.name + ">").padding(toLength: 12, withPad: " ", startingAt: 0) +
           "vs: \(String(format: "%3d", viewSize))  " +
           "cs: \(String(format: "%3d", cellSize)) " +
-          "[\(String(format: "%2+d", cellIncrement))]  " +
+          "[\(String(format: "%2+d", cellSizeIncrement))]  " +
           "sht: \(String(format: "%4d", shiftTotal))  >>>  " +
           "cs: \(String(format: "%3d", newCellSize))  " +
           "shd: \(String(format: "%4d", newShiftDelta))  " +
@@ -312,7 +316,7 @@ func test(_ data: [AdjustShiftTotalTestData], f: AdjustShiftTotalAlgorithm? = ni
     let f: AdjustShiftTotalAlgorithm = f ?? AdjustShiftTotalAlgorithm.DEFAULT
     print()
     for item in data {
-        test(vs: item.viewSize, cs: item.cellSize, ci: item.cellIncrement, sht: item.shiftTotal, expect: item.expect, f: f)
+        test(vs: item.viewSize, cs: item.cellSize, ci: item.cellSizeIncrement, sht: item.shiftTotal, expect: item.expect, f: f)
     }
 }
 
@@ -322,7 +326,7 @@ func debug(_ data: [AdjustShiftTotalTestData], f: AdjustShiftTotalAlgorithm? = n
         print()
         debug(0, 0, 0, 0)
         for item in data {
-            debug(item.viewSize, item.cellSize, item.cellIncrement, item.shiftTotal)
+            debug(item.viewSize, item.cellSize, item.cellSizeIncrement, item.shiftTotal)
         }
     }
 }
@@ -381,7 +385,7 @@ let dataShiftTotalPositive: [AdjustShiftTotalTestData] =  [
 
 let dataRealCase: [AdjustShiftTotalTestData] =  [
     AdjustShiftTotalTestData(vs: 1161, cs: 129, ci: 1, sht:   0, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    AdjustShiftTotalTestData(vs: 1161, cs: 130, ci: 1, sht:  -4, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+//    AdjustShiftTotalTestData(vs: 1161, cs: 130, ci: 1, sht:  -4, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
 ]
 
 /*
