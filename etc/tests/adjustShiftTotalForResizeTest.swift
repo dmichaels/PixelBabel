@@ -53,23 +53,19 @@ struct AdjustShiftTotalData {
 
 struct AdjustShiftTotal {
     typealias Function = (Int, Int, Int, Int) -> Int
-    typealias DebugFunction = (Int, Int, Int, Int) -> String
-    typealias DebugVerboseFunction = (Int, Int, Int, Int) -> Void
+    typealias DebugFunction = (Int, Int, Int, Int) -> Void
     public let function: Function
     public let name: String
-    public let debug: DebugFunction?
-    public let debugVerbose: DebugVerboseFunction?
-    init(_ name: String, _ function: @escaping Function, debug: DebugFunction?, debugVerbose: DebugVerboseFunction?) {
+    public let debugVerbose: DebugFunction?
+    init(_ name: String, _ function: @escaping Function, debugVerbose: DebugFunction?) {
         self.function = function
         self.name = name
-        self.debug = debug
         self.debugVerbose = debugVerbose
     }
     public static let DEFAULT:  AdjustShiftTotal = AdjustShiftTotal("DEFAULT",  adjustShiftTotal,
-                                                                     debug: adjustShiftTotalDebug,
-                                                                     debugVerbose: adjustShiftTotalDebugVerbose)
+                                                                     debugVerbose: adjustShiftTotalDebug)
     public static let ORIGINAL: AdjustShiftTotal = AdjustShiftTotal("ORIGINAL", adjustShiftTotal,
-                                                                     debug: nil, debugVerbose: nil)
+                                                                     debugVerbose: nil)
 }
 
 func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> Int {
@@ -164,21 +160,7 @@ func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int,
                                      // shiftOppositeResult:   shiftOppositeResult)
 }
 
-func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) -> String {
-    let data  = adjustShiftTotalDebugData(viewSize: viewSize,
-                                          cellSize: cellSize,
-                                          cellIncrement: cellIncrement,
-                                          shiftTotal: shiftTotal)
-    return "vc: \(String(format: "%*.2f", 5, data.viewCenter)) " +
-           "vca: \(String(format: "%*.2f", 5, data.viewCenterAdjusted)) " +
-           "cc: \(String(format: "%*.2f", 5, data.cellCenter)) " +
-           "\(data.cellCenterIndex.rpad(5)) " +
-           "\(data.cellCenterIndexResult.rpad(5)) " +
-           "shd: \(String(format: "%*.2f", 5, data.shiftDelta)) " +
-           "sht: \(String(format: "%3d", data.shiftTotalResult))"
-}
-
-func adjustShiftTotalDebugVerbose(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) {
+func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) {
 
     if ((viewSize == 0) && (cellSize == 0) && (cellIncrement == 0) && (shiftTotal == 0)) {
         print(
@@ -269,7 +251,6 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
 
     let newShiftTotal: Int = f.function(viewSize, cellSize, cellIncrement, shiftTotal)
     let newShiftDelta: Int = shiftTotal - newShiftTotal
-    let debugInfo: String = f.debug?(viewSize, cellSize, cellIncrement, shiftTotal) ?? ""
     let newCellSize: Int = cellSize + cellIncrement
     let newShiftCell: Int = newShiftTotal / newCellSize
     let newShift: Int = newShiftTotal % newCellSize
@@ -315,8 +296,7 @@ func test(vs viewSize: Int, cs cellSize: Int, ci cellIncrement: Int, sht shiftTo
           "sh: \(String(format: "%3d", newShift))  " +
           "sho: \(newShiftOppositeTest ? String(format: "%2d-", newShiftOpposite!) : " -  ")" +
           (newShiftOppositeTest ? (newShiftOppositeEven! ? "E" : "U") : "") +
-          ((expect != nil) ? "  \(result)" : "") +
-          ((debugInfo != "") ? " DEB> \(debugInfo)" : "")
+          ((expect != nil) ? "  \(result)" : "")
     )
 }
 
