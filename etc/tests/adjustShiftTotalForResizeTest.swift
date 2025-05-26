@@ -73,8 +73,7 @@ func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTot
     let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
     let cellCenter:         Double = viewCenterAdjusted / Double(cellSize)
     let shiftDelta:         Double = cellCenter * Double(cellSize + cellIncrement) - viewCenterAdjusted
-    let shiftTotal:         Int    = Int(round(Double(shiftTotal) - shiftDelta))
-    return shiftTotal
+    return Int(round(Double(shiftTotal) - shiftDelta))
 }
 
 func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTotal: Int) {
@@ -139,11 +138,11 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellIncrement: Int, shi
         // upon resize (from 5 to 7) should be -7 it should actually be -8. Still may be some rounding (floor vs ceil etc)
         // issues with this but this is a crucial distinction we just realized to be the case. Need to manually redo test cases.
         //
-        let viewCenter:          Double = Double(viewSize) * viewAnchorFactor
-        let viewCenterAdjusted:  Double = viewCenter - Double(shiftTotal)
-        let cellCenter:          Double = viewCenterAdjusted / Double(cellSize)
-        let shiftDelta:          Double = cellCenter * Double(cellSize + cellIncrement) - viewCenterAdjusted
-        let shiftTotalResult:    Int    = Int(round(Double(shiftTotal) - shiftDelta))
+        let viewCenter:         Double = Double(viewSize) * viewAnchorFactor
+        let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
+        let cellCenter:         Double = viewCenterAdjusted / Double(cellSize)
+        let shiftDelta:         Double = cellCenter * Double(cellSize + cellIncrement) - viewCenterAdjusted
+        let shiftTotalResult:   Int    = Int(round(Double(shiftTotal) - shiftDelta))
 
         guard shiftTotalResult == adjustShiftTotal(viewSize: viewSize, cellSize: cellSize,
                                                    cellIncrement: cellIncrement, shiftTotal: shiftTotal) else {
