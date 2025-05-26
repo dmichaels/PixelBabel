@@ -86,7 +86,7 @@ func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int, shiftTot
     // upon resize (from 5 to 7) should be -7 it should actually be -8. Still may be some rounding (floor vs ceil etc)
     // issues with this but this is a crucial distinction we just realized to be the case. Need to manually redo test cases.
     //
-    let round                      = floor
+    let round                      = round // floor
     let viewCenter:         Double = Double(viewSize) * viewAnchorFactor
     let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
     let cellCenter:         Double = viewCenterAdjusted / Double(cellSize)
@@ -132,7 +132,7 @@ func adjustShiftTotalDebugData(viewSize: Int, cellSize: Int, cellIncrement: Int,
                "\(cellIndexOffsetEven ? String(Int(cellIndexOffset)) : String(format: "%.1f", cellIndexOffset))"
     }
 
-    let round                         = floor
+    let round                         = round // floor
     let viewCenter:            Double = Double(viewSize) * viewAnchorFactor
     let viewCenterAdjusted:    Double = viewCenter - Double(shiftTotal)
     let cellCenter:            Double = viewCenterAdjusted / Double(cellSize)
@@ -383,3 +383,24 @@ test(dataViewSize17, f: AdjustShiftTotal.DEFAULT)
 test(dataShiftTotalPositive, f: AdjustShiftTotal.DEFAULT)
 
 debug(dataIncTwo, f: AdjustShiftTotal.DEFAULT)
+
+//    vs      vc     vca   cs   ci    cc  cci      sht  shc   sh   >>>   cs  cci      shd   sht  shc   sh
+//    --      --     ---   --   --    --  ---      ---  ---  ---   >>>   --  ---      ---   ---  ---   --
+//    20    10.0    10.0    5   +2   2.0  2#0        0    0    0   >>>    7  2#0      4.0    -4    0    0
+//    20    10.0    11.0    5   +2   2.2  2#1       -1    0   -1   >>>    7  2#1.4    4.4    -5    0    0
+//    20    10.0    12.0    5   +2   2.4  2#2.0     -2    0   -2   >>>    7  2#2.8    4.8    -7   -1   -1
+//    20    10.0    13.0    5   +2   2.6  2#3       -3    0   -3   >>>    7  2#4.2    5.2    -8   -1   -1
+//    20    10.0    14.0    5   +2   2.8  2#4.0     -4    0   -4   >>>    7  2#5.6    5.6   -10   -1   -1
+//    20    10.0    15.0    5   +2   3.0  3#0       -5   -1    0   >>>    7  3#0      6.0   -11   -1   -1
+//    20    10.0    16.0    5   +2   3.2  3#1       -6   -1   -1   >>>    7  3#1.4    6.4   -12   -1   -1
+//    20    10.0    17.0    5   +2   3.4  3#2.0     -7   -1   -2   >>>    7  3#2.8    6.8   -14   -2   -2
+//    20    10.0    18.0    5   +2   3.6  3#3       -8   -1   -3   >>>    7  3#4.2    7.2   -15   -2   -2
+//    20    10.0    19.0    5   +2   3.8  3#4.0     -9   -1   -4   >>>    7  3#5.6    7.6   -17   -2   -2
+//    20    10.0    20.0    5   +2   4.0  4#0      -10   -2    0   >>>    7  4#0      8.0   -18   -2   -2
+//    20    10.0    21.0    5   +2   4.2  4#1      -11   -2   -1   >>>    7  4#1.4    8.4   -19   -2   -2
+//    20    10.0    22.0    5   +2   4.4  4#2      -12   -2   -2   >>>    7  4#2.8    8.8   -21   -3   -3
+//    20    10.0    23.0    5   +2   4.6  4#3.0    -13   -2   -3   >>>    7  4#4.2    9.2   -22   -3   -3
+//    20    10.0    24.0    5   +2   4.8  4#4.0    -14   -2   -4   >>>    7  4#5.6    9.6   -24   -3   -3
+//    20    10.0    25.0    5   +2   5.0  5#0      -15   -3    0   >>>    7  5#0     10.0   -25   -3   -3
+//    20    10.0    26.0    5   +2   5.2  5#1      -16   -3   -1   >>>    7  5#1.4   10.4   -26   -3   -3
+//    20    10.0    27.0    5   +2   5.4  5#2      -17   -3   -2   >>>    7  5#2.8   10.8   -28   -4   -4
