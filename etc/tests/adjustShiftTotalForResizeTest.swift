@@ -84,17 +84,15 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
 
         public let viewSize: Int
         public let cellSize: Int
-        public let cellSizeIncrement: Int
         public let shiftTotal: Int
-
         public var shiftCell: Int { self.shiftTotal / self.cellSize }
         public var shift: Int { self.shiftTotal % self.cellSize }
-
         public let viewCenter: Double
         public let viewCenterAdjusted: Double
         public let cellCenter: Double
         public let cellCenterIndex: String
 
+        public let cellSizeIncrement: Int
         public let cellSizeResult: Int
         public let cellCenterIndexResult: String
         public let shiftTotalResult: Int
@@ -107,7 +105,7 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
             return modulo(self.cellSize + self.shift - viewSizeExtra, self.cellSize)
         }
 
-        public var shiftOppositeEven: Bool? {
+        public var shiftOppositeEven: Bool {
             [0, 1].contains(abs(abs(self.shift) - self.shiftOpposite))
         }
 
@@ -116,41 +114,18 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
             return modulo(self.cellSizeResult + (self.shiftTotalResult % self.cellSizeResult) - viewSizeExtraResult, self.cellSizeResult)
         }
 
-        public var old_shiftOppositeResult: Int? {
-            if let shiftOppositeEven = self.shiftOppositeEven {
-                guard shiftOppositeEven else { return nil }
-            }
-            // TODO: Only calculate the opposite shift if it is evenly distributed to start.
-            let cellCenterRounded: Double = round(self.cellCenter)
-            // print(cellCenter)
-            // print(cellCenterRounded)
-            // print(self.cellCenter - cellCenterRounded)
-            // print(abs(self.cellCenter - cellCenterRounded))
-            // guard ((self.shiftTotal % self.cellSize) == 0) && (abs(self.cellCenter - cellCenterRounded) < 1.0) else {
-            let viewSizeExtraResult: Int = self.viewSize % self.cellSizeResult
-            guard abs(self.cellCenter - cellCenterRounded) < 1.0 else {
-            // TODO check for +/- 1 ...
-            // guard ((self.shiftTotal % self.cellSize) == 0) else {
-                return nil
-            }
-            return modulo(self.cellSizeResult + (self.shiftTotalResult % self.cellSizeResult) - viewSizeExtraResult,
-                          self.cellSizeResult)
+        public var shiftOppositeEvenResult: Bool? {
+            guard self.shiftOppositeEven else { return nil }
+            return [0, 1].contains(abs(abs(self.shiftResult) - self.shiftOppositeResult))
         }
 
-        public var shiftOppositeResultEven: Bool? {
-            return false
-            /*
-            if let shiftOppositeResult = self.shiftOppositeResult {
-                if (self.shiftResult < 0) {
-                }
-                else if (self.shiftResult < 0) {
-                }
-                else {
-                }
-                return [0, 1].contains(abs(shiftOppositeResult - abs(self.shiftResult)))
+        public var shiftOppositeEvenResultIndicator: String {
+            if let shiftOppositeEvenResult = self.shiftOppositeEvenResult {
+                return shiftOppositeEvenResult ? "\(self.shiftOppositeResult) ✓" : "\(self.shiftOppositeResult + 11) ✗"
             }
-            return nil
-            */
+            else {
+                return "\(self.shiftOppositeResult) -"
+            }
         }
     }
 
@@ -196,12 +171,12 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
 
         return DebugData(viewSize:              viewSize,
                          cellSize:              cellSize,
-                         cellSizeIncrement:         cellSizeIncrement,
                          shiftTotal:            shiftTotal,
                          viewCenter:            viewCenter,
                          viewCenterAdjusted:    viewCenterAdjusted,
                          cellCenter:            cellCenter,
                          cellCenterIndex:       cellCenterIndex(cellCenter, cellSize),
+                         cellSizeIncrement:     cellSizeIncrement,
                          cellSizeResult:        cellSizeIncremented,
                          cellCenterIndexResult: cellCenterIndex(cellCenter, cellSize + cellSizeIncrement),
                          shiftTotalResult:      shiftTotalResult,
@@ -228,7 +203,7 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
             " \("sht".lpad(5))" +
             " \("shc".lpad(4))" +
             " \("sh".lpad(4))" +
-            " \("sho".lpad(4))" +
+            " \("sho".lpad(5))" +
         "")
         print(
             " \("==".lpad(5))" +
@@ -249,7 +224,7 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
             " \("===".lpad(5))" +
             " \("---".lpad(4))" +
             " \("--".lpad(4))" +
-            " \("---".lpad(4))" +
+            " \("---".lpad(5))" +
         "")
         return
     }
@@ -275,9 +250,8 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
         " \(String(data.shiftTotalResult).lpad(5))" +
         " \(String(data.shiftCellResult).lpad(4))" +
         " \(String(data.shiftResult).lpad(4))" +
-        " \(String(data.shiftOppositeResult).lpad(4))" +
-        // " \((data.shiftOppositeResult != nil ? String(data.shiftOppositeResult!) : "-").lpad(4))" +
-        // (data.shiftOppositeResult != nil ? (data.shiftOppositeResultEven! ? " ✓" : " ✗") : "") +
+        " \(String(data.shiftOppositeEvenResultIndicator).lpad(5))" +
+        // " \((String(data.shiftOppositeResult) + (data.shiftOppositeEvenResult != nil ? (data.shiftOppositeEvenResult! ? " ✓" : " ✗") : " -")).lpad(5))" +
     "")
 }
 
