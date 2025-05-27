@@ -65,11 +65,36 @@ extension CellGridView
 
         // Returns the adjusted total shift value for the given view size (width or height), cell size and the amount
         // it is being incremented by, and the current total shift value, so that the cells within the view remain
-        // centered after the cell size adjusted by the give increment; this is the default behavior, but if a
-        // given view anchor factor is specified, then the "center" of the view is taken to be the given view
-        // size times this given view anchor factor (this is 0.5 by default giving the default centered behavior).
+        // centered (where they were at the current/given cell size and shift total values) and after the cell size
+        // has been adjusted by the given increment; this is the default behavior, but if a given view anchor factor
+        // is specified, then the "center" of the view is taken to be the given view size times this given view anchor
+        // factor (this is 0.5 by default giving the default centered behavior). This is only for handling zooming.
+        //
+        // This is tricky. Turns out it is literally impossible to compute this accurately for increments or more
+        // than one without actually going through iteratively and computing the result one increment at a time,
+        // due to the cummulative effects of rounding. Another possible solution is to define this function as
+        // working properly only for increments of one, and when zooming if this function would otherwise be called
+        // with increments greater than one, then manually manufacture zoom "events" for the intermediate steps,
+        // i.e. call the resizeCells function iteratively; if we were worried about performance with this iteratively
+        // looping solution here, that alternate solution would should be orders of magnitude less performant, but
+        // the result might (might) look even smoother, or it could just make things seem slower and sluggish.
         //
         private static func adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int,
+                                             viewAnchorFactor: Double = 0.5) -> Int {
+            let viewCenter: Double = Double(viewSize) * viewAnchorFactor
+            let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
+            var cellSizeResult: Int = cellSize
+            var shiftTotalResult: Int = shiftTotal
+            let increment: Int = cellSizeIncrement > 0 ? 1 : -1
+            for _ in 0..<abs(cellSizeIncrement){
+                let shiftDelta: Double = (viewCenterAdjusted * Double(increment)) / Double(cellSizeResult)
+                cellSizeResult += increment
+                shiftTotalResult = Int(((cellSizeResult % 2 == 0) ? ceil : floor)(Double(shiftTotalResult) - shiftDelta))
+            }
+            return shiftTotalResult
+        }
+
+        private static func old_adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int,
                                              viewAnchorFactor: Double = 0.5) -> Int {
             let viewCenter:          Double = Double(viewSize) * viewAnchorFactor
             let viewCenterAdjusted:  Double = viewCenter - Double(shiftTotal)
