@@ -69,7 +69,6 @@ extension CellGridView
         // given view anchor factor is specified, then the "center" of the view is taken to be the given view
         // size times this given view anchor factor (this is 0.5 by default giving the default centered behavior).
         //
-
         private static func adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int,
                                              viewAnchorFactor: Double = 0.5) -> Int {
             let viewCenter:          Double = Double(viewSize) * viewAnchorFactor
