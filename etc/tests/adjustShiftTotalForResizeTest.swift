@@ -122,7 +122,6 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
             // Only return a (non-nil) result if the starting (not result) appeared to be evenly balanced.
             //
             guard self.shiftOppositeEven else { return nil }
-            // return [0, 1].contains(abs(abs(self.shiftResult) - self.shiftOppositeResult))
             return (self.shiftResult <= 0) ? [0,  1].contains(self.shiftOppositeResult + self.shiftResult)
                                            : [0, -1].contains(self.shiftOppositeResult - self.shiftResult)
         }
