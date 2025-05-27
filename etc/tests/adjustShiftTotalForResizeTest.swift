@@ -121,7 +121,7 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
 
         public var shiftOppositeEvenResultIndicator: String {
             if let shiftOppositeEvenResult = self.shiftOppositeEvenResult {
-                return shiftOppositeEvenResult ? "\(self.shiftOppositeResult) ✓" : "\(self.shiftOppositeResult + 11) ✗"
+                return shiftOppositeEvenResult ? "\(self.shiftOppositeResult) ✓" : "\(self.shiftOppositeResult) ✗"
             }
             else {
                 return "\(self.shiftOppositeResult) -"
