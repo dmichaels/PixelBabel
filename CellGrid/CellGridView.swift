@@ -501,12 +501,12 @@ class CellGridView
                                  " vwe: [\(self._viewWidthExtra)]" +
                                  " shc: [\(self.shiftCellX),\(shiftCellY)]" +
                                  " sh: [\(self.shiftScaledX),\(shiftScaledY)]" +
-                                 " sh-un: [\(self.shiftX),\(self.shiftY)]" +
+                                 " sh-u: [\(self.shiftX),\(self.shiftY)]" +
                                  " sht: [\(self.shifted(scaled: true).x),\(self.shifted(scaled: true).y)]" +
-                                 " sht-un: [\(self.shifted.x),\(self.shifted.y)]" +
+                                 " sht-u: [\(self.shifted.x),\(self.shifted.y)]" +
                                  " bm: \(self._bufferBlocks.memoryUsageBytes)" +
                                  " cs: \(self.cellSizeScaled)" +
-                                 " cs-un: \(self.cellSize)" +
+                                 " cs-u: \(self.cellSize)" +
                                  " vc: \(self.viewColumns)" +
                                  " vce: \(self._viewColumnsExtra)" +
                                  " vcv: \(self.viewColumnsVisible)" +
