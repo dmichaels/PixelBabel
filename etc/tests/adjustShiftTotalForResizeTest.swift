@@ -163,7 +163,7 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
         }
 
         public var shiftOppositeIndicator: String {
-            shiftOppositeEven ? "\(self.shiftOpposite) ✓" : "\(self.shiftOpposite) ✗"
+            shiftOppositeEven ? "✓ \(self.shiftOpposite)" : "✗ \(self.shiftOpposite)"
         }
 
         public var shiftOppositeResult: Int {
@@ -182,7 +182,7 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
 
         public var shiftOppositeEvenIndicatorResult: String {
             if let shiftOppositeEvenResult = self.shiftOppositeEvenResult {
-                return shiftOppositeEvenResult ? "\(self.shiftOppositeResult) ✓" : "\(self.shiftOppositeResult) ✗"
+                return shiftOppositeEvenResult ? "✓ \(self.shiftOppositeResult)" : "✗ \(self.shiftOppositeResult)"
             }
             else {
                 return "\(self.shiftOppositeResult) -"
@@ -269,16 +269,14 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
             " \("cs".lpad(4))" +
             " \("ci".lpad(4))" +
             " \("cc".lpad(5))" +
-            "  \("cci".rpad(7))" +
+            "  \("cci".rpad(8))" +
             " \("sht".lpad(5))" +
             " \("shc".lpad(4))" +
             " \("sh".lpad(4))" +
             " \("sho".lpad(5))" + // <<<<<<<
             "   >>>" +
             " \("cs".lpad(4))" +
-            "  \("cci".rpad(7))" +
-            " \("shdr".lpad(6))" +
-            " \("shdr2".lpad(6))" +
+            "  \("cci".rpad(8))" +
             " \("shd".lpad(5))" +
             " \("sht".lpad(5))" +
             " \("shc".lpad(4))" +
@@ -292,16 +290,14 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
             " \("==".lpad(4))" +
             " \("==".lpad(4))" +
             " \("--".lpad(5))" +
-            "  \("---".rpad(7))" +
+            "  \("---".rpad(8))" +
             " \("===".lpad(5))" +
             " \("---".lpad(4))" +
             " \("---".lpad(4))" +
             " \("---".lpad(5))" + // <<<<<<<
             " \("  >>>")" +
             " \("--".lpad(4))" +
-            "  \("---".rpad(7))" +
-            " \("-----".lpad(6))" +
-            " \("----".lpad(6))" +
+            "  \("---".rpad(8))" +
             " \("---".lpad(5))" +
             " \("===".lpad(5))" +
             " \("---".lpad(4))" +
@@ -320,16 +316,16 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
         " \(String(data.cellSize).lpad(4))" +
         " \(String(format: "%+d", data.cellSizeIncrement).lpad(4))" +
         " \(String(format: "%.2f", data.cellCenter).lpad(5))" +
-        "  \(data.cellCenterIndex.rpad(7))" +
+        "  \(data.cellCenterIndex.rpad(8))" +
         " \(String(data.shiftTotal).lpad(5))" +
         " \(String(data.shiftCell).lpad(4))" +
         " \(String(data.shift).lpad(4))" +
         " \(String(data.shiftOppositeIndicator).lpad(5))" +
         "   >>>" +
         " \(String(format: "%4d", data.cellSizeResult))" +
-        "  \(data.cellCenterIndexResult.rpad(7))" +
-        " \(String(format: "%.2f", data.shiftDeltaRaw).lpad(6))" +
-        " \(String(format: "%.2f", data.shiftDeltaRaw2).lpad(6))" +
+        "  \(data.cellCenterIndexResult.rpad(8))" +
+        // " \(String(format: "%.2f", data.shiftDeltaRaw).lpad(6))" +
+        // " \(String(format: "%.2f", data.shiftDeltaRaw2).lpad(6))" +
         " \(String(format: "%.2f", data.shiftDelta).lpad(5))" +
         " \(String(data.shiftTotalResult).lpad(5))" +
         " \(String(data.shiftCellResult).lpad(4))" +
@@ -441,5 +437,8 @@ debug([
 // print(adjustShiftTotalSAVE(viewSize: 1161, cellSize: 140, cellSizeIncrement: 4, shiftTotal: -49))
 // print(adjustShiftTotal    (viewSize: 17, cellSize: 6, cellSizeIncrement: 1, shiftTotal: 0))
 // print(adjustShiftTotalSAVE(viewSize: 17, cellSize: 6, cellSizeIncrement: 1, shiftTotal: 0))
-// adjustShiftTotalDebug(viewSize: 0, cellSize: 0, cellSizeIncrement: 0, shiftTotal: 0)
-adjustShiftTotalDebug(viewSize: 17, cellSize: 6, cellSizeIncrement: 1, shiftTotal: 0)
+
+print()
+adjustShiftTotalDebug(viewSize: 0, cellSize: 0, cellSizeIncrement: 0, shiftTotal: 0)
+adjustShiftTotalDebug(viewSize: 1161, cellSize: 129, cellSizeIncrement: 18, shiftTotal: 0)
+adjustShiftTotalDebug(viewSize: 1161, cellSize: 129, cellSizeIncrement: 24, shiftTotal: 0)
