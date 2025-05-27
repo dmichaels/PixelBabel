@@ -106,13 +106,8 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
         }
 
         public var shiftOppositeEven: Bool {
-            // [0, 1].contains(abs(abs(self.shift) - self.shiftOpposite))
-            if (self.shift <= 0) {
-                return [0, 1].contains(self.shiftOpposite + self.shift)
-            }
-            else {
-                return [0, -1].contains(self.shiftOpposite - self.shift)
-            }
+            (self.shift <= 0) ? [0,  1].contains(self.shiftOpposite + self.shift)
+                              : [0, -1].contains(self.shiftOpposite - self.shift)
         }
 
         public var shiftOppositeIndicator: String {
@@ -129,8 +124,9 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
             // Only return a (non-nil) result if the starting (not result) appeared to be evenly balanced.
             //
             guard self.shiftOppositeEven else { return nil }
-            // guard abs(self.shift) == self.shiftOpposite else { return nil }
-            return [0, 1].contains(abs(abs(self.shiftResult) - self.shiftOppositeResult))
+            // return [0, 1].contains(abs(abs(self.shiftResult) - self.shiftOppositeResult))
+            return (self.shiftResult <= 0) ? [0,  1].contains(self.shiftOppositeResult + self.shiftResult)
+                                           : [0, -1].contains(self.shiftOppositeResult - self.shiftResult)
         }
 
         public var shiftOppositeEvenIndicatorResult: String {
