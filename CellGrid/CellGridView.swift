@@ -204,6 +204,7 @@ class CellGridView
         //
         // TODO
         // Not sure this is being imposed correctly ...
+        // Think if we reach the max better make sure not to do anything else like shift etc; havent thought through ...
         //
         var cellSize = cellSize.clamped(cellSizeInnerMin + (cellPadding * 2)...cellSizeMax)
 
