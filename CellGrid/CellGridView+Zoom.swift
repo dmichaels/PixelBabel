@@ -80,7 +80,7 @@ extension CellGridView
         // the result might (might) look even smoother, or it could just make things seem slower and sluggish.
         //
         // Ask ChatGPT to explain further if you want to understand more about why this kind of problem requires
-        // an iterative solution and cannot be computed directly in one go; it refers to this as any of:
+        // an iterative solution and cannot be computed directly in one go; it refers to this problem as any of:
         //
         // - Iterative Process Recurrence Relation:
         //   Where each output is a function of the previous step.
