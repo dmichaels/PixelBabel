@@ -65,9 +65,9 @@ extension CellGridView
 
         // Returns the adjusted total shift value for the given view size (width or height), cell size and the amount
         // it is being incremented by, and the current total shift value, so that the cells within the view remain
-        // centered (where they were at the current/given cell size and shift total values) and after the cell size
-        // has been adjusted by the given increment; this is the default behavior, but if a given view anchor factor
-        // is specified, then the "center" of the view is taken to be the given view size times this given view anchor
+        // centered (where they were at the current/given cell size and shift total values) after the cell size has
+        // been adjusted by the given increment; this is the default behavior, but if a given view anchor factor is
+        // specified, then the "center" of the view is taken to be the given view size times this given view anchor
         // factor (this is 0.5 by default giving the default centered behavior). This is only for handling zooming.
         //
         // This is tricky. Turns out it is literally impossible to compute this accurately for increments or more
@@ -79,6 +79,18 @@ extension CellGridView
         // looping solution here, that alternate solution would should be orders of magnitude less performant, but
         // the result might (might) look even smoother, or it could just make things seem slower and sluggish.
         //
+        // Ask ChatGPT to explain further if you want to understand more about why this kind of problem requires
+        // an iterative solution and cannot be computed directly in one go; it refers to this as any of:
+        //
+        // - Iterative Process Recurrence Relation:
+        //   Where each output is a function of the previous step.
+        // - Nonlinear Recurrence with Discretization:
+        //   Where rounding/floor/ceil is a nonlinear, discontinuous transformation.
+        // - Non-associative Arithmetic:
+        //   Where combining steps cannot be merged into a single step due to the transformation applied at each.
+        // - Path Dependence:
+        //   In economics and computation, where this means that the result depends on the sequence of steps taken.
+        //
         private static func adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int,
                                              viewAnchorFactor: Double = 0.5) -> Int {
             let viewCenter: Double = Double(viewSize) * viewAnchorFactor
@@ -86,42 +98,13 @@ extension CellGridView
             var cellSizeResult: Int = cellSize
             var shiftTotalResult: Int = shiftTotal
             let increment: Int = cellSizeIncrement > 0 ? 1 : -1
-            for _ in 0..<abs(cellSizeIncrement){
+            for _ in 0..<abs(cellSizeIncrement) {
                 viewCenterAdjusted = viewCenter - Double(shiftTotalResult)
                 let shiftDelta: Double = (viewCenterAdjusted * Double(increment)) / Double(cellSizeResult)
                 cellSizeResult += increment
                 shiftTotalResult = Int(((cellSizeResult % 2 == 0) ? ceil : floor)(Double(shiftTotalResult) - shiftDelta))
             }
             return shiftTotalResult
-        }
-
-        private static func old_adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int,
-                                             viewAnchorFactor: Double = 0.5) -> Int {
-            let viewCenter:          Double = Double(viewSize) * viewAnchorFactor
-            let viewCenterAdjusted:  Double = viewCenter - Double(shiftTotal)
-            let cellCenter:          Double = viewCenterAdjusted / Double(cellSize)
-            let cellSizeIncremented: Int    = cellSize + cellSizeIncrement
-            let shiftDelta:          Double = cellCenter * Double(cellSizeIncremented) - viewCenterAdjusted
-            let round                       = ((cellSizeIncremented) % 2 == 0) ? ceil : floor
-            return Int(round(Double(shiftTotal) - shiftDelta))
-        }
-
-        private static func older_adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int,
-                                                 viewAnchorFactor: Double = 0.5) -> Int {
-            let viewCenter:         Double = Double(viewSize) * viewAnchorFactor
-            let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
-            let cellCenter:         Double = viewCenterAdjusted / Double(cellSize)
-            let shiftDelta:         Double = cellCenter * Double(cellSize + cellSizeIncrement) - viewCenterAdjusted
-            return Int(round(Double(shiftTotal) - shiftDelta))
-        }
-
-        private static func oldest_adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
-                                                   shiftTotal: Int, viewAnchorFactor: Double = 0.5) -> Int {
-            let viewCenter: Double = Double(viewSize) * viewAnchorFactor
-            let round: (Double) -> Double = cellSizeIncrement > 0 ? (cellSize % 2 == 0 ? ceil : floor)
-                                                                  : (cellSize % 2 == 0 ? floor : ceil)
-            let cellsFromCenter: Int = Int(round((viewCenter - Double(shiftTotal)) / Double(cellSize)))
-            return shiftTotal - (cellsFromCenter * cellSizeIncrement)
         }
     }
 }
