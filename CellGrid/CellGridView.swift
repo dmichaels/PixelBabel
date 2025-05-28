@@ -684,45 +684,6 @@ class CellGridView
         }
     }
 
-    public func resizeCells(cellSize: Int, shiftX: Int = 0, shiftY: Int = 0, scaled: Bool = false, adjustShift: Bool = false) {
-        let cellSizeCurrent: Int = scaled ? self.cellSizeScaled : self.cellSize
-        if (cellSize != cellSizeCurrent) {
-            let cellPaddingCurrent: Int = scaled ? self.cellPaddingScaled : self.cellPadding
-            if (scaled) {
-                self.configureScaled(cellSize: cellSize,
-                                     cellPadding: cellPaddingCurrent,
-                                     cellShape: self.cellShape,
-                                     viewWidth: self.viewWidthScaled,
-                                     viewHeight: self.viewHeightScaled,
-                                     viewBackground: self.viewBackground,
-                                     viewTransparency: self.viewTransparency,
-                                     viewScaling: self.viewScaling)
-            }
-            else {
-                self.configure(cellSize: cellSize,
-                               cellPadding: cellPaddingCurrent,
-                               cellShape: self.cellShape,
-                               viewWidth: self.viewWidth,
-                               viewHeight: self.viewHeight,
-                               viewBackground: self.viewBackground,
-                               viewTransparency: self.viewTransparency,
-                               viewScaling: self.viewScaling)
-            }
-            let cellSizeCurrent: Int = scaled ? self.cellSizeScaled : self.cellSize
-            if (cellSize != cellSizeCurrent) {
-                //
-                // Here we must have reached the max cell-size.
-                //
-                // let shiftedCurrent: CellLocation = scaled ? self.shifted(scaled: true) : self.shifted
-                let shiftedCurrent: CellLocation = self.shifted(scaled: scaled)
-                self.shift(shiftx: shiftedCurrent.x, shifty: shiftedCurrent.y, scaled: scaled)
-            }
-            else {
-                self.shift(shiftx: shiftX, shifty: shiftY, scaled: scaled)
-            }
-        }
-    }
-
     public func resizeCells(cellSize: Int, adjustShift: Bool, scaled: Bool = false) {
         let cellSize: Int = !scaled ? self.scaled(cellSize) : cellSize
         if (cellSize != self.cellSizeScaled) {

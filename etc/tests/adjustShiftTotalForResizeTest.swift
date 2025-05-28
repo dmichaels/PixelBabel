@@ -379,7 +379,6 @@ func debug(_ data: [AdjustShiftTotalTestData], f: AdjustShiftTotalAlgorithm? = n
     }
 }
 
-/* ...
 debug([
     AdjustShiftTotalTestData(vs: 17, cs: 5, ci: 1, sht:   0, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 17, cs: 6, ci: 1, sht:  -1, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
@@ -393,7 +392,6 @@ debug([
     AdjustShiftTotalTestData(vs: 20, cs: 8, ci: 1, sht:  -6, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 20, cs: 9, ci: 1, sht:  -8, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
 ], f: AdjustShiftTotalAlgorithm.DEFAULT)
-... */
 
 debug([
     AdjustShiftTotalTestData(vs: 1161, cs: 129, ci: +1, sht:   0, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
@@ -419,14 +417,14 @@ debug([
     AdjustShiftTotalTestData(vs: 1161, cs: 140, ci: +4, sht: -49, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 1161, cs: 129, ci: 18, sht: 0, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 1161, cs: 133, ci: 76, sht: -18, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    // AdjustShiftTotalTestData(vs: 1161, cs: 148, ci: +1, sht: -85, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    // AdjustShiftTotalTestData(vs: 1161, cs: 149, ci: +1, sht: -90, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 1161, cs: 148, ci: +1, sht: -85, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 1161, cs: 149, ci: +1, sht: -90, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 1161, cs: 162, ci: 438, sht: -148, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
 
     // Going from 143 to 144 OK but not from 140 to 144
 
 ], f: AdjustShiftTotalAlgorithm.DEFAULT)
 
-/* ...
 debug([
     AdjustShiftTotalTestData(vs: 1161, cs: 140, ci: +1, sht: -49, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 1161, cs: 141, ci: +1, sht: -54, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
@@ -434,61 +432,3 @@ debug([
     AdjustShiftTotalTestData(vs: 1161, cs: 143, ci: +1, sht: -63, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 1161, cs: 140, ci: +4, sht: -49, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
 ], f: AdjustShiftTotalAlgorithm.DEFAULT)
-... */
-
-//    vs      vc     vca   cs   ci    cc  cci       sht  shc   sh   sho   >>>   cs  cci       shd   sht  shc   sh   sho
-//    ==      --     ---   ==   ==    --  ---       ===  ---  ---   ---   >>>   --  ---       ---   ===  ---   --   ---
-//  1161  580.50  580.50  129   +1  4.50  4#64.50     0    0    0   0 ✓   >>>  130  4#65     4.50    -4    0   -4   5 ✓
-//  1161  580.50  584.50  130   +1  4.50  4#64.50    -4    0   -4   5 ✓   >>>  131  4#65.00  4.50    -9    0   -9   9 ✓
-//  1161  580.50  589.50  131   +1  4.50  4#65.50    -9    0   -9   9 ✓   >>>  132  4#66     4.50   -13    0  -13  14 ✓
-//  1161  580.50  593.50  132   +1  4.50  4#65.50   -13    0  -13  14 ✓   >>>  133  4#66.00  4.50   -18    0  -18  18 ✓
-//  1161  580.50  598.50  133   +1  4.50  4#66.50   -18    0  -18  18 ✓   >>>  134  4#67     4.50   -22    0  -22  23 ✓
-//  1161  580.50  602.50  134   +1  4.50  4#66.50   -22    0  -22  23 ✓   >>>  135  4#67.00  4.50   -27    0  -27  27 ✓
-//  1161  580.50  607.50  135   +1  4.50  4#67.50   -27    0  -27  27 ✓   >>>  136  4#68     4.50   -31    0  -31  32 ✓
-//  1161  580.50  611.50  136   +1  4.50  4#67.50   -31    0  -31  32 ✓   >>>  137  4#68.00  4.50   -36    0  -36  36 ✓
-//  1161  580.50  616.50  137   +1  4.50  4#68.50   -36    0  -36  36 ✓   >>>  138  4#69     4.50   -40    0  -40  41 ✓
-//  1161  580.50  620.50  138   +1  4.50  4#68.50   -40    0  -40  41 ✓   >>>  139  4#69.00  4.50   -45    0  -45  45 ✓
-//  1161  580.50  625.50  139   +1  4.50  4#69.50   -45    0  -45  45 ✓   >>>  140  4#70     4.50   -49    0  -49  50 ✓
-//  1161  580.50  629.50  140   +1  4.50  4#69.50   -49    0  -49  50 ✓   >>>  141  4#70.00  4.50   -54    0  -54  54 ✓
-//  1161  580.50  634.50  141   +1  4.50  4#70.50   -54    0  -54  54 ✓   >>>  142  4#71     4.50   -58    0  -58  59 ✓
-//  1161  580.50  638.50  142   +1  4.50  4#70.50   -58    0  -58  59 ✓   >>>  143  4#71.00  4.50   -63    0  -63  63 ✓
-//  1161  580.50  643.50  143   +1  4.50  4#71.50   -63    0  -63  63 ✓   >>>  144  4#72     4.50   -67    0  -67  68 ✓ <<<
-//  1161  580.50  647.50  144   +1  4.50  4#71.50   -67    0  -67  68 ✓   >>>  145  4#72.00  4.50   -72    0  -72  72 ✓
-//  1161  580.50  652.50  145   +1  4.50  4#72.50   -72    0  -72  72 ✓   >>>  146  4#73     4.50   -76    0  -76  77 ✓
-//  1161  580.50  656.50  146   +1  4.50  4#72.50   -76    0  -76  77 ✓   >>>  147  4#73.00  4.50   -81    0  -81  81 ✓
-//  1161  580.50  661.50  147   +1  4.50  4#73.50   -81    0  -81  81 ✓   >>>  148  4#74     4.50   -85    0  -85  86 ✓
-//  1161  580.50  665.50  148   +1  4.50  4#73.50   -85    0  -85  86 ✓   >>>  149  4#74.00  4.50   -90    0  -90  90 ✓
-//  1161  580.50  670.50  149   +1  4.50  4#74.50   -90    0  -90  90 ✓   >>>  150  4#75     4.50   -94    0  -94  95 ✓
-//  1161  580.50  629.50  140   +4  4.50  4#69.50   -49    0  -49  50 ✓   >>>  144  4#71.49 17.99   -66    0  -66  69 ✗ <<<
-
-//  1161  580.50  643.50  143   +1  4.50  4#71.50   -63    0  -63  63 ✓   >>>  144  4#72     4.50   -67    0  -67  68 ✓ <<<
-//  1161  580.50  629.50  140   +4  4.50  4#69.50   -49    0  -49  50 ✓   >>>  144  4#71.49 17.99   -66    0  -66  69 ✗ <<<
-
-//print(adjustShiftTotal(viewSize: 1161, cellSize: 140, cellSizeIncrement: 1, shiftTotal: -49))
-//print(adjustShiftTotal(viewSize: 1161, cellSize: 141, cellSizeIncrement: 1, shiftTotal: -54))
-//print(adjustShiftTotal(viewSize: 1161, cellSize: 142, cellSizeIncrement: 1, shiftTotal: -58))
-//print(adjustShiftTotal(viewSize: 1161, cellSize: 143, cellSizeIncrement: 1, shiftTotal: -63))
-
-//print(adjustShiftTotal(viewSize: 1161, cellSize: 140, cellSizeIncrement: 4, shiftTotal: -49)) // i want this to be -67 like above
-
-// print(adjustShiftTotal    (viewSize: 20, cellSize: 5, cellSizeIncrement: 800, shiftTotal: 0))
-// print(adjustShiftTotalSAVE(viewSize: 20, cellSize: 5, cellSizeIncrement: 800, shiftTotal: 0))
-
-// print(adjustShiftTotal    (viewSize: 1161, cellSize: 140, cellSizeIncrement: 4, shiftTotal: -49))
-// print(adjustShiftTotalSAVE(viewSize: 1161, cellSize: 140, cellSizeIncrement: 4, shiftTotal: -49))
-// print(adjustShiftTotal    (viewSize: 17, cellSize: 6, cellSizeIncrement: 1, shiftTotal: 0))
-// print(adjustShiftTotalSAVE(viewSize: 17, cellSize: 6, cellSizeIncrement: 1, shiftTotal: 0))
-
-// print()
-// adjustShiftTotalDebug(viewSize: 0, cellSize: 0, cellSizeIncrement: 0, shiftTotal: 0)
-// adjustShiftTotalDebug(viewSize: 1161, cellSize: 129, cellSizeIncrement: 18, shiftTotal: 0)
-// adjustShiftTotalDebug(viewSize: 1161, cellSize: 129, cellSizeIncrement: 24, shiftTotal: 0)
-// adjustShiftTotalDebug(viewSize: 0, cellSize: 0, cellSizeIncrement: 0, shiftTotal: 0)
-//SHIFTSC(-292,-639)> 0.01698s vw: [1161] vwe: [116] shc: [-1,-3] sh: [-83,-12] sh-u: [-28,-4] sht: [-292,-639] sht-u: [-98,-214] bm: 21296 cs: 209 cs-u: 70 vc: 5 vce: 1 vcv: 6 vcev: 5 shr: 10 ok: false
-
-// SHIFTSC(-148,-330)> 0.02230s vw: [1161] vwe: [27] shc: [0,-2] sh: [-148,-6] sh-u: [-49,-2] sht: [-148,-330] sht-u: [-49,-110] bm: 13088 cs: 162 cs-u: 54 vc: 7 vce: 2 vcv: 9 vcev: 8 shr: 149 ok: true
-// SHIFTSC(-148,-1206)> 0.03449s vw: [1161] vwe: [561] shc: [0,-2] sh: [-148,-6] sh-u: [-49,-2] sht: [-148,-1206] sht-u: [-49,-402] bm: 55936 cs: 600 cs-u: 200 vc: 1 vce: 2 vcv: 3 vcev: 2 shr: 491 ok: false
-print("FOOY")
-adjustShiftTotalDebug(viewSize: 1161, cellSize: 162, cellSizeIncrement: 438, shiftTotal: -148)
-print("GOOY")
-print(adjustShiftTotal(viewSize: 1161, cellSize: 162, cellSizeIncrement: 438, shiftTotal: -148))
