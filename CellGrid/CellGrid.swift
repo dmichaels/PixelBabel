@@ -195,14 +195,10 @@ class CellGrid: ObservableObject
                 }
                 else if ((cell.x == 3) && (cell.y == 8)) { // resize -1 scaled | dark green
                     let cellSize: Int = cellGridView.cellSizeScaled - increment
-                    // let (shiftX, shiftY) = CellGridView.Zoom.calculateShiftForResizeCells(cellGridView: cellGridView, cellSize: cellSize, scaled: true)
-                    // cellGridView.resizeCells(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY, scaled: true)
                     cellGridView.resizeCells(cellSize: cellSize, adjustShift: true, scaled: true)
                 }
                 else if ((cell.x == 4) && (cell.y == 8)) { // resize +1 scaled | dark purple
                     let cellSize: Int = cellGridView.cellSizeScaled + increment
-                    // let (shiftX, shiftY) = CellGridView.Zoom.calculateShiftForResizeCells(cellGridView: cellGridView, cellSize: cellSize, scaled: true)
-                    // cellGridView.resizeCells(cellSize: cellSize, shiftX: shiftX, shiftY: shiftY, scaled: true)
                     cellGridView.resizeCells(cellSize: cellSize, adjustShift: true, scaled: true)
                 }
                 else if ((cell.x == 5) && (cell.y == 9)) { // toggle scaled | yellow
