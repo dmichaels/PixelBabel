@@ -721,9 +721,9 @@ class CellGridView
         var cellSize = cellSize.clamped(cellSizeInnerMin + (cellPaddingScaled * 2)...cellSizeMax)
         if (cellSize != self.cellSizeScaled) {
             //
-            // We need to get the new and current shift values here BEFORE the re-configure below,
-            // for either contingency (i.e. where the resize takes, or not due to reaching the maximum
-            // allowed cell size), because they  both depend on  the cell size which is updated by the re-configure.
+            // We need to get the new and current shift values here BEFORE the re-configure below, for
+            // either contingency (i.e. where the resize takes, or not due to reaching the maximum allowed
+            // cell size), because they  both depend on the cell size which is updated by the re-configure.
             // TODO: Think we can rework things so as not to require this ordering/dependency.
             //
             let (shiftX, shiftY) = Zoom.calculateShiftForResizeCells(cellGridView: self, cellSize: cellSize, scaled: true)
