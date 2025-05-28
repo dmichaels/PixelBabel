@@ -86,7 +86,7 @@ extension CellGridView
         //   Where each output is a function of the previous step.
         // - Nonlinear Recurrence with Discretization:
         //   Where rounding/floor/ceil is a nonlinear, discontinuous transformation.
-        // - Non-associative Arithmetic:
+        // - Nonassociative Arithmetic:
         //   Where combining steps cannot be merged into a single step due to the transformation applied at each.
         // - Path Dependence:
         //   In economics and computation, where this means that the result depends on the sequence of steps taken.
