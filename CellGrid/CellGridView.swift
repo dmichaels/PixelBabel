@@ -715,7 +715,11 @@ class CellGridView
     }
 
     public func resizeCells(cellSize: Int, adjustShift: Bool, scaled: Bool = false) {
-        var cellSize = cellSize.clamped(self.scaled(Defaults.cellSizeInnerMin) + (self.scaled(self.cellPaddingScaled) * 2)...self.scaled(Defaults.cellSizeMax))
+        var cellSizeMax: Int = self.scaled(Defaults.cellSizeMax)
+        var cellPadding: Int = self.scaled(self.cellPaddingScaled)
+        var cellSizeInnerMin: Int = self.scaled(Defaults.cellSizeInnerMin)
+        // var cellSize = cellSize.clamped(self.scaled(Defaults.cellSizeInnerMin) + (self.scaled(self.cellPaddingScaled) * 2)...self.scaled(Defaults.cellSizeMax))
+        var cellSize = cellSize.clamped(cellSizeInnerMin + (cellPaddingScaled * 2)...cellSizeMax)
         if (cellSize != self.cellSizeScaled) {
             //
             // We need to get the new and current shift values here BEFORE the re-configure below,
