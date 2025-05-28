@@ -201,6 +201,10 @@ class CellGridView
         let cellSizeInnerMin: Int = self.scaled(Defaults.cellSizeInnerMin)
         let cellSizeMax: Int = self.scaled(Defaults.cellSizeMax)
         var cellPadding: Int = cellPadding.clamped(0...cellPaddingMax)
+        //
+        // TODO
+        // Not sure this is being imposed correctly ...
+        //
         var cellSize = cellSize.clamped(cellSizeInnerMin + (cellPadding * 2)...cellSizeMax)
 
         // N.B. It is important that this happens here first
@@ -494,8 +498,21 @@ class CellGridView
         }
 
         #if targetEnvironment(simulator)
-            let xyzzy = abs(abs(self.shiftScaledXR) - abs(self.shiftScaledX))
-            let okay =  (xyzzy == 1) || (xyzzy == 0)
+            //let xyzzy = abs(abs(self.shiftScaledXR) - abs(self.shiftScaledX))
+            // let okay =  (xyzzy == 1) || (xyzzy == 0)
+            //// let okay =  (xyzzy == 1) || (xyzzy == 0) || ((self.shiftScaledX == -(self.cellSize - 1)) && (self.shiftScaledXR == 0))
+            var okay: Bool = false
+            if [0, 1].contains(abs(abs(self.shiftScaledXR) - abs(self.shiftScaledX))) {
+                okay = true
+            }
+            else if ((self.shiftScaledX == -(self.cellSizeScaled - 1)) && (self.shiftScaledXR == 0)) {
+                okay = true
+            }
+            else if (self.shiftScaledX > 0) {
+                if [0, 1].contains(abs(self.shiftScaledX - (self.cellSizeScaled - self.shiftScaledXR))) {
+                    okay = true
+                }
+            }
             print(String(format: "SHIFTSC(\(shiftx),\(shifty))> %.5fs" +
                                  " vw: [\(self._viewWidth)]" +
                                  " vwe: [\(self._viewWidthExtra)]" +

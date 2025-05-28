@@ -82,11 +82,12 @@ extension CellGridView
         private static func adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int,
                                              viewAnchorFactor: Double = 0.5) -> Int {
             let viewCenter: Double = Double(viewSize) * viewAnchorFactor
-            let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
+            var viewCenterAdjusted: Double
             var cellSizeResult: Int = cellSize
             var shiftTotalResult: Int = shiftTotal
             let increment: Int = cellSizeIncrement > 0 ? 1 : -1
             for _ in 0..<abs(cellSizeIncrement){
+                viewCenterAdjusted = viewCenter - Double(shiftTotalResult)
                 let shiftDelta: Double = (viewCenterAdjusted * Double(increment)) / Double(cellSizeResult)
                 cellSizeResult += increment
                 shiftTotalResult = Int(((cellSizeResult % 2 == 0) ? ceil : floor)(Double(shiftTotalResult) - shiftDelta))

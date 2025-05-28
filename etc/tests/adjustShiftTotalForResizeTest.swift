@@ -83,6 +83,21 @@ struct AdjustShiftTotalAlgorithm {
         func adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int) -> Int {
             let viewAnchorFactor: Double = 0.5
             let viewCenter: Double = Double(viewSize) * viewAnchorFactor
+            var viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
+            var cellSizeResult: Int = cellSize
+            var shiftTotalResult: Int = shiftTotal
+            let increment: Int = cellSizeIncrement > 0 ? 1 : -1
+            for _ in 0..<abs(cellSizeIncrement){
+                viewCenterAdjusted = viewCenter - Double(shiftTotalResult)
+                let shiftDelta: Double = (viewCenterAdjusted * Double(increment)) / Double(cellSizeResult)
+                cellSizeResult += increment
+                shiftTotalResult = Int(((cellSizeResult % 2 == 0) ? ceil : floor)(Double(shiftTotalResult) - shiftDelta))
+            }
+            return shiftTotalResult
+        }
+        func bug_adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int) -> Int {
+            let viewAnchorFactor: Double = 0.5
+            let viewCenter: Double = Double(viewSize) * viewAnchorFactor
             let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
             var cellSizeResult: Int = cellSize
             var shiftTotalResult: Int = shiftTotal
@@ -227,6 +242,7 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
         let shiftTotalResult:    Int    = Int(round(Double(shiftTotal) - shiftDelta))
 */
 
+        /*
         let viewAnchorFactor: Double = 0.5
         let viewCenter: Double = Double(viewSize) * viewAnchorFactor
         let viewCenterAdjusted: Double = viewCenter - Double(shiftTotal)
@@ -240,6 +256,24 @@ func adjustShiftTotalDebug(viewSize: Int, cellSize: Int, cellSizeIncrement: Int,
             shiftDelta = (viewCenterAdjusted * Double(increment)) / Double(cellSizeResult)
             cellSizeResult += increment
             shiftTotalResult = Int(((cellSizeResult % 2 == 0) ? ceil : floor)(Double(shiftTotalResult) - shiftDelta))
+            print("LOOP: \(shiftTotalResult)")
+        }
+        */
+        let viewAnchorFactor: Double = 0.5
+        let viewCenter: Double = Double(viewSize) * viewAnchorFactor
+        var viewCenterAdjusted: Double = 0.0
+        var cellSizeResult: Int = cellSize
+        var cellCenter: Double = 0.0
+        var shiftDelta: Double = 0.0
+        var shiftTotalResult: Int = shiftTotal
+        let increment: Int = cellSizeIncrement > 0 ? 1 : -1
+        for _ in 0..<abs(cellSizeIncrement){
+            viewCenterAdjusted = viewCenter - Double(shiftTotalResult)
+            cellCenter = viewCenterAdjusted / Double(cellSizeResult)
+            shiftDelta = (viewCenterAdjusted * Double(increment)) / Double(cellSizeResult)
+            cellSizeResult += increment
+            shiftTotalResult = Int(((cellSizeResult % 2 == 0) ? ceil : floor)(Double(shiftTotalResult) - shiftDelta))
+            // print("LOOP: \(shiftTotalResult)")
         }
 
         guard shiftTotalResult == adjustShiftTotal(viewSize: viewSize, cellSize: cellSize,
@@ -345,6 +379,7 @@ func debug(_ data: [AdjustShiftTotalTestData], f: AdjustShiftTotalAlgorithm? = n
     }
 }
 
+/* ...
 debug([
     AdjustShiftTotalTestData(vs: 17, cs: 5, ci: 1, sht:   0, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 17, cs: 6, ci: 1, sht:  -1, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
@@ -358,6 +393,7 @@ debug([
     AdjustShiftTotalTestData(vs: 20, cs: 8, ci: 1, sht:  -6, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 20, cs: 9, ci: 1, sht:  -8, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
 ], f: AdjustShiftTotalAlgorithm.DEFAULT)
+... */
 
 debug([
     AdjustShiftTotalTestData(vs: 1161, cs: 129, ci: +1, sht:   0, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
@@ -379,14 +415,18 @@ debug([
     AdjustShiftTotalTestData(vs: 1161, cs: 145, ci: +1, sht: -72, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 1161, cs: 146, ci: +1, sht: -76, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 1161, cs: 147, ci: +1, sht: -81, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    AdjustShiftTotalTestData(vs: 1161, cs: 148, ci: +1, sht: -85, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
-    AdjustShiftTotalTestData(vs: 1161, cs: 149, ci: +1, sht: -90, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+
+    AdjustShiftTotalTestData(vs: 1161, cs: 140, ci: +4, sht: -49, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 1161, cs: 129, ci: 18, sht: 0, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 1161, cs: 133, ci: 76, sht: -18, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    // AdjustShiftTotalTestData(vs: 1161, cs: 148, ci: +1, sht: -85, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    // AdjustShiftTotalTestData(vs: 1161, cs: 149, ci: +1, sht: -90, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
 
     // Going from 143 to 144 OK but not from 140 to 144
-    AdjustShiftTotalTestData(vs: 1161, cs: 140, ci: +4, sht: -49, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
 
 ], f: AdjustShiftTotalAlgorithm.DEFAULT)
 
+/* ...
 debug([
     AdjustShiftTotalTestData(vs: 1161, cs: 140, ci: +1, sht: -49, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 1161, cs: 141, ci: +1, sht: -54, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
@@ -394,6 +434,7 @@ debug([
     AdjustShiftTotalTestData(vs: 1161, cs: 143, ci: +1, sht: -63, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 1161, cs: 140, ci: +4, sht: -49, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
 ], f: AdjustShiftTotalAlgorithm.DEFAULT)
+... */
 
 //    vs      vc     vca   cs   ci    cc  cci       sht  shc   sh   sho   >>>   cs  cci       shd   sht  shc   sh   sho
 //    ==      --     ---   ==   ==    --  ---       ===  ---  ---   ---   >>>   --  ---       ---   ===  ---   --   ---
@@ -438,7 +479,16 @@ debug([
 // print(adjustShiftTotal    (viewSize: 17, cellSize: 6, cellSizeIncrement: 1, shiftTotal: 0))
 // print(adjustShiftTotalSAVE(viewSize: 17, cellSize: 6, cellSizeIncrement: 1, shiftTotal: 0))
 
-print()
-adjustShiftTotalDebug(viewSize: 0, cellSize: 0, cellSizeIncrement: 0, shiftTotal: 0)
-adjustShiftTotalDebug(viewSize: 1161, cellSize: 129, cellSizeIncrement: 18, shiftTotal: 0)
-adjustShiftTotalDebug(viewSize: 1161, cellSize: 129, cellSizeIncrement: 24, shiftTotal: 0)
+// print()
+// adjustShiftTotalDebug(viewSize: 0, cellSize: 0, cellSizeIncrement: 0, shiftTotal: 0)
+// adjustShiftTotalDebug(viewSize: 1161, cellSize: 129, cellSizeIncrement: 18, shiftTotal: 0)
+// adjustShiftTotalDebug(viewSize: 1161, cellSize: 129, cellSizeIncrement: 24, shiftTotal: 0)
+// adjustShiftTotalDebug(viewSize: 0, cellSize: 0, cellSizeIncrement: 0, shiftTotal: 0)
+//SHIFTSC(-292,-639)> 0.01698s vw: [1161] vwe: [116] shc: [-1,-3] sh: [-83,-12] sh-u: [-28,-4] sht: [-292,-639] sht-u: [-98,-214] bm: 21296 cs: 209 cs-u: 70 vc: 5 vce: 1 vcv: 6 vcev: 5 shr: 10 ok: false
+
+// SHIFTSC(-148,-330)> 0.02230s vw: [1161] vwe: [27] shc: [0,-2] sh: [-148,-6] sh-u: [-49,-2] sht: [-148,-330] sht-u: [-49,-110] bm: 13088 cs: 162 cs-u: 54 vc: 7 vce: 2 vcv: 9 vcev: 8 shr: 149 ok: true
+// SHIFTSC(-148,-1206)> 0.03449s vw: [1161] vwe: [561] shc: [0,-2] sh: [-148,-6] sh-u: [-49,-2] sht: [-148,-1206] sht-u: [-49,-402] bm: 55936 cs: 600 cs-u: 200 vc: 1 vce: 2 vcv: 3 vcev: 2 shr: 491 ok: false
+print("FOOY")
+adjustShiftTotalDebug(viewSize: 1161, cellSize: 162, cellSizeIncrement: 438, shiftTotal: -148)
+print("GOOY")
+print(adjustShiftTotal(viewSize: 1161, cellSize: 162, cellSizeIncrement: 438, shiftTotal: -148))
