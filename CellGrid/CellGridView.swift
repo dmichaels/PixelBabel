@@ -198,7 +198,7 @@ class CellGridView
         get { self._viewScaling }
         set {
             if (newValue != self._viewScaling) {
-                let shifted: CellLocation = self.shifted(scaled: true)
+                let shifted: CellLocation = self.shifted(scaled: newValue)
                 self.configure(cellSize: self.cellSize,
                                cellPadding: self.cellPadding,
                                cellShape: self.cellShape,
@@ -207,10 +207,7 @@ class CellGridView
                                viewBackground: self.viewBackground,
                                viewTransparency: self.viewTransparency,
                                viewScaling: newValue)
-                //
-                // TODO: This is messing up the shift we think ...
-                //
-                self.shift(shiftx: shifted.x, shifty: shifted.y, scaled: true)
+                self.shift(shiftx: shifted.x, shifty: shifted.y, scaled: newValue)
             }
         }
     }
@@ -482,9 +479,6 @@ class CellGridView
 
         // Map the grid-view location to the cell-grid location.
 
-        // TODO
-        // after resize scalled up by 1 and then down by 1 gridCellLocation(viewCellX, viewCellY) = gridCellFromViewCellLocation
-        // give okay result but not below ( i think ) ...
         let gridCellX: Int = viewCellX - self._shiftCellX - ((self._shiftX > 0) ? 1 : 0)
         let gridCellY: Int = viewCellY - self._shiftCellY - ((self._shiftY > 0) ? 1 : 0)
         //
