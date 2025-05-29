@@ -11,8 +11,8 @@ struct CellLocation: Equatable, CustomStringConvertible
     }
 
     init(_ point: CGPoint) {
-        self.x = Int(floor(point.x))
-        self.y = Int(floor(point.y))
+        self.x = Int(round(point.x))
+        self.y = Int(round(point.y))
     }
 
     init(_ x: CGFloat, _ y: CGFloat) {

@@ -1,8 +1,6 @@
 import Foundation
 import Utils
 
-// TODO
-//
 extension CellGridView
 {
     @MainActor
@@ -12,4 +10,6 @@ extension CellGridView
         public let startShiftedX: Int
         public let startShiftedY: Int
     }
+
+    // TODO
 }
