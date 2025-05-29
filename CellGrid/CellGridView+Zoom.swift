@@ -4,8 +4,8 @@ import Utils
 extension CellGridView
 {
     @MainActor
-    public struct Zoom {
-
+    public struct Zoom
+    {
         private let cellGridView: CellGridView
         public let startCellSize: Int
         private let startShiftedX: Int
