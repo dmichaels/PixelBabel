@@ -572,7 +572,7 @@ class CellGridView
         }
     }
 
-    public func resize(cellSize: Int, adjustShift: Bool, scaled: Bool = false) {
+    public func resize(cellSize: Int, adjustShift: Bool = true, scaled: Bool = false) {
         Zoom.resizeCells(cellGridView: self, cellSize: cellSize, adjustShift: adjustShift, scaled: scaled)
     }
 }
