@@ -140,6 +140,7 @@
 				"CellGridView+Zoom.swift",
 				CellLocation.swift,
 				CellShape.swift,
+				ViewPoint.swift,
 			);
 			target = 984AE8342D9904ED00DBCEDA /* PixelBabel */;
 		};
@@ -161,6 +162,7 @@
 				"CellGridView+Zoom.swift",
 				CellLocation.swift,
 				CellShape.swift,
+				ViewPoint.swift,
 			);
 			target = 98FFBFD02DBEBDD400C161DB /* CellGrid */;
 		};

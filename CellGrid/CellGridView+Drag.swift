@@ -16,8 +16,7 @@ extension CellGridView
             self.cellGridView = cellGridView
             self.startX = Int(round(viewPoint.x))
             self.startY = Int(round(viewPoint.y))
-            // let startShifted: CellLocation = cellGridView.shifted
-            let startShifted: ViewPoint = cellGridView.shifted
+            let startShifted: CellLocation = cellGridView.shifted
             self.startShiftedX = startShifted.x
             self.startShiftedY = startShifted.y
         }
