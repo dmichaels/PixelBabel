@@ -244,12 +244,12 @@ class CellGridView
     internal var shiftScaledX: Int         { self._shiftX }
     internal var shiftScaledY: Int         { self._shiftY }
 
-    internal var viewWidthScaled: Int       { self._viewWidth }
-    internal var viewHeightScaled: Int      { self._viewHeight }
-    internal var viewCellEndX: Int          { self._viewCellEndX }
-    internal var viewCellEndY: Int          { self._viewCellEndY }
-    internal var cellSizeScaled: Int        { self._cellSize }
-    internal var cellPaddingScaled: Int     { self._cellPadding }
+    internal var viewWidthScaled: Int      { self._viewWidth }
+    internal var viewHeightScaled: Int     { self._viewHeight }
+    internal var viewCellEndX: Int         { self._viewCellEndX }
+    internal var viewCellEndY: Int         { self._viewCellEndY }
+    internal var cellSizeScaled: Int       { self._cellSize }
+    internal var cellPaddingScaled: Int    { self._cellPadding }
 
     public var shifted: CellLocation {
         return CellLocation(self.shiftCellX * self.cellSize + self.shiftX,
