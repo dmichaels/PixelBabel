@@ -49,14 +49,14 @@ extension CellGridView
             //
             let shift = adjustShift ? Zoom.calculateShiftForResizeCells(cellGridView: cellGridView, cellSize: cellSize, scaled: true) : nil
             cellGridView.configure(cellSize: cellSize,
-                                 cellPadding: cellGridView.cellPaddingScaled,
-                                 cellShape: cellGridView.cellShape,
-                                 viewWidth: cellGridView.viewWidthScaled,
-                                 viewHeight: cellGridView.viewHeightScaled,
-                                 viewBackground: cellGridView.viewBackground,
-                                 viewTransparency: cellGridView.viewTransparency,
-                                 viewScaling: cellGridView.viewScaling,
-                                 scaled: true)
+                                   cellPadding: cellGridView.cellPaddingScaled,
+                                   cellShape: cellGridView.cellShape,
+                                   viewWidth: cellGridView.viewWidthScaled,
+                                   viewHeight: cellGridView.viewHeightScaled,
+                                   viewBackground: cellGridView.viewBackground,
+                                   viewTransparency: cellGridView.viewTransparency,
+                                   viewScaling: cellGridView.viewScaling,
+                                   scaled: true)
             if let shift = shift {
                 cellGridView.shift(shiftx: shift.x, shifty: shift.y, scaled: true)
             }
