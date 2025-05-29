@@ -24,16 +24,12 @@ class CellGrid: ObservableObject
         public static let cellColorMode: CellColorMode = CellColorMode.color
         public static let cellForeground: CellColor = CellColor(Color.teal) // CellColor.black
         public static let cellBackground: CellColor = CellColor(40, 40, 40)
-        public static let colorSpace = CGColorSpaceCreateDeviceRGB()
-        public static let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
     }
 
     private var _gridColumns: Int = 120
     private var _gridRows: Int = 21
     private var _cellGridView: CellGridView? = nil
     private var _cellFactory: Cell.Factory?
-    private var _dragStart: CellLocation? = nil
-    private var _dragStartShifted: CellLocation? = nil
     private var _dragger: CellGridView.Drag? = nil
     private var _zoomer: CellGridView.Zoom? = nil
 
@@ -133,7 +129,7 @@ class CellGrid: ObservableObject
                     }
                 }
             }
-            cells.shift(shiftx: 0, shifty: 0)
+            cells.shift(shiftx: 0, shifty: 0, scaled: false)
         }
 
     }
@@ -153,10 +149,10 @@ class CellGrid: ObservableObject
             if let cell: LifeCell = cellGridView.gridCell(viewPoint: location) {
                 let increment: Int = 1
                 if      ((cell.x == 3) && (cell.y == 5)) { // shift -1 unscaled | blue
-                    cellGridView.shift(shiftx: cellGridView.shifted.x - increment, shifty: cellGridView.shifted.y)
+                    cellGridView.shift(shiftx: cellGridView.shifted.x - increment, shifty: cellGridView.shifted.y, scaled: false)
                 }
                 else if ((cell.x == 4) && (cell.y == 5)) { // shift +1 unscaled | red
-                    cellGridView.shift(shiftx: cellGridView.shifted.x + increment, shifty: cellGridView.shifted.y)
+                    cellGridView.shift(shiftx: cellGridView.shifted.x + increment, shifty: cellGridView.shifted.y, scaled: false)
                 }
                 else if ((cell.x == 3) && (cell.y == 6)) { // resize -1 unscaled | green
                     let cellSize: Int = cellGridView.cellSize - increment
