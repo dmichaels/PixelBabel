@@ -217,7 +217,7 @@ class CellGrid: ObservableObject
             zoomer.zoom(zoom)
         }
         else if let cellGridView: CellGridView = self._cellGridView {
-            self._zoomer = CellGridView.Zoom.start(cellGridView: cellGridView, zoom: zoom, scaled: true)
+            self._zoomer = CellGridView.Zoom.start(cellGridView: cellGridView, zoom: zoom)
         }
     }
 

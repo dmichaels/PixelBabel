@@ -11,5 +11,6 @@ extension CellGridView
         public let startShiftedY: Int
     }
 
-    // TODO
+    // init() {
+    // }
 }

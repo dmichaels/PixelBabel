@@ -10,25 +10,23 @@ extension CellGridView
         public let startCellSize: Int
         public let startShiftedX: Int
         public let startShiftedY: Int
-        public let scaled: Bool
 
         public func zoom(_ zoom: CGFloat) {
             let cellSizeZoomed: CGFloat = CGFloat(self.startCellSize) * zoom
             let cellSize: Int = Int(cellSizeZoomed.rounded(FloatingPointRoundingRule.toNearestOrEven))
             let cellSizeIncrement: Int = cellSize - self.startCellSize
-            cellGridView.resizeCells(cellSize: cellSize, adjustShift: true, scaled: self.scaled)
+            cellGridView.resizeCells(cellSize: cellSize, adjustShift: true, scaled: true)
         }
 
         // TODO
         // OR maybe just use init; more straight-forward; thought there was but no real reason for static creation.
         //
-        public static func start(cellGridView: CellGridView, zoom: CGFloat, scaled: Bool = false) -> Zoom {
-            let shifted: CellLocation = scaled ? cellGridView.shifted(scaled: true) : cellGridView.shifted
+        public static func start(cellGridView: CellGridView, zoom: CGFloat) -> Zoom {
+            let shifted: CellLocation = cellGridView.shifted(scaled: true)
             let zoomer: Zoom = Zoom(cellGridView: cellGridView,
-                                    startCellSize: scaled ? cellGridView.cellSizeScaled : cellGridView.cellSize,
+                                    startCellSize: cellGridView.cellSizeScaled,
                                     startShiftedX: shifted.x,
-                                    startShiftedY: shifted.y,
-                                    scaled: scaled)
+                                    startShiftedY: shifted.y)
             zoomer.zoom(zoom)
             return zoomer
         }
