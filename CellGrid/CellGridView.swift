@@ -115,7 +115,8 @@ class CellGridView
                        viewHeight: preferredSize.viewHeight,
                        viewBackground: viewBackground,
                        viewTransparency: viewTransparency,
-                       viewScaling: viewScaling)
+                       viewScaling: viewScaling,
+                       scaled: false)
 
         #if targetEnvironment(simulator)
             self.printSizes(viewWidthInit: viewWidth, viewHeightInit: viewHeight,
@@ -123,35 +124,38 @@ class CellGridView
         #endif
     }
 
-    private func configure(cellSize: Int,
-                           cellPadding: Int,
-                           cellShape: CellShape,
-                           viewWidth: Int,
-                           viewHeight: Int,
-                           viewBackground: CellColor,
-                           viewTransparency: UInt8,
-                           viewScaling: Bool)
+    internal func configure(cellSize: Int,
+                            cellPadding: Int,
+                            cellShape: CellShape,
+                            viewWidth: Int,
+                            viewHeight: Int,
+                            viewBackground: CellColor,
+                            viewTransparency: UInt8,
+                            viewScaling: Bool,
+                            scaled: Bool)
     {
         // N.B. This here first so subsequent calls to self.scaled work properly.
-        //
+
         self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
 
-        // Sanity check the cell-size and cell-padding.
+        // Convert to scaled and sanity (max/min) check the cell-size and cell-padding.
 
-        let cellSize: Int = constrainCellSize(cellSize)
-        let cellPadding: Int = constrainCellPadding(cellPadding)
+        let cellPadding: Int = constrainCellPadding(!scaled ? self.scaled(cellPadding) : cellPadding, scaled: true)
+        let cellSize: Int = constrainCellSize(!scaled ? self.scaled(cellSize) : cellSize, cellPadding: cellPadding, scaled: true)
+        let viewWidth: Int = !scaled ? self.scaled(viewWidth) : viewWidth
+        let viewHeight: Int = !scaled ? self.scaled(viewHeight) : viewHeight
 
-        self._viewWidth = self.scaled(viewWidth)
-        self._viewHeight = self.scaled(viewHeight)
-        self._cellSize = self.scaled(cellSize)
+        self._viewWidth = viewWidth
+        self._viewHeight = viewHeight
+        self._cellSize = cellSize
         self._cellSizeTimesViewWidth = self._cellSize * self._viewWidth
-        self._cellPadding = self.scaled(cellPadding)
+        self._cellPadding = cellPadding
         self._cellShape = cellShape
 
-        self._unscaled_viewWidth = viewWidth
-        self._unscaled_viewHeight = viewHeight
-        self._unscaled_cellSize = cellSize
-        self._unscaled_cellPadding = cellPadding
+        self._unscaled_viewWidth = self.unscaled(viewWidth)
+        self._unscaled_viewHeight = self.unscaled(viewHeight)
+        self._unscaled_cellSize = self.unscaled(cellSize)
+        self._unscaled_cellPadding = self.unscaled(cellPadding)
 
         // Note that viewColumns/Rows is the number of cells the
         // view CAN (possibly) FULLY display horizontally/vertically.
@@ -182,95 +186,17 @@ class CellGridView
         #endif
     }
 
-    internal func configureScaled(cellSize: Int,
-                                  cellPadding: Int,
-                                  cellShape: CellShape,
-                                  viewWidth: Int,
-                                  viewHeight: Int,
-                                  viewBackground: CellColor,
-                                  viewTransparency: UInt8,
-                                  viewScaling: Bool)
-    {
-        // N.B. This here first so subsequent calls to self.scaled work properly.
-        //
-        self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
-
-        // Sanity check the cell-size and cell-padding.
-
-        // let cellPaddingMax: Int = self.scaled(Defaults.cellPaddingMax)
-        // let cellSizeInnerMin: Int = self.scaled(Defaults.cellSizeInnerMin)
-        // let cellSizeMax: Int = self.scaled(Defaults.cellSizeMax)
-        // let cellPadding: Int = cellPadding.clamped(0...cellPaddingMax)
-        // TODO
-        // Not sure this is being imposed correctly ...
-        // Think if we reach the max better make sure not to do anything else like shift etc; havent thought through ...
-        // var cellSize = cellSize.clamped(cellSizeInnerMin + (cellPadding * 2)...cellSizeMax)
-
-        let cellSize: Int = constrainCellSize(cellSize, scaled: true)
-        let cellPadding: Int = constrainCellPadding(cellPadding, scaled: true)
-
-        self._viewWidth = viewWidth
-        self._viewHeight = viewHeight
-        self._cellSize = cellSize
-        self._cellSizeTimesViewWidth = self._cellSize * self._viewWidth
-        self._cellPadding = cellPadding
-        self._cellShape = cellShape
-
-        self._unscaled_viewWidth = self.unscaled(viewWidth)
-        self._unscaled_viewHeight = self.unscaled(viewHeight)
-        self._unscaled_cellSize = self.unscaled(cellSize)
-        self._unscaled_cellPadding = self.unscaled(cellPadding)
-
-        self._viewWidthExtra = self._viewWidth % self._cellSize
-        self._viewHeightExtra = self._viewHeight % self._cellSize
-        self._viewColumns = self._viewWidth / self._cellSize
-        self._viewRows = self._viewHeight / self._cellSize
-        self._viewColumnsExtra = (self._viewWidthExtra > 0) ? 1 : 0
-        self._viewRowsExtra = (self._viewHeightExtra > 0) ? 1 : 0
-        self._viewColumnEndsVisible = self._viewColumns
-        self._viewRowEndsVisible = self._viewRows
-        self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
-        self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
-        self._viewBackground = viewBackground
-        self._viewTransparency = viewTransparency
-
-        self._buffer = Memory.allocate(self._viewWidth * self._viewHeight * Screen.depth)
-        self._bufferBlocks = BufferBlocks.createBufferBlocks(bufferSize: self._buffer.count,
-                                                             viewWidth: self._viewWidth,
-                                                             viewHeight: self._viewHeight,
-                                                             cellSize: self._cellSize,
-                                                             cellPadding: self._cellPadding,
-                                                             cellShape: self._cellShape,
-                                                             cellTransparency: self._viewTransparency)
-        #if targetEnvironment(simulator)
-            self.printSizes()
-        #endif
-    }
-
-    internal func constrainCellSize(_ cellSize: Int, scaled: Bool = false) -> Int {
-        let cellSizeInnerMin: Int = scaled ? self.scaled(Defaults.cellSizeInnerMin) : Defaults.cellSizeInnerMin
-        let cellSizeMax: Int = scaled ? self.scaled(Defaults.cellSizeMax) : Defaults.cellSizeMax
-        let cellPadding: Int = scaled ? self.cellPaddingScaled : self.cellPadding
+    internal func constrainCellSize(_ cellSize: Int, cellPadding: Int? = nil, scaled: Bool = false) -> Int {
+        let cellSizeInnerMin: Int = self.scaled(Defaults.cellSizeInnerMin)
+        let cellSizeMax: Int = self.scaled(Defaults.cellSizeMax)
+        let cellPadding: Int = !scaled ? self.scaled(cellPadding ?? self.cellPadding) : (cellPadding ?? self.cellPaddingScaled)
         return cellSize.clamped(cellSizeInnerMin + (cellPadding * 2)...cellSizeMax)
     }
 
     private func constrainCellPadding(_ cellPadding: Int, scaled: Bool = false) -> Int {
-        let cellPaddingMax: Int = scaled ? self.scaled(Defaults.cellPaddingMax) : Defaults.cellPaddingMax
-        let cellPadding: Int = scaled ? self.cellPaddingScaled : cellPadding
+        let cellPaddingMax: Int = self.scaled(Defaults.cellPaddingMax)
+        let cellPadding: Int = !scaled ? self.scaled(cellPadding) : cellPadding
         return cellPadding.clamped(0...cellPaddingMax)
-    }
-
-    private func defineGridCells(gridColumns: Int, gridRows: Int,
-                                 gridCellFactory: Cell.Factory?, foreground: CellColor) -> [Cell]
-    {
-        var gridCells: [Cell] = []
-        for y in 0..<gridRows {
-            for x in 0..<gridColumns {
-                gridCells.append(gridCellFactory?(self, x, y, foreground) ??
-                                 Cell(parent: self, x: x, y: y, foreground: foreground))
-            }
-        }
-        return gridCells
     }
 
     public var viewScaling: Bool {
@@ -285,8 +211,11 @@ class CellGridView
                                viewHeight: self.viewHeight,
                                viewBackground: self.viewBackground,
                                viewTransparency: self.viewTransparency,
-                               viewScaling: newValue)
-                self.shift(shiftx: shiftedCurrent.x, shifty: shiftedCurrent.y)
+                               viewScaling: newValue,
+                               scaled: false)
+                // TODO
+                // This is messing up the shift we think ...
+                self.shift(shiftx: shiftedCurrent.x, shifty: shiftedCurrent.y, scaled: true)
             }
         }
     }
@@ -694,5 +623,21 @@ class CellGridView
 
     public func resizeCells(cellSize: Int, adjustShift: Bool, scaled: Bool = false) {
         Zoom.resizeCells(cellGridView: self, cellSize: cellSize, adjustShift: adjustShift, scaled: scaled)
+    }
+
+    // TODO MAYBE ...
+    // Move this to: CellGridView+Grid.swift
+    //
+    private func defineGridCells(gridColumns: Int, gridRows: Int,
+                                 gridCellFactory: Cell.Factory?, foreground: CellColor) -> [Cell]
+    {
+        var gridCells: [Cell] = []
+        for y in 0..<gridRows {
+            for x in 0..<gridColumns {
+                gridCells.append(gridCellFactory?(self, x, y, foreground) ??
+                                 Cell(parent: self, x: x, y: y, foreground: foreground))
+            }
+        }
+        return gridCells
     }
 }
