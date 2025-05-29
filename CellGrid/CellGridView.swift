@@ -241,8 +241,6 @@ class CellGridView
     internal var shiftCellY: Int           { self._shiftCellY }
     internal var shiftX: Int               { self._unscaled_shiftX }
     internal var shiftY: Int               { self._unscaled_shiftY }
-    internal var shiftScaledX: Int         { self._shiftX }
-    internal var shiftScaledY: Int         { self._shiftY }
 
     internal var viewWidthScaled: Int      { self._viewWidth }
     internal var viewHeightScaled: Int     { self._viewHeight }
@@ -250,13 +248,15 @@ class CellGridView
     internal var viewCellEndY: Int         { self._viewCellEndY }
     internal var cellSizeScaled: Int       { self._cellSize }
     internal var cellPaddingScaled: Int    { self._cellPadding }
+    internal var shiftScaledX: Int         { self._shiftX }
+    internal var shiftScaledY: Int         { self._shiftY }
 
     public var shifted: CellLocation {
         return CellLocation(self.shiftCellX * self.cellSize + self.shiftX,
                             self.shiftCellY * self.cellSize + self.shiftY)
     }
 
-    public func shifted(scaled: Bool = false) -> CellLocation {
+    internal func shifted(scaled: Bool = false) -> CellLocation {
         return scaled ? CellLocation(self.shiftCellX * self.cellSizeScaled + self.shiftScaledX,
                                      self.shiftCellY * self.cellSizeScaled + self.shiftScaledY)
                       : CellLocation(self.shiftCellX * self.cellSize + self.shiftX,
