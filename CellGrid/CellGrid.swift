@@ -199,6 +199,7 @@ class CellGrid: ObservableObject
     public func onDragEnd(_ viewPoint: CGPoint) {
         if let dragger: CellGridView.Drag = self._dragger {
             dragger.end(viewPoint)
+            self._dragger = nil
         }
     }
 
@@ -215,6 +216,7 @@ class CellGrid: ObservableObject
     public func onZoomEnd(_ zoomFactor: CGFloat) {
         if let zoomer: CellGridView.Zoom = self._zoomer {
             self._zoomer = zoomer.end(zoomFactor)
+            self._zoomer = nil
         }
     }
 
