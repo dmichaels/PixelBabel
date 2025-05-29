@@ -115,8 +115,7 @@ class CellGridView
                        viewHeight: preferredSize.viewHeight,
                        viewBackground: viewBackground,
                        viewTransparency: viewTransparency,
-                       viewScaling: viewScaling,
-                       scaled: false)
+                       viewScaling: viewScaling)
 
         #if targetEnvironment(simulator)
             self.printSizes(viewWidthInit: viewWidth, viewHeightInit: viewHeight,
@@ -132,7 +131,7 @@ class CellGridView
                             viewBackground: CellColor,
                             viewTransparency: UInt8,
                             viewScaling: Bool,
-                            scaled: Bool)
+                            scaled: Bool = false)
     {
         // N.B. This here first so subsequent calls to self.scaled work properly.
 
@@ -211,8 +210,7 @@ class CellGridView
                                viewHeight: self.viewHeight,
                                viewBackground: self.viewBackground,
                                viewTransparency: self.viewTransparency,
-                               viewScaling: newValue,
-                               scaled: false)
+                               viewScaling: newValue)
                 //
                 // TODO: This is messing up the shift we think ...
                 //
