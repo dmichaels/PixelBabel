@@ -325,8 +325,6 @@ class CellGridView
     internal var shiftY: Int               { self._unscaled_shiftY }
     internal var shiftScaledX: Int         { self._shiftX }
     internal var shiftScaledY: Int         { self._shiftY }
-    internal var shiftScaledXR: Int        { modulo(self._cellSize + self._shiftX - self._viewWidthExtra, self._cellSize) }
-    internal var shiftScaledYB: Int        { modulo(self._cellSize + self._shiftY - self._viewHeightExtra, self._cellSize) }
 
     internal var viewWidthScaled: Int       { self._viewWidth }
     internal var viewHeightScaled: Int      { self._viewHeight }
@@ -516,33 +514,33 @@ class CellGridView
         #if targetEnvironment(simulator)
             let shiftScaledXR: Int = modulo(self._cellSize + self._shiftX - self._viewWidthExtra, self._cellSize)
             var okay: Bool = false
-            if [0, 1].contains(abs(abs(self.shiftScaledXR) - abs(self.shiftScaledX))) {
+            if [0, 1].contains(abs(abs(shiftScaledXR) - abs(self.shiftScaledX))) {
                 okay = true
             }
-            else if ((self.shiftScaledX == -(self.cellSizeScaled - 1)) && (self.shiftScaledXR == 0)) {
+            else if ((self.shiftScaledX == -(self.cellSizeScaled - 1)) && (shiftScaledXR == 0)) {
                 okay = true
             }
             else if (self.shiftScaledX > 0) {
-                if [0, 1].contains(abs(self.shiftScaledX - (self.cellSizeScaled - self.shiftScaledXR))) {
+                if [0, 1].contains(abs(self.shiftScaledX - (self.cellSizeScaled - shiftScaledXR))) {
                     okay = true
                 }
             }
-            print(String(format: "SHIFTSC(\(shiftx),\(shifty))> %.5fs" +
+            print(String(format: "SHIFT(\(shiftx),\(shifty))> %.5fs" +
                                  " vw: [\(self._viewWidth)]" +
                                  " vwe: [\(self._viewWidthExtra)]" +
-                                 " shc: [\(self.shiftCellX),\(shiftCellY)]" +
-                                 " sh: [\(self.shiftScaledX),\(shiftScaledY)]" +
-                                 " shu: [\(self.shiftX),\(self.shiftY)]" +
-                                 " sht: [\(self.shifted(scaled: true).x),\(self.shifted(scaled: true).y)]" +
-                                 " shtu: [\(self.shifted.x),\(self.shifted.y)]" +
-                                 " bm: \(self._bufferBlocks.memoryUsageBytes)" +
-                                 " cs: \(self.cellSizeScaled)" +
-                                 " csu: \(self.cellSize)" +
                                  " vc: \(self.viewColumns)" +
                                  " vce: \(self._viewColumnsExtra)" +
                                  " vcv: \(self.viewColumnsVisible)" +
                                  " vcev: \(self._viewColumnEndsVisible)" +
-                                 " sho: \(self.shiftScaledXR)" +
+                                 " cs: \(self.cellSizeScaled)" +
+                                 " csu: \(self.cellSize)" +
+                                 " sht: [\(self.shifted(scaled: true).x),\(self.shifted(scaled: true).y)]" +
+                                 " shtu: [\(self.shifted.x),\(self.shifted.y)]" +
+                                 " shc: [\(self.shiftCellX),\(shiftCellY)]" +
+                                 " sh: [\(self.shiftScaledX),\(shiftScaledY)]" +
+                                 " shu: [\(self.shiftX),\(self.shiftY)]" +
+                                 " sho: \(shiftScaledXR)" +
+                                 " bm: \(self._bufferBlocks.memoryUsageBytes)" +
                                  " ok: \(okay)",
                   Date().timeIntervalSince(debugStart)))
         #endif
