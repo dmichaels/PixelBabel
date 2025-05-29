@@ -310,8 +310,11 @@ class CellGridView
         //   position of the grid-view, and the right-most cell of the cell-grid being left-shifted
         //   past the right-most position of the grid-view; similarly for the vertical.
 
-        func restrictShift(shiftCellXY: inout Int, shiftXY: inout Int, viewCellEndXY: Int,
-                           viewSizeExtra: Int, viewSize: Int, gridCellEndXY: Int) {
+        func restrictShift(shiftCellXY: inout Int, shiftXY: inout Int,
+                           viewCellEndXY: Int,
+                           viewSizeExtra: Int,
+                           viewSize: Int,
+                           gridCellEndXY: Int) {
             if (shiftCellXY >= viewCellEndXY) {
                 if (viewSizeExtra > 0) {
                     let totalShift = (shiftCellXY * self._cellSize) + shiftXY
@@ -330,6 +333,28 @@ class CellGridView
             }
         }
 
+        func restrictShiftConservative(shiftCell: inout Int, shift: inout Int,
+                                       cellSize: Int,
+                                       viewCellEnd _: Int,
+                                       viewSizeExtra _: Int,
+                                       viewSize: Int,
+                                       gridCells: Int,
+                                       gridCellEnd _: Int) {
+            if ((shift > 0) || (shiftCell > 0)) {
+                shift = 0
+                shiftCell = 0
+            }
+            else if ((shift < 0) || (shiftCell < 0)) {
+                var totalShift = (shiftCell * cellSize) + shift
+                let gridSize: Int = gridCells * cellSize
+                if ((totalShift < 0) && ((gridSize + totalShift) < viewSize)) {
+                    totalShift = viewSize - gridSize
+                    shiftCell = totalShift / cellSize
+                    shift = totalShift % cellSize
+                }
+            }
+        }
+
         restrictShift(shiftCellXY: &shiftCellX,
                       shiftXY: &shiftX,
                       viewCellEndXY: self._viewCellEndX - self._viewColumnsExtra,
@@ -342,6 +367,22 @@ class CellGridView
                       viewSizeExtra: self._viewHeightExtra,
                       viewSize: self._viewHeight,
                       gridCellEndXY: self._gridCellEndY)
+
+        restrictShiftConservative(shiftCell: &shiftCellX, shift: &shiftX,
+                                  cellSize: self._cellSize,
+                                  viewCellEnd: self._viewCellEndX - self._viewColumnsExtra,
+                                  viewSizeExtra: self._viewWidthExtra,
+                                  viewSize: self._viewWidth,
+                                  gridCells: self._gridColumns,
+                                  gridCellEnd: self._gridCellEndX)
+
+        restrictShiftConservative(shiftCell: &shiftCellY, shift: &shiftY,
+                                  cellSize: self._cellSize,
+                                  viewCellEnd: self._viewCellEndY - self._viewRowsExtra,
+                                  viewSizeExtra: self._viewHeightExtra,
+                                  viewSize: self._viewHeight,
+                                  gridCells: self._gridRows,
+                                  gridCellEnd: self._gridCellEndY)
 
         // Update the shift related values for the view.
 
@@ -423,6 +464,15 @@ class CellGridView
                                  " bm: \(self._bufferBlocks.memoryUsageBytes)" +
                                  " even: \(even)",
                   Date().timeIntervalSince(debugStart)))
+
+            print("RESTRICT-WORK:" +
+                   " shiftX: \(self._shiftX)" +
+                   " shiftCellX: \(self._shiftCellX)" +
+                   " viewCellEndX: \(self._viewCellEndX)" +
+                   " viewColumnsExtra: \(self._viewColumnsExtra)" +
+                   " viewCellEnd: \(self._viewCellEndX - self._viewColumnsExtra)" +
+                   " gridCellEnd: \(self._gridCellEndX)" +
+                   " gridColumns: \(self._gridColumns)")
         #endif
     }
 
