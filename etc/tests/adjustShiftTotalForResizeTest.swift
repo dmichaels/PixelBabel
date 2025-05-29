@@ -420,6 +420,9 @@ debug([
     AdjustShiftTotalTestData(vs: 1161, cs: 148, ci: +1, sht: -85, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 1161, cs: 149, ci: +1, sht: -90, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
     AdjustShiftTotalTestData(vs: 1161, cs: 162, ci: 438, sht: -148, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 1161, cs: 595, ci: 5, sht:  -2097, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 1161, cs: 600, ci: 0, sht:  -319, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
+    AdjustShiftTotalTestData(vs: 1161, cs: 43, ci: 19, sht:  -1032, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
 
     // Going from 143 to 144 OK but not from 140 to 144
 
@@ -433,23 +436,28 @@ debug([
     AdjustShiftTotalTestData(vs: 1161, cs: 140, ci: +4, sht: -49, expect: (sht: nil, sh: nil, sho: 0), confirmed: false),
 ], f: AdjustShiftTotalAlgorithm.DEFAULT)
 
-// SHIFTSC(-292,-639)> 0.01698s vw: [1161] vwe: [116] shc: [-1,-3] sh: [-83,-12] sh-u: [-28,-4] sht: [-292,-639] sht-u: [-98,-214] bm: 21296 cs: 209 cs-u: 70 vc: 5 vce: 1 vcv: 6 vcev: 5 shr: 10 ok: false
-// SHIFTSC(-393,-866)> 0.01477s vw: [1161] vwe: [221] shc: [-1,-3] sh: [-158,-161] sh-u: [-53,-54] sht: [-393,-866] sht-u: [-131,-288] bm: 22064 cs: 235 cs-u: 78 vc: 4 vce: 2 vcv: 6 vcev: 5 shr: 91 ok: false
-// SHIFTSC(-397,-875)> 0.01362s vw: [1161] vwe: [217] shc: [-1,-3] sh: [-161,-167] sh-u: [-54,-56] sht: [-397,-875] sht-u: [-133,-293] bm: 22400 cs: 236 cs-u: 79 vc: 4 vce: 2 vcv: 6 vcev: 5 shr: 94 ok: false
-// adjustShiftTotalDebug(viewSize: 0, cellSize: 0, cellSizeIncrement: 0, shiftTotal:  0)
-// adjustShiftTotalDebug(viewSize: 1161, cellSize: 366, cellSizeIncrement: 234, shiftTotal:  -1534)
-//    vs      vc     vca   cs   ci    cc  cci        sht  shc   sh   sho   >>>   cs  cci        shd   sht  shc   sh   sho
-//    ==      --     ---   ==   ==    --  ---        ===  ---  ---   ---   >>>   --  ---        ---   ===  ---   --   ---
-//  1161  580.50 3396.50  366 +234  5.67  5#245.32 -1534   -4  -70 ✗ 233   >>>  600  5#402.17  5.67 -2821   -4 -421 218 -
-
 print()
-// SHIFTSC(-2097,-4660)> 0.04316s vw: [1161] vwe: [566] shc: [-3,-7] sh: [-312,-495] sh-u: [-104,-165] sht: [-2097,-4660] sht-u: [-698,-1551] bm: 56816 cs: 595 cs-u: 198 vc: 1 vce: 2 vcv: 3 vcev: 2 shr: 312 ok: true
-// MAXOUT
-// SHIFTSC(-319,-710)> 0.04476s vw: [1161] vwe: [561] shc: [0,-1] sh: [-319,-110] sh-u: [-106,-37] sht: [-319,-710] sht-u: [-106,-237] bm: 57088 cs: 600 cs-u: 200 vc: 1 vce: 2 vcv: 3 vcev: 2 shr: 320 ok: true
-// MAXOUT
-// SHIFTSC(281,690)> 0.04478s vw: [1161] vwe: [561] shc: [0,1] sh: [281,90] sh-u: [94,30] sht: [281,690] sht-u: [94,230] bm: 57088 cs: 600 cs-u: 200 vc: 1 vce: 2 vcv: 3 vcev: 1 shr: 320 ok: true <<< NOTOK
-// MAXOUT
-// SHIFTSC(481,1090)> 0.03454s vw: [1161] vwe: [561] shc: [0,1] sh: [481,490] sh-u: [160,163] sht: [481,1090] sht-u: [160,363] bm: 55680 cs: 600 cs-u: 200 vc: 1 vce: 2 vcv: 3 vcev: 1 shr: 520 ok: false
 adjustShiftTotalDebug(viewSize: 0, cellSize: 0, cellSizeIncrement: 0, shiftTotal:  0)
-adjustShiftTotalDebug(viewSize: 1161, cellSize: 595, cellSizeIncrement: 5, shiftTotal:  -2097)
-adjustShiftTotalDebug(viewSize: 1161, cellSize: 600, cellSizeIncrement: 0, shiftTotal:  -319)
+// SHIFTSC(-1032,-803)> 0.03780s vw: [1161] vwe: [0] shc: [-24,-18] sh: [0,-29] sh-u: [0,-10] sht: [-1032,-803] sht-u: [-336,-262] bm: 0 cs: 43 cs-u: 14 vc: 27 vce: 0 vcv: 27 vcev: 27 shr: 0 ok: true
+// SHIFTSC(-6919,-8417)> 0.04079s vw: [1161] vwe: [9] shc: [-119,-20] sh: [0,0] sh-u: [0,0] sht: [-2856,-480] sht-u: [-952,-160] bm: 1216 cs: 24 cs-u: 8 vc: 48 vce: 1 vcv: 49 vcev: 48 shr: 15 ok: false
+/*
+SHIFTSC(-319,-710)> 0.04136s vw: [1161] vwe: [9] shc: [-13,-20] sh: [-7,0] sh-u: [-2,0] sht: [-319,-480] sht-u: [-106,-160] bm: 2048 cs: 24 cs-u: 8 vc: 48 vce: 1 vcv: 49 vcev: 48 shr: 8 ok: true
+RESIZE-CELLS(23): 23 24
+RESIZE-CELLS(23): GO
+SCREEN>        1206 x 2622 (unscaled: 402 x 874) | SCALE: 3.0 | SCALING: true
+VIEW-SIZ>      1161 x 2580 (unscaled: 387 x 860)
+CELL-SIZ>      24 (unscaled: 8)
+CELL-PAD>      3 (unscaled: 1)
+SHIFT>         [-319, -480] (unscaled: [-106, -160])
+RESIZE-CELLS(23): >>> MAX
+SHIFTSC(-6919,-13416)> 0.03405s vw: [1161] vwe: [9] shc: [-119,-20] sh: [0,0] sh-u: [0,0] sht: [-2856,-480] sht-u: [-952,-160] bm: 1216 cs: 24 cs-u: 8 vc: 48 vce: 1 vcv: 49 vcev: 48 shr: 15 ok: false
+RESIZE-CELLS(22): 22 24
+RESIZE-CELLS(22): GO
+SCREEN>        1206 x 2622 (unscaled: 402 x 874) | SCALE: 3.0 | SCALING: true
+VIEW-SIZ>      1161 x 2580 (unscaled: 387 x 860)
+CELL-SIZ>      24 (unscaled: 8)
+CELL-PAD>      3 (unscaled: 1)
+SHIFT>         [-2856, -480] (unscaled: [-952, -160])
+RESIZE-CELLS(22): >>> MAX
+SHIFTSC(-28112,-13416)> 0.03413s vw: [1161] vwe: [9] shc: [-119,-20] sh: [0,0] sh-u: [0,0] sht: [-2856,-480] sht-u: [-952,-160] bm: 1216 cs: 24 cs-u: 8 vc: 48 vce: 1 vcv: 49 vcev: 48 shr: 15 ok: false
+*/

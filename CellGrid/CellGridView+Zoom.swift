@@ -38,16 +38,37 @@ extension CellGridView
             return nil
         }
 
-        private func calculateShiftForResizeCells(cellSize: Int, scaled: Bool = false) -> (shiftx: Int, shifty: Int) {
-            return Zoom.calculateShiftForResizeCells(cellGridView: self.cellGridView, cellSize: cellSize, scaled: scaled)
+        public static func resizeCells(cellGridView: CellGridView, cellSize: Int, adjustShift: Bool, scaled: Bool = false)
+        {
+            let cellSize = cellGridView.constrainCellSize(!scaled ? cellGridView.scaled(cellSize) : cellSize, scaled: true)
+
+            guard cellSize != cellGridView.cellSizeScaled else {
+                return
+            }
+
+            // We need to get the new and current shift values here BEFORE the re-configure below, for
+            // either contingency (i.e. where the resize takes, or not due to reaching the maximum allowed
+            // cell size), because they  both depend on the cell size which is updated by the re-configure.
+            //
+            let shift = adjustShift ? Zoom.calculateShiftForResizeCells(cellGridView: cellGridView, cellSize: cellSize, scaled: true) : nil
+            cellGridView.configureScaled(cellSize: cellSize,
+                                 cellPadding: cellGridView.cellPaddingScaled,
+                                 cellShape: cellGridView.cellShape,
+                                 viewWidth: cellGridView.viewWidthScaled,
+                                 viewHeight: cellGridView.viewHeightScaled,
+                                 viewBackground: cellGridView.viewBackground,
+                                 viewTransparency: cellGridView.viewTransparency,
+                                 viewScaling: cellGridView.viewScaling)
+            if let shift = shift {
+                cellGridView.shift(shiftx: shift.x, shifty: shift.y, scaled: true)
+            }
         }
 
-        public static func calculateShiftForResizeCells(cellGridView: CellGridView, cellSize: Int, scaled: Bool = false) -> (shiftx: Int, shifty: Int) {
-
+        private static func calculateShiftForResizeCells(cellGridView: CellGridView, cellSize: Int, scaled: Bool = false) -> (x: Int, y: Int) {
             let cellSize = !scaled ? cellGridView.scaled(cellSize) : cellSize
             let cellSizeCurrent: Int = cellGridView.cellSizeScaled
             let cellSizeIncrement: Int = cellSize - cellSizeCurrent
-            guard cellSizeIncrement != 0 else { return (shiftx: 0, shifty: 0) }
+            guard cellSizeIncrement != 0 else { return (x: 0, y: 0) }
             let shiftTotalCurrent: CellLocation = cellGridView.shifted(scaled: true)
             let shiftTotalAdjustedX: Int = adjustShiftTotal(viewSize: cellGridView.viewWidthScaled,
                                                             cellSize: cellSizeCurrent,
@@ -57,8 +78,8 @@ extension CellGridView
                                                             cellSize: cellSizeCurrent,
                                                             cellSizeIncrement: cellSizeIncrement,
                                                             shiftTotal: shiftTotalCurrent.y)
-            return !scaled ? (shiftx: cellGridView.unscaled(shiftTotalAdjustedX), shifty: cellGridView.unscaled(shiftTotalAdjustedY))
-                           : (shiftx: shiftTotalAdjustedX, shifty: shiftTotalAdjustedY)
+            return !scaled ? (x: cellGridView.unscaled(shiftTotalAdjustedX), y: cellGridView.unscaled(shiftTotalAdjustedY))
+                           : (x: shiftTotalAdjustedX, y: shiftTotalAdjustedY)
         }
 
         // Returns the adjusted total shift value for the given view size (width or height), cell size and the amount

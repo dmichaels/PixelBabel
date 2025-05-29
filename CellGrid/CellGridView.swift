@@ -48,9 +48,6 @@ class CellGridView
     private var _viewTransparency: UInt8 = 0
     private var _viewScaling: Bool = true
 
-    internal var _viewColumnsDebugInitial: Int = 0
-    internal var _viewRowsDebugInitial: Int = 0
-
     private var _cellSize: Int = 0
     private var _cellSizeTimesViewWidth: Int = 0
     private var _cellPadding: Int = 0
@@ -135,15 +132,19 @@ class CellGridView
                            viewTransparency: UInt8,
                            viewScaling: Bool)
     {
+        // N.B. This here first so subsequent calls to self.scaled work properly.
+        //
+        self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
+
         // Sanity check the cell-size and cell-padding.
 
-        var cellPadding: Int = cellPadding.clamped(0...Defaults.cellPaddingMax)
-        var cellSize = cellSize.clamped(Defaults.cellSizeInnerMin + (cellPadding * 2)...Defaults.cellSizeMax)
+        let cellPadding: Int = cellPadding.clamped(0...Defaults.cellPaddingMax)
+        let cellSize = cellSize.clamped(Defaults.cellSizeInnerMin + (cellPadding * 2)...Defaults.cellSizeMax)
 
         // N.B. It is important that this happens here first
         // so that subsequent calls to self.scaled work property.
         //
-        self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
+        // self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
 
         self._viewWidth = self.scaled(viewWidth)
         self._viewHeight = self.scaled(viewHeight)
@@ -170,9 +171,6 @@ class CellGridView
         self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
         self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
 
-        self._viewColumnsDebugInitial = self._viewColumns
-        self._viewRowsDebugInitial = self._viewRows
-
         self._buffer = Memory.allocate(self._viewWidth * self._viewHeight * Screen.depth)
         self._bufferBlocks = BufferBlocks.createBufferBlocks(bufferSize: self._buffer.count,
                                                              viewWidth: self._viewWidth,
@@ -186,21 +184,25 @@ class CellGridView
         #endif
     }
 
-    private func configureScaled(cellSize: Int,
-                                 cellPadding: Int,
-                                 cellShape: CellShape,
-                                 viewWidth: Int,
-                                 viewHeight: Int,
-                                 viewBackground: CellColor,
-                                 viewTransparency: UInt8,
-                                 viewScaling: Bool)
+    internal func configureScaled(cellSize: Int,
+                                  cellPadding: Int,
+                                  cellShape: CellShape,
+                                  viewWidth: Int,
+                                  viewHeight: Int,
+                                  viewBackground: CellColor,
+                                  viewTransparency: UInt8,
+                                  viewScaling: Bool)
     {
+        // N.B. This here first so subsequent calls to self.scaled work properly.
+        //
+        self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
+
         // Sanity check the cell-size and cell-padding.
 
         let cellPaddingMax: Int = self.scaled(Defaults.cellPaddingMax)
         let cellSizeInnerMin: Int = self.scaled(Defaults.cellSizeInnerMin)
         let cellSizeMax: Int = self.scaled(Defaults.cellSizeMax)
-        var cellPadding: Int = cellPadding.clamped(0...cellPaddingMax)
+        let cellPadding: Int = cellPadding.clamped(0...cellPaddingMax)
         //
         // TODO
         // Not sure this is being imposed correctly ...
@@ -211,7 +213,7 @@ class CellGridView
         // N.B. It is important that this happens here first
         // so that subsequent calls to self.scaled work property.
         //
-        self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
+        // self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
 
         self._viewWidth = viewWidth
         self._viewHeight = viewHeight
@@ -246,6 +248,19 @@ class CellGridView
         #if targetEnvironment(simulator)
             self.printSizes()
         #endif
+    }
+
+    internal func constrainCellSize(_ cellSize: Int, scaled: Bool = false) -> Int {
+        let cellSizeInnerMin: Int = scaled ? self.scaled(Defaults.cellSizeInnerMin) : Defaults.cellSizeInnerMin
+        let cellSizeMax: Int = scaled ? self.scaled(Defaults.cellSizeMax) : Defaults.cellSizeMax
+        let cellPadding: Int = scaled ? self.cellPaddingScaled : self.cellPadding
+        return cellSize.clamped(cellSizeInnerMin + (cellPadding * 2)...cellSizeMax)
+    }
+
+    private func constrainCellPadding(_ cellPadding: Int, scaled: Bool = false) -> Int {
+        let cellPaddingMax: Int = scaled ? self.scaled(Defaults.cellPaddingMax) : Defaults.cellPaddingMax
+        let cellPadding: Int = scaled ? self.cellPaddingScaled : self.cellPadding
+        return cellPadding.clamped(0...cellPaddingMax)
     }
 
     private func defineGridCells(gridColumns: Int, gridRows: Int,
@@ -337,13 +352,13 @@ class CellGridView
                                      self.shiftCellY * self.cellSize + self.shiftY)
     }
 
+    // Sets the cell-grid within the grid-view to be shifted by the given amount,
+    // from the upper-left; note that the given shiftx and shifty values are unscaled.
+    //
     public func shift(shiftx: Int, shifty: Int) {
         self.shift(shiftx: shiftx, shifty: shifty, scaled: false)
     }
 
-    // Sets the cell-grid within the grid-view to be shifted by the given amount,
-    // from the upper-left; note that the given shiftx and shifty values are unscaled.
-    //
     public func shift(shiftx: Int, shifty: Int, scaled: Bool)
     {
         #if targetEnvironment(simulator)
@@ -499,9 +514,7 @@ class CellGridView
         }
 
         #if targetEnvironment(simulator)
-            //let xyzzy = abs(abs(self.shiftScaledXR) - abs(self.shiftScaledX))
-            // let okay =  (xyzzy == 1) || (xyzzy == 0)
-            //// let okay =  (xyzzy == 1) || (xyzzy == 0) || ((self.shiftScaledX == -(self.cellSize - 1)) && (self.shiftScaledXR == 0))
+            let shiftScaledXR: Int = modulo(self._cellSize + self._shiftX - self._viewWidthExtra, self._cellSize)
             var okay: Bool = false
             if [0, 1].contains(abs(abs(self.shiftScaledXR) - abs(self.shiftScaledX))) {
                 okay = true
@@ -519,17 +532,17 @@ class CellGridView
                                  " vwe: [\(self._viewWidthExtra)]" +
                                  " shc: [\(self.shiftCellX),\(shiftCellY)]" +
                                  " sh: [\(self.shiftScaledX),\(shiftScaledY)]" +
-                                 " sh-u: [\(self.shiftX),\(self.shiftY)]" +
+                                 " shu: [\(self.shiftX),\(self.shiftY)]" +
                                  " sht: [\(self.shifted(scaled: true).x),\(self.shifted(scaled: true).y)]" +
-                                 " sht-u: [\(self.shifted.x),\(self.shifted.y)]" +
+                                 " shtu: [\(self.shifted.x),\(self.shifted.y)]" +
                                  " bm: \(self._bufferBlocks.memoryUsageBytes)" +
                                  " cs: \(self.cellSizeScaled)" +
-                                 " cs-u: \(self.cellSize)" +
+                                 " csu: \(self.cellSize)" +
                                  " vc: \(self.viewColumns)" +
                                  " vce: \(self._viewColumnsExtra)" +
                                  " vcv: \(self.viewColumnsVisible)" +
                                  " vcev: \(self._viewColumnEndsVisible)" +
-                                 " shr: \(self.shiftScaledXR)" +
+                                 " sho: \(self.shiftScaledXR)" +
                                  " ok: \(okay)",
                   Date().timeIntervalSince(debugStart)))
         #endif
@@ -685,36 +698,6 @@ class CellGridView
     }
 
     public func resizeCells(cellSize: Int, adjustShift: Bool, scaled: Bool = false) {
-        var cellSizeMax: Int = self.scaled(Defaults.cellSizeMax)
-        var cellPadding: Int = self.scaled(self.cellPaddingScaled)
-        var cellSizeInnerMin: Int = self.scaled(Defaults.cellSizeInnerMin)
-        var cellSize = cellSize.clamped(cellSizeInnerMin + (cellPaddingScaled * 2)...cellSizeMax)
-        if (cellSize != self.cellSizeScaled) {
-            //
-            // We need to get the new and current shift values here BEFORE the re-configure below, for
-            // either contingency (i.e. where the resize takes, or not due to reaching the maximum allowed
-            // cell size), because they  both depend on the cell size which is updated by the re-configure.
-            // TODO: Think we can rework things so as not to require this ordering/dependency.
-            //
-            let (shiftX, shiftY) = Zoom.calculateShiftForResizeCells(cellGridView: self, cellSize: cellSize, scaled: true)
-            let (shiftMaxX, shiftMaxY) = Zoom.calculateShiftForResizeCells(cellGridView: self, cellSize: Defaults.cellSizeMax, scaled: true)
-            self.configureScaled(cellSize: cellSize,
-                                 cellPadding: self.cellPaddingScaled,
-                                 cellShape: self.cellShape,
-                                 viewWidth: self.viewWidthScaled,
-                                 viewHeight: self.viewHeightScaled,
-                                 viewBackground: self.viewBackground,
-                                 viewTransparency: self.viewTransparency,
-                                 viewScaling: self.viewScaling)
-            if (adjustShift && (cellSize == self.cellSizeScaled)) {
-                self.shift(shiftx: shiftX, shifty: shiftY, scaled: true)
-            }
-            else {
-                //
-                // Here we must have reached the max cell-size (or adjustShift is false).
-                //
-                self.shift(shiftx: shiftMaxX, shifty: shiftMaxY, scaled: true)
-            }
-        }
+        Zoom.resizeCells(cellGridView: self, cellSize: cellSize, adjustShift: adjustShift, scaled: scaled)
     }
 }
