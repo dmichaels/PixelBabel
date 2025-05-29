@@ -13,7 +13,7 @@ class CellGrid: ObservableObject
         public static let displayScaling: Bool = true
         public static let displayTransparency: UInt8 = CellColor.OPAQUE
         public static let cellSize: Int = 43 // 33 // 43 // 51 // ... resizing up/down 33 is all good it seems
-        public static let cellSizeNeat: Bool = true
+        public static let cellSizeFit: Bool = true
         public static let cellPadding: Int = 1
         //
         // TODO: while dragging make the shape inset rather than rounded (or circle) for speed.
@@ -41,7 +41,7 @@ class CellGrid: ObservableObject
                    displayWidth: Int = Defaults.displayWidth,
                    displayHeight: Int = Defaults.displayHeight,
                    cellSize: Int = Defaults.cellSize,
-                   cellSizeNeat: Bool = Defaults.cellSizeNeat,
+                   cellSizeFit: Bool = Defaults.cellSizeFit,
                    cellPadding: Int = Defaults.cellPadding,
                    cellShape: CellShape = Defaults.cellShape,
                    cellColorMode: CellColorMode = Defaults.cellColorMode,
@@ -61,8 +61,7 @@ class CellGrid: ObservableObject
                                           viewScaling: displayScaling,
                                           cellSize: cellSize,
                                           cellPadding: cellPadding,
-                                          cellFit: cellSizeNeat,
-//                                        cellFit: false, // cellSizeNeat,
+                                          cellFit: cellSizeFit,
                                           cellShape: cellShape,
                                           gridColumns: self._gridColumns,
                                           gridRows: self._gridRows,

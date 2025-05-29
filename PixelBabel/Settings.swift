@@ -9,7 +9,7 @@ class DefaultSettings
     public static let displayScaling: Bool              = CellGrid.Defaults.displayScaling
 
     public static let cellSize: Int                     = CellGrid.Defaults.cellSize
-    public static let cellSizeNeat: Bool                = CellGrid.Defaults.cellSizeNeat
+    public static let cellSizeFit: Bool                = CellGrid.Defaults.cellSizeFit
     public static let cellPadding: Int                  = CellGrid.Defaults.cellPadding
     public static let cellShape: CellShape              = CellGrid.Defaults.cellShape
     public static let cellColorMode: CellColorMode      = CellGrid.Defaults.cellColorMode
@@ -32,7 +32,7 @@ class Settings: ObservableObject
     @Published var displayScaling: Bool              = DefaultSettings.displayScaling
 
     @Published var cellSize: Int                     = DefaultSettings.cellSize
-    @Published var cellSizeNeat: Bool                = DefaultSettings.cellSizeNeat
+    @Published var cellSizeFit: Bool                = DefaultSettings.cellSizeFit
     @Published var cellPadding: Int                  = DefaultSettings.cellPadding
     @Published var cellShape: CellShape              = DefaultSettings.cellShape
     @Published var cellColorMode: CellColorMode      = DefaultSettings.cellColorMode
