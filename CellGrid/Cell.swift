@@ -4,7 +4,7 @@ import SwiftUI
 @MainActor
 class Cell
 {
-    private var _parent: CellGridView
+    private var _cellGridView: CellGridView
     private let _x: Int
     private let _y: Int
     private var _foreground: CellColor
@@ -29,22 +29,16 @@ class Cell
     }
 
     init(parent: CellGridView, x: Int, y: Int, foreground: CellColor) {
-        self._parent = parent
+        self._cellGridView = parent
         self._x = x
         self._y = y
         self._foreground = foreground
     }
 
     public func write(foreground: CellColor, foregroundOnly: Bool = false) {
-        if let viewCellLocation = self._parent.viewCellLocation(gridCellX: self._x, gridCellY: self._y) {
-            if viewCellLocation.x < 0 {
-                var x = 1
-            }
-            if viewCellLocation.x > 11 {
-                var x = 1
-            }
+        if let viewCellLocation = self._cellGridView.viewCellLocation(gridCellX: self._x, gridCellY: self._y) {
             self._foreground = foreground
-            self._parent.writeCell(viewCellX: viewCellLocation.x, viewCellY: viewCellLocation.y)
+            self._cellGridView.writeCell(viewCellX: viewCellLocation.x, viewCellY: viewCellLocation.y)
         }
     }
 }
