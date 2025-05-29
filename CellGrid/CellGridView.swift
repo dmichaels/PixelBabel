@@ -213,8 +213,9 @@ class CellGridView
                                viewTransparency: self.viewTransparency,
                                viewScaling: newValue,
                                scaled: false)
-                // TODO
-                // This is messing up the shift we think ...
+                //
+                // TODO: This is messing up the shift we think ...
+                //
                 self.shift(shiftx: shiftedCurrent.x, shifty: shiftedCurrent.y, scaled: true)
             }
         }
