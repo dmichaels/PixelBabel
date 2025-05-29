@@ -40,8 +40,6 @@ class CellGridView
     private var _viewRows: Int = 0
     private var _viewColumnsExtra: Int = 0
     private var _viewRowsExtra: Int = 0
-    private var _viewColumnEndsVisible: Int = 0
-    private var _viewRowEndsVisible: Int = 0
     private var _viewCellEndX: Int = 0
     private var _viewCellEndY: Int = 0
     private var _viewBackground: CellColor = CellColor.black
@@ -165,8 +163,6 @@ class CellGridView
         self._viewRows = self._viewHeight / self._cellSize
         self._viewColumnsExtra = (self._viewWidthExtra > 0) ? 1 : 0
         self._viewRowsExtra = (self._viewHeightExtra > 0) ? 1 : 0
-        self._viewColumnEndsVisible = self._viewColumns
-        self._viewRowEndsVisible = self._viewRows
         self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
         self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
         self._viewBackground = viewBackground
@@ -253,15 +249,10 @@ class CellGridView
 
     internal var viewWidthScaled: Int       { self._viewWidth }
     internal var viewHeightScaled: Int      { self._viewHeight }
-    internal var viewColumnEndsVisible: Int { self._viewColumnEndsVisible }
-    internal var viewRowEndsVisible: Int    { self._viewRowEndsVisible }
     internal var viewCellEndX: Int          { self._viewCellEndX }
     internal var viewCellEndY: Int          { self._viewCellEndY }
     internal var cellSizeScaled: Int        { self._cellSize }
     internal var cellPaddingScaled: Int     { self._cellPadding }
-
-    internal var viewColumnsVisible: Int    { self._viewColumns + self._viewColumnsExtra }
-    internal var viewRowsVisible: Int       { self._viewRows + self._viewRowsExtra }
 
     public var shifted: CellLocation {
         return CellLocation(self.shiftCellX * self.cellSize + self.shiftX,
@@ -278,11 +269,7 @@ class CellGridView
     // Sets the cell-grid within the grid-view to be shifted by the given amount,
     // from the upper-left; note that the given shiftx and shifty values are unscaled.
     //
-    public func shift(shiftx: Int, shifty: Int) {
-        self.shift(shiftx: shiftx, shifty: shifty, scaled: false)
-    }
-
-    public func shift(shiftx: Int, shifty: Int, scaled: Bool)
+    public func shift(shiftx: Int, shifty: Int, scaled: Bool = false)
     {
         #if targetEnvironment(simulator)
             let debugStart = Date()
@@ -400,34 +387,6 @@ class CellGridView
         }
         self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
 
-        // Update the view{Column,Row}EndsVisible values; maybe this can
-        // be unified with the view{Columns,Rows}Extra values; maybe not.
-        //
-        if (self._viewWidthExtra == 0) {
-            self._viewColumnEndsVisible = self._viewColumns
-        }
-        else if (self._shiftX == 0) {
-            self._viewColumnEndsVisible = self._viewColumns
-        }
-        else if (self._viewWidthExtra > (self._cellSize + self._shiftX)) {
-            self._viewColumnEndsVisible = self._viewColumns + 1
-        }
-        else {
-            self._viewColumnEndsVisible = self._viewColumns
-        }
-        if (self._viewHeightExtra == 0) {
-            self._viewRowEndsVisible = self._viewRows
-        }
-        else if (self._shiftY == 0) {
-            self._viewRowEndsVisible = self._viewRows
-        }
-        else if (self._viewHeightExtra > (self._cellSize + self._shiftY)) {
-            self._viewRowEndsVisible = self._viewRows + 1
-        }
-        else {
-            self._viewRowEndsVisible = self._viewRows
-        }
-
         // Now actually write the cells to the view.
 
         for vy in 0...self._viewCellEndY {
@@ -438,16 +397,16 @@ class CellGridView
 
         #if targetEnvironment(simulator)
             let shiftScaledXR: Int = modulo(self._cellSize + self._shiftX - self._viewWidthExtra, self._cellSize)
-            var okay: Bool = false
+            var even: Bool = false
             if [0, 1].contains(abs(abs(shiftScaledXR) - abs(self.shiftScaledX))) {
-                okay = true
+                even = true
             }
             else if ((self.shiftScaledX == -(self.cellSizeScaled - 1)) && (shiftScaledXR == 0)) {
-                okay = true
+                even = true
             }
             else if (self.shiftScaledX > 0) {
                 if [0, 1].contains(abs(self.shiftScaledX - (self.cellSizeScaled - shiftScaledXR))) {
-                    okay = true
+                    even = true
                 }
             }
             print(String(format: "SHIFT(\(shiftx),\(shifty))> %.5fs" +
@@ -455,8 +414,6 @@ class CellGridView
                                  " vwe: [\(self._viewWidthExtra)]" +
                                  " vc: \(self.viewColumns)" +
                                  " vce: \(self._viewColumnsExtra)" +
-                                 " vcv: \(self.viewColumnsVisible)" +
-                                 " vcev: \(self._viewColumnEndsVisible)" +
                                  " cs: \(self.cellSizeScaled)" +
                                  " csu: \(self.cellSize)" +
                                  " sht: [\(self.shifted(scaled: true).x),\(self.shifted(scaled: true).y)]" +
@@ -466,7 +423,7 @@ class CellGridView
                                  " shu: [\(self.shiftX),\(self.shiftY)]" +
                                  " sho: \(shiftScaledXR)" +
                                  " bm: \(self._bufferBlocks.memoryUsageBytes)" +
-                                 " ok: \(okay)",
+                                 " even: \(even)",
                   Date().timeIntervalSince(debugStart)))
         #endif
     }
@@ -622,21 +579,5 @@ class CellGridView
 
     public func resizeCells(cellSize: Int, adjustShift: Bool, scaled: Bool = false) {
         Zoom.resizeCells(cellGridView: self, cellSize: cellSize, adjustShift: adjustShift, scaled: scaled)
-    }
-
-    // TODO MAYBE ...
-    // Move this to: CellGridView+Grid.swift
-    //
-    private func defineGridCells(gridColumns: Int, gridRows: Int,
-                                 gridCellFactory: Cell.Factory?, foreground: CellColor) -> [Cell]
-    {
-        var gridCells: [Cell] = []
-        for y in 0..<gridRows {
-            for x in 0..<gridColumns {
-                gridCells.append(gridCellFactory?(self, x, y, foreground) ??
-                                 Cell(parent: self, x: x, y: y, foreground: foreground))
-            }
-        }
-        return gridCells
     }
 }
