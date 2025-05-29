@@ -198,7 +198,7 @@ class CellGridView
         get { self._viewScaling }
         set {
             if (newValue != self._viewScaling) {
-                let shiftedCurrent: CellLocation = self.shifted
+                let shifted: CellLocation = self.shifted(scaled: true)
                 self.configure(cellSize: self.cellSize,
                                cellPadding: self.cellPadding,
                                cellShape: self.cellShape,
@@ -210,7 +210,7 @@ class CellGridView
                 //
                 // TODO: This is messing up the shift we think ...
                 //
-                self.shift(shiftx: shiftedCurrent.x, shifty: shiftedCurrent.y, scaled: true)
+                self.shift(shiftx: shifted.x, shifty: shifted.y, scaled: true)
             }
         }
     }
@@ -410,8 +410,9 @@ class CellGridView
                 }
             }
             print(String(format: "SHIFT(\(shiftx),\(shifty))> %.5fs" +
-                                 " vw: [\(self._viewWidth)]" +
-                                 " vwe: [\(self._viewWidthExtra)]" +
+                                 " sc: \(self._viewScaling)" +
+                                 " vw: \(self._viewWidth)" +
+                                 " vwe: \(self._viewWidthExtra)" +
                                  " vc: \(self.viewColumns)" +
                                  " vce: \(self._viewColumnsExtra)" +
                                  " cs: \(self.cellSizeScaled)" +
@@ -532,13 +533,13 @@ class CellGridView
 
                 guard start >= 0, (start + (count * Memory.bufferBlockSize)) < size else {
                     //
-                    // N.B. Recently change about guard from "<= size" to  "< size" because it was off by one,
-                    // just making a not of it here in case something for some reasone breaks (2025-05-15 12:40).
+                    // N.B. Recently changed above guard from "<= size" to  "< size" because it was off by one,
+                    // just making a note of it here in case something for some reasone breaks (2025-05-15 12:40).
                     //
-                    // At least (and only pretty sure) for the Y (vertical) case we get here on shifting;
-                    // why; because we are being sloppy with the vertical, because it was easier.
+                    // At least (and only pretty sure) for the Y (vertical) case we get here on shifting; why;
+                    // because we are being sloppy with the vertical, because it was easier; think fine though.
                     //
-                    // TODO but probably not because these micro optimizations are getting ridiculous:
+                    // TODO: But probably not; because these micro optimizations are getting ridiculous:
                     // could precompute the block background times blend values based on the current
                     // view background (which in practice should rarely if ever change), would save
                     // subtraction of blend from 1.0 and its multiplication by background in this
