@@ -34,6 +34,7 @@ class CellGrid: ObservableObject
     private var _cellFactory: Cell.Factory?
     private var _dragStart: CellLocation? = nil
     private var _dragStartShifted: CellLocation? = nil
+    private var _dragger: CellGridView.Drag? = nil
     private var _zoomer: CellGridView.Zoom? = nil
 
     init(cellFactory: Cell.Factory? = nil) {
@@ -149,6 +150,9 @@ class CellGrid: ObservableObject
 
     public func onDrag(_ location: CGPoint) {
         if let cells = self._cellGridView {
+            do { // new
+                self._dragger = CellGridView.Drag(cells, location)
+            }
             if (self._dragStartShifted == nil) {
                 self._dragStart = CellLocation(location)
                 self._dragStartShifted = cells.shifted
