@@ -6,11 +6,11 @@ extension CellGridView
     @MainActor
     public struct Zoom {
 
-        public var cellGridView: CellGridView
-        public var startCellSize: Int
-        public var startShiftedX: Int
-        public var startShiftedY: Int
-        public var scaled: Bool
+        public let cellGridView: CellGridView
+        public let startCellSize: Int
+        public let startShiftedX: Int
+        public let startShiftedY: Int
+        public let scaled: Bool
 
         public func zoom(_ zoom: CGFloat) {
             let cellSizeZoomed: CGFloat = CGFloat(self.startCellSize) * zoom

@@ -94,16 +94,6 @@ class CellGridView
          gridRows: Int,
          gridCellFactory: Cell.Factory? = nil)
     {
-        self._gridColumns = gridColumns > 0 ? gridColumns : self._viewColumns // TODO the else on this doesnt make sense (0)
-        self._gridRows = gridRows > 0 ? gridRows : self._viewRows
-        self._gridCellEndX = self._gridColumns - 1
-        self._gridCellEndY = self._gridRows - 1
-        self._gridCellFactory = gridCellFactory
-        self._gridCells = self.defineGridCells(gridColumns: self._gridColumns,
-                                               gridRows: self._gridRows,
-                                               gridCellFactory: self._gridCellFactory,
-                                               foreground: CellGrid.Defaults.cellForeground)
-
         let preferredSize = CellGridView.preferredSize(viewWidth: viewWidth, viewHeight: viewHeight,
                                                        cellSize: cellSize, enabled: cellFit)
         self.configure(cellSize: preferredSize.cellSize,
@@ -114,6 +104,16 @@ class CellGridView
                        viewBackground: viewBackground,
                        viewTransparency: viewTransparency,
                        viewScaling: viewScaling)
+
+        self._gridColumns = gridColumns > 0 ? gridColumns : self._viewColumns
+        self._gridRows = gridRows > 0 ? gridRows : self._viewRows
+        self._gridCellEndX = self._gridColumns - 1
+        self._gridCellEndY = self._gridRows - 1
+        self._gridCellFactory = gridCellFactory
+        self._gridCells = self.defineGridCells(gridColumns: self._gridColumns,
+                                               gridRows: self._gridRows,
+                                               gridCellFactory: self._gridCellFactory,
+                                               foreground: CellGrid.Defaults.cellForeground)
 
         #if targetEnvironment(simulator)
             self.printSizes(viewWidthInit: viewWidth, viewHeightInit: viewHeight,
