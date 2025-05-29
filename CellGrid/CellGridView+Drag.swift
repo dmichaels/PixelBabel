@@ -6,11 +6,11 @@ extension CellGridView
     @MainActor
     public struct Drag
     {
-        public let cellGridView: CellGridView
-        public let startX: Int
-        public let startY: Int
-        public let startShiftedX: Int
-        public let startShiftedY: Int
+        private let cellGridView: CellGridView
+        private let startX: Int
+        private let startY: Int
+        private let startShiftedX: Int
+        private let startShiftedY: Int
 
         init(_ cellGridView: CellGridView, _ viewPoint: CGPoint) {
             self.cellGridView = cellGridView
