@@ -9,9 +9,9 @@ import Utils
 // or anything weird; assume called from the buffer setting loop in the PixelMap._write method.
 //
 // Note on terminology: We say "cell-grid" to mean the virtual grid of all cells in existence,
-// and "grid-view" to mean the viewable window (image) in which is a subset of the cell-grid.
-// We say "point" to mean a pixel coordinate (coming from a gesture) which is not scaled.
-// We say "location" to mean a coordinate cell-based coordinate on the cell-grid or grid-view;
+// and "grid-view" to mean the viewable window (image) in which is displayed a subset of the cell-grid.
+// We say "point" or "view-point" to mean a pixel coordinate (coming from a gesture) which is not scaled.
+// We say "location" or "cell-location" to mean a cell-based coordinate on the cell-grid or grid-view.
 
 @MainActor
 class CellGridView
@@ -572,7 +572,7 @@ class CellGridView
         }
     }
 
-    public func resizeCells(cellSize: Int, adjustShift: Bool, scaled: Bool = false) {
+    public func resize(cellSize: Int, adjustShift: Bool, scaled: Bool = false) {
         Zoom.resizeCells(cellGridView: self, cellSize: cellSize, adjustShift: adjustShift, scaled: scaled)
     }
 }

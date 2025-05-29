@@ -1,5 +1,7 @@
 import Foundation
 
+// Represents an integer based cell-based (cell-indexed) location within the cell-grid.
+//
 struct CellLocation: Equatable, CustomStringConvertible
 {
     public let x: Int

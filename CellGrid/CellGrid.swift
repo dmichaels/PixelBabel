@@ -148,31 +148,6 @@ class CellGrid: ObservableObject
         return self._cellGridView!.normalizedPoint(screenPoint: screenPoint, viewOrigin: viewOrigin, orientation: orientation)
     }
 
-    public func onDrag(_ location: CGPoint) {
-        if let cells = self._cellGridView {
-            do { // new
-                self._dragger = CellGridView.Drag(cells, location)
-            }
-            if (self._dragStartShifted == nil) {
-                self._dragStart = CellLocation(location)
-                self._dragStartShifted = cells.shifted
-            }
-            else {
-                let dragLocation = CellLocation(location)
-                let dragDeltaX = self._dragStart!.x - dragLocation.x
-                let dragDeltaY = self._dragStart!.y - dragLocation.y
-                let dragGridShiftX =  self._dragStartShifted!.x - dragDeltaX
-                let dragGridShiftY = self._dragStartShifted!.y - dragDeltaY
-                cells.shift(shiftx: dragGridShiftX, shifty: dragGridShiftY)
-            }
-        }
-    }
-
-    public func onDragEnd(_ location: CGPoint) {
-        self._dragStart = nil
-        self._dragStartShifted = nil
-    }
-
     public func onTap(_ location: CGPoint) {
         if let cellGridView = self._cellGridView {
             if let cell: LifeCell = cellGridView.gridCell(viewPoint: location) {
@@ -185,11 +160,11 @@ class CellGrid: ObservableObject
                 }
                 else if ((cell.x == 3) && (cell.y == 6)) { // resize -1 unscaled | green
                     let cellSize: Int = cellGridView.cellSize - increment
-                    cellGridView.resizeCells(cellSize: cellSize, adjustShift: true, scaled: false)
+                    cellGridView.resize(cellSize: cellSize, adjustShift: true, scaled: false)
                 }
                 else if ((cell.x == 4) && (cell.y == 6)) { // resize +1 unscaled | purple
                     let cellSize: Int = cellGridView.cellSize + increment
-                    cellGridView.resizeCells(cellSize: cellSize, adjustShift: true, scaled: false)
+                    cellGridView.resize(cellSize: cellSize, adjustShift: true, scaled: false)
                 }
                 else if ((cell.x == 3) && (cell.y == 7)) { // shift -1 scaled | dark blue
                     cellGridView.shift(shiftx: cellGridView.shifted(scaled: true).x - increment, shifty: cellGridView.shifted(scaled: true).y, scaled: true)
@@ -199,11 +174,11 @@ class CellGrid: ObservableObject
                 }
                 else if ((cell.x == 3) && (cell.y == 8)) { // resize -1 scaled | dark green
                     let cellSize: Int = cellGridView.cellSizeScaled - increment
-                    cellGridView.resizeCells(cellSize: cellSize, adjustShift: true, scaled: true)
+                    cellGridView.resize(cellSize: cellSize, adjustShift: true, scaled: true)
                 }
                 else if ((cell.x == 4) && (cell.y == 8)) { // resize +1 scaled | dark purple
                     let cellSize: Int = cellGridView.cellSizeScaled + increment
-                    cellGridView.resizeCells(cellSize: cellSize, adjustShift: true, scaled: true)
+                    cellGridView.resize(cellSize: cellSize, adjustShift: true, scaled: true)
                 }
                 else if ((cell.x == 5) && (cell.y == 9)) { // toggle scaled | yellow
                     cellGridView.viewScaling = !cellGridView.viewScaling
@@ -216,18 +191,35 @@ class CellGrid: ObservableObject
         }
     }
 
-    public func onZoom(_ zoom: CGFloat) {
-        if let zoomer: CellGridView.Zoom = self._zoomer {
-            zoomer.zoom(zoom)
+    public func onDrag(_ viewPoint: CGPoint) {
+        guard let dragger: CellGridView.Drag = self._dragger else {
+            if let cellGridView = self._cellGridView {
+                self._dragger = CellGridView.Drag(cellGridView, viewPoint)
+            }
+            return
         }
-        else if let cellGridView: CellGridView = self._cellGridView {
-            self._zoomer = CellGridView.Zoom.start(cellGridView: cellGridView, zoom: zoom)
+        dragger.drag(viewPoint)
+    }
+
+    public func onDragEnd(_ viewPoint: CGPoint) {
+        if let dragger: CellGridView.Drag = self._dragger {
+            dragger.end(viewPoint)
         }
     }
 
-    public func onZoomEnd(_ zoom: CGFloat) {
+    public func onZoom(_ zoomFactor: CGFloat) {
+        guard let zoomer: CellGridView.Zoom = self._zoomer else {
+            if let cellGridView = self._cellGridView {
+                self._zoomer = CellGridView.Zoom(cellGridView, zoomFactor)
+            }
+            return
+        }
+        zoomer.zoom(zoomFactor)
+    }
+
+    public func onZoomEnd(_ zoomFactor: CGFloat) {
         if let zoomer: CellGridView.Zoom = self._zoomer {
-            self._zoomer = zoomer.end(zoom)
+            self._zoomer = zoomer.end(zoomFactor)
         }
     }
 

@@ -11,32 +11,30 @@ extension CellGridView
         public let startShiftedX: Int
         public let startShiftedY: Int
 
-        public func zoom(_ zoom: CGFloat) {
-            let cellSizeZoomed: CGFloat = CGFloat(self.startCellSize) * zoom
+        public init(_ cellGridView: CellGridView, _ zoomFactor: CGFloat) {
+            let shifted: CellLocation = cellGridView.shifted(scaled: true)
+            self.cellGridView = cellGridView
+            self.startCellSize = cellGridView.cellSizeScaled
+            self.startShiftedX = shifted.x
+            self.startShiftedY = shifted.y
+            self.zoom(zoomFactor)
+        }
+
+        public func zoom(_ zoomFactor: CGFloat) {
+            let cellSizeZoomed: CGFloat = CGFloat(self.startCellSize) * zoomFactor
             let cellSize: Int = Int(cellSizeZoomed.rounded(FloatingPointRoundingRule.toNearestOrEven))
             let cellSizeIncrement: Int = cellSize - self.startCellSize
-            cellGridView.resizeCells(cellSize: cellSize, adjustShift: true, scaled: true)
+            Zoom.resizeCells(cellGridView: self.cellGridView, cellSize: cellSize, adjustShift: true, scaled: true)
         }
 
-        // TODO
-        // OR maybe just use init; more straight-forward; thought there was but no real reason for static creation.
-        //
-        public static func start(cellGridView: CellGridView, zoom: CGFloat) -> Zoom {
-            let shifted: CellLocation = cellGridView.shifted(scaled: true)
-            let zoomer: Zoom = Zoom(cellGridView: cellGridView,
-                                    startCellSize: cellGridView.cellSizeScaled,
-                                    startShiftedX: shifted.x,
-                                    startShiftedY: shifted.y)
-            zoomer.zoom(zoom)
-            return zoomer
-        }
-
-        public func end(_ zoom: CGFloat) -> Zoom? {
-            self.zoom(zoom)
+        public func end(_ zoomFactor: CGFloat) -> Zoom? {
+            self.zoom(zoomFactor)
             return nil
         }
 
-        public static func resizeCells(cellGridView: CellGridView, cellSize: Int, adjustShift: Bool, scaled: Bool = false)
+        // TODO: Should be private when no longer calling from GridView for debugging.
+        //
+        internal static func resizeCells(cellGridView: CellGridView, cellSize: Int, adjustShift: Bool, scaled: Bool = false)
         {
             let cellSize = cellGridView.constrainCellSize(!scaled ? cellGridView.scaled(cellSize) : cellSize, scaled: true)
 

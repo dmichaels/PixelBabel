@@ -12,18 +12,19 @@ extension CellGridView
         public let startShiftedX: Int
         public let startShiftedY: Int
 
-        init(_ cellGridView: CellGridView, _ screenPoint: CGPoint) {
+        init(_ cellGridView: CellGridView, _ viewPoint: CGPoint) {
             self.cellGridView = cellGridView
-            self.startX = Int(round(screenPoint.x))
-            self.startY = Int(round(screenPoint.y))
-            let startShifted: CellLocation = cellGridView.shifted
+            self.startX = Int(round(viewPoint.x))
+            self.startY = Int(round(viewPoint.y))
+            // let startShifted: CellLocation = cellGridView.shifted
+            let startShifted: ViewPoint = cellGridView.shifted
             self.startShiftedX = startShifted.x
             self.startShiftedY = startShifted.y
         }
 
-        public func drag(_ screenPoint: CGPoint) {
-            let dragX: Int = Int(round(screenPoint.x))
-            let dragY: Int = Int(round(screenPoint.y))
+        public func drag(_ viewPoint: CGPoint) {
+            let dragX: Int = Int(round(viewPoint.x))
+            let dragY: Int = Int(round(viewPoint.y))
             let dragDeltaX = self.startX - dragX
             let dragDeltaY = self.startY - dragY
             let shiftX =  self.startShiftedX - dragDeltaX
@@ -31,8 +32,8 @@ extension CellGridView
             self.cellGridView.shift(shiftx: shiftX, shifty: shiftY)
         }
 
-        public func end(_ screenPoint: CGPoint) {
-            self.drag(screenPoint)
+        public func end(_ viewPoint: CGPoint) {
+            self.drag(viewPoint)
         }
     }
 }
