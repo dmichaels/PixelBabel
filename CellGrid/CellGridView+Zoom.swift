@@ -12,7 +12,7 @@ extension CellGridView
         private let startShiftedY: Int
 
         public init(_ cellGridView: CellGridView, _ zoomFactor: CGFloat) {
-            let shifted: CellLocation = cellGridView.shifted(scaled: true)
+            let shifted: ViewPoint = cellGridView.shifted(scaled: true)
             self.cellGridView = cellGridView
             self.startCellSize = cellGridView.cellSizeScaled
             self.startShiftedX = shifted.x
@@ -67,7 +67,7 @@ extension CellGridView
             let cellSizeCurrent: Int = cellGridView.cellSizeScaled
             let cellSizeIncrement: Int = cellSize - cellSizeCurrent
             guard cellSizeIncrement != 0 else { return (x: 0, y: 0) }
-            let shiftTotalCurrent: CellLocation = cellGridView.shifted(scaled: true)
+            let shiftTotalCurrent: ViewPoint = cellGridView.shifted(scaled: true)
             let shiftTotalAdjustedX: Int = adjustShiftTotal(viewSize: cellGridView.viewWidthScaled,
                                                             cellSize: cellSizeCurrent,
                                                             cellSizeIncrement: cellSizeIncrement,

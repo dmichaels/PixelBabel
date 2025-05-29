@@ -198,7 +198,7 @@ class CellGridView
         get { self._viewScaling }
         set {
             if (newValue != self._viewScaling) {
-                let shifted: CellLocation = self.shifted(scaled: newValue)
+                let shifted: ViewPoint = self.shifted(scaled: newValue)
                 self.configure(cellSize: self.cellSize,
                                cellPadding: self.cellPadding,
                                cellShape: self.cellShape,
@@ -251,16 +251,16 @@ class CellGridView
     internal var shiftScaledX: Int         { self._shiftX }
     internal var shiftScaledY: Int         { self._shiftY }
 
-    public var shifted: CellLocation {
-        return CellLocation(self.shiftCellX * self.cellSize + self.shiftX,
-                            self.shiftCellY * self.cellSize + self.shiftY)
+    public var shifted: ViewPoint {
+        return ViewPoint(self.shiftCellX * self.cellSize + self.shiftX,
+                         self.shiftCellY * self.cellSize + self.shiftY)
     }
 
-    internal func shifted(scaled: Bool = false) -> CellLocation {
-        return scaled ? CellLocation(self.shiftCellX * self.cellSizeScaled + self.shiftScaledX,
-                                     self.shiftCellY * self.cellSizeScaled + self.shiftScaledY)
-                      : CellLocation(self.shiftCellX * self.cellSize + self.shiftX,
-                                     self.shiftCellY * self.cellSize + self.shiftY)
+    internal func shifted(scaled: Bool = false) -> ViewPoint {
+        return scaled ? ViewPoint(self.shiftCellX * self.cellSizeScaled + self.shiftScaledX,
+                                  self.shiftCellY * self.cellSizeScaled + self.shiftScaledY)
+                      : ViewPoint(self.shiftCellX * self.cellSize + self.shiftX,
+                                  self.shiftCellY * self.cellSize + self.shiftY)
     }
 
     // Sets the cell-grid within the grid-view to be shifted by the given amount,
