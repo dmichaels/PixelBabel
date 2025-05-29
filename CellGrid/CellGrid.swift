@@ -20,7 +20,7 @@ class CellGrid: ObservableObject
         // For example generating grid-view with rounded is like 0.074 vs inset is like 0.018.
         // But tricker as it implies no scaling so different/smaller buffer size (the point).
         //
-        public static let cellShape: CellShape = CellShape.rounded
+        public static let cellShape: CellShape = CellShape.circle // CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color
         public static let cellForeground: CellColor = CellColor(Color.teal) // CellColor.black
         public static let cellBackground: CellColor = CellColor(40, 40, 40)

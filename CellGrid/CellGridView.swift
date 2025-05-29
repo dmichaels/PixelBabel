@@ -138,19 +138,15 @@ class CellGridView
 
         // Sanity check the cell-size and cell-padding.
 
-        let cellPadding: Int = cellPadding.clamped(0...Defaults.cellPaddingMax)
-        let cellSize = cellSize.clamped(Defaults.cellSizeInnerMin + (cellPadding * 2)...Defaults.cellSizeMax)
-
-        // N.B. It is important that this happens here first
-        // so that subsequent calls to self.scaled work property.
-        //
-        // self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
+        let cellSize: Int = constrainCellSize(cellSize)
+        let cellPadding: Int = constrainCellPadding(cellPadding)
 
         self._viewWidth = self.scaled(viewWidth)
         self._viewHeight = self.scaled(viewHeight)
         self._cellSize = self.scaled(cellSize)
         self._cellSizeTimesViewWidth = self._cellSize * self._viewWidth
         self._cellPadding = self.scaled(cellPadding)
+        self._cellShape = cellShape
 
         self._unscaled_viewWidth = viewWidth
         self._unscaled_viewHeight = viewHeight
@@ -170,6 +166,8 @@ class CellGridView
         self._viewRowEndsVisible = self._viewRows
         self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
         self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
+        self._viewBackground = viewBackground
+        self._viewTransparency = viewTransparency
 
         self._buffer = Memory.allocate(self._viewWidth * self._viewHeight * Screen.depth)
         self._bufferBlocks = BufferBlocks.createBufferBlocks(bufferSize: self._buffer.count,
@@ -199,27 +197,24 @@ class CellGridView
 
         // Sanity check the cell-size and cell-padding.
 
-        let cellPaddingMax: Int = self.scaled(Defaults.cellPaddingMax)
-        let cellSizeInnerMin: Int = self.scaled(Defaults.cellSizeInnerMin)
-        let cellSizeMax: Int = self.scaled(Defaults.cellSizeMax)
-        let cellPadding: Int = cellPadding.clamped(0...cellPaddingMax)
-        //
+        // let cellPaddingMax: Int = self.scaled(Defaults.cellPaddingMax)
+        // let cellSizeInnerMin: Int = self.scaled(Defaults.cellSizeInnerMin)
+        // let cellSizeMax: Int = self.scaled(Defaults.cellSizeMax)
+        // let cellPadding: Int = cellPadding.clamped(0...cellPaddingMax)
         // TODO
         // Not sure this is being imposed correctly ...
         // Think if we reach the max better make sure not to do anything else like shift etc; havent thought through ...
-        //
-        var cellSize = cellSize.clamped(cellSizeInnerMin + (cellPadding * 2)...cellSizeMax)
+        // var cellSize = cellSize.clamped(cellSizeInnerMin + (cellPadding * 2)...cellSizeMax)
 
-        // N.B. It is important that this happens here first
-        // so that subsequent calls to self.scaled work property.
-        //
-        // self._viewScaling = [CellShape.square, CellShape.inset].contains(cellShape) ? false : viewScaling
+        let cellSize: Int = constrainCellSize(cellSize, scaled: true)
+        let cellPadding: Int = constrainCellPadding(cellPadding, scaled: true)
 
         self._viewWidth = viewWidth
         self._viewHeight = viewHeight
         self._cellSize = cellSize
         self._cellSizeTimesViewWidth = self._cellSize * self._viewWidth
         self._cellPadding = cellPadding
+        self._cellShape = cellShape
 
         self._unscaled_viewWidth = self.unscaled(viewWidth)
         self._unscaled_viewHeight = self.unscaled(viewHeight)
@@ -236,6 +231,8 @@ class CellGridView
         self._viewRowEndsVisible = self._viewRows
         self._viewCellEndX = self._viewColumns + self._viewColumnsExtra - 1
         self._viewCellEndY = self._viewRows + self._viewRowsExtra - 1
+        self._viewBackground = viewBackground
+        self._viewTransparency = viewTransparency
 
         self._buffer = Memory.allocate(self._viewWidth * self._viewHeight * Screen.depth)
         self._bufferBlocks = BufferBlocks.createBufferBlocks(bufferSize: self._buffer.count,
@@ -259,7 +256,7 @@ class CellGridView
 
     private func constrainCellPadding(_ cellPadding: Int, scaled: Bool = false) -> Int {
         let cellPaddingMax: Int = scaled ? self.scaled(Defaults.cellPaddingMax) : Defaults.cellPaddingMax
-        let cellPadding: Int = scaled ? self.cellPaddingScaled : self.cellPadding
+        let cellPadding: Int = scaled ? self.cellPaddingScaled : cellPadding
         return cellPadding.clamped(0...cellPaddingMax)
     }
 
