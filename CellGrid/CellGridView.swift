@@ -483,15 +483,6 @@ class CellGridView
                                  " bm: \(self._bufferBlocks.memoryUsageBytes)" +
                                  " even: \(even)",
                   Date().timeIntervalSince(debugStart)))
-
-            print("RESTRICT-WORK:" +
-                   " shiftX: \(self._shiftX)" +
-                   " shiftCellX: \(self._shiftCellX)" +
-                   " viewCellEndX: \(self._viewCellEndX)" +
-                   " viewColumnsExtra: \(self._viewColumnsExtra)" +
-                   " viewCellEnd: \(self._viewCellEndX - self._viewColumnsExtra)" +
-                   " gridCellEnd: \(self._gridCellEndX)" +
-                   " gridColumns: \(self._gridColumns)")
         #endif
     }
 
