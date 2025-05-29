@@ -316,9 +316,9 @@ class CellGridView
                 if (viewSizeExtra > 0) {
                     let totalShift = (shiftCellXY * self._cellSize) + shiftXY
                     if ((viewSize - totalShift) <= self._cellSize) {
-                        let adjustedSize = viewSize - self._cellSize
-                        shiftCellXY = adjustedSize / self._cellSize
-                        shiftXY = adjustedSize % self._cellSize
+                        let viewSizeAdjusted = viewSize - self._cellSize
+                        shiftCellXY = viewSizeAdjusted / self._cellSize
+                        shiftXY = viewSizeAdjusted % self._cellSize
                     }
                 } else {
                     shiftCellXY = viewCellEndXY
