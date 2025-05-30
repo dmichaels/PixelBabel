@@ -120,6 +120,14 @@ class CellGridView
             self.printSizes(viewWidthInit: viewWidth, viewHeightInit: viewHeight,
                             cellSizeInit: cellSize, cellFitInit: cellFit)
         #endif
+
+        let center: Bool = true
+        if (center) {
+            self.center()
+        }
+        else {
+            self.shift(shiftx: 0, shifty: 0, scaled: false)
+        }
     }
 
     internal func configure(cellSize: Int,
@@ -262,6 +270,15 @@ class CellGridView
                                   self.shiftCellY * self.cellSizeScaled + self.shiftScaledY)
                       : ViewPoint(self.shiftCellX * self.cellSize + self.shiftX,
                                   self.shiftCellY * self.cellSize + self.shiftY)
+    }
+
+    public func center()
+    {
+        let gridWidth: Int = self.gridColumns * self.cellSize
+        let gridHeight: Int = self.gridRows * self.cellSize
+        let shiftTotalX: Int = -Int(round(Double(gridWidth) / 2.0))
+        let shiftTotalY: Int = -Int(round(Double(gridHeight) / 2.0))
+        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY)
     }
 
     // Sets the cell-grid within the grid-view to be shifted by the given amount,

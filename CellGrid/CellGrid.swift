@@ -70,9 +70,9 @@ class CellGrid: ObservableObject
                                           gridCellFactory: self._cellFactory)
 
 
-        if let cells = self._cellGridView {
+        /* if let cells = self._cellGridView {
             cells.shift(shiftx: 0, shifty: 0, scaled: false)
-        }
+        } */
 
     }
 
