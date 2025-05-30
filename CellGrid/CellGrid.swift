@@ -68,12 +68,6 @@ class CellGrid: ObservableObject
                                           gridColumns: self._gridColumns,
                                           gridRows: self._gridRows,
                                           gridCellFactory: self._cellFactory)
-
-
-        /* if let cells = self._cellGridView {
-            cells.shift(shiftx: 0, shifty: 0, scaled: false)
-        } */
-
     }
 
     public var displayScale: CGFloat {
