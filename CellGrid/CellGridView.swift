@@ -22,7 +22,7 @@ class CellGridView
         //
         public static var cellPaddingMax: Int = 8
         public static var cellSizeMax: Int = 200
-        public static var cellSizeInnerMin: Int = 6
+        public static var cellSizeInnerMin: Int = 3
         public static var preferredSizeMarginMax: Int = 30
         public static let cellAntialiasFade: Float = 0.6  // smaller is smoother
         public static let cellRoundedRectangleRadius: Float = 0.25
