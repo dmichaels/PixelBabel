@@ -15,3 +15,5 @@ project.xcworkspace/xcuserdata/
 
 # Derived data
 DerivedData/
+
+.tmp/
