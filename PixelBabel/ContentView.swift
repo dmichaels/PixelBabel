@@ -218,13 +218,11 @@ struct ContentView: View
     }
 
     private func autoTappingStart() {
-        /*
         self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: self.timerInterval, repeats: true) { _ in
             // self.cellGrid.randomize()
             self.cellGrid.testingLife()
             self.updateImage()
         }
-        */
     }
 
     private func autoTappingStop() {
