@@ -11,3 +11,6 @@ Branchs:
 
 - performance-work-related-to-dynamic-resizing-20250510
   Latest development circa April/May/June 2025.
+  First branch/version where all of the arithmetic is right for shifting and resizing.
+  This has morphed into work on a generic cell-grid-view based set of functionality to be
+  resused in any cell based app, e.g. Conway's Game of Life; PixelBabel classic, et cetera.

@@ -44,20 +44,20 @@ struct ContentView: View
                             .gesture(
                                 DragGesture(minimumDistance: 0)
                                     .onChanged { value in
-                                        let normalizedLocation = self.normalizedLocation(value.location)
+                                        let normalizedPoint = self.normalizedPoint(value.location)
                                         if (self.draggingStart == nil) {
-                                            self.draggingStart = normalizedLocation
+                                            self.draggingStart = normalizedPoint
                                         }
-                                        let delta = hypot(normalizedLocation.x - self.draggingStart!.x,
-                                                          normalizedLocation.y - self.draggingStart!.y)
+                                        let delta = hypot(normalizedPoint.x - self.draggingStart!.x,
+                                                          normalizedPoint.y - self.draggingStart!.y)
                                         if (delta > DefaultSettings.draggingThreshold) {
                                             self.dragging = true
-                                            self.cellGrid.onDrag(normalizedLocation)
+                                            self.cellGrid.onDrag(normalizedPoint)
                                             self.updateImage()
                                         }
                                     }
                                     .onEnded { value in
-                                        let normalizedLocation = self.normalizedLocation(value.location)
+                                        let normalizedPoint = self.normalizedPoint(value.location)
                                         let swipeDistance = (self.orientation.current == .portraitUpsideDown) ?
                                                              value.translation.height : value.translation.width
                                         if (swipeDistance < -DefaultSettings.swipeDistance) {
@@ -74,14 +74,20 @@ struct ContentView: View
                                             //
                                         }
                                         if (self.dragging) {
-                                            self.cellGrid.onDragEnd(normalizedLocation)
+                                            self.cellGrid.onDragEnd(normalizedPoint)
                                             self.updateImage()
                                         } else {
-                                            self.cellGrid.onTap(normalizedLocation)
+                                            self.cellGrid.onTap(normalizedPoint)
                                             self.updateImage()
                                         }
                                         self.draggingStart = nil
                                         self.dragging = false
+                                    }
+                            )
+                            .simultaneousGesture(
+                                TapGesture(count: 2)
+                                    .onEnded {
+                                        self.cellGrid.onDoubleTap()
                                     }
                             )
                             .simultaneousGesture(
@@ -91,8 +97,8 @@ struct ContentView: View
                                         switch value {
                                             case .second(true, let drag):
                                                 if let location = drag?.location {
-                                                    let normalizedLocation = self.normalizedLocation(location)
-                                                    if (self.cellGrid.locate(normalizedLocation) != nil) {
+                                                    let normalizedPoint = self.normalizedPoint(location)
+                                                    if (self.cellGrid.locate(normalizedPoint) != nil) {
                                                         self.autoTapping.toggle()
                                                         if (self.autoTapping) {
                                                             self.autoTappingStart()
@@ -107,6 +113,18 @@ struct ContentView: View
                                         }
                                     }
                             )
+                            .simultaneousGesture(
+                                MagnificationGesture()
+                                    .onChanged { value in
+                                        self.cellGrid.onZoom(value)
+                                        self.updateImage()
+                                    }
+                                    .onEnded { value in
+                                        self.cellGrid.onZoomEnd(value)
+                                        self.updateImage()
+                                    }
+                            )
+
                             NavigationLink(
                                 destination: SettingsView(),
                                 isActive: $showSettingsView,
@@ -118,10 +136,8 @@ struct ContentView: View
                     if (!self.cellGridConfigured) {
                         self.cellGridConfigured = true
                         self.geometrySize = geometry.size
-                        print("ON-APPEAR: geosize: \(geometrySize.width) x \(geometrySize.height)")
                         Screen.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
                         let landscape = self.orientation.current.isLandscape
-                        print("CALL-CONFIGURE")
                         self.cellGrid.configure(
                             screen: Screen.shared,
                             displayWidth: landscape ? Screen.shared.height : Screen.shared.width,
@@ -132,13 +148,9 @@ struct ContentView: View
                             cellColorMode: DefaultSettings.cellColorMode,
                             cellBackground: DefaultSettings.cellBackground)
                         // self.cellGrid.randomize()
-                        print("XYZZY-A")
                         // self.cellGrid.testingLifeSetup()
-                        print("XYZZY-B")
                         self.updateImage()
-                        print("XYZZY-C")
                         self.rotateImage()
-                        print("XYZZY-D")
                     }
                 }
                 .navigationTitle("Home")
@@ -200,10 +212,10 @@ struct ContentView: View
         }
     }
 
-    public func normalizedLocation(_ location: CGPoint) -> CGPoint {
-        return self.cellGrid.normalizedLocation(screenPoint: location,
-                                                gridOrigin: parentRelativeImagePosition,
-                                                orientation: self.orientation)
+    public func normalizedPoint(_ location: CGPoint) -> CGPoint {
+        return self.cellGrid.normalizedPoint(screenPoint: location,
+                                             gridOrigin: parentRelativeImagePosition,
+                                             orientation: self.orientation)
     }
 
     private func onChangeOrientation(_ current: UIDeviceOrientation, _ previous: UIDeviceOrientation) {
@@ -211,13 +223,11 @@ struct ContentView: View
     }
 
     private func autoTappingStart() {
-        /*
         self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: self.timerInterval, repeats: true) { _ in
             // self.cellGrid.randomize()
             self.cellGrid.testingLife()
             self.updateImage()
         }
-        */
     }
 
     private func autoTappingStop() {
