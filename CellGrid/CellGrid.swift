@@ -104,6 +104,9 @@ class CellGrid: ObservableObject
         }
     }
 
+    public func onLongTap(_ viewPoint: CGPoint) {
+    }
+
     public func onDrag(_ viewPoint: CGPoint) {
         guard let dragger: CellGridView.Drag = self._dragger else {
             if let cellGridView = self._cellGridView {

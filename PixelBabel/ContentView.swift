@@ -97,6 +97,7 @@ struct ContentView: View
                                         switch value {
                                             case .second(true, let drag):
                                                 if let location = drag?.location {
+                                                    self.cellGrid.onLongTap(location) // TODO
                                                     let normalizedPoint = self.normalizedPoint(location)
                                                     if (self.cellGrid.locate(normalizedPoint) != nil) {
                                                         self.autoTapping.toggle()
