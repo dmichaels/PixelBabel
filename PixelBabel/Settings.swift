@@ -22,6 +22,9 @@ class DefaultSettings
     public static let soundEnabled: Bool                = true
     public static let hapticEnabled: Bool               = true
 
+    public static let gridColumns: Int                  = 50
+    public static let gridRows: Int                     = 75
+
     public static let draggingThreshold: CGFloat        = 3.0
     public static let swipeDistance: CGFloat            = 100
     public static let updateMode: Bool                  = false
@@ -43,6 +46,9 @@ class Settings: ObservableObject
     @Published var automationSpeed: Double           = DefaultSettings.automationSpeed
     @Published var soundEnabled: Bool                = DefaultSettings.soundEnabled
     @Published var hapticEnabled: Bool               = DefaultSettings.hapticEnabled
+
+    @Published var gridColumns: Int                  = DefaultSettings.gridColumns
+    @Published var gridRows: Int                     = DefaultSettings.gridRows
 
     @Published var updateMode: Bool                  = DefaultSettings.updateMode
 }

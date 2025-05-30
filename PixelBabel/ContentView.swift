@@ -99,6 +99,18 @@ struct ContentView: View
                                                 if let location = drag?.location {
                                                     self.cellGrid.onLongTap(location) // TODO
                                                     let normalizedPoint = self.normalizedPoint(location)
+                                                    if let cellGridView = self.cellGrid.cellGridView {
+                                                        if (cellGridView.gridCellLocation(viewPoint: normalizedPoint) != nil) {
+                                                            self.autoTapping.toggle()
+                                                            if (self.autoTapping) {
+                                                                self.autoTappingStart()
+                                                            }
+                                                            else {
+                                                                self.autoTappingStop()
+                                                            }
+                                                        }
+                                                    }
+                                                    /*
                                                     if (self.cellGrid.locate(normalizedPoint) != nil) {
                                                         self.autoTapping.toggle()
                                                         if (self.autoTapping) {
@@ -108,6 +120,7 @@ struct ContentView: View
                                                             self.autoTappingStop()
                                                         }
                                                     }
+                                                    */
                                                 }
                                             default:
                                                 break
@@ -143,6 +156,8 @@ struct ContentView: View
                             screen: Screen.shared,
                             displayWidth: landscape ? Screen.shared.height : Screen.shared.width,
                             displayHeight: landscape ? Screen.shared.width : Screen.shared.height,
+                            gridColumns: 10, // gridColumns,
+                            gridRows: 20, // gridRows,
                             cellSize: DefaultSettings.cellSize,
                             cellPadding: DefaultSettings.cellPadding,
                             cellShape: DefaultSettings.cellShape,

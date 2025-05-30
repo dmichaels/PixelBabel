@@ -26,14 +26,11 @@ class CellGrid: ObservableObject
         public static let cellBackground: CellColor = CellColor.dark
     }
 
-    private var _gridColumns: Int = 120
-    private var _gridRows: Int = 210
     private var _cellGridView: CellGridView? = nil
     private var _cellFactory: Cell.Factory?
     private var _dragger: CellGridView.Drag? = nil
     private var _zoomer: CellGridView.Zoom? = nil
     private var _pickerMode: Bool = false
-    private var _dragCell: Cell? = nil
 
     init(cellFactory: Cell.Factory? = nil) {
         self._cellFactory = cellFactory
@@ -42,6 +39,8 @@ class CellGrid: ObservableObject
     func configure(screen: Screen,
                    displayWidth: Int = Defaults.displayWidth,
                    displayHeight: Int = Defaults.displayHeight,
+                   gridColumns: Int,
+                   gridRows: Int,
                    cellSize: Int = Defaults.cellSize,
                    cellSizeFit: Bool = Defaults.cellSizeFit,
                    cellPadding: Int = Defaults.cellPadding,
@@ -65,8 +64,8 @@ class CellGrid: ObservableObject
                                           cellPadding: cellPadding,
                                           cellFit: cellSizeFit,
                                           cellShape: cellShape,
-                                          gridColumns: self._gridColumns,
-                                          gridRows: self._gridRows,
+                                          gridColumns: gridColumns,
+                                          gridRows: gridRows,
                                           gridCellFactory: self._cellFactory)
     }
 
@@ -143,13 +142,6 @@ class CellGrid: ObservableObject
 
     public func onDoubleTap() {
         self._pickerMode = !self._pickerMode
-    }
-
-    public func locate(_ screenPoint: CGPoint) -> CellLocation? {
-        if let cells = self._cellGridView {
-            return cells.gridCellLocation(viewPoint: screenPoint)
-        }
-        return nil
     }
 
     public var image: CGImage? {
