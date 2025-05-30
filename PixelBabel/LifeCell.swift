@@ -11,6 +11,10 @@ class LifeCell: Cell {
         super.init(parent: parent, x: x, y: y, foreground: foreground)
     }
 
+    public override func select(dragging: Bool = false) {
+        dragging ? self.activate() : self.toggle()
+    }
+
     public var active: Bool {
         self._active
     }

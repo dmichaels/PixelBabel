@@ -26,10 +26,7 @@ extension CellGridView
         public func drag(_ viewPoint: CGPoint, end: Bool = false) {
             if let startCell: LifeCell = self.startCell {
                 if let cell: LifeCell = self.cellGridView.gridCell(viewPoint: viewPoint) {
-                    if (cell.inactive) {
-                        cell.toggle()
-                        cell.write()
-                    }
+                    cell.select(dragging: true)
                 }
                 return
             }

@@ -225,7 +225,8 @@ struct ContentView: View
     private func autoTappingStart() {
         self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: self.timerInterval, repeats: true) { _ in
             // self.cellGrid.randomize()
-            self.cellGrid.testingLife()
+            // self.cellGrid.testingLife()
+            self.testingLife()
             self.updateImage()
         }
     }
@@ -233,6 +234,12 @@ struct ContentView: View
     private func autoTappingStop() {
         self.autoTappingTimer?.invalidate()
         self.autoTappingTimer = nil
+    }
+
+    private func testingLife() {
+        if let cellGridView = self.cellGrid.cellGridView {
+            cellGridView.nextGeneration()
+        }
     }
 }
 

@@ -74,6 +74,10 @@ class CellGrid: ObservableObject
         self._cellGridView!.viewScale
     }
 
+    public var cellGridView: CellGridView? {
+        self._cellGridView
+    }
+
     public func normalizedPoint(screenPoint: CGPoint,
                                 gridOrigin viewOrigin: CGPoint,
                                 orientation: OrientationObserver) -> CGPoint {
@@ -82,7 +86,7 @@ class CellGrid: ObservableObject
 
     public func onTap(_ viewPoint: CGPoint) {
         if let cellGridView = self._cellGridView {
-            if let cell: LifeCell = cellGridView.gridCell(viewPoint: viewPoint) {
+            if let cell: Cell = cellGridView.gridCell(viewPoint: viewPoint) {
                 if ((cell.x == 0) && (cell.y == 0)) {
                     if (self._pickerMode) {
                         self._pickerMode = false
@@ -94,8 +98,7 @@ class CellGrid: ObservableObject
                     }
                 }
                 else {
-                    cell.toggle()
-                    cell.write()
+                    cell.select()
                 }
             }
         }
@@ -144,12 +147,6 @@ class CellGrid: ObservableObject
             return cells.gridCellLocation(viewPoint: screenPoint)
         }
         return nil
-    }
-
-    func testingLife() {
-        if let cells = self._cellGridView {
-            cells.nextGeneration()
-        }
     }
 
     public var image: CGImage? {

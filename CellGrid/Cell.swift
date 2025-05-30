@@ -35,6 +35,12 @@ class Cell
         self._foreground = foreground
     }
 
+    public func select(dragging: Bool = false) {
+        //
+        // To be implemented by subclasses.
+        //
+    }
+
     public func write(foreground: CellColor, foregroundOnly: Bool = false) {
         if let viewCellLocation = self._cellGridView.viewCellLocation(gridCellX: self._x, gridCellY: self._y) {
             self._foreground = foreground
