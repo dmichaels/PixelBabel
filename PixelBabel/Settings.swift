@@ -35,7 +35,7 @@ class Settings: ObservableObject
     @Published var displayScaling: Bool              = DefaultSettings.displayScaling
 
     @Published var cellSize: Int                     = DefaultSettings.cellSize
-    @Published var cellSizeFit: Bool                = DefaultSettings.cellSizeFit
+    @Published var cellSizeFit: Bool                 = DefaultSettings.cellSizeFit
     @Published var cellPadding: Int                  = DefaultSettings.cellPadding
     @Published var cellShape: CellShape              = DefaultSettings.cellShape
     @Published var cellColorMode: CellColorMode      = DefaultSettings.cellColorMode

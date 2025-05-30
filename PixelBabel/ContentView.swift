@@ -164,7 +164,6 @@ struct ContentView: View
                             cellColorMode: DefaultSettings.cellColorMode,
                             cellBackground: DefaultSettings.cellBackground)
                         // self.cellGrid.randomize()
-                        // self.cellGrid.testingLifeSetup()
                         self.updateImage()
                         self.rotateImage()
                     }
@@ -241,8 +240,7 @@ struct ContentView: View
     private func autoTappingStart() {
         self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: self.timerInterval, repeats: true) { _ in
             // self.cellGrid.randomize()
-            // self.cellGrid.testingLife()
-            self.testingLife()
+            self.cellGrid.run()
             self.updateImage()
         }
     }
@@ -251,17 +249,12 @@ struct ContentView: View
         self.autoTappingTimer?.invalidate()
         self.autoTappingTimer = nil
     }
-
-    private func testingLife() {
-        if let cellGridView = self.cellGrid.cellGridView {
-            cellGridView.nextGeneration()
-        }
-    }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static let cellFactory = LifeCell.factory()
-    static let cellGrid = CellGrid(cellFactory: cellFactory)
+    // static let cellGrid = CellGrid(cellFactory: cellFactory)
+    static let cellGrid = LifeCellGrid(cellFactory: cellFactory)
     static let settings = Settings()
     static var previews: some View {
         ContentView()

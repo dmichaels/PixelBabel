@@ -14,3 +14,8 @@ Branchs:
   First branch/version where all of the arithmetic is right for shifting and resizing.
   This has morphed into work on a generic cell-grid-view based set of functionality to be
   resused in any cell based app, e.g. Conway's Game of Life; PixelBabel classic, et cetera.
+  Merged to main on 2025-05-30
+
+- dev-20250530
+  Latest development. Starting actual implementation of Game of Life in more detail now that
+  the basics the the CellGrid stuff is in pretty good shape.

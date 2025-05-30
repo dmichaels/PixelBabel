@@ -147,4 +147,7 @@ class CellGrid: ObservableObject
     public var image: CGImage? {
         self._cellGridView?.image
     }
+
+    public func run() {
+    }
 }
