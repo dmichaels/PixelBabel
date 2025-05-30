@@ -8,3 +8,6 @@ Branchs:
 
 - dev-pixel-updates-20250412
   Development updates hooked up with beta version in App Store Connect.
+
+- performance-work-related-to-dynamic-resizing-20250510
+  Latest development circa April/May/June 2025.
