@@ -7,7 +7,7 @@ extension CellGridView
     public struct Zoom
     {
         private let cellGridView: CellGridView
-        public let startCellSize: Int
+        private let startCellSize: Int
         private let startShiftedX: Int
         private let startShiftedY: Int
 
