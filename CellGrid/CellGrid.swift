@@ -108,13 +108,9 @@ class CellGrid: ObservableObject
     }
 
     public func onDrag(_ viewPoint: CGPoint) {
-        guard !self._pickerMode else {
-            self.onPick(viewPoint)
-            return
-        }
         guard let dragger: CellGridView.Drag = self._dragger else {
             if let cellGridView = self._cellGridView {
-                self._dragger = CellGridView.Drag(cellGridView, viewPoint)
+                self._dragger = CellGridView.Drag(cellGridView, viewPoint, picker: self._pickerMode)
             }
             return
         }
@@ -142,19 +138,6 @@ class CellGrid: ObservableObject
         if let zoomer: CellGridView.Zoom = self._zoomer {
             self._zoomer = zoomer.end(zoomFactor)
             self._zoomer = nil
-        }
-    }
-
-    private func onPick(_ viewPoint: CGPoint) {
-        if let cellGridView = self._cellGridView {
-            if let cell: LifeCell = cellGridView.gridCell(viewPoint: viewPoint) {
-                if ((self._dragCell == nil) || (self._dragCell!.location != cell.location)) {
-                    if (cell.inactive) {
-                        cell.toggle()
-                        cell.write()
-                    }
-                }
-            }
         }
     }
 
