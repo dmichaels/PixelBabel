@@ -8,22 +8,32 @@ extension CellGridView
     {
         private let cellGridView: CellGridView
         private let startCellSize: Int
-        private let startShiftedX: Int
-        private let startShiftedY: Int
+        private let startShiftTotalX: Int
+        private let startShiftTotalY: Int
         private let unscaledDuringZoom: Bool
+
+        private var scaled_startCellSize: Int = 0 // TODO
+        private var scaled_startShiftTotalX: Int = 0 // TODO
+        private var scaled_startShiftTotalY: Int = 0 // TODO
 
         public init(_ cellGridView: CellGridView, _ zoomFactor: CGFloat) {
 
             self.unscaledDuringZoom = DefaultSettings.unscaledDuringZoom && cellGridView.viewScaling
             if (self.unscaledDuringZoom) {
-                cellGridView.viewScaling = false
+                self.scaled_startCellSize = cellGridView.cellSizeScaled // TODO
+                self.scaled_startShiftTotalX = cellGridView.shiftTotalScaledX // TODO
+                self.scaled_startShiftTotalY = cellGridView.shiftTotalScaledY // TODO
+                // cellGridView.viewScaling = false
+                cellGridView.unscale(startCellSize: cellGridView.cellSize,
+                                     startShiftTotalX: cellGridView.shiftTotalX,
+                                     startShiftTotalY: cellGridView.shiftTotalY)
             }
 
             let shifted: ViewPoint = cellGridView.shifted(scaled: true)
             self.cellGridView = cellGridView
             self.startCellSize = cellGridView.cellSizeScaled
-            self.startShiftedX = shifted.x
-            self.startShiftedY = shifted.y
+            self.startShiftTotalX = shifted.x
+            self.startShiftTotalY = shifted.y
             self.zoom(zoomFactor)
         }
 
@@ -37,7 +47,9 @@ extension CellGridView
         public func end(_ zoomFactor: CGFloat) {
             self.zoom(zoomFactor)
             if (self.unscaledDuringZoom) {
-                self.cellGridView.viewScaling = true
+                self.cellGridView.scale(startCellSize: self.scaled_startCellSize,
+                                        startShiftTotalX: self.scaled_startShiftTotalX,
+                                        startShiftTotalY: self.scaled_startShiftTotalY)
             }
         }
 
@@ -71,7 +83,8 @@ extension CellGridView
             }
         }
 
-        private static func calculateShiftForResizeCells(cellGridView: CellGridView, cellSize: Int, scaled: Bool = false) -> (x: Int, y: Int) {
+        // TODO restore private ... private static func calculateShiftForResizeCells(cellGridView: CellGridView, cellSize: Int, scaled: Bool = false) -> (x: Int, y: Int) {
+        internal static func calculateShiftForResizeCells(cellGridView: CellGridView, cellSize: Int, scaled: Bool = false) -> (x: Int, y: Int) {
             let cellSize = !scaled ? cellGridView.scaled(cellSize) : cellSize
             let cellSizeCurrent: Int = cellGridView.cellSizeScaled
             let cellSizeIncrement: Int = cellSize - cellSizeCurrent
@@ -117,7 +130,8 @@ extension CellGridView
         // - Path Dependence:
         //   In economics and computation, where this means that the result depends on the sequence of steps taken.
         //
-        private static func adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int,
+        // TODO restore private ... private static func adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int,
+        internal static func adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int,
                                              viewAnchorFactor: Double = 0.5) -> Int {
             let viewCenter: Double = Double(viewSize) * viewAnchorFactor
             var viewCenterAdjusted: Double

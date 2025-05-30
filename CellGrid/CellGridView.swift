@@ -63,7 +63,8 @@ class CellGridView
     //
     private var _shiftCellX: Int = 0
     private var _shiftCellY: Int = 0
-    private var _shiftX: Int = 0
+    // TODO restore private ... private var _shiftX: Int = 0
+    internal var _shiftX: Int = 0
     private var _shiftY: Int = 0
 
     // We store unscaled versions of commonly used properties.
@@ -221,6 +222,58 @@ class CellGridView
         }
     }
 
+    public func scale(startCellSize: Int, startShiftTotalX: Int, startShiftTotalY: Int) {
+        guard !self._viewScaling else {
+            return
+        }
+        let viewWidth: Int = Screen.shared.scaled(self.viewWidth)
+        let viewHeight: Int = Screen.shared.scaled(self.viewHeight)
+        let cellSize: Int = Screen.shared.scaled(self.cellSize)
+        let shiftTotalX: Int = Zoom.adjustShiftTotal(viewSize: viewWidth,
+                                                     cellSize: cellSize,
+                                                     cellSizeIncrement: cellSize - startCellSize,
+                                                     shiftTotal: startShiftTotalX)
+        let shiftTotalY: Int = Zoom.adjustShiftTotal(viewSize: viewHeight,
+                                                     cellSize: cellSize,
+                                                     cellSizeIncrement: cellSize - startCellSize,
+                                                     shiftTotal: startShiftTotalY)
+        self.configure(cellSize: self.cellSize,
+                       cellPadding: self.cellPadding,
+                       cellShape: self.cellShape,
+                       viewWidth: self.viewWidth,
+                       viewHeight: self.viewHeight,
+                       viewBackground: self.viewBackground,
+                       viewTransparency: self.viewTransparency,
+                       viewScaling: true)
+        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: true)
+    }
+
+    public func unscale(startCellSize: Int, startShiftTotalX: Int, startShiftTotalY: Int) {
+        guard self._viewScaling else {
+            return
+        }
+        let viewWidth: Int = self.viewWidth
+        let viewHeight: Int = self.viewHeight
+        let cellSize: Int = self.cellSize
+        let shiftTotalX: Int = Zoom.adjustShiftTotal(viewSize: viewWidth,
+                                                     cellSize: cellSize,
+                                                     cellSizeIncrement: cellSize - startCellSize,
+                                                     shiftTotal: startShiftTotalX)
+        let shiftTotalY: Int = Zoom.adjustShiftTotal(viewSize: viewHeight,
+                                                     cellSize: cellSize,
+                                                     cellSizeIncrement: cellSize - startCellSize,
+                                                     shiftTotal: startShiftTotalY)
+        self.configure(cellSize: self.cellSize,
+                       cellPadding: self.cellPadding,
+                       cellShape: self.cellShape,
+                       viewWidth: self.viewWidth,
+                       viewHeight: self.viewHeight,
+                       viewBackground: self.viewBackground,
+                       viewTransparency: self.viewTransparency,
+                       viewScaling: false)
+        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: false)
+    }
+
     public var viewScale: CGFloat {
         Screen.shared.scale(scaling: self._viewScaling)
     }
@@ -250,6 +303,8 @@ class CellGridView
     internal var shiftCellY: Int           { self._shiftCellY }
     internal var shiftX: Int               { self._unscaled_shiftX }
     internal var shiftY: Int               { self._unscaled_shiftY }
+    internal var shiftTotalX: Int          { (self._shiftCellX * self._unscaled_cellSize) + self._unscaled_shiftX }
+    internal var shiftTotalY: Int          { (self._shiftCellY * self._unscaled_cellSize) + self._unscaled_shiftY }
 
     internal var viewWidthScaled: Int      { self._viewWidth }
     internal var viewHeightScaled: Int     { self._viewHeight }
@@ -259,12 +314,15 @@ class CellGridView
     internal var cellPaddingScaled: Int    { self._cellPadding }
     internal var shiftScaledX: Int         { self._shiftX }
     internal var shiftScaledY: Int         { self._shiftY }
+    internal var shiftTotalScaledX: Int    { (self._shiftCellX * self._cellSize) + self._shiftX }
+    internal var shiftTotalScaledY: Int    { (self._shiftCellY * self._cellSize) + self._shiftY }
 
+    // TODO: Get rid of these in favor of shiftTotal properties above.
+    //
     public var shifted: ViewPoint {
         return ViewPoint(self.shiftCellX * self.cellSize + self.shiftX,
                          self.shiftCellY * self.cellSize + self.shiftY)
     }
-
     internal func shifted(scaled: Bool = false) -> ViewPoint {
         return scaled ? ViewPoint(self.shiftCellX * self.cellSizeScaled + self.shiftScaledX,
                                   self.shiftCellY * self.cellSizeScaled + self.shiftScaledY)
@@ -655,7 +713,7 @@ class CellGridView
         }
     }
 
-    public func resize(cellSize: Int, adjustShift: Bool = true, scaled: Bool = false) {
-        Zoom.resizeCells(cellGridView: self, cellSize: cellSize, adjustShift: adjustShift, scaled: scaled)
+    public func old_resize(cellSize: Int, adjustShift: Bool = true) {
+        Zoom.resizeCells(cellGridView: self, cellSize: cellSize, adjustShift: adjustShift, scaled: true)
     }
 }
