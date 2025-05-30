@@ -85,6 +85,12 @@ struct ContentView: View
                                     }
                             )
                             .simultaneousGesture(
+                                TapGesture(count: 2)
+                                    .onEnded {
+                                        self.cellGrid.onDoubleTap()
+                                    }
+                            )
+                            .simultaneousGesture(
                                 LongPressGesture(minimumDuration: 1.0)
                                     .sequenced(before: DragGesture(minimumDistance: 0))
                                     .onEnded { value in
@@ -107,7 +113,6 @@ struct ContentView: View
                                         }
                                     }
                             )
-
                             .simultaneousGesture(
                                 MagnificationGesture()
                                     .onChanged { value in

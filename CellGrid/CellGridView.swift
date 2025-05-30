@@ -302,25 +302,27 @@ class CellGridView
 
         // Restrict the shift to min/max; support different rules:
         //
-        // - restrictShiftLenient
-        //   Disallow the left-most cell of the cell-grid being right-shifted past the right-most
-        //   position of the grid-view, and the right-most cell of the grid-view being left-shifted
-        //   past the left-most position of the grid-view; similarly for the vertical.
-        //
         // - restrictShiftStrict
         //   Disallow the left-most cell of the cell-grid being right-shifted past the left-most
         //   position of the grid-view, and the right-most cell of the cell-grid being left-shifted
         //   past the right-most position of the grid-view; similarly for the vertical.
+        //
+        // - restrictShiftLenient
+        //   Disallow the left-most cell of the cell-grid being right-shifted past the right-most
+        //   position of the grid-view, and the right-most cell of the grid-view being left-shifted
+        //   past the left-most position of the grid-view; similarly for the vertical.
 
         func restrictShiftStrict(shiftCell: inout Int, shift: inout Int,
-                                       cellSize: Int,
-                                       viewSize: Int,
-                                       viewSizeExtra _: Int,
-                                       viewCellEnd _: Int,
-                                       gridCells: Int,
-                                       gridCellEnd _: Int) {
+                                 cellSize: Int,
+                                 viewSize: Int,
+                                 viewSizeExtra _: Int,
+                                 viewCellEnd _: Int,
+                                 gridCells: Int,
+                                 gridCellEnd _: Int,
+                                 dragging: Bool = false) {
             var totalShift = (shiftCell * cellSize) + shift
             let gridSize: Int = gridCells * cellSize
+            let draggingShiftMax: Int = dragging ? Int(round(Double(cellSize) / 2.0)) : 0
             if (gridSize < viewSize) {
                 //
                 // The entire cell-grid being smaller than the grid-view requires

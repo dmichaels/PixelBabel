@@ -158,6 +158,10 @@ class CellGrid: ObservableObject
         }
     }
 
+    public func onDoubleTap() {
+        self._pickerMode = !self._pickerMode
+    }
+
     public func locate(_ screenPoint: CGPoint) -> CellLocation? {
         if let cells = self._cellGridView {
             return cells.gridCellLocation(viewPoint: screenPoint)
