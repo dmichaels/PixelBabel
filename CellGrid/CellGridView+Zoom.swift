@@ -10,8 +10,15 @@ extension CellGridView
         private let startCellSize: Int
         private let startShiftedX: Int
         private let startShiftedY: Int
+        private let unscaledDuringZoom: Bool
 
         public init(_ cellGridView: CellGridView, _ zoomFactor: CGFloat) {
+
+            self.unscaledDuringZoom = DefaultSettings.unscaledDuringZoom && cellGridView.viewScaling
+            if (self.unscaledDuringZoom) {
+                cellGridView.viewScaling = false
+            }
+
             let shifted: ViewPoint = cellGridView.shifted(scaled: true)
             self.cellGridView = cellGridView
             self.startCellSize = cellGridView.cellSizeScaled
@@ -27,9 +34,11 @@ extension CellGridView
             Zoom.resizeCells(cellGridView: self.cellGridView, cellSize: cellSize, adjustShift: true, scaled: true)
         }
 
-        public func end(_ zoomFactor: CGFloat) -> Zoom? {
+        public func end(_ zoomFactor: CGFloat) {
             self.zoom(zoomFactor)
-            return nil
+            if (self.unscaledDuringZoom) {
+                self.cellGridView.viewScaling = true
+            }
         }
 
         // TODO: Should be private when no longer calling from GridView for debugging.

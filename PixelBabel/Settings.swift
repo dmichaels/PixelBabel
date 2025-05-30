@@ -28,6 +28,8 @@ class DefaultSettings
     public static let draggingThreshold: CGFloat        = 3.0
     public static let swipeDistance: CGFloat            = 100
     public static let updateMode: Bool                  = false
+
+    public static let unscaledDuringZoom: Bool          = false
 }
 
 class Settings: ObservableObject

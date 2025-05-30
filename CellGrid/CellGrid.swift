@@ -135,7 +135,7 @@ class CellGrid: ObservableObject
 
     public func onZoomEnd(_ zoomFactor: CGFloat) {
         if let zoomer: CellGridView.Zoom = self._zoomer {
-            self._zoomer = zoomer.end(zoomFactor)
+            zoomer.end(zoomFactor)
             self._zoomer = nil
         }
     }
