@@ -121,7 +121,7 @@ class CellGridView
                             cellSizeInit: cellSize, cellFitInit: cellFit)
         #endif
 
-        let center: Bool = true
+        let center: Bool = false
         if (center) {
             self.center()
         }
@@ -284,7 +284,7 @@ class CellGridView
     // Sets the cell-grid within the grid-view to be shifted by the given amount,
     // from the upper-left; note that the given shiftx and shifty values are unscaled.
     //
-    public func shift(shiftx: Int, shifty: Int, scaled: Bool = false)
+    public func shift(shiftx: Int, shifty: Int, dragging: Bool = false, scaled: Bool = false)
     {
         #if targetEnvironment(simulator)
             let debugStart = Date()
@@ -339,7 +339,6 @@ class CellGridView
                                  dragging: Bool = false) {
             var totalShift = (shiftCell * cellSize) + shift
             let gridSize: Int = gridCells * cellSize
-            let draggingShiftMax: Int = dragging ? Int(round(Double(cellSize) / 2.0)) : 0
             if (gridSize < viewSize) {
                 //
                 // The entire cell-grid being smaller than the grid-view requires
@@ -355,15 +354,18 @@ class CellGridView
                     shift = totalShift % cellSize
                 }
             }
-            else if ((shift > 0) || (shiftCell > 0)) {
-                shift = 0
-                shiftCell = 0
-            }
-            else if ((shift < 0) || (shiftCell < 0)) {
-                if ((totalShift < 0) && ((gridSize + totalShift) < viewSize)) {
-                    totalShift = viewSize - gridSize
-                    shiftCell = totalShift / cellSize
-                    shift = totalShift % cellSize
+            else if (!dragging) {
+                let draggingShiftMax: Int = dragging ? Int(round(Double(cellSize) / 2.0)) : 0
+                if ((shift > 0) || (shiftCell > 0)) {
+                    shift = 0
+                    shiftCell = 0
+                }
+                else if ((shift < 0) || (shiftCell < 0)) {
+                    if ((totalShift < 0) && ((gridSize + totalShift) < viewSize)) {
+                        totalShift = viewSize - gridSize
+                        shiftCell = totalShift / cellSize
+                        shift = totalShift % cellSize
+                    }
                 }
             }
         }
@@ -398,14 +400,16 @@ class CellGridView
                                 viewSizeExtra: self._viewWidthExtra,
                                 viewCellEnd: self._viewCellEndX - self._viewColumnsExtra,
                                 gridCells: self._gridColumns,
-                                gridCellEnd: self._gridCellEndX)
+                                gridCellEnd: self._gridCellEndX,
+                                dragging: dragging)
             restrictShiftStrict(shiftCell: &shiftCellY, shift: &shiftY,
                                 cellSize: self._cellSize,
                                 viewSize: self._viewHeight,
                                 viewSizeExtra: self._viewHeightExtra,
                                 viewCellEnd: self._viewCellEndY - self._viewRowsExtra,
                                 gridCells: self._gridRows,
-                                gridCellEnd: self._gridCellEndY)
+                                gridCellEnd: self._gridCellEndY,
+                                dragging: dragging)
         }
         else {
             restrictShiftLenient(shiftCellXY: &shiftCellX,

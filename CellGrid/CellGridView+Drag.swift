@@ -21,18 +21,18 @@ extension CellGridView
             self.startShiftedY = startShifted.y
         }
 
-        public func drag(_ viewPoint: CGPoint) {
+        public func drag(_ viewPoint: CGPoint, end: Bool = false) {
             let dragX: Int = Int(round(viewPoint.x))
             let dragY: Int = Int(round(viewPoint.y))
             let dragDeltaX = self.startX - dragX
             let dragDeltaY = self.startY - dragY
             let shiftX =  self.startShiftedX - dragDeltaX
             let shiftY = self.startShiftedY - dragDeltaY
-            self.cellGridView.shift(shiftx: shiftX, shifty: shiftY)
+            self.cellGridView.shift(shiftx: shiftX, shifty: shiftY, dragging: !end)
         }
 
         public func end(_ viewPoint: CGPoint) {
-            self.drag(viewPoint)
+            self.drag(viewPoint, end: true)
         }
     }
 }
