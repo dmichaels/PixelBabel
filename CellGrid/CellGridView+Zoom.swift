@@ -40,9 +40,7 @@ extension CellGridView
             }
         }
 
-        // TODO: Should be private when no longer calling from GridView for debugging.
-        //
-        internal static func resizeCells(cellGridView: CellGridView,
+        private static func resizeCells(cellGridView: CellGridView,
                                          cellSize: Int, adjustShift: Bool = true, scaled: Bool = false)
         {
             let cellSize = cellGridView.constrainCellSize(!scaled ? cellGridView.scaled(cellSize) : cellSize, scaled: true)
