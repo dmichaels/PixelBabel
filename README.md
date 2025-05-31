@@ -18,4 +18,12 @@ Branchs:
 
 - dev-20250530
   Latest development. Starting actual implementation of Game of Life in more detail now that
-  the basics the the CellGrid stuff is in pretty good shape.
+  the basics the the CellGrid stuff is in pretty good shape. Things that are working:
+  - panning (scaled and unscaled)
+  - zooming (scaled and unscaled)
+  - unscaled during zooming 
+  - clicking/selecting
+  - selecting while dragging
+  - game-of-life cell logic
+  - still need to separate out better so game-of-life code more cleanly or more
+    to the point separate out the cell-grid-view code into reusable package
