@@ -208,6 +208,17 @@ class CellGridView
     public var viewScaling: Bool {
         get { self._viewScaling }
         set {
+            if (newValue) {
+                if (!self._viewScaling) {
+                    self.scale()
+                }
+            }
+            else if (self._viewScaling) {
+                self.unscale()
+            }
+        }
+/*
+        set {
             if (newValue != self._viewScaling) {
                 let shiftTotalX: Int = newValue ? self.shiftTotalScaledX : self.shiftTotalX
                 let shiftTotalY: Int = newValue ? self.shiftTotalScaledY : self.shiftTotalY
@@ -222,10 +233,45 @@ class CellGridView
                 self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: newValue)
             }
         }
+*/
     }
 
     public var viewScale: CGFloat {
         Screen.shared.scale(scaling: self._viewScaling)
+    }
+
+    public func scale() {
+        guard !self._viewScaling else {
+            return
+        }
+        let shiftTotalX: Int = Screen.shared.scaled(self.shiftTotalX)
+        let shiftTotalY: Int = Screen.shared.scaled(self.shiftTotalY)
+        self.configure(cellSize: self.cellSize,
+                       cellPadding: self.cellPadding,
+                       cellShape: self.cellShape,
+                       viewWidth: self.viewWidth,
+                       viewHeight: self.viewHeight,
+                       viewBackground: self.viewBackground,
+                       viewTransparency: self.viewTransparency,
+                       viewScaling: true)
+        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: true)
+    }
+
+    public func unscale() {
+        guard self._viewScaling else {
+            return
+        }
+        let shiftTotalX: Int = Int(round(Screen.shared.unscaled(Double(self.shiftTotalScaledX))))
+        let shiftTotalY: Int = Int(round(Screen.shared.unscaled(Double(self.shiftTotalScaledY))))
+        self.configure(cellSize: self.cellSize,
+                       cellPadding: self.cellPadding,
+                       cellShape: self.cellShape,
+                       viewWidth: self.viewWidth,
+                       viewHeight: self.viewHeight,
+                       viewBackground: self.viewBackground,
+                       viewTransparency: self.viewTransparency,
+                       viewScaling: false)
+        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: false)
     }
 
     internal func scaled(_ value: Int) -> Int {

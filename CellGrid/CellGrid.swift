@@ -86,6 +86,10 @@ class CellGrid: ObservableObject
     public func onTap(_ viewPoint: CGPoint) {
         if let cellGridView = self._cellGridView {
             if let cell: Cell = cellGridView.gridCell(viewPoint: viewPoint) {
+                if ((cell.x == 2) && (cell.y == 2)) {
+                    cellGridView.viewScaling = !cellGridView.viewScaling
+                    return
+                }
                 if ((cell.x == 0) && (cell.y == 0)) {
                     if (self._pickerMode) {
                         self._pickerMode = false
