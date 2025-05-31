@@ -29,7 +29,7 @@ class DefaultSettings
     public static let swipeDistance: CGFloat            = 100
     public static let updateMode: Bool                  = false
 
-    public static let unscaledDuringZoom: Bool          = false
+    public static let unscaledZoom: Bool                = true
 }
 
 class Settings: ObservableObject

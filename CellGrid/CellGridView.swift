@@ -26,7 +26,7 @@ class CellGridView
         public static var preferredSizeMarginMax: Int = 30
         public static let cellAntialiasFade: Float = 0.6  // smaller is smoother
         public static let cellRoundedRectangleRadius: Float = 0.25
-        public static let restrictShiftStrict: Bool = false
+        public static let restrictShiftStrict: Bool = true
     }
 
     // Note that internally all size related properties are stored as scaled;

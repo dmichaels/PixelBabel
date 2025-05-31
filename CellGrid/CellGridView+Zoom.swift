@@ -10,12 +10,12 @@ extension CellGridView
         private let startCellSize: Int
         private let startShiftedX: Int
         private let startShiftedY: Int
-        private let unscaledDuringZoom: Bool
+        private let unscaledZoom: Bool
 
         public init(_ cellGridView: CellGridView, _ zoomFactor: CGFloat) {
 
-            self.unscaledDuringZoom = DefaultSettings.unscaledDuringZoom && cellGridView.viewScaling
-            if (self.unscaledDuringZoom) {
+            self.unscaledZoom = DefaultSettings.unscaledZoom && cellGridView.viewScaling
+            if (self.unscaledZoom) {
                 cellGridView.viewScaling = false
             }
 
@@ -35,7 +35,7 @@ extension CellGridView
 
         public func end(_ zoomFactor: CGFloat) {
             self.zoom(zoomFactor)
-            if (self.unscaledDuringZoom) {
+            if (self.unscaledZoom) {
                 self.cellGridView.viewScaling = true
             }
         }
