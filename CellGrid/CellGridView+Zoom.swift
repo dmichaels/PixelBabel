@@ -19,9 +19,6 @@ extension CellGridView
                 cellGridView.viewScaling = false
             }
 
-         // let shifted: ViewPoint = cellGridView.shifted(scaled: true)
-         // self.startShiftedX = shifted.x
-         // self.startShiftedY = shifted.y
             self.cellGridView = cellGridView
             self.startCellSize = cellGridView.cellSizeScaled
             self.startShiftedX = cellGridView.shiftTotalScaledX

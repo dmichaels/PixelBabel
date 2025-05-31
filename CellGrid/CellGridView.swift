@@ -207,7 +207,6 @@ class CellGridView
         get { self._viewScaling }
         set {
             if (newValue != self._viewScaling) {
-             // let shifted: ViewPoint = self.shifted(scaled: newValue)
                 let shiftTotalX: Int = newValue ? self.shiftTotalScaledX : self.shiftTotalX
                 let shiftTotalY: Int = newValue ? self.shiftTotalScaledY : self.shiftTotalY
                 self.configure(cellSize: self.cellSize,
@@ -218,7 +217,6 @@ class CellGridView
                                viewBackground: self.viewBackground,
                                viewTransparency: self.viewTransparency,
                                viewScaling: newValue)
-             // self.shift(shiftx: shifted.x, shifty: shifted.y, scaled: newValue)
                 self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: newValue)
             }
         }
@@ -266,20 +264,6 @@ class CellGridView
     internal var shiftScaledY: Int         { self._shiftY }
     internal var shiftTotalScaledX: Int    { (self._shiftCellX * self._cellSize) + self._shiftX }
     internal var shiftTotalScaledY: Int    { (self._shiftCellY * self._cellSize) + self._shiftY }
-
-    /*
-    public var shifted: ViewPoint {
-        return ViewPoint(self.shiftCellX * self.cellSize + self.shiftX,
-                         self.shiftCellY * self.cellSize + self.shiftY)
-    }
-
-    internal func shifted(scaled: Bool = false) -> ViewPoint {
-        return scaled ? ViewPoint(self.shiftCellX * self.cellSizeScaled + self.shiftScaledX,
-                                  self.shiftCellY * self.cellSizeScaled + self.shiftScaledY)
-                      : ViewPoint(self.shiftCellX * self.cellSize + self.shiftX,
-                                  self.shiftCellY * self.cellSize + self.shiftY)
-    }
-    */
 
     public func center()
     {
@@ -506,8 +490,6 @@ class CellGridView
                                  " vce: \(self._viewColumnsExtra)" +
                                  " cs: \(self.cellSizeScaled)" +
                                  " csu: \(self.cellSize)" +
-                             //  " sht: [\(self.shifted(scaled: true).x),\(self.shifted(scaled: true).y)]" +
-                            //   " shtu: [\(self.shifted.x),\(self.shifted.y)]" +
                                  " sht: [\(self.shiftTotalScaledX),\(self.shiftTotalScaledY)]" +
                                  " shtu: [\(self.shiftTotalX),\(self.shiftTotalY)]" +
                                  " shc: [\(self.shiftCellX),\(shiftCellY)]" +
