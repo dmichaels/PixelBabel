@@ -187,9 +187,6 @@ class CellGridView
                                                              cellPadding: self._cellPadding,
                                                              cellShape: self._cellShape,
                                                              cellTransparency: self._viewTransparency)
-        #if targetEnvironment(simulator)
-            self.printSizes()
-        #endif
     }
 
     internal func constrainCellSize(_ cellSize: Int, cellPadding: Int? = nil, scaled: Bool = false) -> Int {
@@ -531,22 +528,22 @@ class CellGridView
                     even = true
                 }
             }
-            print(String(format: "SHIFT(\(shiftx),\(shifty))> %.5fs" +
-                                 " sc: \(self._viewScaling)" +
-                                 " vw: \(self._viewWidth)" +
-                                 " vwe: \(self._viewWidthExtra)" +
-                                 " vc: \(self.viewColumns)" +
-                                 " vce: \(self._viewColumnsExtra)" +
-                                 " cs: \(self.cellSizeScaled)" +
-                                 " csu: \(self.cellSize)" +
-                                 " sht: [\(self.shiftTotalScaledX),\(self.shiftTotalScaledY)]" +
-                                 " shtu: [\(self.shiftTotalX),\(self.shiftTotalY)]" +
-                                 " shc: [\(self.shiftCellX),\(shiftCellY)]" +
-                                 " sh: [\(self.shiftScaledX),\(shiftScaledY)]" +
-                                 " shu: [\(self.shiftX),\(self.shiftY)]" +
-                                 " sho: \(shiftScaledXR)" +
-                                 " bm: \(self._bufferBlocks.memoryUsageBytes)" +
-                                 " even: \(even)",
+            print(String(format: "SHIFT(\(shiftx),\(shifty)) %.5f" +
+                                 (self._viewScaling ? " SC" : " US") +
+                              // " VW:\(self._viewWidth)" +
+                              // " VWE:\(self._viewWidthExtra)" +
+                              // " VC:\(self.viewColumns)" +
+                              // " VCE:\(self._viewColumnsExtra)" +
+                                 " CS:\(self.cellSizeScaled)" +
+                                 " CSU:\(self.cellSize)" +
+                                 " SHT:\(self.shiftTotalScaledX),\(self.shiftTotalScaledY)" +
+                                 " SHTU:\(self.shiftTotalX),\(self.shiftTotalY)" +
+                                 " SHC:\(self.shiftCellScaledX),\(shiftCellScaledY)" +
+                                 " SHCU:\(self.shiftCellX),\(shiftCellY)" +
+                                 " SH:\(self.shiftScaledX),\(shiftScaledY)" +
+                                 " SHU:\(self.shiftX),\(self.shiftY)" +
+                                 " SHO:\(shiftScaledXR)" +
+                                 (even ? " EVEN" : " UNEVEN"),
                   Date().timeIntervalSince(debugStart)))
         #endif
     }
