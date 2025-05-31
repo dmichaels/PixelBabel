@@ -85,6 +85,7 @@ class CellGrid: ObservableObject
 
     public func onTap(_ viewPoint: CGPoint) {
         if let cellGridView = self._cellGridView {
+            print("ONTAP: \(viewPoint) -> \(cellGridView.gridCellLocation(viewPoint: viewPoint))")
             if let cell: Cell = cellGridView.gridCell(viewPoint: viewPoint) {
                 if ((cell.x == 2) && (cell.y == 2)) {
                     cellGridView.viewScaling = !cellGridView.viewScaling

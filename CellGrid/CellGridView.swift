@@ -227,8 +227,10 @@ class CellGridView
         guard !self._viewScaling else {
             return
         }
-        let shiftTotalX: Int = Screen.shared.scaled(self.shiftTotalX)
-        let shiftTotalY: Int = Screen.shared.scaled(self.shiftTotalY)
+        // let shiftTotalX: Int = Screen.shared.scaled(self.shiftTotalX)
+        // let shiftTotalY: Int = Screen.shared.scaled(self.shiftTotalY)
+        let shiftTotalX: Int = self.scaled(self.shiftTotalX, force: true)
+        let shiftTotalY: Int = self.scaled(self.shiftTotalY, force: true)
         self.configure(cellSize: self.cellSize,
                        cellPadding: self.cellPadding,
                        cellShape: self.cellShape,
@@ -244,8 +246,10 @@ class CellGridView
         guard self._viewScaling else {
             return
         }
-        let shiftTotalX: Int = Int(round(Screen.shared.unscaled(Double(self.shiftTotalScaledX))))
-        let shiftTotalY: Int = Int(round(Screen.shared.unscaled(Double(self.shiftTotalScaledY))))
+        // let shiftTotalX: Int = Int(round(Screen.shared.unscaled(Double(self.shiftTotalScaledX))))
+        // let shiftTotalY: Int = Int(round(Screen.shared.unscaled(Double(self.shiftTotalScaledY))))
+        let shiftTotalX: Int = self.unscaled(self.shiftTotalScaledX, force: true)
+        let shiftTotalY: Int = self.unscaled(self.shiftTotalScaledY, force: true)
         self.configure(cellSize: self.cellSize,
                        cellPadding: self.cellPadding,
                        cellShape: self.cellShape,
@@ -261,8 +265,32 @@ class CellGridView
         return Screen.shared.scaled(value, scaling: self._viewScaling)
     }
 
+    internal func scaled(_ value: Int, force: Bool) -> Int {
+        return Screen.shared.scaled(value, scaling: force ? true : self._viewScaling)
+    }
+
+    internal func scaled(_ value: CGFloat) -> Int {
+        return Int(round(Screen.shared.scaled(value, scaling: self._viewScaling)))
+    }
+
+    internal func scaled(_ value: CGFloat, force: Bool) -> Int {
+        return Int(round(Screen.shared.scaled(value, scaling: force ? true : self._viewScaling)))
+    }
+
     internal func unscaled(_ value: Int) -> Int {
         return Screen.shared.unscaled(value, scaling: self._viewScaling)
+    }
+
+    internal func unscaled(_ value: Int, force: Bool) -> Int {
+        return Screen.shared.unscaled(value, scaling: force ? true : self._viewScaling)
+    }
+
+    internal func unscaled(_ value: CGFloat) -> Int {
+        return Int(round(Screen.shared.unscaled(value, scaling: self._viewScaling)))
+    }
+
+    internal func unscaled(_ value: CGFloat, force: Bool) -> Int {
+        return Int(round(Screen.shared.unscaled(value, scaling: force ? true : self._viewScaling)))
     }
 
     public   var viewWidth: Int            { self._unscaled_viewWidth }
@@ -460,10 +488,10 @@ class CellGridView
         self._shiftY = shiftY
         let unscaled_shiftTotalX: Int = self.unscaled(self._shiftX + (self._shiftCellX * self._cellSize))
         let unscaled_shiftTotalY: Int = self.unscaled(self._shiftY + (self._shiftCellY * self._cellSize))
-        self._unscaled_shiftCellX = unscaled_shiftTotalX / self._cellSize
-        self._unscaled_shiftX = unscaled_shiftTotalX % self._cellSize
-        self._unscaled_shiftCellY = unscaled_shiftTotalY / self._cellSize
-        self._unscaled_shiftY = unscaled_shiftTotalY % self._cellSize
+        self._unscaled_shiftCellX = unscaled_shiftTotalX / self._unscaled_cellSize
+        self._unscaled_shiftX = unscaled_shiftTotalX % self._unscaled_cellSize
+        self._unscaled_shiftCellY = unscaled_shiftTotalY / self._unscaled_cellSize
+        self._unscaled_shiftY = unscaled_shiftTotalY % self._unscaled_cellSize
 
         self._viewColumnsExtra = (self._shiftX != 0 ? 1 : 0)
         if (self._shiftX > 0) {
