@@ -217,23 +217,6 @@ class CellGridView
                 self.unscale()
             }
         }
-/*
-        set {
-            if (newValue != self._viewScaling) {
-                let shiftTotalX: Int = newValue ? self.shiftTotalScaledX : self.shiftTotalX
-                let shiftTotalY: Int = newValue ? self.shiftTotalScaledY : self.shiftTotalY
-                self.configure(cellSize: self.cellSize,
-                               cellPadding: self.cellPadding,
-                               cellShape: self.cellShape,
-                               viewWidth: self.viewWidth,
-                               viewHeight: self.viewHeight,
-                               viewBackground: self.viewBackground,
-                               viewTransparency: self.viewTransparency,
-                               viewScaling: newValue)
-                self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: newValue)
-            }
-        }
-*/
     }
 
     public var viewScale: CGFloat {
