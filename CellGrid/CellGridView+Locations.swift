@@ -125,7 +125,6 @@ extension CellGridView
             x = screenPoint.x - viewOrigin.x
             y = screenPoint.y - viewOrigin.y
         }
-        print("NP: \(screenPoint) -> [\(x),\(y)]")
         return CGPoint(x: x, y: y)
     }
 }

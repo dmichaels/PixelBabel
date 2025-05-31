@@ -269,28 +269,12 @@ class CellGridView
         return Screen.shared.scaled(value, scaling: force ? true : self._viewScaling)
     }
 
-    internal func scaled(_ value: CGFloat) -> Int {
-        return Int(round(Screen.shared.scaled(value, scaling: self._viewScaling)))
-    }
-
-    internal func scaled(_ value: CGFloat, force: Bool) -> Int {
-        return Int(round(Screen.shared.scaled(value, scaling: force ? true : self._viewScaling)))
-    }
-
     internal func unscaled(_ value: Int) -> Int {
         return Screen.shared.unscaled(value, scaling: self._viewScaling)
     }
 
     internal func unscaled(_ value: Int, force: Bool) -> Int {
         return Screen.shared.unscaled(value, scaling: force ? true : self._viewScaling)
-    }
-
-    internal func unscaled(_ value: CGFloat) -> Int {
-        return Int(round(Screen.shared.unscaled(value, scaling: self._viewScaling)))
-    }
-
-    internal func unscaled(_ value: CGFloat, force: Bool) -> Int {
-        return Int(round(Screen.shared.unscaled(value, scaling: force ? true : self._viewScaling)))
     }
 
     public   var viewWidth: Int            { self._unscaled_viewWidth }
