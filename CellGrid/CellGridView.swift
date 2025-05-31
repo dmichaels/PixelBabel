@@ -72,6 +72,8 @@ class CellGridView
     private var _unscaled_viewHeight: Int = 0
     private var _unscaled_cellSize: Int = 0
     private var _unscaled_cellPadding: Int = 0
+    private var _unscaled_shiftCellX: Int = 0
+    private var _unscaled_shiftCellY: Int = 0
     private var _unscaled_shiftX: Int = 0
     private var _unscaled_shiftY: Int = 0
 
@@ -247,23 +249,25 @@ class CellGridView
     public   var gridRows: Int             { self._gridRows }
     public   var gridCells: [Cell]         { self._gridCells }
 
-    internal var shiftCellX: Int           { self._shiftCellX }
-    internal var shiftCellY: Int           { self._shiftCellY }
-    internal var shiftX: Int               { self._unscaled_shiftX }
-    internal var shiftY: Int               { self._unscaled_shiftY }
-    internal var shiftTotalX: Int          { (self._shiftCellX * self._unscaled_cellSize) + self._unscaled_shiftX }
-    internal var shiftTotalY: Int          { (self._shiftCellY * self._unscaled_cellSize) + self._unscaled_shiftY }
+    internal var shiftCellX: Int  { self._unscaled_shiftCellX }
+    internal var shiftCellY: Int  { self._unscaled_shiftCellY }
+    internal var shiftX: Int      { self._unscaled_shiftX }
+    internal var shiftY: Int      { self._unscaled_shiftY }
+    internal var shiftTotalX: Int { self._unscaled_shiftX + (self._unscaled_shiftCellX * self._unscaled_cellSize) }
+    internal var shiftTotalY: Int { self._unscaled_shiftY + (self._unscaled_shiftCellY * self._unscaled_cellSize) }
 
-    internal var viewWidthScaled: Int      { self._viewWidth }
-    internal var viewHeightScaled: Int     { self._viewHeight }
-    internal var viewCellEndX: Int         { self._viewCellEndX }
-    internal var viewCellEndY: Int         { self._viewCellEndY }
-    internal var cellSizeScaled: Int       { self._cellSize }
-    internal var cellPaddingScaled: Int    { self._cellPadding }
-    internal var shiftScaledX: Int         { self._shiftX }
-    internal var shiftScaledY: Int         { self._shiftY }
-    internal var shiftTotalScaledX: Int    { (self._shiftCellX * self._cellSize) + self._shiftX }
-    internal var shiftTotalScaledY: Int    { (self._shiftCellY * self._cellSize) + self._shiftY }
+    internal var viewWidthScaled: Int   { self._viewWidth }
+    internal var viewHeightScaled: Int  { self._viewHeight }
+    internal var viewCellEndX: Int      { self._viewCellEndX }
+    internal var viewCellEndY: Int      { self._viewCellEndY }
+    internal var cellSizeScaled: Int    { self._cellSize }
+    internal var cellPaddingScaled: Int { self._cellPadding }
+    internal var shiftCellScaledX: Int  { self._shiftCellX }
+    internal var shiftCellScaledY: Int  { self._shiftCellY }
+    internal var shiftScaledX: Int      { self._shiftX }
+    internal var shiftScaledY: Int      { self._shiftY }
+    internal var shiftTotalScaledX: Int { self._shiftX + (self._shiftCellX * self._cellSize) }
+    internal var shiftTotalScaledY: Int { self._shiftY + (self._shiftCellY * self._cellSize) }
 
     public func center()
     {
@@ -425,8 +429,12 @@ class CellGridView
         self._shiftCellY = shiftCellY
         self._shiftX = shiftX
         self._shiftY = shiftY
-        self._unscaled_shiftX = self.unscaled(shiftX)
-        self._unscaled_shiftY = self.unscaled(shiftY)
+        let unscaled_shiftTotalX: Int = self.unscaled(self._shiftX + (self._shiftCellX * self._cellSize))
+        let unscaled_shiftTotalY: Int = self.unscaled(self._shiftY + (self._shiftCellY * self._cellSize))
+        self._unscaled_shiftCellX = unscaled_shiftTotalX / self._cellSize
+        self._unscaled_shiftX = unscaled_shiftTotalX % self._cellSize
+        self._unscaled_shiftCellY = unscaled_shiftTotalY / self._cellSize
+        self._unscaled_shiftY = unscaled_shiftTotalY % self._cellSize
 
         self._viewColumnsExtra = (self._shiftX != 0 ? 1 : 0)
         if (self._shiftX > 0) {
