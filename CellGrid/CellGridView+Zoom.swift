@@ -19,11 +19,13 @@ extension CellGridView
                 cellGridView.viewScaling = false
             }
 
-            let shifted: ViewPoint = cellGridView.shifted(scaled: true)
+         // let shifted: ViewPoint = cellGridView.shifted(scaled: true)
+         // self.startShiftedX = shifted.x
+         // self.startShiftedY = shifted.y
             self.cellGridView = cellGridView
             self.startCellSize = cellGridView.cellSizeScaled
-            self.startShiftedX = shifted.x
-            self.startShiftedY = shifted.y
+            self.startShiftedX = cellGridView.shiftTotalScaledX
+            self.startShiftedY = cellGridView.shiftTotalScaledY
             self.zoom(zoomFactor)
         }
 
@@ -76,15 +78,19 @@ extension CellGridView
             let cellSizeCurrent: Int = cellGridView.cellSizeScaled
             let cellSizeIncrement: Int = cellSize - cellSizeCurrent
             guard cellSizeIncrement != 0 else { return (x: 0, y: 0) }
-            let shiftTotalCurrent: ViewPoint = cellGridView.shifted(scaled: true)
+         // let shiftTotalCurrent: ViewPoint = cellGridView.shifted(scaled: true)
+            let shiftTotalCurrentX: Int = cellGridView.shiftTotalScaledX
+            let shiftTotalCurrentY: Int = cellGridView.shiftTotalScaledY
             let shiftTotalAdjustedX: Int = adjustShiftTotal(viewSize: cellGridView.viewWidthScaled,
                                                             cellSize: cellSizeCurrent,
                                                             cellSizeIncrement: cellSizeIncrement,
-                                                            shiftTotal: shiftTotalCurrent.x)
+                                                         // shiftTotal: shiftTotalCurrent.x)
+                                                            shiftTotal: shiftTotalCurrentX)
             let shiftTotalAdjustedY: Int = adjustShiftTotal(viewSize: cellGridView.viewHeightScaled,
                                                             cellSize: cellSizeCurrent,
                                                             cellSizeIncrement: cellSizeIncrement,
-                                                            shiftTotal: shiftTotalCurrent.y)
+                                                         // shiftTotal: shiftTotalCurrent.y)
+                                                            shiftTotal: shiftTotalCurrentY)
             return !scaled ? (x: cellGridView.unscaled(shiftTotalAdjustedX), y: cellGridView.unscaled(shiftTotalAdjustedY))
                            : (x: shiftTotalAdjustedX, y: shiftTotalAdjustedY)
         }

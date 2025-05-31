@@ -207,7 +207,9 @@ class CellGridView
         get { self._viewScaling }
         set {
             if (newValue != self._viewScaling) {
-                let shifted: ViewPoint = self.shifted(scaled: newValue)
+             // let shifted: ViewPoint = self.shifted(scaled: newValue)
+                let shiftTotalX: Int = newValue ? self.shiftTotalScaledX : self.shiftTotalX
+                let shiftTotalY: Int = newValue ? self.shiftTotalScaledY : self.shiftTotalY
                 self.configure(cellSize: self.cellSize,
                                cellPadding: self.cellPadding,
                                cellShape: self.cellShape,
@@ -216,7 +218,8 @@ class CellGridView
                                viewBackground: self.viewBackground,
                                viewTransparency: self.viewTransparency,
                                viewScaling: newValue)
-                self.shift(shiftx: shifted.x, shifty: shifted.y, scaled: newValue)
+             // self.shift(shiftx: shifted.x, shifty: shifted.y, scaled: newValue)
+                self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: newValue)
             }
         }
     }
@@ -250,6 +253,8 @@ class CellGridView
     internal var shiftCellY: Int           { self._shiftCellY }
     internal var shiftX: Int               { self._unscaled_shiftX }
     internal var shiftY: Int               { self._unscaled_shiftY }
+    internal var shiftTotalX: Int          { (self._shiftCellX * self._unscaled_cellSize) + self._unscaled_shiftX }
+    internal var shiftTotalY: Int          { (self._shiftCellY * self._unscaled_cellSize) + self._unscaled_shiftY }
 
     internal var viewWidthScaled: Int      { self._viewWidth }
     internal var viewHeightScaled: Int     { self._viewHeight }
@@ -259,7 +264,10 @@ class CellGridView
     internal var cellPaddingScaled: Int    { self._cellPadding }
     internal var shiftScaledX: Int         { self._shiftX }
     internal var shiftScaledY: Int         { self._shiftY }
+    internal var shiftTotalScaledX: Int    { (self._shiftCellX * self._cellSize) + self._shiftX }
+    internal var shiftTotalScaledY: Int    { (self._shiftCellY * self._cellSize) + self._shiftY }
 
+    /*
     public var shifted: ViewPoint {
         return ViewPoint(self.shiftCellX * self.cellSize + self.shiftX,
                          self.shiftCellY * self.cellSize + self.shiftY)
@@ -271,6 +279,7 @@ class CellGridView
                       : ViewPoint(self.shiftCellX * self.cellSize + self.shiftX,
                                   self.shiftCellY * self.cellSize + self.shiftY)
     }
+    */
 
     public func center()
     {
@@ -497,8 +506,10 @@ class CellGridView
                                  " vce: \(self._viewColumnsExtra)" +
                                  " cs: \(self.cellSizeScaled)" +
                                  " csu: \(self.cellSize)" +
-                                 " sht: [\(self.shifted(scaled: true).x),\(self.shifted(scaled: true).y)]" +
-                                 " shtu: [\(self.shifted.x),\(self.shifted.y)]" +
+                             //  " sht: [\(self.shifted(scaled: true).x),\(self.shifted(scaled: true).y)]" +
+                            //   " shtu: [\(self.shifted.x),\(self.shifted.y)]" +
+                                 " sht: [\(self.shiftTotalScaledX),\(self.shiftTotalScaledY)]" +
+                                 " shtu: [\(self.shiftTotalX),\(self.shiftTotalY)]" +
                                  " shc: [\(self.shiftCellX),\(shiftCellY)]" +
                                  " sh: [\(self.shiftScaledX),\(shiftScaledY)]" +
                                  " shu: [\(self.shiftX),\(self.shiftY)]" +

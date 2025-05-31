@@ -32,10 +32,12 @@ extension CellGridView
               (self.viewScaling ? " (unscaled: \(self.cellSize))" : ""))
         print("CELL-PAD>      \(self.cellPaddingScaled)" +
               (self.viewScaling ? " (unscaled: \(self.cellPadding))" : ""))
-        let shiftedBy: ViewPoint = self.shifted
-        let shiftedByScaled: ViewPoint = self.shifted(scaled: true)
-        print("SHIFT>         \(shiftedByScaled)" +
-              (self.viewScaling ? " (unscaled: \(shiftedBy))" : ""))
+     // let shiftedBy: ViewPoint = self.shifted
+     // let shiftedByScaled: ViewPoint = self.shifted(scaled: true)
+     // print("SHIFT>         \(shiftedByScaled)" +
+     //       (self.viewScaling ? " (unscaled: \(shiftedBy))" : ""))
+        print("SHIFT>         [\(self.shiftTotalScaledX),\(self.shiftTotalScaledY)]" +
+              (self.viewScaling ? " (unscaled: [\(self.shiftTotalX),\(self.shiftTotalY)])" : ""))
         if (cellFitInit) {
             print("PREFERRED-SIZ> \(cellFitInit)")
             let sizes = CellGridView.preferredSizes(viewWidth: self.viewWidth,
