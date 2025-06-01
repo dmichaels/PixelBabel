@@ -4,7 +4,7 @@ class LifeCellGrid: CellGrid {
         self.nextGeneration()
     }
 
-    public func nextGeneration() {
+    private func nextGeneration() {
         guard let cellGridView = self.cellGridView else {
             return
         }
