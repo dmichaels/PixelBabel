@@ -254,7 +254,7 @@ struct ContentView: View
 
 struct ContentView_Previews: PreviewProvider {
     static let cellGrid: CellGrid = LifeCellGrid(cellFactory: LifeCell.factory())
-    static let settings: Settings = Settings()
+    static let settings: Settings = LifeSettings()
     static var previews: some View {
         ContentView()
             .environmentObject(cellGrid)

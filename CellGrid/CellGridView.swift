@@ -345,7 +345,6 @@ class CellGridView
                 }
             }
             else if (!dragging) {
-                let draggingShiftMax: Int = dragging ? Int(round(Double(cellSize) / 2.0)) : 0
                 if ((shift > 0) || (shiftCell > 0)) {
                     shift = 0
                     shiftCell = 0
@@ -690,5 +689,9 @@ class CellGridView
                        viewTransparency: self.viewTransparency,
                        viewScaling: false)
         self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: false)
+    }
+
+    public func createCell<T: Cell>(x: Int, y: Int, foreground: CellColor) -> T? {
+        return self._gridCellFactory?(self, x, y, foreground) as? T
     }
 }

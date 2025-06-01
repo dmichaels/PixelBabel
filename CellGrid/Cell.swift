@@ -9,7 +9,7 @@ class Cell
     private let _y: Int
     private var _foreground: CellColor
 
-    typealias Factory = (_ parent: CellGridView, _ x: Int, _ y: Int, _ foreground: CellColor) -> Cell
+    typealias Factory = (_ cellGridView: CellGridView, _ x: Int, _ y: Int, _ foreground: CellColor) -> Cell
 
     public var x: Int {
         self._x
@@ -28,8 +28,8 @@ class Cell
         set { self._foreground = newValue }
     }
 
-    init(parent: CellGridView, x: Int, y: Int, foreground: CellColor) {
-        self._cellGridView = parent
+    init(cellGridView: CellGridView, x: Int, y: Int, foreground: CellColor) {
+        self._cellGridView = cellGridView
         self._x = x
         self._y = y
         self._foreground = foreground
