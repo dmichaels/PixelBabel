@@ -694,4 +694,31 @@ class CellGridView
     public func createCell<T: Cell>(x: Int, y: Int, foreground: CellColor) -> T? {
         return self._gridCellFactory?(self, x, y, foreground) as? T
     }
+
+    private var automate: Bool = false
+    private var automateInterval: Double = DefaultSettings.timerInterval
+    private var automateTimer: Timer? = nil
+
+    public func automateToggle() {
+        if (automate) {
+            self.automateStop()
+            self.automate = false
+        }
+        else {
+            self.automateStart()
+            self.automate = true
+        }
+    }
+
+    public func automateStart() {
+        self.automateTimer = Timer.scheduledTimer(withTimeInterval: self.automateInterval, repeats: true) { _ in
+            self.automateStep()
+            // self.updateImage()
+        }
+    }
+
+    public func automateStop() {
+    }
+
+    public func automateStep() {}
 }

@@ -105,6 +105,19 @@ class CellGrid: ObservableObject
         self._cellGridView?.image
     }
 
-    public func run() {
+    public func automateStep() {
+        if let cellGridView = self._cellGridView { cellGridView.automateStep() }
+    }
+
+    public func automateStart() {
+        if let cellGridView = self._cellGridView { cellGridView.automateStart() }
+    }
+
+    public func automateStop() {
+        if let cellGridView = self._cellGridView { cellGridView.automateStop() }
+    }
+
+    public func automateToggle() {
+        if let cellGridView = self._cellGridView { cellGridView.automateToggle() }
     }
 }

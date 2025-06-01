@@ -239,9 +239,10 @@ struct ContentView: View
     }
 
     private func autoTappingStart() {
+        self.cellGrid.automateToggle()
         self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: self.timerInterval, repeats: true) { _ in
             // self.cellGrid.randomize()
-            self.cellGrid.run()
+            self.cellGrid.automateStep()
             self.updateImage()
         }
     }

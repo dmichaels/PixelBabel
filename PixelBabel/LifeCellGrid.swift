@@ -1,7 +1,15 @@
 class LifeCellGrid: CellGrid {
 
-    public override func run() {
+    public override func automateStep() {
         self.nextGeneration()
+    }
+
+    public override func automateStart() {
+        var x = 1
+    }
+
+    public override func automateStop() {
+        var x = 1
     }
 
     private func nextGeneration() {
