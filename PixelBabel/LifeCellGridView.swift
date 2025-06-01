@@ -1,4 +1,4 @@
-class LifeCellGrid: CellGridView {
+class LifeCellGridView: CellGridView {
 
     public override func automateStep() {
         self.nextGeneration()

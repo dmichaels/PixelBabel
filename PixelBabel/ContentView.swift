@@ -256,7 +256,7 @@ struct ContentView: View
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static let cellGridView: CellGridView = LifeCellGrid()
+    static let cellGridView: CellGridView = LifeCellGridView()
     static let settings: Settings = LifeSettings()
     static var previews: some View {
         ContentView()

@@ -15,7 +15,7 @@
 		984AE84A2D9904EE00DBCEDA /* PixelBabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8492D9904EE00DBCEDA /* PixelBabelTests.swift */; };
 		984AE8542D9904EE00DBCEDA /* PixelBabelUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8532D9904EE00DBCEDA /* PixelBabelUITests.swift */; };
 		984AE8562D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984AE8552D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift */; };
-		98E4C1102DE9F2960000F560 /* LifeCellGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98E4C10F2DE9F28F0000F560 /* LifeCellGrid.swift */; };
+		98E4C1102DE9F2960000F560 /* LifeCellGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98E4C10F2DE9F28F0000F560 /* LifeCellGridView.swift */; };
 		98F98D0E2DBBACD1003FF91D /* LifeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F98D0D2DBBACD1003FF91D /* LifeCell.swift */; };
 		98F98D232DBBCB81003FF91D /* Utils.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98F98D182DBBCB81003FF91D /* Utils.framework */; };
 		98F98D2D2DBBCB81003FF91D /* Utils.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98F98D182DBBCB81003FF91D /* Utils.framework */; };
@@ -112,7 +112,7 @@
 		984AE84F2D9904EE00DBCEDA /* PixelBabelUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PixelBabelUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		984AE8532D9904EE00DBCEDA /* PixelBabelUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBabelUITests.swift; sourceTree = "<group>"; };
 		984AE8552D9904EE00DBCEDA /* PixelBabelUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelBabelUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		98E4C10F2DE9F28F0000F560 /* LifeCellGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeCellGrid.swift; sourceTree = "<group>"; };
+		98E4C10F2DE9F28F0000F560 /* LifeCellGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeCellGridView.swift; sourceTree = "<group>"; };
 		98F98D0D2DBBACD1003FF91D /* LifeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeCell.swift; sourceTree = "<group>"; };
 		98F98D182DBBCB81003FF91D /* Utils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Utils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		98F98D222DBBCB81003FF91D /* UtilsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UtilsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -267,7 +267,7 @@
 				984AE83C2D9904EE00DBCEDA /* Assets.xcassets */,
 				984AE83A2D9904ED00DBCEDA /* ContentView.swift */,
 				98F98D0D2DBBACD1003FF91D /* LifeCell.swift */,
-				98E4C10F2DE9F28F0000F560 /* LifeCellGrid.swift */,
+				98E4C10F2DE9F28F0000F560 /* LifeCellGridView.swift */,
 				98FFBFF42DBFB96800C161DB /* LifeSettings.swift */,
 				984AE8382D9904ED00DBCEDA /* PixelBabelApp.swift */,
 				982857772DA179C800770B45 /* Settings.swift */,
@@ -593,7 +593,7 @@
 				9828577A2DA17A1700770B45 /* SettingsView.swift in Sources */,
 				984AE83B2D9904ED00DBCEDA /* ContentView.swift in Sources */,
 				98FFBFF52DBFB96800C161DB /* LifeSettings.swift in Sources */,
-				98E4C1102DE9F2960000F560 /* LifeCellGrid.swift in Sources */,
+				98E4C1102DE9F2960000F560 /* LifeCellGridView.swift in Sources */,
 				984AE8392D9904ED00DBCEDA /* PixelBabelApp.swift in Sources */,
 				982857782DA179C800770B45 /* Settings.swift in Sources */,
 			);
