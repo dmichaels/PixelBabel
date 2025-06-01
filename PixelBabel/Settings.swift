@@ -6,7 +6,7 @@ class DefaultSettings
 {
     public static let ignoreSafeArea: Bool              = false
     public static let timerInterval: Double             = 0.2
-    public static let displayScaling: Bool              = CellGrid.Defaults.displayScaling
+    public static let viewScaling: Bool              = CellGrid.Defaults.viewScaling
 
     public static let cellSize: Int                     = CellGrid.Defaults.cellSize
     public static let cellSizeFit: Bool                 = CellGrid.Defaults.cellSizeFit
@@ -34,7 +34,7 @@ class DefaultSettings
 
 class Settings: ObservableObject
 {
-    @Published var displayScaling: Bool              = DefaultSettings.displayScaling
+    @Published var viewScaling: Bool              = DefaultSettings.viewScaling
 
     @Published var cellSize: Int                     = DefaultSettings.cellSize
     @Published var cellSizeFit: Bool                 = DefaultSettings.cellSizeFit

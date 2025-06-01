@@ -7,11 +7,11 @@ import Utils
 class CellGrid: ObservableObject
 {
     struct Defaults {
-        public static let displayWidth: Int = Screen.initialWidth
-        public static let displayHeight: Int = Screen.initialHeight
+        public static let viewWidth: Int = Screen.initialWidth
+        public static let viewHeight: Int = Screen.initialHeight
         public static let displayScale: CGFloat = Screen.initialScale
-        public static let displayScaling: Bool = true
-        public static let displayTransparency: UInt8 = CellColor.OPAQUE
+        public static let viewScaling: Bool = true
+        public static let viewTransparency: UInt8 = CellColor.OPAQUE
         public static let cellSize: Int = 43 // 33 // 43 // 51 // ... resizing up/down 33 is all good it seems
         public static let cellSizeFit: Bool = true
         public static let cellPadding: Int = 1
@@ -28,9 +28,9 @@ class CellGrid: ObservableObject
         self._cellFactory = cellFactory
     }
 
-    func configure(displayWidth: Int = Defaults.displayWidth,
-                   displayHeight: Int = Defaults.displayHeight,
-                   displayScaling: Bool,
+    func configure(viewWidth: Int = Defaults.viewWidth,
+                   viewHeight: Int = Defaults.viewHeight,
+                   viewScaling: Bool,
                    cellSize: Int,
                    cellSizeFit: Bool,
                    cellPadding: Int,
@@ -45,11 +45,11 @@ class CellGrid: ObservableObject
         // e.g. one-to-three on iPhone 15, by default, but only if rending rounded rectangles are
         // circles for smoother curves; no need for squares (inset or not).
 
-        self._cellGridView = CellGridView(viewWidth: displayWidth,
-                                          viewHeight: displayHeight,
+        self._cellGridView = CellGridView(viewWidth: viewWidth,
+                                          viewHeight: viewHeight,
                                           viewBackground: cellBackground,
-                                          viewTransparency: Defaults.displayTransparency,
-                                          viewScaling: displayScaling,
+                                          viewTransparency: Defaults.viewTransparency,
+                                          viewScaling: viewScaling,
                                           cellSize: cellSize,
                                           cellPadding: cellPadding,
                                           cellFit: cellSizeFit,

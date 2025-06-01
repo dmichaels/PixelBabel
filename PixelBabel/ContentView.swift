@@ -153,9 +153,9 @@ struct ContentView: View
                         Screen.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
                         let landscape = self.orientation.current.isLandscape
                         self.cellGrid.configure(
-                            displayWidth: landscape ? Screen.shared.height : Screen.shared.width,
-                            displayHeight: landscape ? Screen.shared.width : Screen.shared.height,
-                            displayScaling: DefaultSettings.displayScaling,
+                            viewWidth: landscape ? Screen.shared.height : Screen.shared.width,
+                            viewHeight: landscape ? Screen.shared.width : Screen.shared.height,
+                            viewScaling: DefaultSettings.viewScaling,
                             cellSize: DefaultSettings.cellSize,
                             cellSizeFit: DefaultSettings.cellSizeFit,
                             cellPadding: DefaultSettings.cellPadding,
