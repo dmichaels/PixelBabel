@@ -11,7 +11,7 @@ extension CellGridView
         private let startY: Int
         private let startShiftedX: Int
         private let startShiftedY: Int
-        private let startCell: LifeCell?
+        private let startCell: Cell?
 
         init(_ cellGridView: CellGridView, _ viewPoint: CGPoint, picker: Bool = false) {
             self.cellGridView = cellGridView
@@ -23,14 +23,14 @@ extension CellGridView
         }
 
         public func drag(_ viewPoint: CGPoint, end: Bool = false) {
-            if let startCell: LifeCell = self.startCell {
-                if let cell: LifeCell = self.cellGridView.gridCell(viewPoint: viewPoint) {
-                    cell.select(dragging: true)
-                }
+            if let startCell: Cell = self.startCell,
+               let cell: Cell = self.cellGridView.gridCell(viewPoint: viewPoint) {
+                cell.select(dragging: true)
                 return
             }
-            let dragX: Int = Int(round(viewPoint.x))
-            let dragY: Int = Int(round(viewPoint.y))
+            let dragPoint: ViewPoint = ViewPoint(viewPoint)
+            let dragX: Int = dragPoint.x
+            let dragY: Int = dragPoint.y
             let dragDeltaX = self.startX - dragX
             let dragDeltaY = self.startY - dragY
             let shiftX =  self.startShiftedX - dragDeltaX

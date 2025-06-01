@@ -64,14 +64,18 @@ extension CellGridView
     // Returns the cell location relative to the grid-view of the given grid-view input point, or nil.
     //
     public func viewCellLocation(viewPoint: CGPoint) -> CellLocation? {
-        let viewPointX: CGFloat = self.scaled(viewPoint.x)
-        let viewPointY: CGFloat = self.scaled(viewPoint.y)
-        guard viewPointX >= 0.0, viewPointX < CGFloat(self.viewWidthScaled),
-              viewPointY >= 0.0, viewPointY < CGFloat(self.viewHeightScaled) else { return nil }
-        let viewCellX: Int = ((self.shiftScaledX > 0) ? (Int(floor(viewPointX)) + (self.cellSizeScaled - self.shiftScaledX))
-                                           : (Int(floor(viewPointX)) - self.shiftScaledX)) / self.cellSizeScaled
-        let viewCellY: Int = ((self.shiftScaledY > 0) ? (Int(floor(viewPointY)) + (self.cellSizeScaled - self.shiftScaledY))
-                                           : (Int(floor(viewPointY)) - self.shiftScaledY)) / self.cellSizeScaled
+        let viewPoint: ViewPoint = ViewPoint(self.scaled(viewPoint.x), self.scaled(viewPoint.y))
+        guard viewPoint.x >= 0, viewPoint.x < self.viewWidthScaled,
+              viewPoint.y >= 0, viewPoint.y < self.viewHeightScaled else { return nil }
+        //
+        // FYI: Changed what were round calls here to ViewPoint 2025-05-31 23:20 just in case.
+        //
+        let viewCellX: Int = ((self.shiftScaledX > 0)
+                             ? (viewPoint.x + (self.cellSizeScaled - self.shiftScaledX))
+                             : (viewPoint.x - self.shiftScaledX)) / self.cellSizeScaled
+        let viewCellY: Int = ((self.shiftScaledY > 0)
+                             ? (viewPoint.y + (self.cellSizeScaled - self.shiftScaledY))
+                             : (viewPoint.y - self.shiftScaledY)) / self.cellSizeScaled
         return CellLocation(viewCellX, viewCellY)
     }
 

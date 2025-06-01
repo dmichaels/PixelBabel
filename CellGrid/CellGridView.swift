@@ -123,7 +123,7 @@ class CellGridView
                             cellSizeInit: cellSize, cellFitInit: cellFit)
         #endif
 
-        let center: Bool = false
+        let center: Bool = true
         if (center) {
             self.center()
         }

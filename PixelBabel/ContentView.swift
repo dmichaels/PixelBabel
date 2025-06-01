@@ -156,8 +156,8 @@ struct ContentView: View
                             screen: Screen.shared,
                             displayWidth: landscape ? Screen.shared.height : Screen.shared.width,
                             displayHeight: landscape ? Screen.shared.width : Screen.shared.height,
-                            gridColumns: 10, // gridColumns,
-                            gridRows: 20, // gridRows,
+                            gridColumns: DefaultSettings.gridColumns,
+                            gridRows: DefaultSettings.gridRows,
                             cellSize: DefaultSettings.cellSize,
                             cellPadding: DefaultSettings.cellPadding,
                             cellShape: DefaultSettings.cellShape,
@@ -253,7 +253,6 @@ struct ContentView: View
 
 struct ContentView_Previews: PreviewProvider {
     static let cellFactory = LifeCell.factory()
-    // static let cellGrid = CellGrid(cellFactory: cellFactory)
     static let cellGrid = LifeCellGrid(cellFactory: cellFactory)
     static let settings = Settings()
     static var previews: some View {
