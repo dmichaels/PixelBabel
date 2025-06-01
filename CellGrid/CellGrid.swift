@@ -31,8 +31,7 @@ class CellGrid: ObservableObject
         self._cellFactory = cellFactory
     }
 
-    func configure(screen: Screen,
-                   displayWidth: Int = Defaults.displayWidth,
+    func configure(displayWidth: Int = Defaults.displayWidth,
                    displayHeight: Int = Defaults.displayHeight,
                    gridColumns: Int,
                    gridRows: Int,
