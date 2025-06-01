@@ -3,8 +3,8 @@ import SwiftUI
 class LifeCell: Cell {
 
     private var _active: Bool
-    private var _activeColor: CellColor = CellColor(Color.black)
-    private var _inactiveColor: CellColor = CellColor(Color.white)
+    private var _activeColor: CellColor = DefaultLifeSettings.cellActiveColor
+    private var _inactiveColor: CellColor = DefaultLifeSettings.cellInactiveColor
 
     init(parent: CellGridView, x: Int, y: Int, foreground: CellColor, active: Bool = false) {
         self._active = active
