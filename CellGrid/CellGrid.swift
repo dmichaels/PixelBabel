@@ -9,7 +9,7 @@ class CellGrid: ObservableObject
     struct Defaults {
         public static let viewWidth: Int = Screen.initialWidth
         public static let viewHeight: Int = Screen.initialHeight
-        public static let displayScale: CGFloat = Screen.initialScale
+        public static let viewScale: CGFloat = Screen.initialScale
         public static let viewScaling: Bool = true
         public static let viewTransparency: UInt8 = CellColor.OPAQUE
         public static let cellSize: Int = 43 // 33 // 43 // 51 // ... resizing up/down 33 is all good it seems
@@ -58,7 +58,7 @@ class CellGrid: ObservableObject
                                           gridCellFactory: self._cellFactory)
     }
 
-    public var displayScale: CGFloat {
+    public var viewScale: CGFloat {
         self._cellGridView!.viewScale
     }
 

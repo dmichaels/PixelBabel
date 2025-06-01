@@ -27,7 +27,7 @@ struct ContentView: View
             GeometryReader { geometry in
                 ZStack {
                     if let image = image {
-                        Image(decorative: image, scale: self.cellGrid.displayScale)
+                        Image(decorative: image, scale: self.cellGrid.viewScale)
                             .background(GeometryReader { geo in Color.clear
                                 .onAppear {
                                     let parentOrigin = geo.frame(in: .named("zstack")).origin
