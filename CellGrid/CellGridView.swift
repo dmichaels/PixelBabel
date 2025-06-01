@@ -92,14 +92,14 @@ class CellGridView
          viewScaling: Bool,
          cellSize: Int,
          cellPadding: Int,
-         cellFit: Bool,
+         cellSizeFit: Bool,
          cellShape: CellShape,
          gridColumns: Int,
          gridRows: Int,
          gridCellFactory: Cell.Factory? = nil)
     {
         let preferredSize = CellGridView.preferredSize(viewWidth: viewWidth, viewHeight: viewHeight,
-                                                       cellSize: cellSize, enabled: cellFit)
+                                                       cellSize: cellSize, enabled: cellSizeFit)
         self.configure(cellSize: preferredSize.cellSize,
                        cellPadding: cellPadding,
                        cellShape: cellShape,
@@ -121,7 +121,7 @@ class CellGridView
 
         #if targetEnvironment(simulator)
             self.printSizes(viewWidthInit: viewWidth, viewHeightInit: viewHeight,
-                            cellSizeInit: cellSize, cellFitInit: cellFit)
+                            cellSizeInit: cellSize, cellSizeFitInit: cellSizeFit)
         #endif
 
         if (DefaultSettings.centerCellGrid) {

@@ -162,7 +162,7 @@ struct ContentView: View
                             cellShape: DefaultSettings.cellShape,
                             cellColorMode: DefaultSettings.cellColorMode,
                             cellForeground: DefaultSettings.cellForeground,
-                            cellBackground: DefaultSettings.cellBackground,
+                            viewBackground: DefaultSettings.viewBackground,
                             gridColumns: DefaultSettings.gridColumns,
                             gridRows: DefaultSettings.gridRows)
                         self.updateImage()

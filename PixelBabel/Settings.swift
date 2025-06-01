@@ -6,7 +6,9 @@ class DefaultSettings
 {
     public static let ignoreSafeArea: Bool              = false
     public static let timerInterval: Double             = 0.2
-    public static let viewScaling: Bool              = CellGrid.Defaults.viewScaling
+
+    public static let viewScaling: Bool                 = CellGrid.Defaults.viewScaling
+    public static let viewBackground: CellColor         = CellGrid.Defaults.viewBackground
 
     public static let cellSize: Int                     = CellGrid.Defaults.cellSize
     public static let cellSizeFit: Bool                 = CellGrid.Defaults.cellSizeFit
@@ -14,7 +16,6 @@ class DefaultSettings
     public static let cellShape: CellShape              = CellGrid.Defaults.cellShape
     public static let cellColorMode: CellColorMode      = CellGrid.Defaults.cellColorMode
     public static let cellForeground: CellColor         = CellGrid.Defaults.cellForeground
-    public static let cellBackground: CellColor         = CellGrid.Defaults.cellBackground
     public static let cellAntialiasFade: Float          = CellGridView.Defaults.cellAntialiasFade
     public static let cellRoundedRectangleRadius: Float = CellGridView.Defaults.cellRoundedRectangleRadius
     public static let soundEnabled: Bool                = true
@@ -34,14 +35,14 @@ class DefaultSettings
 
 class Settings: ObservableObject
 {
-    @Published var viewScaling: Bool              = DefaultSettings.viewScaling
+    @Published var viewBackground: CellColor         = DefaultSettings.viewBackground
+    @Published var viewScaling: Bool                 = DefaultSettings.viewScaling
 
     @Published var cellSize: Int                     = DefaultSettings.cellSize
     @Published var cellSizeFit: Bool                 = DefaultSettings.cellSizeFit
     @Published var cellPadding: Int                  = DefaultSettings.cellPadding
     @Published var cellShape: CellShape              = DefaultSettings.cellShape
     @Published var cellColorMode: CellColorMode      = DefaultSettings.cellColorMode
-    @Published var cellBackground: CellColor         = DefaultSettings.cellBackground
     @Published var cellAntialiasFade: Float          = DefaultSettings.cellAntialiasFade
     @Published var cellRoundedRectangleRadius: Float = DefaultSettings.cellRoundedRectangleRadius
     @Published var soundEnabled: Bool                = DefaultSettings.soundEnabled

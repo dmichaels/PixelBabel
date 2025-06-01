@@ -18,7 +18,7 @@ class CellGrid: ObservableObject
         public static let cellShape: CellShape = CellShape.rounded
         public static let cellColorMode: CellColorMode = CellColorMode.color
         public static let cellForeground: CellColor = CellColor.white // CellColor.black
-        public static let cellBackground: CellColor = CellColor.dark
+        public static let viewBackground: CellColor = CellColor.dark
     }
 
     private var _cellGridView: CellGridView? = nil
@@ -37,7 +37,7 @@ class CellGrid: ObservableObject
                    cellShape: CellShape,
                    cellColorMode: CellColorMode,
                    cellForeground: CellColor,
-                   cellBackground: CellColor,
+                   viewBackground: CellColor,
                    gridColumns: Int,
                    gridRows: Int)
     {
@@ -47,12 +47,12 @@ class CellGrid: ObservableObject
 
         self._cellGridView = CellGridView(viewWidth: viewWidth,
                                           viewHeight: viewHeight,
-                                          viewBackground: cellBackground,
+                                          viewBackground: viewBackground,
                                           viewTransparency: Defaults.viewTransparency,
                                           viewScaling: viewScaling,
                                           cellSize: cellSize,
                                           cellPadding: cellPadding,
-                                          cellFit: cellSizeFit,
+                                          cellSizeFit: cellSizeFit,
                                           cellShape: cellShape,
                                           gridColumns: gridColumns,
                                           gridRows: gridRows,
