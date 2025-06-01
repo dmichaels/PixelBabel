@@ -77,30 +77,16 @@ class CellGrid: ObservableObject
     }
 
     public func onTap(_ viewPoint: CGPoint) {
-        if let cellGridView = self._cellGridView {
-            if let cell: Cell = cellGridView.gridCell(viewPoint: viewPoint) {
-                if ((cell.x == 2) && (cell.y == 2)) {
-                    cellGridView.viewScaling = !cellGridView.viewScaling
-                    return
-                }
-                if ((cell.x == 0) && (cell.y == 0)) {
-                    if (self._pickerMode) {
-                        self._pickerMode = false
-                        cell.write(foreground: CellColor(Color.green))
-                    }
-                    else {
-                        self._pickerMode = true
-                        cell.write(foreground: CellColor(Color.red))
-                    }
-                }
-                else {
-                    cell.select()
-                }
-            }
+        if let cellGridView = self._cellGridView, let cell: Cell = cellGridView.gridCell(viewPoint: viewPoint) {
+            cell.select()
         }
     }
 
     public func onLongTap(_ viewPoint: CGPoint) {
+    }
+
+    public func onDoubleTap() {
+        self._pickerMode = !self._pickerMode
     }
 
     public func onDrag(_ viewPoint: CGPoint) {
@@ -135,10 +121,6 @@ class CellGrid: ObservableObject
             zoomer.end(zoomFactor)
             self._zoomer = nil
         }
-    }
-
-    public func onDoubleTap() {
-        self._pickerMode = !self._pickerMode
     }
 
     public var image: CGImage? {
