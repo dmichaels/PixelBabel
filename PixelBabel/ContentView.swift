@@ -155,14 +155,16 @@ struct ContentView: View
                         self.cellGrid.configure(
                             displayWidth: landscape ? Screen.shared.height : Screen.shared.width,
                             displayHeight: landscape ? Screen.shared.width : Screen.shared.height,
-                            gridColumns: DefaultSettings.gridColumns,
-                            gridRows: DefaultSettings.gridRows,
+                            displayScaling: DefaultSettings.displayScaling,
                             cellSize: DefaultSettings.cellSize,
+                            cellSizeFit: DefaultSettings.cellSizeFit,
                             cellPadding: DefaultSettings.cellPadding,
                             cellShape: DefaultSettings.cellShape,
                             cellColorMode: DefaultSettings.cellColorMode,
-                            cellBackground: DefaultSettings.cellBackground)
-                        // self.cellGrid.randomize()
+                            cellForeground: DefaultSettings.cellForeground,
+                            cellBackground: DefaultSettings.cellBackground,
+                            gridColumns: DefaultSettings.gridColumns,
+                            gridRows: DefaultSettings.gridRows)
                         self.updateImage()
                         self.rotateImage()
                     }

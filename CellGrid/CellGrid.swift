@@ -30,16 +30,16 @@ class CellGrid: ObservableObject
 
     func configure(displayWidth: Int = Defaults.displayWidth,
                    displayHeight: Int = Defaults.displayHeight,
+                   displayScaling: Bool,
+                   cellSize: Int,
+                   cellSizeFit: Bool,
+                   cellPadding: Int,
+                   cellShape: CellShape,
+                   cellColorMode: CellColorMode,
+                   cellForeground: CellColor,
+                   cellBackground: CellColor,
                    gridColumns: Int,
-                   gridRows: Int,
-                   cellSize: Int = Defaults.cellSize,
-                   cellSizeFit: Bool = Defaults.cellSizeFit,
-                   cellPadding: Int = Defaults.cellPadding,
-                   cellShape: CellShape = Defaults.cellShape,
-                   cellColorMode: CellColorMode = Defaults.cellColorMode,
-                   cellForeground: CellColor = Defaults.cellForeground,
-                   cellBackground: CellColor = Defaults.cellBackground,
-                   displayScaling: Bool = Defaults.displayScaling)
+                   gridRows: Int)
     {
         // Given argument values are assumed always unscaled; we scale, i.e. logical-to-physical-pixel,
         // e.g. one-to-three on iPhone 15, by default, but only if rending rounded rectangles are
