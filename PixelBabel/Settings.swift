@@ -29,7 +29,9 @@ class DefaultSettings
     public static let swipeDistance: CGFloat            = 100
     public static let updateMode: Bool                  = false
 
-    public static let unscaledZoom: Bool                = true
+    public static let restrictShiftStrict: Bool         = false
+    public static let centerCellGrid: Bool              = false
+    public static let unscaledZoom: Bool                = false
 }
 
 class Settings: ObservableObject

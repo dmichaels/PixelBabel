@@ -26,7 +26,6 @@ class CellGridView
         public static var preferredSizeMarginMax: Int = 30
         public static let cellAntialiasFade: Float = 0.6  // smaller is smoother
         public static let cellRoundedRectangleRadius: Float = 0.25
-        public static let restrictShiftStrict: Bool = true
     }
 
     // Note that internally all size related properties are stored as scaled;
@@ -123,8 +122,7 @@ class CellGridView
                             cellSizeInit: cellSize, cellFitInit: cellFit)
         #endif
 
-        let center: Bool = true
-        if (center) {
+        if (DefaultSettings.centerCellGrid) {
             self.center()
         }
         else {
@@ -220,44 +218,6 @@ class CellGridView
         Screen.shared.scale(scaling: self._viewScaling)
     }
 
-    public func scale() {
-        guard !self._viewScaling else {
-            return
-        }
-        // let shiftTotalX: Int = Screen.shared.scaled(self.shiftTotalX)
-        // let shiftTotalY: Int = Screen.shared.scaled(self.shiftTotalY)
-        let shiftTotalX: Int = self.scaled(self.shiftTotalX, force: true)
-        let shiftTotalY: Int = self.scaled(self.shiftTotalY, force: true)
-        self.configure(cellSize: self.cellSize,
-                       cellPadding: self.cellPadding,
-                       cellShape: self.cellShape,
-                       viewWidth: self.viewWidth,
-                       viewHeight: self.viewHeight,
-                       viewBackground: self.viewBackground,
-                       viewTransparency: self.viewTransparency,
-                       viewScaling: true)
-        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: true)
-    }
-
-    public func unscale() {
-        guard self._viewScaling else {
-            return
-        }
-        // let shiftTotalX: Int = Int(round(Screen.shared.unscaled(Double(self.shiftTotalScaledX))))
-        // let shiftTotalY: Int = Int(round(Screen.shared.unscaled(Double(self.shiftTotalScaledY))))
-        let shiftTotalX: Int = self.unscaled(self.shiftTotalScaledX, force: true)
-        let shiftTotalY: Int = self.unscaled(self.shiftTotalScaledY, force: true)
-        self.configure(cellSize: self.cellSize,
-                       cellPadding: self.cellPadding,
-                       cellShape: self.cellShape,
-                       viewWidth: self.viewWidth,
-                       viewHeight: self.viewHeight,
-                       viewBackground: self.viewBackground,
-                       viewTransparency: self.viewTransparency,
-                       viewScaling: false)
-        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: false)
-    }
-
     internal func scaled(_ value: Int) -> Int {
         return Screen.shared.scaled(value, scaling: self._viewScaling)
     }
@@ -306,15 +266,6 @@ class CellGridView
     internal var shiftScaledY: Int      { self._shiftY }
     internal var shiftTotalScaledX: Int { self._shiftX + (self._shiftCellX * self._cellSize) }
     internal var shiftTotalScaledY: Int { self._shiftY + (self._shiftCellY * self._cellSize) }
-
-    public func center()
-    {
-        let gridWidth: Int = self.gridColumns * self.cellSize
-        let gridHeight: Int = self.gridRows * self.cellSize
-        let shiftTotalX: Int = -Int(round(Double(gridWidth) / 2.0))
-        let shiftTotalY: Int = -Int(round(Double(gridHeight) / 2.0))
-        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY)
-    }
 
     // Sets the cell-grid within the grid-view to be shifted by the given amount,
     // from the upper-left; note that the given shiftx and shifty values are unscaled.
@@ -428,7 +379,7 @@ class CellGridView
             }
         }
 
-        if (Defaults.restrictShiftStrict) {
+        if (DefaultSettings.restrictShiftStrict) {
             restrictShiftStrict(shiftCell: &shiftCellX, shift: &shiftX,
                                 cellSize: self._cellSize,
                                 viewSize: self._viewWidth,
@@ -692,5 +643,48 @@ class CellGridView
                 }
             }
         }
+    }
+
+    public func center()
+    {
+        let gridWidth: Int = self.gridColumns * self.cellSize
+        let gridHeight: Int = self.gridRows * self.cellSize
+        let shiftTotalX: Int = -Int(round(Double(gridWidth) / 2.0))
+        let shiftTotalY: Int = -Int(round(Double(gridHeight) / 2.0))
+        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY)
+    }
+
+    public func scale() {
+        guard !self._viewScaling else {
+            return
+        }
+        let shiftTotalX: Int = self.scaled(self.shiftTotalX, force: true)
+        let shiftTotalY: Int = self.scaled(self.shiftTotalY, force: true)
+        self.configure(cellSize: self.cellSize,
+                       cellPadding: self.cellPadding,
+                       cellShape: self.cellShape,
+                       viewWidth: self.viewWidth,
+                       viewHeight: self.viewHeight,
+                       viewBackground: self.viewBackground,
+                       viewTransparency: self.viewTransparency,
+                       viewScaling: true)
+        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: true)
+    }
+
+    public func unscale() {
+        guard self._viewScaling else {
+            return
+        }
+        let shiftTotalX: Int = self.unscaled(self.shiftTotalScaledX, force: true)
+        let shiftTotalY: Int = self.unscaled(self.shiftTotalScaledY, force: true)
+        self.configure(cellSize: self.cellSize,
+                       cellPadding: self.cellPadding,
+                       cellShape: self.cellShape,
+                       viewWidth: self.viewWidth,
+                       viewHeight: self.viewHeight,
+                       viewBackground: self.viewBackground,
+                       viewTransparency: self.viewTransparency,
+                       viewScaling: false)
+        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: false)
     }
 }
