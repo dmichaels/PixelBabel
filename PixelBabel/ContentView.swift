@@ -165,8 +165,9 @@ struct ContentView: View
                             cellForeground: DefaultSettings.cellForeground,
                             cellFactory: LifeCell.factory(),
                             gridColumns: DefaultSettings.gridColumns,
-                            gridRows: DefaultSettings.gridRows)
-                        self.updateImage()
+                            gridRows: DefaultSettings.gridRows,
+                            updateImage: self.updateImage)
+                        // self.updateImage()
                         self.rotateImage()
                     }
                 }

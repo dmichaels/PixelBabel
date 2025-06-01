@@ -98,7 +98,8 @@ class CellGridView
          cellForeground: CellColor,
          cellFactory: Cell.Factory?,
          gridColumns: Int,
-         gridRows: Int)
+         gridRows: Int,
+         updateImage: () -> Void)
     {
         let preferredSize = CellGridView.preferredSize(viewWidth: viewWidth, viewHeight: viewHeight,
                                                        cellSize: cellSize, enabled: cellSizeFit)
@@ -132,6 +133,8 @@ class CellGridView
         else {
             self.shift(shiftx: 0, shifty: 0, scaled: false)
         }
+
+        // updateImage()
     }
 
     internal func configure(cellSize: Int,

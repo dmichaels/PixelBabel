@@ -34,7 +34,8 @@ class CellGrid: ObservableObject
                    cellForeground: CellColor,
                    cellFactory: @escaping Cell.Factory,
                    gridColumns: Int,
-                   gridRows: Int)
+                   gridRows: Int,
+                   updateImage: () -> Void)
     {
         // Given argument values are assumed always unscaled; we scale, i.e. logical-to-physical-pixel,
         // e.g. one-to-three on iPhone 15, by default, but only if rending rounded rectangles are
@@ -52,7 +53,9 @@ class CellGrid: ObservableObject
                                           cellForeground: cellForeground,
                                           cellFactory: cellFactory,
                                           gridColumns: gridColumns,
-                                          gridRows: gridRows)
+                                          gridRows: gridRows,
+                                          updateImage: updateImage)
+        updateImage()
     }
 
     public var viewScale: CGFloat {
