@@ -49,7 +49,6 @@ class CellGrid: ObservableObject
         // circles for smoother curves; no need for squares (inset or not).
 
         self._cellGridView = CellGridView(viewWidth: displayWidth,
-//      self._cellGridView = CellGridView(viewWidth: 397, // displayWidth,
                                           viewHeight: displayHeight,
                                           viewBackground: cellBackground,
                                           viewTransparency: Defaults.displayTransparency,

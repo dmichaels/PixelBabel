@@ -4,7 +4,7 @@ import Utils
 
 class DefaultSettings
 {
-    public static let ignoreSafeArea: Bool              = true
+    public static let ignoreSafeArea: Bool              = false
     public static let timerInterval: Double             = 0.2
     public static let displayScaling: Bool              = CellGrid.Defaults.displayScaling
 
@@ -17,8 +17,6 @@ class DefaultSettings
     public static let cellBackground: CellColor         = CellGrid.Defaults.cellBackground
     public static let cellAntialiasFade: Float          = CellGridView.Defaults.cellAntialiasFade
     public static let cellRoundedRectangleRadius: Float = CellGridView.Defaults.cellRoundedRectangleRadius
-    public static let automationEnabled: Bool           = true
-    public static let automationSpeed: Double           = 0.1
     public static let soundEnabled: Bool                = true
     public static let hapticEnabled: Bool               = true
 
@@ -46,8 +44,6 @@ class Settings: ObservableObject
     @Published var cellBackground: CellColor         = DefaultSettings.cellBackground
     @Published var cellAntialiasFade: Float          = DefaultSettings.cellAntialiasFade
     @Published var cellRoundedRectangleRadius: Float = DefaultSettings.cellRoundedRectangleRadius
-    @Published var automationEnabled: Bool           = DefaultSettings.automationEnabled
-    @Published var automationSpeed: Double           = DefaultSettings.automationSpeed
     @Published var soundEnabled: Bool                = DefaultSettings.soundEnabled
     @Published var hapticEnabled: Bool               = DefaultSettings.hapticEnabled
 
