@@ -5,7 +5,7 @@ struct ContentView: View
 {
     @StateObject var orientation = OrientationObserver()
 
-    @EnvironmentObject var cellGrid: CellGrid
+    @EnvironmentObject var cellGridView: CellGridView
     @EnvironmentObject var settings: Settings
 
     @State private var ignoreSafeArea: Bool = DefaultSettings.ignoreSafeArea
@@ -27,7 +27,7 @@ struct ContentView: View
             GeometryReader { geometry in
                 ZStack {
                     if let image = image {
-                        Image(decorative: image, scale: self.cellGrid.viewScale)
+                        Image(decorative: image, scale: self.cellGridView.viewScale)
                             .background(GeometryReader { geo in Color.clear
                                 .onAppear {
                                     let parentOrigin = geo.frame(in: .named("zstack")).origin
@@ -52,7 +52,7 @@ struct ContentView: View
                                                           normalizedPoint.y - self.draggingStart!.y)
                                         if (delta > DefaultSettings.draggingThreshold) {
                                             self.dragging = true
-                                            self.cellGrid.onDrag(normalizedPoint)
+                                            self.cellGridView.onDrag(normalizedPoint)
                                             self.updateImage()
                                         }
                                     }
@@ -74,10 +74,10 @@ struct ContentView: View
                                             //
                                         }
                                         if (self.dragging) {
-                                            self.cellGrid.onDragEnd(normalizedPoint)
+                                            self.cellGridView.onDragEnd(normalizedPoint)
                                             self.updateImage()
                                         } else {
-                                            self.cellGrid.onTap(normalizedPoint)
+                                            self.cellGridView.onTap(normalizedPoint)
                                             self.updateImage()
                                         }
                                         self.draggingStart = nil
@@ -87,7 +87,7 @@ struct ContentView: View
                             .simultaneousGesture(
                                 TapGesture(count: 2)
                                     .onEnded {
-                                        self.cellGrid.onDoubleTap()
+                                        self.cellGridView.onDoubleTap()
                                     }
                             )
                             .simultaneousGesture(
@@ -97,10 +97,10 @@ struct ContentView: View
                                         switch value {
                                             case .second(true, let drag):
                                                 if let location = drag?.location {
-                                                    self.cellGrid.onLongTap(location) // TODO
+                                                    self.cellGridView.onLongTap(location) // TODO
                                                     let normalizedPoint = self.normalizedPoint(location)
-                                                    if let cellGridView = self.cellGrid.cellGridView {
-                                                        if (cellGridView.gridCellLocation(viewPoint: normalizedPoint) != nil) {
+
+                                                        if (self.cellGridView.gridCellLocation(viewPoint: normalizedPoint) != nil) {
                                                             self.autoTapping.toggle()
                                                             if (self.autoTapping) {
                                                                 self.autoTappingStart()
@@ -109,9 +109,9 @@ struct ContentView: View
                                                                 self.autoTappingStop()
                                                             }
                                                         }
-                                                    }
+
                                                     /*
-                                                    if (self.cellGrid.locate(normalizedPoint) != nil) {
+                                                    if (self.cellGridView.locate(normalizedPoint) != nil) {
                                                         self.autoTapping.toggle()
                                                         if (self.autoTapping) {
                                                             self.autoTappingStart()
@@ -130,11 +130,11 @@ struct ContentView: View
                             .simultaneousGesture(
                                 MagnificationGesture()
                                     .onChanged { value in
-                                        self.cellGrid.onZoom(value)
+                                        self.cellGridView.onZoom(value)
                                         self.updateImage()
                                     }
                                     .onEnded { value in
-                                        self.cellGrid.onZoomEnd(value)
+                                        self.cellGridView.onZoomEnd(value)
                                         self.updateImage()
                                     }
                             )
@@ -152,7 +152,7 @@ struct ContentView: View
                         self.geometrySize = geometry.size
                         Screen.shared.configure(size: geometry.size, scale: UIScreen.main.scale)
                         let landscape = self.orientation.current.isLandscape
-                        self.cellGrid.configure(
+                        self.cellGridView.initialize(
                             viewWidth: landscape ? Screen.shared.height : Screen.shared.width,
                             viewHeight: landscape ? Screen.shared.width : Screen.shared.height,
                             viewBackground: DefaultSettings.viewBackground,
@@ -173,7 +173,7 @@ struct ContentView: View
                 }
                 .navigationTitle("Home")
                 .navigationBarHidden(true)
-                // .background(self.cellGrid.background.color) // xyzzy
+                // .background(self.cellGridView.background.color) // xyzzy
                 // .background(Color.pink) // xyzzy
                 .background(Color.yellow) // xyzzy
                 .statusBar(hidden: true)
@@ -199,7 +199,7 @@ struct ContentView: View
     }
 
     private func updateImage() {
-        self.image = self.cellGrid.image
+        self.image = self.cellGridView.image
     }
 
     private func rotateImage() {
@@ -231,9 +231,9 @@ struct ContentView: View
     }
 
     public func normalizedPoint(_ location: CGPoint) -> CGPoint {
-        return self.cellGrid.normalizedPoint(screenPoint: location,
-                                             gridOrigin: parentRelativeImagePosition,
-                                             orientation: self.orientation)
+        return self.cellGridView.normalizedPoint(screenPoint: location,
+                                                 viewOrigin: parentRelativeImagePosition,
+                                                 orientation: self.orientation)
     }
 
     private func onChangeOrientation(_ current: UIDeviceOrientation, _ previous: UIDeviceOrientation) {
@@ -241,10 +241,10 @@ struct ContentView: View
     }
 
     private func autoTappingStart() {
-        self.cellGrid.automateToggle()
+        self.cellGridView.automateToggle()
         self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: self.timerInterval, repeats: true) { _ in
-            // self.cellGrid.randomize()
-            self.cellGrid.automateStep()
+            // self.cellGridView.randomize()
+            self.cellGridView.automateStep()
             self.updateImage()
         }
     }
@@ -256,11 +256,11 @@ struct ContentView: View
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static let cellGrid: CellGrid = LifeCellGrid()
+    static let cellGridView: CellGridView = LifeCellGrid()
     static let settings: Settings = LifeSettings()
     static var previews: some View {
         ContentView()
-            .environmentObject(cellGrid)
+            .environmentObject(cellGridView)
             .environmentObject(settings)
     }
 }

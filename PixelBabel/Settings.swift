@@ -7,15 +7,15 @@ class DefaultSettings
     public static let ignoreSafeArea: Bool              = true
     public static let timerInterval: Double             = 0.2
 
-    public static let viewScaling: Bool                 = CellGrid.Defaults.viewScaling
-    public static let viewBackground: CellColor         = CellGrid.Defaults.viewBackground
-    public static let viewTransparency: UInt8           = CellGrid.Defaults.viewTransparency
+    public static let viewScaling: Bool                 = CellGridView.Defaults.viewScaling
+    public static let viewBackground: CellColor         = CellGridView.Defaults.viewBackground
+    public static let viewTransparency: UInt8           = CellGridView.Defaults.viewTransparency
 
-    public static let cellSize: Int                     = CellGrid.Defaults.cellSize
-    public static let cellSizeFit: Bool                 = CellGrid.Defaults.cellSizeFit
-    public static let cellPadding: Int                  = CellGrid.Defaults.cellPadding
-    public static let cellShape: CellShape              = CellGrid.Defaults.cellShape
-    public static let cellForeground: CellColor         = CellGrid.Defaults.cellForeground
+    public static let cellSize: Int                     = CellGridView.Defaults.cellSize
+    public static let cellSizeFit: Bool                 = CellGridView.Defaults.cellSizeFit
+    public static let cellPadding: Int                  = CellGridView.Defaults.cellPadding
+    public static let cellShape: CellShape              = CellGridView.Defaults.cellShape
+    public static let cellForeground: CellColor         = CellGridView.Defaults.cellForeground
     public static let cellAntialiasFade: Float          = CellGridView.Defaults.cellAntialiasFade
     public static let cellRoundedRectangleRadius: Float = CellGridView.Defaults.cellRoundedRectangleRadius
     public static let soundEnabled: Bool                = true

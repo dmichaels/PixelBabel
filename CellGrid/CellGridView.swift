@@ -14,10 +14,19 @@ import Utils
 // We say "location" or "cell-location" to mean a cell-based coordinate on the cell-grid or grid-view.
 
 @MainActor
-class CellGridView
+class CellGridView: ObservableObject
 {
     struct Defaults {
-        // 
+
+        public static let viewScaling: Bool = true
+        public static let viewTransparency: UInt8 = CellColor.OPAQUE
+        public static let cellSize: Int = 43
+        public static let cellSizeFit: Bool = true
+        public static let cellPadding: Int = 1
+        public static let cellShape: CellShape = CellShape.rounded
+        public static let cellForeground: CellColor = CellColor.white // CellColor.black
+        public static let viewBackground: CellColor = CellColor.dark
+
         // The size related properties here (being effectively outward facing) are unscaled.
         //
         public static var cellPaddingMax: Int = 8
@@ -86,7 +95,7 @@ class CellGridView
 
     internal let _actionData: CellGridView.ActionData = CellGridView.ActionData()
 
-    init(viewWidth: Int,
+    public func initialize(viewWidth: Int,
          viewHeight: Int,
          viewBackground: CellColor,
          viewTransparency: UInt8,
@@ -134,7 +143,7 @@ class CellGridView
             self.shift(shiftx: 0, shifty: 0, scaled: false)
         }
 
-        // updateImage()
+        updateImage()
     }
 
     internal func configure(cellSize: Int,

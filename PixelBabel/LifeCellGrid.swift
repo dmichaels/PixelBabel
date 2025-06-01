@@ -1,4 +1,4 @@
-class LifeCellGrid: CellGrid {
+class LifeCellGrid: CellGridView {
 
     public override func automateStep() {
         self.nextGeneration()
@@ -13,13 +13,10 @@ class LifeCellGrid: CellGrid {
     }
 
     private func nextGeneration() {
-        guard let cellGridView = self.cellGridView else {
-            return
-        }
-        var states: [[Bool]] = Array(repeating: Array(repeating: false, count: cellGridView.gridColumns), count: cellGridView.gridRows)
-        for row in 0..<cellGridView.gridRows {
-            for column in 0..<cellGridView.gridColumns {
-                if let cell: LifeCell = cellGridView.gridCell(column, row) {
+        var states: [[Bool]] = Array(repeating: Array(repeating: false, count: self.gridColumns), count: self.gridRows)
+        for row in 0..<self.gridRows {
+            for column in 0..<self.gridColumns {
+                if let cell: LifeCell = self.gridCell(column, row) {
                     let liveNeighbors: Int = self.activeNeighbors(cell)
                     if cell.active {
                         states[row][column] = ((liveNeighbors == 2) || (liveNeighbors == 3))
@@ -29,9 +26,9 @@ class LifeCellGrid: CellGrid {
                 }
             }
         }
-        for row in 0..<cellGridView.gridRows {
-            for column in 0..<cellGridView.gridColumns {
-                if let cell: LifeCell = cellGridView.gridCell(column, row) {
+        for row in 0..<self.gridRows {
+            for column in 0..<self.gridColumns {
+                if let cell: LifeCell = self.gridCell(column, row) {
                     if (states[row][column]) {
                         cell.activate()
                     }
@@ -44,18 +41,15 @@ class LifeCellGrid: CellGrid {
     }
 
     private func activeNeighbors(_ cell: LifeCell) -> Int {
-        guard let cellGridView = self.cellGridView else {
-            return 0
-        }
         var count = 0
         for dy in -1...1 {
             for dx in -1...1 {
                 if ((dx == 0) && (dy == 0)) {
                     continue
                 }
-                let nx = (cell.x + dx + cellGridView.gridColumns) % cellGridView.gridColumns
-                let ny = (cell.y + dy + cellGridView.gridRows) % cellGridView.gridRows
-                if let cell: LifeCell = cellGridView.gridCell(nx, ny) {
+                let nx = (cell.x + dx + self.gridColumns) % self.gridColumns
+                let ny = (cell.y + dy + self.gridRows) % self.gridRows
+                if let cell: LifeCell = self.gridCell(nx, ny) {
                     if (cell.active) {
                         count += 1
                     }

@@ -6,7 +6,7 @@ import AVFoundation
 struct SettingsView: View
 {
     @EnvironmentObject var settings: Settings
-    @EnvironmentObject var pixelMap: CellGrid
+    @EnvironmentObject var cellGridView: CellGridView
 
     var body: some View {
         Form {
