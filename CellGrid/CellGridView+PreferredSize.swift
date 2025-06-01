@@ -6,12 +6,12 @@ extension CellGridView
     // out past the end of the view; the given and returned dimensions are assumed to be unscaled values.
     //
     public static func preferredSize(viewWidth: Int, viewHeight: Int, cellSize: Int,
-                                     preferredSizeMarginMax: Int = Defaults.preferredSizeMarginMax,
+                                     cellSizePreferredMarginMax: Int = Defaults.cellSizePreferredMarginMax,
                                      enabled: Bool = true) -> PreferredSize
     {
         if (enabled) {
             let sizes = CellGridView.preferredSizes(viewWidth: viewWidth, viewHeight: viewHeight,
-                                                    preferredSizeMarginMax: preferredSizeMarginMax)
+                                                    cellSizePreferredMarginMax: cellSizePreferredMarginMax)
             if let size = CellGridView.closestPreferredCellSize(in: sizes, to: cellSize) {
                 return size
             }
@@ -20,7 +20,7 @@ extension CellGridView
     }
 
     public static func preferredSizes(viewWidth: Int, viewHeight: Int,
-                                      preferredSizeMarginMax: Int = Defaults.preferredSizeMarginMax)
+                                      cellSizePreferredMarginMax: Int = Defaults.cellSizePreferredMarginMax)
                                       -> [PreferredSize] {
         let mindim: Int = min(viewWidth, viewHeight)
         guard mindim > 0 else { return [] }
@@ -32,14 +32,14 @@ extension CellGridView
             let usedh: Int = nrows * cellSize
             let leftx: Int = viewWidth - usedw
             let lefty: Int = viewHeight - usedh
-            if ((leftx <= preferredSizeMarginMax) && (lefty <= preferredSizeMarginMax)) {
+            if ((leftx <= cellSizePreferredMarginMax) && (lefty <= cellSizePreferredMarginMax)) {
                 results.append((cellSize: cellSize, viewWidth: usedw, viewHeight: usedh))
             }
         }
         return results
     }
 
-    public static func closestPreferredCellSize(in list: [PreferredSize], to target: Int) -> PreferredSize? {
+    private static func closestPreferredCellSize(in list: [PreferredSize], to target: Int) -> PreferredSize? {
         return list.min(by: {
             let a: Int = abs($0.cellSize - target)
             let b: Int = abs($1.cellSize - target)

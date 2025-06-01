@@ -32,7 +32,7 @@ class CellGridView: ObservableObject
         public static var cellPaddingMax: Int = 8
         public static var cellSizeMax: Int = 200
         public static var cellSizeInnerMin: Int = 3
-        public static var preferredSizeMarginMax: Int = 30
+        public static var cellSizePreferredMarginMax: Int = 30
         public static let cellAntialiasFade: Float = 0.6  // smaller is smoother
         public static let cellRoundedRectangleRadius: Float = 0.25
     }
@@ -40,6 +40,12 @@ class CellGridView: ObservableObject
     // Note that internally all size related properties are stored as scaled;
     // but that all outward facing references to such properties and unscaled,
     // unless otherwise specifed in the property name, e.g. cellSizeScaled.
+    //
+    // Though we do have the ability to operate in unscaled rather than (the default) scaled mode,
+    // i.e. if we pass viewScaling as false to the initialize method, in which case the size related
+    // properties values are stored as unscaled; and in this case even the scaled property names,
+    // e.g. cellSizeScaled, return the unscaled values. We actually (by default) switch to this mode
+    // during zooming/resizing, for performance reasons (since the image buffer is nominall 3x smaller).
 
     private var _viewWidth: Int = 0
     private var _viewHeight: Int = 0
