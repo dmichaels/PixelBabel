@@ -1,7 +1,6 @@
 extension CellGridView {
 
-    internal func defineGridCells(gridColumns: Int, gridRows: Int,
-                                  gridCellFactory: Cell.Factory?, foreground: CellColor) -> [Cell]
+    internal func defineGridCells(gridColumns: Int, gridRows: Int, foreground: CellColor) -> [Cell]
     {
         var gridCells: [Cell] = []
         for y in 0..<gridRows {

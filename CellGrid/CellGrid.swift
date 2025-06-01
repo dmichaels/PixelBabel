@@ -21,11 +21,13 @@ class CellGrid: ObservableObject
     }
 
     private var _cellGridView: CellGridView? = nil
-    private var _cellFactory: Cell.Factory?
+    // private var _cellFactory: Cell.Factory?
 
+    /*
     init(cellFactory: Cell.Factory? = nil) {
         self._cellFactory = cellFactory
     }
+    */
 
     func configure(viewWidth: Int = Defaults.viewWidth,
                    viewHeight: Int = Defaults.viewHeight,
@@ -37,6 +39,7 @@ class CellGrid: ObservableObject
                    cellSizeFit: Bool,
                    cellShape: CellShape,
                    cellForeground: CellColor,
+                   cellFactory: @escaping Cell.Factory,
                    gridColumns: Int,
                    gridRows: Int)
     {
@@ -54,9 +57,10 @@ class CellGrid: ObservableObject
                                           cellSizeFit: cellSizeFit,
                                           cellShape: cellShape,
                                           cellForeground: cellForeground,
+                                          cellFactory: cellFactory,
                                           gridColumns: gridColumns,
-                                          gridRows: gridRows,
-                                          gridCellFactory: self._cellFactory)
+                                          gridRows: gridRows)
+                                          // gridCellFactory: self._cellFactory)
     }
 
     public var viewScale: CGFloat {

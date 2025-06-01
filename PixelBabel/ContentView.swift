@@ -163,6 +163,7 @@ struct ContentView: View
                             cellSizeFit: DefaultSettings.cellSizeFit,
                             cellShape: DefaultSettings.cellShape,
                             cellForeground: DefaultSettings.cellForeground,
+                            cellFactory: LifeCell.factory(),
                             gridColumns: DefaultSettings.gridColumns,
                             gridRows: DefaultSettings.gridRows)
                         self.updateImage()
@@ -254,7 +255,8 @@ struct ContentView: View
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static let cellGrid: CellGrid = LifeCellGrid(cellFactory: LifeCell.factory())
+    // static let cellGrid: CellGrid = LifeCellGrid(cellFactory: LifeCell.factory())
+    static let cellGrid: CellGrid = LifeCellGrid()
     static let settings: Settings = LifeSettings()
     static var previews: some View {
         ContentView()

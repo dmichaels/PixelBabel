@@ -51,12 +51,12 @@ class CellGridView
     private var _cellPadding: Int = 0
     private var _cellShape: CellShape = CellShape.rounded
     private var _cellForeground: CellShape = CellShape.rounded
+    private var _cellFactory: Cell.Factory? = nil
 
     private var _gridColumns: Int = 0
     private var _gridRows: Int = 0
     private var _gridCellEndX: Int = 0
     private var _gridCellEndY: Int = 0
-    private var _gridCellFactory: Cell.Factory? = nil
     private var _gridCells: [Cell] = []
 
     // These change based on moving/shifting the cell-grid around the grid-view.
@@ -96,9 +96,9 @@ class CellGridView
          cellSizeFit: Bool,
          cellShape: CellShape,
          cellForeground: CellColor,
+         cellFactory: Cell.Factory?,
          gridColumns: Int,
-         gridRows: Int,
-         gridCellFactory: Cell.Factory? = nil)
+         gridRows: Int)
     {
         let preferredSize = CellGridView.preferredSize(viewWidth: viewWidth, viewHeight: viewHeight,
                                                        cellSize: cellSize, enabled: cellSizeFit)
@@ -115,10 +115,9 @@ class CellGridView
         self._gridRows = gridRows > 0 ? gridRows : self._viewRows
         self._gridCellEndX = self._gridColumns - 1
         self._gridCellEndY = self._gridRows - 1
-        self._gridCellFactory = gridCellFactory
+        self._cellFactory = cellFactory
         self._gridCells = self.defineGridCells(gridColumns: self._gridColumns,
                                                gridRows: self._gridRows,
-                                               gridCellFactory: self._gridCellFactory,
                                                foreground: cellForeground)
 
         #if targetEnvironment(simulator)
@@ -692,7 +691,7 @@ class CellGridView
     }
 
     public func createCell<T: Cell>(x: Int, y: Int, foreground: CellColor) -> T? {
-        return self._gridCellFactory?(self, x, y, foreground) as? T
+        return self._cellFactory?(self, x, y, foreground) as? T
     }
 
     private var automate: Bool = false
