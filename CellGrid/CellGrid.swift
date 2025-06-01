@@ -12,7 +12,7 @@ class CellGrid: ObservableObject
         public static let viewScale: CGFloat = Screen.initialScale
         public static let viewScaling: Bool = true
         public static let viewTransparency: UInt8 = CellColor.OPAQUE
-        public static let cellSize: Int = 43 // 33 // 43 // 51 // ... resizing up/down 33 is all good it seems
+        public static let cellSize: Int = 43
         public static let cellSizeFit: Bool = true
         public static let cellPadding: Int = 1
         public static let cellShape: CellShape = CellShape.rounded
