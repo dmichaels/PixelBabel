@@ -77,49 +77,44 @@ class CellGrid: ObservableObject
     }
 
     public func onTap(_ viewPoint: CGPoint) {
-        if let cellGridView = self._cellGridView, let cell: Cell = cellGridView.gridCell(viewPoint: viewPoint) {
-            cell.select()
+        if let cellGridView = self._cellGridView {
+            cellGridView.onTap(viewPoint)
         }
     }
 
     public func onLongTap(_ viewPoint: CGPoint) {
+        if let cellGridView = self._cellGridView {
+            cellGridView.onLongTap(viewPoint)
+        }
     }
 
     public func onDoubleTap() {
-        self._pickerMode = !self._pickerMode
+        if let cellGridView = self._cellGridView {
+            cellGridView.onDoubleTap()
+        }
     }
 
     public func onDrag(_ viewPoint: CGPoint) {
-        guard let dragger: CellGridView.Drag = self._dragger else {
-            if let cellGridView = self._cellGridView {
-                self._dragger = CellGridView.Drag(cellGridView, viewPoint, picker: self._pickerMode)
-            }
-            return
+        if let cellGridView = self._cellGridView {
+            cellGridView.onDrag(viewPoint)
         }
-        dragger.drag(viewPoint)
     }
 
     public func onDragEnd(_ viewPoint: CGPoint) {
-        if let dragger: CellGridView.Drag = self._dragger {
-            dragger.end(viewPoint)
-            self._dragger = nil
+        if let cellGridView = self._cellGridView {
+            cellGridView.onDragEnd(viewPoint)
         }
     }
 
     public func onZoom(_ zoomFactor: CGFloat) {
-        guard let zoomer: CellGridView.Zoom = self._zoomer else {
-            if let cellGridView = self._cellGridView {
-                self._zoomer = CellGridView.Zoom(cellGridView, zoomFactor)
-            }
-            return
+        if let cellGridView = self._cellGridView {
+            cellGridView.onZoom(zoomFactor)
         }
-        zoomer.zoom(zoomFactor)
     }
 
     public func onZoomEnd(_ zoomFactor: CGFloat) {
-        if let zoomer: CellGridView.Zoom = self._zoomer {
-            zoomer.end(zoomFactor)
-            self._zoomer = nil
+        if let cellGridView = self._cellGridView {
+            cellGridView.onZoomEnd(zoomFactor)
         }
     }
 

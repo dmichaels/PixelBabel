@@ -1,10 +1,3 @@
-//
-//  CellGridView+GridCells.swift
-//  PixelBabel
-//
-//  Created by David Michaels on 5/29/25.
-//
-
 extension CellGridView {
 
     internal func defineGridCells(gridColumns: Int, gridRows: Int,

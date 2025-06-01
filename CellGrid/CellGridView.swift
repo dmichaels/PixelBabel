@@ -83,6 +83,8 @@ class CellGridView
     //
     internal var _buffer: [UInt8] = []
 
+    internal let _actionData: CellGridView.ActionData = CellGridView.ActionData()
+
     init(viewWidth: Int,
          viewHeight: Int,
          viewBackground: CellColor,
