@@ -50,6 +50,7 @@ class CellGridView
     private var _cellSizeTimesViewWidth: Int = 0
     private var _cellPadding: Int = 0
     private var _cellShape: CellShape = CellShape.rounded
+    private var _cellForeground: CellShape = CellShape.rounded
 
     private var _gridColumns: Int = 0
     private var _gridRows: Int = 0
@@ -88,7 +89,7 @@ class CellGridView
     init(viewWidth: Int,
          viewHeight: Int,
          viewBackground: CellColor,
-         viewTransparency: UInt8 = CellColor.OPAQUE,
+         viewTransparency: UInt8,
          viewScaling: Bool,
          cellSize: Int,
          cellPadding: Int,

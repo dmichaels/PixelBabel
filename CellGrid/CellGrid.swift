@@ -16,7 +16,6 @@ class CellGrid: ObservableObject
         public static let cellSizeFit: Bool = true
         public static let cellPadding: Int = 1
         public static let cellShape: CellShape = CellShape.rounded
-        public static let cellColorMode: CellColorMode = CellColorMode.color
         public static let cellForeground: CellColor = CellColor.white // CellColor.black
         public static let viewBackground: CellColor = CellColor.dark
     }
@@ -30,14 +29,14 @@ class CellGrid: ObservableObject
 
     func configure(viewWidth: Int = Defaults.viewWidth,
                    viewHeight: Int = Defaults.viewHeight,
+                   viewBackground: CellColor,
+                   viewTransparency: UInt8,
                    viewScaling: Bool,
                    cellSize: Int,
-                   cellSizeFit: Bool,
                    cellPadding: Int,
+                   cellSizeFit: Bool,
                    cellShape: CellShape,
-                   cellColorMode: CellColorMode,
                    cellForeground: CellColor,
-                   viewBackground: CellColor,
                    gridColumns: Int,
                    gridRows: Int)
     {

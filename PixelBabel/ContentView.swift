@@ -155,14 +155,14 @@ struct ContentView: View
                         self.cellGrid.configure(
                             viewWidth: landscape ? Screen.shared.height : Screen.shared.width,
                             viewHeight: landscape ? Screen.shared.width : Screen.shared.height,
+                            viewBackground: DefaultSettings.viewBackground,
+                            viewTransparency: DefaultSettings.viewTransparency,
                             viewScaling: DefaultSettings.viewScaling,
                             cellSize: DefaultSettings.cellSize,
-                            cellSizeFit: DefaultSettings.cellSizeFit,
                             cellPadding: DefaultSettings.cellPadding,
+                            cellSizeFit: DefaultSettings.cellSizeFit,
                             cellShape: DefaultSettings.cellShape,
-                            cellColorMode: DefaultSettings.cellColorMode,
                             cellForeground: DefaultSettings.cellForeground,
-                            viewBackground: DefaultSettings.viewBackground,
                             gridColumns: DefaultSettings.gridColumns,
                             gridRows: DefaultSettings.gridRows)
                         self.updateImage()
