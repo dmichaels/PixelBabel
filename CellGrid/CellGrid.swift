@@ -21,13 +21,6 @@ class CellGrid: ObservableObject
     }
 
     private var _cellGridView: CellGridView? = nil
-    // private var _cellFactory: Cell.Factory?
-
-    /*
-    init(cellFactory: Cell.Factory? = nil) {
-        self._cellFactory = cellFactory
-    }
-    */
 
     func configure(viewWidth: Int = Defaults.viewWidth,
                    viewHeight: Int = Defaults.viewHeight,
@@ -60,7 +53,6 @@ class CellGrid: ObservableObject
                                           cellFactory: cellFactory,
                                           gridColumns: gridColumns,
                                           gridRows: gridRows)
-                                          // gridCellFactory: self._cellFactory)
     }
 
     public var viewScale: CGFloat {

@@ -115,6 +115,7 @@ class CellGridView
         self._gridRows = gridRows > 0 ? gridRows : self._viewRows
         self._gridCellEndX = self._gridColumns - 1
         self._gridCellEndY = self._gridRows - 1
+
         self._cellFactory = cellFactory
         self._gridCells = self.defineGridCells(gridColumns: self._gridColumns,
                                                gridRows: self._gridRows,
