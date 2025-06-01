@@ -53,6 +53,7 @@ class CellGrid: ObservableObject
                                           cellPadding: cellPadding,
                                           cellSizeFit: cellSizeFit,
                                           cellShape: cellShape,
+                                          cellForeground: cellForeground,
                                           gridColumns: gridColumns,
                                           gridRows: gridRows,
                                           gridCellFactory: self._cellFactory)

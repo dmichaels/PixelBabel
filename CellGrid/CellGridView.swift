@@ -95,6 +95,7 @@ class CellGridView
          cellPadding: Int,
          cellSizeFit: Bool,
          cellShape: CellShape,
+         cellForeground: CellColor,
          gridColumns: Int,
          gridRows: Int,
          gridCellFactory: Cell.Factory? = nil)
@@ -118,7 +119,7 @@ class CellGridView
         self._gridCells = self.defineGridCells(gridColumns: self._gridColumns,
                                                gridRows: self._gridRows,
                                                gridCellFactory: self._gridCellFactory,
-                                               foreground: CellGrid.Defaults.cellForeground)
+                                               foreground: cellForeground)
 
         #if targetEnvironment(simulator)
             self.printSizes(viewWidthInit: viewWidth, viewHeightInit: viewHeight,
