@@ -59,7 +59,7 @@ public class Screen: ObservableObject
         return scaling ? value / self._scale : value
     }
 
-    public func configure(size: CGSize, scale: CGFloat) {
+    public func initialize(size: CGSize, scale: CGFloat) {
         //
         // N.B. This should be called from within
         // the onAppear within the main ContentView.
