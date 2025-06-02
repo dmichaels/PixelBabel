@@ -14,13 +14,10 @@ struct ContentView: View
     @State private var parentRelativeImagePosition: CGPoint = CGPoint.zero
     @State private var image: CGImage? = nil
     @State private var imageAngle: Angle = Angle.zero
-    @State private var timerInterval: Double = DefaultSettings.timerInterval
 
     @State private var showSettingsView = false
     @State private var dragging: Bool = false
     @State private var draggingStart: CGPoint? = nil
-    @State private var autoTapping: Bool = false
-    @State private var autoTappingTimer: Timer?
 
     var body: some View {
         NavigationView {
@@ -53,7 +50,6 @@ struct ContentView: View
                                         if (delta > DefaultSettings.draggingThreshold) {
                                             self.dragging = true
                                             self.cellGridView.onDrag(normalizedPoint)
-                                            self.updateImage()
                                         }
                                     }
                                     .onEnded { value in
@@ -75,10 +71,8 @@ struct ContentView: View
                                         }
                                         if (self.dragging) {
                                             self.cellGridView.onDragEnd(normalizedPoint)
-                                            self.updateImage()
                                         } else {
                                             self.cellGridView.onTap(normalizedPoint)
-                                            self.updateImage()
                                         }
                                         self.draggingStart = nil
                                         self.dragging = false
@@ -99,28 +93,9 @@ struct ContentView: View
                                                 if let location = drag?.location {
                                                     self.cellGridView.onLongTap(location) // TODO
                                                     let normalizedPoint = self.normalizedPoint(location)
-
-                                                        if (self.cellGridView.gridCellLocation(viewPoint: normalizedPoint) != nil) {
-                                                            self.autoTapping.toggle()
-                                                            if (self.autoTapping) {
-                                                                self.autoTappingStart()
-                                                            }
-                                                            else {
-                                                                self.autoTappingStop()
-                                                            }
-                                                        }
-
-                                                    /*
-                                                    if (self.cellGridView.locate(normalizedPoint) != nil) {
-                                                        self.autoTapping.toggle()
-                                                        if (self.autoTapping) {
-                                                            self.autoTappingStart()
-                                                        }
-                                                        else {
-                                                            self.autoTappingStop()
-                                                        }
+                                                    if (self.cellGridView.gridCellLocation(viewPoint: normalizedPoint) != nil) {
+                                                        self.cellGridView.automateToggle()
                                                     }
-                                                    */
                                                 }
                                             default:
                                                 break
@@ -131,11 +106,9 @@ struct ContentView: View
                                 MagnificationGesture()
                                     .onChanged { value in
                                         self.cellGridView.onZoom(value)
-                                        self.updateImage()
                                     }
                                     .onEnded { value in
                                         self.cellGridView.onZoomEnd(value)
-                                        self.updateImage()
                                     }
                             )
 
@@ -163,11 +136,9 @@ struct ContentView: View
                             cellSizeFit: DefaultSettings.cellSizeFit,
                             cellShape: DefaultSettings.cellShape,
                             cellForeground: DefaultSettings.cellForeground,
-                            cellFactory: LifeCell.factory(),
                             gridColumns: DefaultSettings.gridColumns,
                             gridRows: DefaultSettings.gridRows,
                             updateImage: self.updateImage)
-                        // self.updateImage()
                         self.rotateImage()
                     }
                 }
@@ -238,20 +209,6 @@ struct ContentView: View
 
     private func onChangeOrientation(_ current: UIDeviceOrientation, _ previous: UIDeviceOrientation) {
         self.rotateImage()
-    }
-
-    private func autoTappingStart() {
-        self.cellGridView.automateToggle()
-        self.autoTappingTimer = Timer.scheduledTimer(withTimeInterval: self.timerInterval, repeats: true) { _ in
-            // self.cellGridView.randomize()
-            self.cellGridView.automateStep()
-            self.updateImage()
-        }
-    }
-
-    private func autoTappingStop() {
-        self.autoTappingTimer?.invalidate()
-        self.autoTappingTimer = nil
     }
 }
 

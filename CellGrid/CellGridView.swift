@@ -18,21 +18,22 @@ class CellGridView: ObservableObject
 {
     struct Defaults {
 
-        public static let viewScaling: Bool = true
+        public static let viewBackground: CellColor = CellColor.dark
         public static let viewTransparency: UInt8 = CellColor.OPAQUE
+        public static let viewScaling: Bool = true
+
         public static let cellSize: Int = 43
         public static let cellSizeFit: Bool = true
         public static let cellPadding: Int = 1
         public static let cellShape: CellShape = CellShape.rounded
         public static let cellForeground: CellColor = CellColor.white // CellColor.black
-        public static let viewBackground: CellColor = CellColor.dark
 
         // The size related properties here (being effectively outward facing) are unscaled.
         //
         public static var cellPaddingMax: Int = 8
         public static var cellSizeMax: Int = 200
         public static var cellSizeInnerMin: Int = 3
-        public static var cellSizePreferredMarginMax: Int = 30
+        public static var cellPreferredSizeMarginMax: Int = 30
         public static let cellAntialiasFade: Float = 0.6  // smaller is smoother
         public static let cellRoundedRectangleRadius: Float = 0.25
     }
@@ -66,7 +67,6 @@ class CellGridView: ObservableObject
     private var _cellPadding: Int = 0
     private var _cellShape: CellShape = CellShape.rounded
     private var _cellForeground: CellShape = CellShape.rounded
-    private var _cellFactory: Cell.Factory? = nil
 
     private var _gridColumns: Int = 0
     private var _gridRows: Int = 0
@@ -100,6 +100,7 @@ class CellGridView: ObservableObject
     internal var _buffer: [UInt8] = []
 
     internal let _actionData: CellGridView.ActionData = CellGridView.ActionData()
+    internal var _updateImage: () -> Void = {}
 
     public func initialize(viewWidth: Int,
          viewHeight: Int,
@@ -111,11 +112,12 @@ class CellGridView: ObservableObject
          cellSizeFit: Bool,
          cellShape: CellShape,
          cellForeground: CellColor,
-         cellFactory: Cell.Factory?,
          gridColumns: Int,
          gridRows: Int,
-         updateImage: () -> Void)
+         updateImage: @escaping () -> Void)
     {
+        self._updateImage = updateImage
+
         let preferredSize = CellGridView.preferredSize(viewWidth: viewWidth, viewHeight: viewHeight,
                                                        cellSize: cellSize, enabled: cellSizeFit)
         self.configure(cellSize: preferredSize.cellSize,
@@ -132,7 +134,6 @@ class CellGridView: ObservableObject
         self._gridCellEndX = self._gridColumns - 1
         self._gridCellEndY = self._gridRows - 1
 
-        self._cellFactory = cellFactory
         self._gridCells = self.defineGridCells(gridColumns: self._gridColumns,
                                                gridRows: self._gridRows,
                                                foreground: cellForeground)
@@ -710,7 +711,7 @@ class CellGridView: ObservableObject
     }
 
     public func createCell<T: Cell>(x: Int, y: Int, foreground: CellColor) -> T? {
-        return self._cellFactory?(self, x, y, foreground) as? T
+        return Cell(cellGridView: self, x: x, y: y, foreground: foreground) as? T
     }
 
     private var automate: Bool = false

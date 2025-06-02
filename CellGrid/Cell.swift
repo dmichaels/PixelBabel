@@ -9,8 +9,6 @@ class Cell
     private let _y: Int
     private var _foreground: CellColor
 
-    typealias Factory = (_ cellGridView: CellGridView, _ x: Int, _ y: Int, _ foreground: CellColor) -> Cell
-
     public var x: Int {
         self._x
     }

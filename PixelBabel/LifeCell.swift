@@ -48,10 +48,4 @@ class LifeCell: Cell {
     func write() {
         self.write(foreground: self._active ? self._activeColor : self._inactiveColor)
     }
-
-    public static func factory() -> Cell.Factory {
-        return { cellGridView, x, y, foreground in
-            return LifeCell(cellGridView: cellGridView, x: x, y: y, foreground: foreground, active: false)
-        }
-    }
 }

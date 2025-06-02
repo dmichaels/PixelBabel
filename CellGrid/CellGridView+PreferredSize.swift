@@ -6,12 +6,12 @@ extension CellGridView
     // out past the end of the view; the given and returned dimensions are assumed to be unscaled values.
     //
     public static func preferredSize(viewWidth: Int, viewHeight: Int, cellSize: Int,
-                                     cellSizePreferredMarginMax: Int = Defaults.cellSizePreferredMarginMax,
+                                     cellPreferredSizeMarginMax: Int = Defaults.cellPreferredSizeMarginMax,
                                      enabled: Bool = true) -> PreferredSize
     {
         if (enabled) {
             let sizes = CellGridView.preferredSizes(viewWidth: viewWidth, viewHeight: viewHeight,
-                                                    cellSizePreferredMarginMax: cellSizePreferredMarginMax)
+                                                    cellPreferredSizeMarginMax: cellPreferredSizeMarginMax)
             if let size = CellGridView.closestPreferredCellSize(in: sizes, to: cellSize) {
                 return size
             }
@@ -20,7 +20,7 @@ extension CellGridView
     }
 
     public static func preferredSizes(viewWidth: Int, viewHeight: Int,
-                                      cellSizePreferredMarginMax: Int = Defaults.cellSizePreferredMarginMax)
+                                      cellPreferredSizeMarginMax: Int = Defaults.cellPreferredSizeMarginMax)
                                       -> [PreferredSize] {
         let mindim: Int = min(viewWidth, viewHeight)
         guard mindim > 0 else { return [] }
@@ -32,7 +32,7 @@ extension CellGridView
             let usedh: Int = nrows * cellSize
             let leftx: Int = viewWidth - usedw
             let lefty: Int = viewHeight - usedh
-            if ((leftx <= cellSizePreferredMarginMax) && (lefty <= cellSizePreferredMarginMax)) {
+            if ((leftx <= cellPreferredSizeMarginMax) && (lefty <= cellPreferredSizeMarginMax)) {
                 results.append((cellSize: cellSize, viewWidth: usedw, viewHeight: usedh))
             }
         }

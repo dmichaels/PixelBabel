@@ -1,9 +1,15 @@
 class LifeCellGridView: CellGridView {
 
-    public override func automateStep() {
-        self.nextGeneration()
+    public override func createCell<T: Cell>(x: Int, y: Int, foreground: CellColor) -> T? {
+        return LifeCell(cellGridView: self, x: x, y: y, foreground: foreground) as? T
     }
 
+    public override func automateStep() {
+        self.nextGeneration()
+        self._updateImage()
+    }
+
+    /*
     public override func automateStart() {
         var x = 1
     }
@@ -11,6 +17,7 @@ class LifeCellGridView: CellGridView {
     public override func automateStop() {
         var x = 1
     }
+    */
 
     private func nextGeneration() {
         var states: [[Bool]] = Array(repeating: Array(repeating: false, count: self.gridColumns), count: self.gridRows)
