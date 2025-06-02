@@ -732,11 +732,14 @@ class CellGridView: ObservableObject
     public func automateStart() {
         self.automateTimer = Timer.scheduledTimer(withTimeInterval: self.automateInterval, repeats: true) { _ in
             self.automateStep()
-            // self.updateImage()
         }
     }
 
     public func automateStop() {
+        if let automateTimer = self.automateTimer {
+            automateTimer.invalidate()
+            self.automateTimer = nil
+        }
     }
 
     public func automateStep() {}
