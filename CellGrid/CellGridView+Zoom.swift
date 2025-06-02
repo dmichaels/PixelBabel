@@ -41,7 +41,7 @@ extension CellGridView
         }
 
         private static func resizeCells(cellGridView: CellGridView,
-                                         cellSize: Int, adjustShift: Bool = true, scaled: Bool = false)
+                                        cellSize: Int, adjustShift: Bool = true, scaled: Bool = false)
         {
             let cellSize = cellGridView.constrainCellSize(!scaled ?
                                                            cellGridView.scaled(cellSize) : cellSize, scaled: true)
