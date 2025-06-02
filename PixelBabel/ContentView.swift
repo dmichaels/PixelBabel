@@ -59,10 +59,7 @@ struct ContentView: View
                                         if (swipeDistance < -DefaultSettings.swipeDistance) {
                                             //
                                             // Swipe left.
-                                            //
-                                            // withAnimation {
-                                                // showSettingsView = true
-                                            // }
+                                            // withAnimation { showSettingsView = true }
                                         }
                                         else if (swipeDistance > DefaultSettings.swipeDistance) {
                                             //
@@ -80,9 +77,7 @@ struct ContentView: View
                             )
                             .simultaneousGesture(
                                 TapGesture(count: 2)
-                                    .onEnded {
-                                        self.cellGridView.onDoubleTap()
-                                    }
+                                    .onEnded { self.cellGridView.onDoubleTap() }
                             )
                             .simultaneousGesture(
                                 LongPressGesture(minimumDuration: 1.0)
@@ -104,12 +99,8 @@ struct ContentView: View
                             )
                             .simultaneousGesture(
                                 MagnificationGesture()
-                                    .onChanged { value in
-                                        self.cellGridView.onZoom(value)
-                                    }
-                                    .onEnded { value in
-                                        self.cellGridView.onZoomEnd(value)
-                                    }
+                                    .onChanged { value in self.cellGridView.onZoom(value) }
+                                    .onEnded   { value in self.cellGridView.onZoomEnd(value) }
                             )
 
                             NavigationLink(
