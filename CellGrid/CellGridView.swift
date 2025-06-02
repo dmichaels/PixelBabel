@@ -99,26 +99,35 @@ class CellGridView: ObservableObject
     //
     internal var _buffer: [UInt8] = []
 
+    // This Actions data item is here only because we are not allowed to declare
+    // stored properties within (CellGridView) extensions, i.e. in CellGridView+Actions.swift. 
+    //
     internal let _actions: CellGridView.Actions = CellGridView.Actions()
-    internal var _updateImage: () -> Void = {}
-    internal var _initialized: Bool = false
+
+    // This _updateImage function property is the update function from the caller
+    // to be called from CellGridView when the image changes, so that the calling
+    // view can make sure the the image updated here is actually visually updated.
+    //
+    private var _updateImage: () -> Void = {}
+
+    // The _initialized property represents whether or not the initialized method has been called yet.
+    //
+    private var _initialized: Bool = false
 
     public func initialize(viewWidth: Int,
-         viewHeight: Int,
-         viewBackground: CellColor,
-         viewTransparency: UInt8,
-         viewScaling: Bool,
-         cellSize: Int,
-         cellPadding: Int,
-         cellSizeFit: Bool,
-         cellShape: CellShape,
-         cellForeground: CellColor,
-         gridColumns: Int,
-         gridRows: Int,
-         updateImage: @escaping () -> Void)
+                           viewHeight: Int,
+                           viewBackground: CellColor,
+                           viewTransparency: UInt8,
+                           viewScaling: Bool,
+                           cellSize: Int,
+                           cellPadding: Int,
+                           cellSizeFit: Bool,
+                           cellShape: CellShape,
+                           cellForeground: CellColor,
+                           gridColumns: Int,
+                           gridRows: Int,
+                           updateImage: @escaping () -> Void)
     {
-        self._updateImage = updateImage
-
         let preferredSize = CellGridView.preferredSize(viewWidth: viewWidth, viewHeight: viewHeight,
                                                        cellSize: cellSize, enabled: cellSizeFit)
         self.configure(cellSize: preferredSize.cellSize,
@@ -134,7 +143,6 @@ class CellGridView: ObservableObject
         self._gridRows = gridRows > 0 ? gridRows : self._viewRows
         self._gridCellEndX = self._gridColumns - 1
         self._gridCellEndY = self._gridRows - 1
-
         self._gridCells = self.defineGridCells(gridColumns: self._gridColumns,
                                                gridRows: self._gridRows,
                                                foreground: cellForeground)
@@ -151,7 +159,9 @@ class CellGridView: ObservableObject
             self.writeCells(shiftTotalX: 0, shiftTotalY: 0, scaled: false)
         }
 
-        updateImage()
+        self._updateImage = updateImage
+
+        self.updateImage()
     }
 
     internal func configure(cellSize: Int,
@@ -209,6 +219,10 @@ class CellGridView: ObservableObject
                                                              cellPadding: self._cellPadding,
                                                              cellShape: self._cellShape,
                                                              cellTransparency: self._viewTransparency)
+    }
+
+    public func updateImage() {
+        self._updateImage()
     }
 
     internal func constrainCellSize(_ cellSize: Int, cellPadding: Int? = nil, scaled: Bool = false) -> Int {

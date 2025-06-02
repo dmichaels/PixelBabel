@@ -6,18 +6,8 @@ class LifeCellGridView: CellGridView {
 
     public override func automateStep() {
         self.nextGeneration()
-        self._updateImage()
+        self.updateImage()
     }
-
-    /*
-    public override func automateStart() {
-        var x = 1
-    }
-
-    public override func automateStop() {
-        var x = 1
-    }
-    */
 
     private func nextGeneration() {
         var states: [[Bool]] = Array(repeating: Array(repeating: false, count: self.gridColumns), count: self.gridRows)
