@@ -1,5 +1,6 @@
 #if targetEnvironment(simulator)
 
+import Foundation
 import Utils
 
 extension CellGridView
@@ -56,6 +57,36 @@ extension CellGridView
                       ((size.cellSize == self.cellSize) ? " <<<" : ""))
             }
         }
+    }
+
+    func printWriteCellsResult(_ start: Date) {
+        let shiftOppositeScaled: Int = modulo(self.cellSizeScaled + self.shiftScaledX - self.viewWidthExtraScaled,
+                                              self.cellSizeScaled)
+        var even: Bool = false
+        if [0, 1].contains(abs(abs(shiftOppositeScaled) - abs(self.shiftScaledX))) {
+            even = true
+        }
+        else if ((self.shiftScaledX == -(self.cellSizeScaled - 1)) && (shiftOppositeScaled == 0)) {
+            even = true
+        }
+        else if (self.shiftScaledX > 0) {
+            if [0, 1].contains(abs(self.shiftScaledX - (self.cellSizeScaled - shiftOppositeScaled))) {
+                even = true
+            }
+        }
+        print(String(format: "SHIFT(\(shiftTotalX),\(shiftTotalY)) %.5f" +
+                             (self.viewScaling ? " SC" : " US") +
+                             " CS:\(self.cellSizeScaled)" +
+                             " CSU:\(self.cellSize)" +
+                             " SHT:\(self.shiftTotalScaledX),\(self.shiftTotalScaledY)" +
+                             " SHTU:\(self.shiftTotalX),\(self.shiftTotalY)" +
+                             " SHC:\(self.shiftCellScaledX),\(shiftCellScaledY)" +
+                             " SHCU:\(self.shiftCellX),\(shiftCellY)" +
+                             " SH:\(self.shiftScaledX),\(shiftScaledY)" +
+                             " SHU:\(self.shiftX),\(self.shiftY)" +
+                             " SHO:\(shiftOppositeScaled)" +
+                             (even ? " EVEN" : " UNEVEN"),
+              Date().timeIntervalSince(start)))
     }
 }
 

@@ -99,7 +99,7 @@ class CellGridView: ObservableObject
     //
     internal var _buffer: [UInt8] = []
 
-    internal let _actionData: CellGridView.ActionData = CellGridView.ActionData()
+    internal let _actions: CellGridView.ActionData = CellGridView.ActionData()
     internal var _updateImage: () -> Void = {}
     internal var _initialized: Bool = false
 
@@ -148,7 +148,7 @@ class CellGridView: ObservableObject
             self.center()
         }
         else {
-            self.writeCells(shiftx: 0, shifty: 0, scaled: false)
+            self.writeCells(shiftTotalX: 0, shiftTotalY: 0, scaled: false)
         }
 
         updateImage()
@@ -246,18 +246,19 @@ class CellGridView: ObservableObject
     internal var shiftTotalX: Int { self._unscaled_shiftX + (self._unscaled_shiftCellX * self._unscaled_cellSize) }
     internal var shiftTotalY: Int { self._unscaled_shiftY + (self._unscaled_shiftCellY * self._unscaled_cellSize) }
 
-    internal var viewWidthScaled: Int   { self._viewWidth }
-    internal var viewHeightScaled: Int  { self._viewHeight }
-    internal var viewCellEndX: Int      { self._viewCellEndX }
-    internal var viewCellEndY: Int      { self._viewCellEndY }
-    internal var cellSizeScaled: Int    { self._cellSize }
-    internal var cellPaddingScaled: Int { self._cellPadding }
-    internal var shiftCellScaledX: Int  { self._shiftCellX }
-    internal var shiftCellScaledY: Int  { self._shiftCellY }
-    internal var shiftScaledX: Int      { self._shiftX }
-    internal var shiftScaledY: Int      { self._shiftY }
-    internal var shiftTotalScaledX: Int { self._shiftX + (self._shiftCellX * self._cellSize) }
-    internal var shiftTotalScaledY: Int { self._shiftY + (self._shiftCellY * self._cellSize) }
+    internal var viewWidthScaled: Int      { self._viewWidth }
+    internal var viewHeightScaled: Int     { self._viewHeight }
+    internal var viewCellEndX: Int         { self._viewCellEndX }
+    internal var viewCellEndY: Int         { self._viewCellEndY }
+    internal var viewWidthExtraScaled: Int { self._viewWidthExtra }
+    internal var cellSizeScaled: Int       { self._cellSize }
+    internal var cellPaddingScaled: Int    { self._cellPadding }
+    internal var shiftCellScaledX: Int     { self._shiftCellX }
+    internal var shiftCellScaledY: Int     { self._shiftCellY }
+    internal var shiftScaledX: Int         { self._shiftX }
+    internal var shiftScaledY: Int         { self._shiftY }
+    internal var shiftTotalScaledX: Int    { self._shiftX + (self._shiftCellX * self._cellSize) }
+    internal var shiftTotalScaledY: Int    { self._shiftY + (self._shiftCellY * self._cellSize) }
 
     public var viewScaling: Bool {
         get { self._viewScaling }
@@ -294,19 +295,19 @@ class CellGridView: ObservableObject
     }
 
     // Sets the cell-grid within the grid-view to be shifted by the given amount,
-    // from the upper-left; note that the given shiftx and shifty values are unscaled.
+    // from the upper-left; note that the given shiftTotalX and shiftTotalY values are unscaled.
     //
-    public func writeCells(shiftx: Int, shifty: Int, dragging: Bool = false, scaled: Bool = false)
+    public func writeCells(shiftTotalX: Int, shiftTotalY: Int, dragging: Bool = false, scaled: Bool = false)
     {
         #if targetEnvironment(simulator)
             let debugStart = Date()
         #endif
 
-        // If the given scaled argument is false then the passed shiftx/shifty arguments are
+        // If the given scaled argument is false then the passed shiftTotalX/shiftTotalY arguments are
         // assumed to be unscaled and so we scale them; as this function operates on scaled values.
 
-        var shiftX: Int = !scaled ? self.scaled(shiftx) : shiftx, shiftCellX: Int
-        var shiftY: Int = !scaled ? self.scaled(shifty) : shifty, shiftCellY: Int
+        var shiftX: Int = !scaled ? self.scaled(shiftTotalX) : shiftTotalX, shiftCellX: Int
+        var shiftY: Int = !scaled ? self.scaled(shiftTotalY) : shiftTotalY, shiftCellY: Int
 
         // Normalize the given pixel level shift to cell and pixel level.
 
@@ -491,36 +492,7 @@ class CellGridView: ObservableObject
         }
 
         #if targetEnvironment(simulator)
-            let shiftScaledXR: Int = modulo(self._cellSize + self._shiftX - self._viewWidthExtra, self._cellSize)
-            var even: Bool = false
-            if [0, 1].contains(abs(abs(shiftScaledXR) - abs(self.shiftScaledX))) {
-                even = true
-            }
-            else if ((self.shiftScaledX == -(self.cellSizeScaled - 1)) && (shiftScaledXR == 0)) {
-                even = true
-            }
-            else if (self.shiftScaledX > 0) {
-                if [0, 1].contains(abs(self.shiftScaledX - (self.cellSizeScaled - shiftScaledXR))) {
-                    even = true
-                }
-            }
-            print(String(format: "SHIFT(\(shiftx),\(shifty)) %.5f" +
-                                 (self._viewScaling ? " SC" : " US") +
-                              // " VW:\(self._viewWidth)" +
-                              // " VWE:\(self._viewWidthExtra)" +
-                              // " VC:\(self.viewColumns)" +
-                              // " VCE:\(self._viewColumnsExtra)" +
-                                 " CS:\(self.cellSizeScaled)" +
-                                 " CSU:\(self.cellSize)" +
-                                 " SHT:\(self.shiftTotalScaledX),\(self.shiftTotalScaledY)" +
-                                 " SHTU:\(self.shiftTotalX),\(self.shiftTotalY)" +
-                                 " SHC:\(self.shiftCellScaledX),\(shiftCellScaledY)" +
-                                 " SHCU:\(self.shiftCellX),\(shiftCellY)" +
-                                 " SH:\(self.shiftScaledX),\(shiftScaledY)" +
-                                 " SHU:\(self.shiftX),\(self.shiftY)" +
-                                 " SHO:\(shiftScaledXR)" +
-                                 (even ? " EVEN" : " UNEVEN"),
-                  Date().timeIntervalSince(debugStart)))
+            printWriteCellsResult(debugStart)
         #endif
     }
 
@@ -676,7 +648,7 @@ class CellGridView: ObservableObject
         let gridHeight: Int = self.gridRows * self.cellSize
         let shiftTotalX: Int = -Int(round(Double(gridWidth) / 2.0))
         let shiftTotalY: Int = -Int(round(Double(gridHeight) / 2.0))
-        self.writeCells(shiftx: shiftTotalX, shifty: shiftTotalY)
+        self.writeCells(shiftTotalX: shiftTotalX, shiftTotalY: shiftTotalY)
     }
 
     public func scale() {
@@ -693,7 +665,7 @@ class CellGridView: ObservableObject
                        viewBackground: self.viewBackground,
                        viewTransparency: self.viewTransparency,
                        viewScaling: true)
-        self.writeCells(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: true)
+        self.writeCells(shiftTotalX: shiftTotalX, shiftTotalY: shiftTotalY, scaled: true)
     }
 
     public func unscale() {
@@ -710,7 +682,7 @@ class CellGridView: ObservableObject
                        viewBackground: self.viewBackground,
                        viewTransparency: self.viewTransparency,
                        viewScaling: false)
-        self.writeCells(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: false)
+        self.writeCells(shiftTotalX: shiftTotalX, shiftTotalY: shiftTotalY, scaled: false)
     }
 
     public func createCell<T: Cell>(x: Int, y: Int, foreground: CellColor) -> T? {
