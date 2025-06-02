@@ -693,33 +693,33 @@ class CellGridView: ObservableObject
         return Cell(cellGridView: self, x: x, y: y, foreground: foreground) as? T
     }
 
-    private var automate: Bool = false
-    private var automateInterval: Double = DefaultSettings.timerInterval
-    private var automateTimer: Timer? = nil
+    private var automation: Bool = false
+    private var automationInterval: Double = DefaultSettings.timerInterval
+    private var automationTimer: Timer? = nil
 
-    public final func automateToggle() {
-        if (automate) {
-            self.automateStop()
-            self.automate = false
+    public final func automationToggle() {
+        if (automation) {
+            self.automationStop()
+            self.automation = false
         }
         else {
-            self.automateStart()
-            self.automate = true
+            self.automationStart()
+            self.automation = true
         }
     }
 
-    public final func automateStart() {
-        self.automateTimer = Timer.scheduledTimer(withTimeInterval: self.automateInterval, repeats: true) { _ in
-            self.automateStep()
+    public final func automationStart() {
+        self.automationTimer = Timer.scheduledTimer(withTimeInterval: self.automationInterval, repeats: true) { _ in
+            self.automationStep()
         }
     }
 
-    public final func automateStop() {
-        if let automateTimer = self.automateTimer {
-            automateTimer.invalidate()
-            self.automateTimer = nil
+    public final func automationStop() {
+        if let automationTimer = self.automationTimer {
+            automationTimer.invalidate()
+            self.automationTimer = nil
         }
     }
 
-    public func automateStep() {}
+    public func automationStep() {}
 }

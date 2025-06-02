@@ -87,7 +87,7 @@ struct ContentView: View
                                                     self.cellGridView.onLongTap(location) // TODO
                                                     let normalizedPoint = self.normalizedPoint(location)
                                                     if (self.cellGridView.gridCellLocation(viewPoint: normalizedPoint) != nil) {
-                                                        self.cellGridView.automateToggle()
+                                                        self.cellGridView.automationToggle()
                                                     }
                                                 }
                                             default:

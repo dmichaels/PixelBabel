@@ -4,7 +4,7 @@ class LifeCellGridView: CellGridView {
         return LifeCell(cellGridView: self, x: x, y: y, foreground: foreground) as? T
     }
 
-    public override func automateStep() {
+    public override func automationStep() {
         self.nextGeneration()
         self.updateImage()
     }
