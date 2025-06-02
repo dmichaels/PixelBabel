@@ -221,7 +221,7 @@ class CellGridView: ObservableObject
     }
 
     private lazy var actions: CellGridView.Actions = {
-        return CellGridView.Actions(self, automationInterval: DefaultSettings.timerInterval)
+        return CellGridView.Actions(self, automationInterval: DefaultSettings.automationInterval)
     }()
 
     internal final func constrainCellSize(_ cellSize: Int, cellPadding: Int? = nil, scaled: Bool = false) -> Int {
@@ -277,11 +277,11 @@ class CellGridView: ObservableObject
         set {
             if (newValue) {
                 if (!self._viewScaling) {
-                    self.scale()
+                    Zoom.scale(self)
                 }
             }
             else if (self._viewScaling) {
-                self.unscale()
+                Zoom.unscale(self)
             }
         }
     }
@@ -294,16 +294,8 @@ class CellGridView: ObservableObject
         return Screen.shared.scaled(value, scaling: self._viewScaling)
     }
 
-    private final func scaled(_ value: Int, force: Bool) -> Int {
-        return Screen.shared.scaled(value, scaling: force ? true : self._viewScaling)
-    }
-
     internal final func unscaled(_ value: Int) -> Int {
         return Screen.shared.unscaled(value, scaling: self._viewScaling)
-    }
-
-    private final func unscaled(_ value: Int, force: Bool) -> Int {
-        return Screen.shared.unscaled(value, scaling: force ? true : self._viewScaling)
     }
 
     // Sets the cell-grid within the grid-view to be shifted by the given amount,
@@ -652,40 +644,6 @@ class CellGridView: ObservableObject
         let shiftTotalX: Int = -Int(round(Double(gridWidth) / 2.0))
         let shiftTotalY: Int = -Int(round(Double(gridHeight) / 2.0))
         self.writeCells(shiftTotalX: shiftTotalX, shiftTotalY: shiftTotalY)
-    }
-
-    public final func scale() {
-        guard !self._viewScaling else {
-            return
-        }
-        let shiftTotalX: Int = self.scaled(self.shiftTotalX, force: true)
-        let shiftTotalY: Int = self.scaled(self.shiftTotalY, force: true)
-        self.configure(cellSize: self.cellSize,
-                       cellPadding: self.cellPadding,
-                       cellShape: self.cellShape,
-                       viewWidth: self.viewWidth,
-                       viewHeight: self.viewHeight,
-                       viewBackground: self.viewBackground,
-                       viewTransparency: self.viewTransparency,
-                       viewScaling: true)
-        self.writeCells(shiftTotalX: shiftTotalX, shiftTotalY: shiftTotalY, scaled: true)
-    }
-
-    public final func unscale() {
-        guard self._viewScaling else {
-            return
-        }
-        let shiftTotalX: Int = self.unscaled(self.shiftTotalScaledX, force: true)
-        let shiftTotalY: Int = self.unscaled(self.shiftTotalScaledY, force: true)
-        self.configure(cellSize: self.cellSize,
-                       cellPadding: self.cellPadding,
-                       cellShape: self.cellShape,
-                       viewWidth: self.viewWidth,
-                       viewHeight: self.viewHeight,
-                       viewBackground: self.viewBackground,
-                       viewTransparency: self.viewTransparency,
-                       viewScaling: false)
-        self.writeCells(shiftTotalX: shiftTotalX, shiftTotalY: shiftTotalY, scaled: false)
     }
 
     public func createCell<T: Cell>(x: Int, y: Int, foreground: CellColor) -> T? {

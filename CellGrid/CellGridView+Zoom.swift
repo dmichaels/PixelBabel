@@ -128,5 +128,39 @@ extension CellGridView
             }
             return shiftTotalResult
         }
+
+        public static func scale(_ cellGridView: CellGridView) {
+            guard !cellGridView.viewScaling else {
+                return
+            }
+            let shiftTotalX: Int = Screen.shared.scaled(cellGridView.shiftTotalX)
+            let shiftTotalY: Int = Screen.shared.scaled(cellGridView.shiftTotalY)
+            cellGridView.configure(cellSize: cellGridView.cellSize,
+                           cellPadding: cellGridView.cellPadding,
+                           cellShape: cellGridView.cellShape,
+                           viewWidth: cellGridView.viewWidth,
+                           viewHeight: cellGridView.viewHeight,
+                           viewBackground: cellGridView.viewBackground,
+                           viewTransparency: cellGridView.viewTransparency,
+                           viewScaling: true)
+            cellGridView.writeCells(shiftTotalX: shiftTotalX, shiftTotalY: shiftTotalY, scaled: true)
+        }
+
+        public static func unscale(_ cellGridView: CellGridView) {
+            guard cellGridView.viewScaling else {
+                return
+            }
+            let shiftTotalX: Int = Screen.shared.unscaled(cellGridView.shiftTotalScaledX)
+            let shiftTotalY: Int = Screen.shared.unscaled(cellGridView.shiftTotalScaledY)
+            cellGridView.configure(cellSize: cellGridView.cellSize,
+                           cellPadding: cellGridView.cellPadding,
+                           cellShape: cellGridView.cellShape,
+                           viewWidth: cellGridView.viewWidth,
+                           viewHeight: cellGridView.viewHeight,
+                           viewBackground: cellGridView.viewBackground,
+                           viewTransparency: cellGridView.viewTransparency,
+                           viewScaling: false)
+            cellGridView.writeCells(shiftTotalX: shiftTotalX, shiftTotalY: shiftTotalY, scaled: false)
+        }
     }
 }

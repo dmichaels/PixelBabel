@@ -5,7 +5,7 @@ import Utils
 class DefaultSettings
 {
     public static let ignoreSafeArea: Bool              = true
-    public static let timerInterval: Double             = 0.2
+    public static let automationInterval: Double        = 0.2
 
     public static let viewScaling: Bool                 = CellGridView.Defaults.viewScaling
     public static let viewBackground: CellColor         = CellGridView.Defaults.viewBackground

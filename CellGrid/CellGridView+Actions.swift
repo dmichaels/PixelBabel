@@ -14,7 +14,7 @@ extension CellGridView
         private var _zoomer: CellGridView.Zoom? = nil
         private var _pickerMode: Bool = false
 
-        public init(_ cellGridView: CellGridView, automationInterval: Double = DefaultSettings.timerInterval) {
+        public init(_ cellGridView: CellGridView, automationInterval: Double = DefaultSettings.automationInterval) {
             self._cellGridView = cellGridView
             self._automationInterval = automationInterval
         }
