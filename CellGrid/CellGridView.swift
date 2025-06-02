@@ -99,7 +99,7 @@ class CellGridView: ObservableObject
     //
     internal var _buffer: [UInt8] = []
 
-    internal let _actions: CellGridView.ActionData = CellGridView.ActionData()
+    internal let _actions: CellGridView.Actions = CellGridView.Actions()
     internal var _updateImage: () -> Void = {}
     internal var _initialized: Bool = false
 

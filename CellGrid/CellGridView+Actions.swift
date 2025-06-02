@@ -3,7 +3,7 @@ import SwiftUI
 
 extension CellGridView
 {
-    public class ActionData
+    public class Actions
     {
         internal var _dragger: CellGridView.Drag? = nil
         internal var _zoomer: CellGridView.Zoom? = nil
