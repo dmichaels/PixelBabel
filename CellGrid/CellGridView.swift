@@ -99,13 +99,6 @@ class CellGridView: ObservableObject
     //
     internal var _buffer: [UInt8] = []
 
-    // This Actions data item is here only because we are not allowed to declare
-    // stored properties within (CellGridView) extensions, i.e. in CellGridView+Actions.swift. 
-    //
-    lazy var _actions: CellGridView.Actions = {
-        return CellGridView.Actions(self, automationInterval: DefaultSettings.timerInterval)
-    }()
-
     // This _updateImage function property is the update function from the caller
     // to be called from CellGridView when the image changes, so that the calling
     // view can make sure the the image updated here is actually visually updated.
@@ -227,6 +220,10 @@ class CellGridView: ObservableObject
         self._updateImage()
     }
 
+    private lazy var actions: CellGridView.Actions = {
+        return CellGridView.Actions(self, automationInterval: DefaultSettings.timerInterval)
+    }()
+
     internal final func constrainCellSize(_ cellSize: Int, cellPadding: Int? = nil, scaled: Bool = false) -> Int {
         let cellSizeInnerMin: Int = self.scaled(Defaults.cellSizeInnerMin)
         let cellSizeMax: Int = self.scaled(Defaults.cellSizeMax)
@@ -297,7 +294,7 @@ class CellGridView: ObservableObject
         return Screen.shared.scaled(value, scaling: self._viewScaling)
     }
 
-    internal final func scaled(_ value: Int, force: Bool) -> Int {
+    private final func scaled(_ value: Int, force: Bool) -> Int {
         return Screen.shared.scaled(value, scaling: force ? true : self._viewScaling)
     }
 
@@ -305,7 +302,7 @@ class CellGridView: ObservableObject
         return Screen.shared.unscaled(value, scaling: self._viewScaling)
     }
 
-    internal final func unscaled(_ value: Int, force: Bool) -> Int {
+    private final func unscaled(_ value: Int, force: Bool) -> Int {
         return Screen.shared.unscaled(value, scaling: force ? true : self._viewScaling)
     }
 
@@ -695,16 +692,16 @@ class CellGridView: ObservableObject
         return Cell(cellGridView: self, x: x, y: y, foreground: foreground) as? T
     }
 
-    public final func automationToggle() { self._actions.automationToggle() }
-    public final func automationStart() { self._actions.automationStart() }
-    public final func automationStop() { self._actions.automationStop() }
+    public final func automationToggle() { self.actions.automationToggle() }
+    public final func automationStart() { self.actions.automationStart() }
+    public final func automationStop() { self.actions.automationStop() }
 
     public func automationStep() {}
-    public func onTap(_ viewPoint: CGPoint) { self._actions.onTap(viewPoint) }
-    public func onLongTap(_ viewPoint: CGPoint) { self._actions.onLongTap(viewPoint) }
-    public func onDoubleTap() { self._actions.onDoubleTap() }
-    public func onDrag(_ viewPoint: CGPoint) { self._actions.onDrag(viewPoint) }
-    public func onDragEnd(_ viewPoint: CGPoint) { self._actions.onDragEnd(viewPoint) }
-    public func onZoom(_ zoomFactor: CGFloat) { self._actions.onZoom(zoomFactor) }
-    public func onZoomEnd(_ zoomFactor: CGFloat) { self._actions.onZoomEnd(zoomFactor) }
+    public func onTap(_ viewPoint: CGPoint) { self.actions.onTap(viewPoint) }
+    public func onLongTap(_ viewPoint: CGPoint) { self.actions.onLongTap(viewPoint) }
+    public func onDoubleTap() { self.actions.onDoubleTap() }
+    public func onDrag(_ viewPoint: CGPoint) { self.actions.onDrag(viewPoint) }
+    public func onDragEnd(_ viewPoint: CGPoint) { self.actions.onDragEnd(viewPoint) }
+    public func onZoom(_ zoomFactor: CGFloat) { self.actions.onZoom(zoomFactor) }
+    public func onZoomEnd(_ zoomFactor: CGFloat) { self.actions.onZoomEnd(zoomFactor) }
 }

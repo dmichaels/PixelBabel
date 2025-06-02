@@ -43,8 +43,8 @@ extension CellGridView
         private static func resizeCells(cellGridView: CellGridView,
                                          cellSize: Int, adjustShift: Bool = true, scaled: Bool = false)
         {
-            let cellSize = cellGridView.constrainCellSize(!scaled ? cellGridView.scaled(cellSize) : cellSize, scaled: true)
-
+            let cellSize = cellGridView.constrainCellSize(!scaled ?
+                                                           cellGridView.scaled(cellSize) : cellSize, scaled: true)
             guard cellSize != cellGridView.cellSizeScaled else {
                 return
             }
@@ -53,7 +53,8 @@ extension CellGridView
             // either contingency (i.e. where the resize takes, or not due to reaching the maximum allowed
             // cell size), because they  both depend on the cell size which is updated by the re-configure.
             //
-            let shift = adjustShift ? Zoom.calculateShiftForResizeCells(cellGridView: cellGridView, cellSize: cellSize, scaled: true) : nil
+            let shift = adjustShift ? Zoom.calculateShiftForResizeCells(cellGridView: cellGridView,
+                                                                        cellSize: cellSize, scaled: true) : nil
             cellGridView.configure(cellSize: cellSize,
                                    cellPadding: cellGridView.cellPaddingScaled,
                                    cellShape: cellGridView.cellShape,
