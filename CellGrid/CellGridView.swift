@@ -221,60 +221,59 @@ class CellGridView: ObservableObject
                                                              cellTransparency: self._viewTransparency)
     }
 
-    public func updateImage() {
+    public final func updateImage() {
         self._updateImage()
     }
 
-    internal func constrainCellSize(_ cellSize: Int, cellPadding: Int? = nil, scaled: Bool = false) -> Int {
+    internal final func constrainCellSize(_ cellSize: Int, cellPadding: Int? = nil, scaled: Bool = false) -> Int {
         let cellSizeInnerMin: Int = self.scaled(Defaults.cellSizeInnerMin)
         let cellSizeMax: Int = self.scaled(Defaults.cellSizeMax)
         let cellPadding: Int = !scaled ? self.scaled(cellPadding ?? self.cellPadding) : (cellPadding ?? self.cellPaddingScaled)
         return cellSize.clamped(cellSizeInnerMin + (cellPadding * 2)...cellSizeMax)
     }
 
-    private func constrainCellPadding(_ cellPadding: Int, scaled: Bool = false) -> Int {
+    private final func constrainCellPadding(_ cellPadding: Int, scaled: Bool = false) -> Int {
         let cellPaddingMax: Int = self.scaled(Defaults.cellPaddingMax)
         let cellPadding: Int = !scaled ? self.scaled(cellPadding) : cellPadding
         return cellPadding.clamped(0...cellPaddingMax)
     }
 
-    public   var initialized: Bool         { self._initialized }
+    public   final var initialized: Bool         { self._initialized }
+    public   final var viewWidth: Int            { self._unscaled_viewWidth }
+    public   final var viewHeight: Int           { self._unscaled_viewHeight }
+    public   final var viewColumns: Int          { self._viewColumns }
+    public   final var viewRows: Int             { self._viewRows }
+    public   final var viewBackground: CellColor { self._viewBackground }
+    public   final var viewTransparency: UInt8   { self._viewTransparency }
+    public   final var cellSize: Int             { self._unscaled_cellSize }
+    public   final var cellPadding: Int          { self._unscaled_cellPadding }
+    public   final var cellShape: CellShape      { self._cellShape }
+    public   final var gridColumns: Int          { self._gridColumns }
+    public   final var gridRows: Int             { self._gridRows }
+    public   final var gridCells: [Cell]         { self._gridCells }
 
-    public   var viewWidth: Int            { self._unscaled_viewWidth }
-    public   var viewHeight: Int           { self._unscaled_viewHeight }
-    public   var viewColumns: Int          { self._viewColumns }
-    public   var viewRows: Int             { self._viewRows }
-    public   var viewBackground: CellColor { self._viewBackground }
-    public   var viewTransparency: UInt8   { self._viewTransparency }
-    public   var cellSize: Int             { self._unscaled_cellSize }
-    public   var cellPadding: Int          { self._unscaled_cellPadding }
-    public   var cellShape: CellShape      { self._cellShape }
-    public   var gridColumns: Int          { self._gridColumns }
-    public   var gridRows: Int             { self._gridRows }
-    public   var gridCells: [Cell]         { self._gridCells }
+    internal final var shiftCellX: Int  { self._unscaled_shiftCellX }
+    internal final var shiftCellY: Int  { self._unscaled_shiftCellY }
+    internal final var shiftX: Int      { self._unscaled_shiftX }
+    internal final var shiftY: Int      { self._unscaled_shiftY }
+    internal final var shiftTotalX: Int { self._unscaled_shiftX + (self._unscaled_shiftCellX * self._unscaled_cellSize) }
+    internal final var shiftTotalY: Int { self._unscaled_shiftY + (self._unscaled_shiftCellY * self._unscaled_cellSize) }
 
-    internal var shiftCellX: Int  { self._unscaled_shiftCellX }
-    internal var shiftCellY: Int  { self._unscaled_shiftCellY }
-    internal var shiftX: Int      { self._unscaled_shiftX }
-    internal var shiftY: Int      { self._unscaled_shiftY }
-    internal var shiftTotalX: Int { self._unscaled_shiftX + (self._unscaled_shiftCellX * self._unscaled_cellSize) }
-    internal var shiftTotalY: Int { self._unscaled_shiftY + (self._unscaled_shiftCellY * self._unscaled_cellSize) }
+    internal final var viewWidthScaled: Int      { self._viewWidth }
+    internal final var viewHeightScaled: Int     { self._viewHeight }
+    internal final var viewCellEndX: Int         { self._viewCellEndX }
+    internal final var viewCellEndY: Int         { self._viewCellEndY }
+    internal final var viewWidthExtraScaled: Int { self._viewWidthExtra }
+    internal final var cellSizeScaled: Int       { self._cellSize }
+    internal final var cellPaddingScaled: Int    { self._cellPadding }
+    internal final var shiftCellScaledX: Int     { self._shiftCellX }
+    internal final var shiftCellScaledY: Int     { self._shiftCellY }
+    internal final var shiftScaledX: Int         { self._shiftX }
+    internal final var shiftScaledY: Int         { self._shiftY }
+    internal final var shiftTotalScaledX: Int    { self._shiftX + (self._shiftCellX * self._cellSize) }
+    internal final var shiftTotalScaledY: Int    { self._shiftY + (self._shiftCellY * self._cellSize) }
 
-    internal var viewWidthScaled: Int      { self._viewWidth }
-    internal var viewHeightScaled: Int     { self._viewHeight }
-    internal var viewCellEndX: Int         { self._viewCellEndX }
-    internal var viewCellEndY: Int         { self._viewCellEndY }
-    internal var viewWidthExtraScaled: Int { self._viewWidthExtra }
-    internal var cellSizeScaled: Int       { self._cellSize }
-    internal var cellPaddingScaled: Int    { self._cellPadding }
-    internal var shiftCellScaledX: Int     { self._shiftCellX }
-    internal var shiftCellScaledY: Int     { self._shiftCellY }
-    internal var shiftScaledX: Int         { self._shiftX }
-    internal var shiftScaledY: Int         { self._shiftY }
-    internal var shiftTotalScaledX: Int    { self._shiftX + (self._shiftCellX * self._cellSize) }
-    internal var shiftTotalScaledY: Int    { self._shiftY + (self._shiftCellY * self._cellSize) }
-
-    public var viewScaling: Bool {
+    public final var viewScaling: Bool {
         get { self._viewScaling }
         set {
             if (newValue) {
@@ -288,30 +287,30 @@ class CellGridView: ObservableObject
         }
     }
 
-    public var viewScale: CGFloat {
+    public final var viewScale: CGFloat {
         Screen.shared.scale(scaling: self._viewScaling)
     }
 
-    internal func scaled(_ value: Int) -> Int {
+    internal final func scaled(_ value: Int) -> Int {
         return Screen.shared.scaled(value, scaling: self._viewScaling)
     }
 
-    internal func scaled(_ value: Int, force: Bool) -> Int {
+    internal final func scaled(_ value: Int, force: Bool) -> Int {
         return Screen.shared.scaled(value, scaling: force ? true : self._viewScaling)
     }
 
-    internal func unscaled(_ value: Int) -> Int {
+    internal final func unscaled(_ value: Int) -> Int {
         return Screen.shared.unscaled(value, scaling: self._viewScaling)
     }
 
-    internal func unscaled(_ value: Int, force: Bool) -> Int {
+    internal final func unscaled(_ value: Int, force: Bool) -> Int {
         return Screen.shared.unscaled(value, scaling: force ? true : self._viewScaling)
     }
 
     // Sets the cell-grid within the grid-view to be shifted by the given amount,
     // from the upper-left; note that the given shiftTotalX and shiftTotalY values are unscaled.
     //
-    public func writeCells(shiftTotalX: Int, shiftTotalY: Int, dragging: Bool = false, scaled: Bool = false)
+    public final func writeCells(shiftTotalX: Int, shiftTotalY: Int, dragging: Bool = false, scaled: Bool = false)
     {
         #if targetEnvironment(simulator)
             let debugStart = Date()
@@ -515,7 +514,7 @@ class CellGridView: ObservableObject
     // pixel level based shift values, negative meaning to shift the grid cell left or up, and positive
     // meaning to shift the grid cell right or down.
     //
-    public func writeCell(viewCellX: Int, viewCellY: Int)
+    public final func writeCell(viewCellX: Int, viewCellY: Int)
     {
         // Get the left/right truncation amount.
         // This was all a lot tricker than you might expect (yes basic arithmetic).
@@ -656,7 +655,7 @@ class CellGridView: ObservableObject
         }
     }
 
-    public func center()
+    public final func center()
     {
         let gridWidth: Int = self.gridColumns * self.cellSize
         let gridHeight: Int = self.gridRows * self.cellSize
@@ -665,7 +664,7 @@ class CellGridView: ObservableObject
         self.writeCells(shiftTotalX: shiftTotalX, shiftTotalY: shiftTotalY)
     }
 
-    public func scale() {
+    public final func scale() {
         guard !self._viewScaling else {
             return
         }
@@ -682,7 +681,7 @@ class CellGridView: ObservableObject
         self.writeCells(shiftTotalX: shiftTotalX, shiftTotalY: shiftTotalY, scaled: true)
     }
 
-    public func unscale() {
+    public final func unscale() {
         guard self._viewScaling else {
             return
         }
@@ -707,7 +706,7 @@ class CellGridView: ObservableObject
     private var automateInterval: Double = DefaultSettings.timerInterval
     private var automateTimer: Timer? = nil
 
-    public func automateToggle() {
+    public final func automateToggle() {
         if (automate) {
             self.automateStop()
             self.automate = false
@@ -718,13 +717,13 @@ class CellGridView: ObservableObject
         }
     }
 
-    public func automateStart() {
+    public final func automateStart() {
         self.automateTimer = Timer.scheduledTimer(withTimeInterval: self.automateInterval, repeats: true) { _ in
             self.automateStep()
         }
     }
 
-    public func automateStop() {
+    public final func automateStop() {
         if let automateTimer = self.automateTimer {
             automateTimer.invalidate()
             self.automateTimer = nil
