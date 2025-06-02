@@ -113,7 +113,6 @@ struct ContentView: View
                 .onAppear {
                     if (!self.cellGridConfigured) {
                         self.cellGridConfigured = true
-                        self.geometrySize = geometry.size
                         Screen.shared.initialize(size: geometry.size, scale: UIScreen.main.scale)
                         let landscape = self.orientation.current.isLandscape
                         self.cellGridView.initialize(
