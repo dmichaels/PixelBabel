@@ -109,6 +109,9 @@ class CellGridView: ObservableObject
     //
     private var _initialized: Bool = false
 
+    // This initialize method should be called on startup as soon as possible,
+    // e.g. from the onAppear notification of the main view (ZStack or whatever).
+    //
     public func initialize(viewWidth: Int,
                            viewHeight: Int,
                            viewBackground: CellColor,
