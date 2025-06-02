@@ -102,7 +102,9 @@ class CellGridView: ObservableObject
     // This Actions data item is here only because we are not allowed to declare
     // stored properties within (CellGridView) extensions, i.e. in CellGridView+Actions.swift. 
     //
-    internal let _actions: CellGridView.Actions = CellGridView.Actions()
+    lazy var _actions: CellGridView.Actions = {
+        return CellGridView.Actions(self, automationInterval: DefaultSettings.timerInterval)
+    }()
 
     // This _updateImage function property is the update function from the caller
     // to be called from CellGridView when the image changes, so that the calling
@@ -496,7 +498,7 @@ class CellGridView: ObservableObject
         }
 
         #if targetEnvironment(simulator)
-            printWriteCellsResult(debugStart)
+            self.printWriteCellsResult(debugStart)
         #endif
     }
 
@@ -693,33 +695,16 @@ class CellGridView: ObservableObject
         return Cell(cellGridView: self, x: x, y: y, foreground: foreground) as? T
     }
 
-    private var automation: Bool = false
-    private var automationInterval: Double = DefaultSettings.timerInterval
-    private var automationTimer: Timer? = nil
-
-    public final func automationToggle() {
-        if (automation) {
-            self.automationStop()
-            self.automation = false
-        }
-        else {
-            self.automationStart()
-            self.automation = true
-        }
-    }
-
-    public final func automationStart() {
-        self.automationTimer = Timer.scheduledTimer(withTimeInterval: self.automationInterval, repeats: true) { _ in
-            self.automationStep()
-        }
-    }
-
-    public final func automationStop() {
-        if let automationTimer = self.automationTimer {
-            automationTimer.invalidate()
-            self.automationTimer = nil
-        }
-    }
+    public final func automationToggle() { self._actions.automationToggle() }
+    public final func automationStart() { self._actions.automationStart() }
+    public final func automationStop() { self._actions.automationStop() }
 
     public func automationStep() {}
+    public func onTap(_ viewPoint: CGPoint) { self._actions.onTap(viewPoint) }
+    public func onLongTap(_ viewPoint: CGPoint) { self._actions.onLongTap(viewPoint) }
+    public func onDoubleTap() { self._actions.onDoubleTap() }
+    public func onDrag(_ viewPoint: CGPoint) { self._actions.onDrag(viewPoint) }
+    public func onDragEnd(_ viewPoint: CGPoint) { self._actions.onDragEnd(viewPoint) }
+    public func onZoom(_ zoomFactor: CGFloat) { self._actions.onZoom(zoomFactor) }
+    public func onZoomEnd(_ zoomFactor: CGFloat) { self._actions.onZoomEnd(zoomFactor) }
 }

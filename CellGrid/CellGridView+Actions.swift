@@ -3,61 +3,92 @@ import SwiftUI
 
 extension CellGridView
 {
+    @MainActor
     public class Actions
     {
-        internal var _dragger: CellGridView.Drag? = nil
-        internal var _zoomer: CellGridView.Zoom? = nil
-        internal var _pickerMode: Bool = false
-        internal var _automation: Bool = false
-        internal var _automationInterval: Double = DefaultSettings.timerInterval
-        internal var _automationTimer: Timer? = nil
-    }
+        private let _cellGridView: CellGridView
+        private let _automationInterval: Double
+        private var _automation: Bool = false
+        private var _automationTimer: Timer? = nil
+        private var _dragger: CellGridView.Drag? = nil
+        private var _zoomer: CellGridView.Zoom? = nil
+        private var _pickerMode: Bool = false
 
-    public func onTap(_ viewPoint: CGPoint) {
-        if let cell: Cell = self.gridCell(viewPoint: viewPoint) {
-            cell.select()
-            self.updateImage()
+        public init(_ cellGridView: CellGridView, automationInterval: Double = DefaultSettings.timerInterval) {
+            self._cellGridView = cellGridView
+            self._automationInterval = automationInterval
         }
-    }
 
-    public func onLongTap(_ viewPoint: CGPoint) {
-    }
-
-    public func onDoubleTap() {
-        self._actions._pickerMode = !self._actions._pickerMode
-    }
-
-    public func onDrag(_ viewPoint: CGPoint) {
-        guard let dragger: CellGridView.Drag = self._actions._dragger else {
-            self._actions._dragger = CellGridView.Drag(self, viewPoint, picker: self._actions._pickerMode)
-            return
+        public final func automationToggle() {
+            if (self._automation) {
+                self.automationStop()
+                self._automation = false
+            }
+            else {
+                self.automationStart()
+                self._automation = true
+            }
         }
-        dragger.drag(viewPoint)
-        self.updateImage()
-    }
 
-    public func onDragEnd(_ viewPoint: CGPoint) {
-        if let dragger: CellGridView.Drag = self._actions._dragger {
-            dragger.end(viewPoint)
-            self.updateImage()
-            self._actions._dragger = nil
+        public final func automationStart() {
+            self._automationTimer = Timer.scheduledTimer(withTimeInterval: self._automationInterval, repeats: true) { _ in
+                self._cellGridView.automationStep()
+            }
         }
-    }
 
-    public func onZoom(_ zoomFactor: CGFloat) {
-        guard let zoomer: CellGridView.Zoom = self._actions._zoomer else {
-            self._actions._zoomer = CellGridView.Zoom(self, zoomFactor)
-            self.updateImage()
-            return
+        public final func automationStop() {
+            if let automationTimer = self._automationTimer {
+                automationTimer.invalidate()
+                self._automationTimer = nil
+            }
         }
-        zoomer.zoom(zoomFactor)
-        self.updateImage()
-    }
 
-    public func onZoomEnd(_ zoomFactor: CGFloat) {
-        if let zoomer: CellGridView.Zoom = self._actions._zoomer {
-            zoomer.end(zoomFactor)
-            self._actions._zoomer = nil
+        public final func onTap(_ viewPoint: CGPoint) {
+            if let cell: Cell = self._cellGridView.gridCell(viewPoint: viewPoint) {
+                cell.select()
+                self._cellGridView.updateImage()
+            }
+        }
+
+        public final func onLongTap(_ viewPoint: CGPoint) {
+        }
+
+        public final func onDoubleTap() {
+            self._pickerMode = !self._pickerMode
+        }
+
+        public final func onDrag(_ viewPoint: CGPoint) {
+            guard let dragger: CellGridView.Drag = self._dragger else {
+                self._dragger = CellGridView.Drag(self._cellGridView, viewPoint, picker: self._pickerMode)
+                return
+            }
+            dragger.drag(viewPoint)
+            self._cellGridView.updateImage()
+        }
+
+        public final func onDragEnd(_ viewPoint: CGPoint) {
+            if let dragger: CellGridView.Drag = self._dragger {
+                dragger.end(viewPoint)
+                self._dragger = nil
+                self._cellGridView.updateImage()
+            }
+        }
+
+        public final func onZoom(_ zoomFactor: CGFloat) {
+            if let zoomer: CellGridView.Zoom = self._zoomer {
+                zoomer.zoom(zoomFactor)
+            }
+            else {
+                self._zoomer = CellGridView.Zoom(self._cellGridView, zoomFactor)
+            }
+            self._cellGridView.updateImage()
+        }
+
+        public final func onZoomEnd(_ zoomFactor: CGFloat) {
+            if let zoomer: CellGridView.Zoom = self._zoomer {
+                zoomer.end(zoomFactor)
+                self._zoomer = nil
+            }
         }
     }
 }
