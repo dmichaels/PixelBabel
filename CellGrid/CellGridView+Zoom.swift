@@ -6,37 +6,37 @@ extension CellGridView
     @MainActor
     public struct Zoom
     {
-        private let cellGridView: CellGridView
-        private let startCellSize: Int
-        private let startShiftedX: Int
-        private let startShiftedY: Int
-        private let unscaledZoom: Bool
+        private let _cellGridView: CellGridView
+        private let _startCellSize: Int
+        private let _startShiftedX: Int
+        private let _startShiftedY: Int
+        private let _unscaledZoom: Bool
 
         public init(_ cellGridView: CellGridView, _ zoomFactor: CGFloat) {
 
-            self.unscaledZoom = DefaultSettings.unscaledZoom && cellGridView.viewScaling
-            if (self.unscaledZoom) {
+            self._unscaledZoom = DefaultSettings.unscaledZoom && cellGridView.viewScaling
+            if (self._unscaledZoom) {
                 cellGridView.viewScaling = false
             }
 
-            self.cellGridView = cellGridView
-            self.startCellSize = cellGridView.cellSizeScaled
-            self.startShiftedX = cellGridView.shiftTotalScaledX
-            self.startShiftedY = cellGridView.shiftTotalScaledY
+            self._cellGridView = cellGridView
+            self._startCellSize = cellGridView.cellSizeScaled
+            self._startShiftedX = cellGridView.shiftTotalScaledX
+            self._startShiftedY = cellGridView.shiftTotalScaledY
             self.zoom(zoomFactor)
         }
 
         public func zoom(_ zoomFactor: CGFloat) {
-            let cellSizeZoomed: CGFloat = CGFloat(self.startCellSize) * zoomFactor
+            let cellSizeZoomed: CGFloat = CGFloat(self._startCellSize) * zoomFactor
             let cellSize: Int = Int(cellSizeZoomed.rounded(FloatingPointRoundingRule.toNearestOrEven))
-            let cellSizeIncrement: Int = cellSize - self.startCellSize
-            Zoom.resizeCells(cellGridView: self.cellGridView, cellSize: cellSize, adjustShift: true, scaled: true)
+            let cellSizeIncrement: Int = cellSize - self._startCellSize
+            Zoom.resizeCells(cellGridView: self._cellGridView, cellSize: cellSize, adjustShift: true, scaled: true)
         }
 
         public func end(_ zoomFactor: CGFloat) {
             self.zoom(zoomFactor)
-            if (self.unscaledZoom) {
-                self.cellGridView.viewScaling = true
+            if (self._unscaledZoom) {
+                self._cellGridView.viewScaling = true
             }
         }
 

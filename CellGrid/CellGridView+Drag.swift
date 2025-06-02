@@ -6,36 +6,36 @@ extension CellGridView
     @MainActor
     public struct Drag
     {
-        private let cellGridView: CellGridView
-        private let startX: Int
-        private let startY: Int
-        private let startShiftedX: Int
-        private let startShiftedY: Int
-        private let startCell: Cell?
+        private let _cellGridView: CellGridView
+        private let _startX: Int
+        private let _startY: Int
+        private let _startShiftedX: Int
+        private let _startShiftedY: Int
+        private let _startCell: Cell?
 
         init(_ cellGridView: CellGridView, _ viewPoint: CGPoint, picker: Bool = false) {
-            self.cellGridView = cellGridView
-            self.startX = Int(round(viewPoint.x))
-            self.startY = Int(round(viewPoint.y))
-            self.startShiftedX = cellGridView.shiftTotalX
-            self.startShiftedY = cellGridView.shiftTotalY
-            self.startCell = picker ? cellGridView.gridCell(viewPoint: viewPoint) : nil
+            self._cellGridView = cellGridView
+            self._startX = Int(round(viewPoint.x))
+            self._startY = Int(round(viewPoint.y))
+            self._startShiftedX = cellGridView.shiftTotalX
+            self._startShiftedY = cellGridView.shiftTotalY
+            self._startCell = picker ? cellGridView.gridCell(viewPoint: viewPoint) : nil
         }
 
         public func drag(_ viewPoint: CGPoint, end: Bool = false) {
-            if let startCell: Cell = self.startCell,
-               let cell: Cell = self.cellGridView.gridCell(viewPoint: viewPoint) {
+            if let startCell: Cell = self._startCell,
+               let cell: Cell = self._cellGridView.gridCell(viewPoint: viewPoint) {
                 cell.select(dragging: true)
                 return
             }
             let dragPoint: ViewPoint = ViewPoint(viewPoint)
             let dragX: Int = dragPoint.x
             let dragY: Int = dragPoint.y
-            let dragDeltaX = self.startX - dragX
-            let dragDeltaY = self.startY - dragY
-            let shiftX =  self.startShiftedX - dragDeltaX
-            let shiftY = self.startShiftedY - dragDeltaY
-            self.cellGridView.writeCells(shiftTotalX: shiftX, shiftTotalY: shiftY, dragging: !end)
+            let dragDeltaX = self._startX - dragX
+            let dragDeltaY = self._startY - dragY
+            let shiftX =  self._startShiftedX - dragDeltaX
+            let shiftY = self._startShiftedY - dragDeltaY
+            self._cellGridView.writeCells(shiftTotalX: shiftX, shiftTotalY: shiftY, dragging: !end)
         }
 
         public func end(_ viewPoint: CGPoint) {
