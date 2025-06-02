@@ -9,7 +9,6 @@ struct ContentView: View
     @EnvironmentObject var settings: Settings
 
     @State private var ignoreSafeArea: Bool = DefaultSettings.ignoreSafeArea
-    @State private var cellGridViewInitialized: Bool = false
     @State private var parentRelativeImagePosition: CGPoint = CGPoint.zero
     @State private var image: CGImage? = nil
     @State private var imageAngle: Angle = Angle.zero
@@ -110,10 +109,9 @@ struct ContentView: View
                     }
                 }
                 .onAppear {
-                    if (!self.cellGridViewInitialized) {
-                        self.cellGridViewInitialized = true
-                        Screen.shared.initialize(size: geometry.size, scale: UIScreen.main.scale)
+                    if (!self.cellGridView.initialized) {
                         let landscape = self.orientation.current.isLandscape
+                        Screen.shared.initialize(size: geometry.size, scale: UIScreen.main.scale)
                         self.cellGridView.initialize(
                             viewWidth: landscape ? Screen.shared.height : Screen.shared.width,
                             viewHeight: landscape ? Screen.shared.width : Screen.shared.height,

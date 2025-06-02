@@ -18,6 +18,7 @@ public class Screen: ObservableObject
     //
     public static let depth: Int = 4
 
+    private var _initialized: Bool = false
     private var _width: Int = initialWidth
     private var _height: Int = initialHeight
     private var _scale: CGFloat = initialScale
@@ -32,6 +33,10 @@ public class Screen: ObservableObject
 
     public var size: CGSize {
         CGSize(width: CGFloat(self.width), height: CGFloat(self.height))
+    }
+
+    public var initialized: Bool {
+        self._initialized
     }
 
     // Returns the scaling factor for the screen. This is the nunmber physical pixels
@@ -67,5 +72,6 @@ public class Screen: ObservableObject
         self._width = Int(size.width)
         self._height = Int(size.height)
         self._scale = scale
+        self._initialized = true
     }
 }

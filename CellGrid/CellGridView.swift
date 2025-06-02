@@ -101,6 +101,7 @@ class CellGridView: ObservableObject
 
     internal let _actionData: CellGridView.ActionData = CellGridView.ActionData()
     internal var _updateImage: () -> Void = {}
+    internal var _initialized: Bool = false
 
     public func initialize(viewWidth: Int,
          viewHeight: Int,
@@ -147,7 +148,7 @@ class CellGridView: ObservableObject
             self.center()
         }
         else {
-            self.shift(shiftx: 0, shifty: 0, scaled: false)
+            self.writeCells(shiftx: 0, shifty: 0, scaled: false)
         }
 
         updateImage()
@@ -223,39 +224,7 @@ class CellGridView: ObservableObject
         return cellPadding.clamped(0...cellPaddingMax)
     }
 
-    public var viewScaling: Bool {
-        get { self._viewScaling }
-        set {
-            if (newValue) {
-                if (!self._viewScaling) {
-                    self.scale()
-                }
-            }
-            else if (self._viewScaling) {
-                self.unscale()
-            }
-        }
-    }
-
-    public var viewScale: CGFloat {
-        Screen.shared.scale(scaling: self._viewScaling)
-    }
-
-    internal func scaled(_ value: Int) -> Int {
-        return Screen.shared.scaled(value, scaling: self._viewScaling)
-    }
-
-    internal func scaled(_ value: Int, force: Bool) -> Int {
-        return Screen.shared.scaled(value, scaling: force ? true : self._viewScaling)
-    }
-
-    internal func unscaled(_ value: Int) -> Int {
-        return Screen.shared.unscaled(value, scaling: self._viewScaling)
-    }
-
-    internal func unscaled(_ value: Int, force: Bool) -> Int {
-        return Screen.shared.unscaled(value, scaling: force ? true : self._viewScaling)
-    }
+    public   var initialized: Bool         { self._initialized }
 
     public   var viewWidth: Int            { self._unscaled_viewWidth }
     public   var viewHeight: Int           { self._unscaled_viewHeight }
@@ -290,10 +259,44 @@ class CellGridView: ObservableObject
     internal var shiftTotalScaledX: Int { self._shiftX + (self._shiftCellX * self._cellSize) }
     internal var shiftTotalScaledY: Int { self._shiftY + (self._shiftCellY * self._cellSize) }
 
+    public var viewScaling: Bool {
+        get { self._viewScaling }
+        set {
+            if (newValue) {
+                if (!self._viewScaling) {
+                    self.scale()
+                }
+            }
+            else if (self._viewScaling) {
+                self.unscale()
+            }
+        }
+    }
+
+    public var viewScale: CGFloat {
+        Screen.shared.scale(scaling: self._viewScaling)
+    }
+
+    internal func scaled(_ value: Int) -> Int {
+        return Screen.shared.scaled(value, scaling: self._viewScaling)
+    }
+
+    internal func scaled(_ value: Int, force: Bool) -> Int {
+        return Screen.shared.scaled(value, scaling: force ? true : self._viewScaling)
+    }
+
+    internal func unscaled(_ value: Int) -> Int {
+        return Screen.shared.unscaled(value, scaling: self._viewScaling)
+    }
+
+    internal func unscaled(_ value: Int, force: Bool) -> Int {
+        return Screen.shared.unscaled(value, scaling: force ? true : self._viewScaling)
+    }
+
     // Sets the cell-grid within the grid-view to be shifted by the given amount,
     // from the upper-left; note that the given shiftx and shifty values are unscaled.
     //
-    public func shift(shiftx: Int, shifty: Int, dragging: Bool = false, scaled: Bool = false)
+    public func writeCells(shiftx: Int, shifty: Int, dragging: Bool = false, scaled: Bool = false)
     {
         #if targetEnvironment(simulator)
             let debugStart = Date()
@@ -346,7 +349,7 @@ class CellGridView: ObservableObject
                                  gridCells: Int,
                                  gridCellEnd _: Int,
                                  dragging: Bool = false) {
-            var totalShift = (shiftCell * cellSize) + shift
+            var shiftTotal = (shiftCell * cellSize) + shift
             let gridSize: Int = gridCells * cellSize
             if (gridSize < viewSize) {
                 //
@@ -357,10 +360,10 @@ class CellGridView: ObservableObject
                     shiftCell = 0
                     shift = 0
                 }
-                else if (totalShift > (viewSize - gridSize)) {
-                    totalShift = (viewSize - gridSize)
-                    shiftCell = totalShift / cellSize
-                    shift = totalShift % cellSize
+                else if (shiftTotal > (viewSize - gridSize)) {
+                    shiftTotal = (viewSize - gridSize)
+                    shiftCell = shiftTotal / cellSize
+                    shift = shiftTotal % cellSize
                 }
             }
             else if (!dragging) {
@@ -369,10 +372,10 @@ class CellGridView: ObservableObject
                     shiftCell = 0
                 }
                 else if ((shift < 0) || (shiftCell < 0)) {
-                    if ((totalShift < 0) && ((gridSize + totalShift) < viewSize)) {
-                        totalShift = viewSize - gridSize
-                        shiftCell = totalShift / cellSize
-                        shift = totalShift % cellSize
+                    if ((shiftTotal < 0) && ((gridSize + shiftTotal) < viewSize)) {
+                        shiftTotal = viewSize - gridSize
+                        shiftCell = shiftTotal / cellSize
+                        shift = shiftTotal % cellSize
                     }
                 }
             }
@@ -385,8 +388,8 @@ class CellGridView: ObservableObject
                                   gridCellEndXY: Int) {
             if (shiftCellXY >= viewCellEndXY) {
                 if (viewSizeExtra > 0) {
-                    let totalShift = (shiftCellXY * self._cellSize) + shiftXY
-                    if ((viewSize - totalShift) <= self._cellSize) {
+                    let shiftTotal = (shiftCellXY * self._cellSize) + shiftXY
+                    if ((viewSize - shiftTotal) <= self._cellSize) {
                         let viewSizeAdjusted = viewSize - self._cellSize
                         shiftCellXY = viewSizeAdjusted / self._cellSize
                         shiftXY = viewSizeAdjusted % self._cellSize
@@ -673,7 +676,7 @@ class CellGridView: ObservableObject
         let gridHeight: Int = self.gridRows * self.cellSize
         let shiftTotalX: Int = -Int(round(Double(gridWidth) / 2.0))
         let shiftTotalY: Int = -Int(round(Double(gridHeight) / 2.0))
-        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY)
+        self.writeCells(shiftx: shiftTotalX, shifty: shiftTotalY)
     }
 
     public func scale() {
@@ -690,7 +693,7 @@ class CellGridView: ObservableObject
                        viewBackground: self.viewBackground,
                        viewTransparency: self.viewTransparency,
                        viewScaling: true)
-        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: true)
+        self.writeCells(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: true)
     }
 
     public func unscale() {
@@ -707,7 +710,7 @@ class CellGridView: ObservableObject
                        viewBackground: self.viewBackground,
                        viewTransparency: self.viewTransparency,
                        viewScaling: false)
-        self.shift(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: false)
+        self.writeCells(shiftx: shiftTotalX, shifty: shiftTotalY, scaled: false)
     }
 
     public func createCell<T: Cell>(x: Int, y: Int, foreground: CellColor) -> T? {

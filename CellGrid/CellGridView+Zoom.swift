@@ -64,7 +64,7 @@ extension CellGridView
                                    viewScaling: cellGridView.viewScaling,
                                    scaled: true)
             if let shift = shift {
-                cellGridView.shift(shiftx: shift.x, shifty: shift.y, scaled: true)
+                cellGridView.writeCells(shiftx: shift.x, shifty: shift.y, scaled: true)
             }
         }
 
