@@ -1,5 +1,7 @@
-class LifeCellGridView: CellGridView {
+import Foundation
 
+class LifeCellGridView: CellGridView
+{
     public override func createCell<T: Cell>(x: Int, y: Int, foreground: CellColor) -> T? {
         return LifeCell(cellGridView: self, x: x, y: y, foreground: foreground) as? T
     }
@@ -54,5 +56,11 @@ class LifeCellGridView: CellGridView {
             }
         }
         return count
+    }
+
+    public override func onLongTap(_ viewPoint: CGPoint) {
+        if (self.gridCellLocation(viewPoint: viewPoint) != nil) {
+            self.automationToggle()
+        }
     }
 }

@@ -36,42 +36,10 @@ struct ContentView: View
                             })
                             .frame(width: geometry.size.width, height: geometry.size.height)
                             .rotationEffect(self.imageAngle)
-                            .gesture(
-                                DragGesture(minimumDistance: 0)
-                                    .onChanged { value in
-                                        let normalizedPoint = self.normalizedPoint(value.location)
-                                        if (self.draggingStart == nil) {
-                                            self.draggingStart = normalizedPoint
-                                        }
-                                        let delta = hypot(normalizedPoint.x - self.draggingStart!.x,
-                                                          normalizedPoint.y - self.draggingStart!.y)
-                                        if (delta > DefaultSettings.draggingThreshold) {
-                                            self.dragging = true
-                                            self.cellGridView.onDrag(normalizedPoint)
-                                        }
-                                    }
-                                    .onEnded { value in
-                                        let normalizedPoint = self.normalizedPoint(value.location)
-                                        let swipeDistance = (self.orientation.current == .portraitUpsideDown) ?
-                                                             value.translation.height : value.translation.width
-                                        if (swipeDistance < -DefaultSettings.swipeDistance) {
-                                            //
-                                            // Swipe left.
-                                            // withAnimation { showSettingsView = true }
-                                        }
-                                        else if (swipeDistance > DefaultSettings.swipeDistance) {
-                                            //
-                                            // Swipe right.
-                                            //
-                                        }
-                                        if (self.dragging) {
-                                            self.cellGridView.onDragEnd(normalizedPoint)
-                                        } else {
-                                            self.cellGridView.onTap(normalizedPoint)
-                                        }
-                                        self.draggingStart = nil
-                                        self.dragging = false
-                                    }
+                            .onSmartDrag(threshold: DefaultSettings.draggingThreshold,
+                                onDrag: { value in self.cellGridView.onDrag(self.normalizedPoint(value)) },
+                                onDragEnd: { value in self.cellGridView.onDragEnd(self.normalizedPoint(value)) },
+                                onTap: { value in self.cellGridView.onTap(self.normalizedPoint(value)) }
                             )
                             .simultaneousGesture(
                                 TapGesture(count: 2)
@@ -84,11 +52,7 @@ struct ContentView: View
                                         switch value {
                                             case .second(true, let drag):
                                                 if let location = drag?.location {
-                                                    self.cellGridView.onLongTap(location) // TODO
-                                                    let normalizedPoint = self.normalizedPoint(location)
-                                                    if (self.cellGridView.gridCellLocation(viewPoint: normalizedPoint) != nil) {
-                                                        self.cellGridView.automationToggle()
-                                                    }
+                                                    self.cellGridView.onLongTap(self.normalizedPoint(location))
                                                 }
                                             default:
                                                 break
