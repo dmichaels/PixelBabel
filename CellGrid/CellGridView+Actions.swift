@@ -8,6 +8,9 @@ extension CellGridView
         internal var _dragger: CellGridView.Drag? = nil
         internal var _zoomer: CellGridView.Zoom? = nil
         internal var _pickerMode: Bool = false
+        internal var _automation: Bool = false
+        internal var _automationInterval: Double = DefaultSettings.timerInterval
+        internal var _automationTimer: Timer? = nil
     }
 
     public func onTap(_ viewPoint: CGPoint) {
