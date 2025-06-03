@@ -3,7 +3,7 @@ import AudioToolbox
 import CoreHaptics
 import AVFoundation
 
-struct Feedback
+public struct Feedback
 {
     private var _soundsEnabled: Bool = false
     private var _hapticsEnabled: Bool = false
