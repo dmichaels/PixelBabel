@@ -23,8 +23,7 @@ extension CellGridView
         }
 
         public func drag(_ viewPoint: CGPoint, end: Bool = false) {
-            if let startCell: Cell = self._startCell,
-               let cell: Cell = self._cellGridView.gridCell(viewPoint: viewPoint) {
+            if let _ = self._startCell, let cell: Cell = self._cellGridView.gridCell(viewPoint: viewPoint) {
                 cell.select(dragging: true)
                 return
             }

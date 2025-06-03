@@ -16,7 +16,7 @@ extension CellGridView
                 return size
             }
         }
-        return (viewWidth: viewWidth, viewHeight: viewHeight, cellSize: cellSize)
+        return (cellSize: cellSize, viewWidth: viewWidth, viewHeight: viewHeight)
     }
 
     public static func preferredSizes(viewWidth: Int, viewHeight: Int,

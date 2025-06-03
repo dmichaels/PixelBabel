@@ -12,10 +12,10 @@ public class Screen: ObservableObject
     public static let initialHeight: Int = Int(UIScreen.main.bounds.height)
     public static let initialScale: CGFloat = UIScreen.main.scale
     //
-    // This depth (aka channels) is the number of byte (UInt8) elements in
-    // a pixel i.e. one byte each for red, blue, green, and alpha, aka RGBA.
+    // This channels is the number of byte (UInt8) elements in a pixel,
+    // i.e. one byte each for red, blue, green, and alpha, aka RGBA.
     //
-    public static let depth: Int = 4
+    public static let channels: Int = 4
 
     private var _initialized: Bool = false
     private var _width: Int = initialWidth
@@ -32,6 +32,10 @@ public class Screen: ObservableObject
 
     public var size: CGSize {
         CGSize(width: CGFloat(self.width), height: CGFloat(self.height))
+    }
+
+    public var channels: Int {
+        Screen.channels
     }
 
     public var initialized: Bool {

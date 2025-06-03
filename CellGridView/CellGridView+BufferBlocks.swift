@@ -44,7 +44,7 @@ extension CellGridView
             // A positive shiftx means to truncate the values (pixels) LEFT of the given shiftx value; and
             // a negative shiftx means to truncate the values (pixels) RIGHT of the given shiftx value; and
             //
-            // Note that the BufferBlock.index is a byte index into the buffer, i.e. it already has Screen.depth
+            // Note that the BufferBlock.index is a byte index into the buffer, i.e. it already has Screen.channels
             // factored into it; and note that the BufferBlock.count refers to the number of 4-byte (UInt32) values,
             //
             internal func writeTruncated(shiftx: Int, write: WriteCellBlock) {
@@ -66,7 +66,8 @@ extension CellGridView
                     //    }
                     //  }
                     //
-                    self.shiftxCache[shiftx]?.forEach { write(self, $0.index, $0.count) }
+                    // self.shiftxCache[shiftx]?.forEach { write(self, $0.index, $0.count) }
+                    shiftxValues.forEach { write(self, $0.index, $0.count) }
                     return
                 }
 
@@ -120,7 +121,6 @@ extension CellGridView
         }
 
         internal var memoryUsageBytes: Int {
-            let totalBlocks: Int = self._blocks.count
             var totalTuples: Int = 0
             for block in self._blocks {
                 totalTuples += block.shiftxCache.values.reduce(0) { $0 + $1.count }
@@ -213,8 +213,8 @@ extension CellGridView
                         }
                     }
 
-                    let index: Int = (dy * viewWidth + dx) * Screen.depth
-                    if ((index >= 0) && ((index + (Screen.depth - 1)) < bufferSize)) {
+                    let index: Int = (dy * viewWidth + dx) * Screen.channels
+                    if ((index >= 0) && ((index + (Screen.channels - 1)) < bufferSize)) {
                         if (coverage > 0) {
                             blocks.append(index, foreground: true, blend: coverage, width: viewWidth)
     
