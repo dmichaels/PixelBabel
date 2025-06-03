@@ -63,7 +63,7 @@ private struct SmartGesture: ViewModifier
                     switch value {
                         case .second(true, let drag):
                             if let location = drag?.location {
-                                onLongTap(location)
+                                onLongTap(normalize?(location) ?? location)
                             }
                         default:
                             break
