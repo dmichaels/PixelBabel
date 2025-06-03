@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-@MainActor
+// @MainActor
 class Cell
 {
     private var _cellGridView: CellGridView
