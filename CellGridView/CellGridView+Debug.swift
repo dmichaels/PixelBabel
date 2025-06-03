@@ -5,7 +5,8 @@ import Utils
 
 extension CellGridView
 {
-    func printSizes(viewWidthInit: Int = 0, viewHeightInit: Int = 0, cellSizeInit: Int = 0, cellSizeFitInit: Bool = false) {
+    internal func printSizes(viewWidthInit: Int = 0, viewHeightInit: Int = 0,
+                             cellSizeInit: Int = 0, cellSizeFitInit: Bool = false) {
 
         func scaled(_ value: Int) -> Int {
             //

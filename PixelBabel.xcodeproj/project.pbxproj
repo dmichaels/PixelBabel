@@ -20,9 +20,9 @@
 		98F98D232DBBCB81003FF91D /* Utils.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98F98D182DBBCB81003FF91D /* Utils.framework */; };
 		98F98D2D2DBBCB81003FF91D /* Utils.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98F98D182DBBCB81003FF91D /* Utils.framework */; };
 		98F98D2E2DBBCB81003FF91D /* Utils.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 98F98D182DBBCB81003FF91D /* Utils.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		98FFBFDC2DBEBDD400C161DB /* CellGrid.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98FFBFD12DBEBDD400C161DB /* CellGrid.framework */; };
-		98FFBFE62DBEBDD400C161DB /* CellGrid.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98FFBFD12DBEBDD400C161DB /* CellGrid.framework */; };
-		98FFBFE72DBEBDD400C161DB /* CellGrid.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 98FFBFD12DBEBDD400C161DB /* CellGrid.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		98FFBFDC2DBEBDD400C161DB /* CelLGridView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98FFBFD12DBEBDD400C161DB /* CelLGridView.framework */; };
+		98FFBFE62DBEBDD400C161DB /* CelLGridView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 98FFBFD12DBEBDD400C161DB /* CelLGridView.framework */; };
+		98FFBFE72DBEBDD400C161DB /* CelLGridView.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 98FFBFD12DBEBDD400C161DB /* CelLGridView.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		98FFBFF52DBFB96800C161DB /* LifeSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98FFBFF42DBFB96800C161DB /* LifeSettings.swift */; };
 /* End PBXBuildFile section */
 
@@ -67,7 +67,7 @@
 			containerPortal = 984AE82D2D9904ED00DBCEDA /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 98FFBFD02DBEBDD400C161DB;
-			remoteInfo = CellGrid;
+			remoteInfo = CelLGridView;
 		};
 		98FFBFDF2DBEBDD400C161DB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -81,7 +81,7 @@
 			containerPortal = 984AE82D2D9904ED00DBCEDA /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 98FFBFD02DBEBDD400C161DB;
-			remoteInfo = CellGrid;
+			remoteInfo = CelLGridView;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -92,7 +92,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				98FFBFE72DBEBDD400C161DB /* CellGrid.framework in Embed Frameworks */,
+				98FFBFE72DBEBDD400C161DB /* CelLGridView.framework in Embed Frameworks */,
 				98F98D2E2DBBCB81003FF91D /* Utils.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -116,7 +116,7 @@
 		98F98D0D2DBBACD1003FF91D /* LifeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeCell.swift; sourceTree = "<group>"; };
 		98F98D182DBBCB81003FF91D /* Utils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Utils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		98F98D222DBBCB81003FF91D /* UtilsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UtilsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		98FFBFD12DBEBDD400C161DB /* CellGrid.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CellGrid.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		98FFBFD12DBEBDD400C161DB /* CelLGridView.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CelLGridView.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		98FFBFDB2DBEBDD400C161DB /* CellGridTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CellGridTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		98FFBFF42DBFB96800C161DB /* LifeSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeSettings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -164,7 +164,7 @@
 				CellShape.swift,
 				ViewPoint.swift,
 			);
-			target = 98FFBFD02DBEBDD400C161DB /* CellGrid */;
+			target = 98FFBFD02DBEBDD400C161DB /* CelLGridView */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -180,7 +180,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				98FFBFE62DBEBDD400C161DB /* CellGrid.framework in Frameworks */,
+				98FFBFE62DBEBDD400C161DB /* CelLGridView.framework in Frameworks */,
 				98F98D2D2DBBCB81003FF91D /* Utils.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -225,7 +225,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				98FFBFDC2DBEBDD400C161DB /* CellGrid.framework in Frameworks */,
+				98FFBFDC2DBEBDD400C161DB /* CelLGridView.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,7 +254,7 @@
 				984AE84F2D9904EE00DBCEDA /* PixelBabelUITests.xctest */,
 				98F98D182DBBCB81003FF91D /* Utils.framework */,
 				98F98D222DBBCB81003FF91D /* UtilsTests.xctest */,
-				98FFBFD12DBEBDD400C161DB /* CellGrid.framework */,
+				98FFBFD12DBEBDD400C161DB /* CelLGridView.framework */,
 				98FFBFDB2DBEBDD400C161DB /* CellGridTests.xctest */,
 			);
 			name = Products;
@@ -423,9 +423,9 @@
 			productReference = 98F98D222DBBCB81003FF91D /* UtilsTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		98FFBFD02DBEBDD400C161DB /* CellGrid */ = {
+		98FFBFD02DBEBDD400C161DB /* CelLGridView */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 98FFBFEC2DBEBDD400C161DB /* Build configuration list for PBXNativeTarget "CellGrid" */;
+			buildConfigurationList = 98FFBFEC2DBEBDD400C161DB /* Build configuration list for PBXNativeTarget "CelLGridView" */;
 			buildPhases = (
 				98FFBFCC2DBEBDD400C161DB /* Headers */,
 				98FFBFCD2DBEBDD400C161DB /* Sources */,
@@ -439,11 +439,11 @@
 			fileSystemSynchronizedGroups = (
 				98FFBFD22DBEBDD400C161DB /* CellGridView */,
 			);
-			name = CellGrid;
+			name = CelLGridView;
 			packageProductDependencies = (
 			);
-			productName = CellGrid;
-			productReference = 98FFBFD12DBEBDD400C161DB /* CellGrid.framework */;
+			productName = CelLGridView;
+			productReference = 98FFBFD12DBEBDD400C161DB /* CelLGridView.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		98FFBFDA2DBEBDD400C161DB /* CellGridTests */ = {
@@ -525,7 +525,7 @@
 				984AE84E2D9904EE00DBCEDA /* PixelBabelUITests */,
 				98F98D172DBBCB81003FF91D /* Utils */,
 				98F98D212DBBCB81003FF91D /* UtilsTests */,
-				98FFBFD02DBEBDD400C161DB /* CellGrid */,
+				98FFBFD02DBEBDD400C161DB /* CelLGridView */,
 				98FFBFDA2DBEBDD400C161DB /* CellGridTests */,
 			);
 		};
@@ -674,7 +674,7 @@
 		};
 		98FFBFDE2DBEBDD400C161DB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 98FFBFD02DBEBDD400C161DB /* CellGrid */;
+			target = 98FFBFD02DBEBDD400C161DB /* CelLGridView */;
 			targetProxy = 98FFBFDD2DBEBDD400C161DB /* PBXContainerItemProxy */;
 		};
 		98FFBFE02DBEBDD400C161DB /* PBXTargetDependency */ = {
@@ -684,7 +684,7 @@
 		};
 		98FFBFE52DBEBDD400C161DB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 98FFBFD02DBEBDD400C161DB /* CellGrid */;
+			target = 98FFBFD02DBEBDD400C161DB /* CelLGridView */;
 			targetProxy = 98FFBFE42DBEBDD400C161DB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -1072,7 +1072,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dmichaels.prufrock.CellGrid;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmichaels.prufrock.CelLGridView;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1108,7 +1108,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dmichaels.prufrock.CellGrid;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dmichaels.prufrock.CelLGridView;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1212,7 +1212,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		98FFBFEC2DBEBDD400C161DB /* Build configuration list for PBXNativeTarget "CellGrid" */ = {
+		98FFBFEC2DBEBDD400C161DB /* Build configuration list for PBXNativeTarget "CelLGridView" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				98FFBFE82DBEBDD400C161DB /* Debug */,

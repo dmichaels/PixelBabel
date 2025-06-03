@@ -1,6 +1,5 @@
 import SwiftUI
 
-@MainActor
 public class Screen: ObservableObject
 {
     public static let shared: Screen = Screen()
