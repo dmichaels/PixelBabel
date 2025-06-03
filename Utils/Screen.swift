@@ -7,10 +7,7 @@ public class Screen
     // These initial values are technically just guesses as the real info should be
     // be obtained via the onAppear event of the main view within a GeometryReader;
     // from which should be Screen.configure.
-    //
-    public static let initialWidth: Int = Int(UIScreen.main.bounds.width)
-    public static let initialHeight: Int = Int(UIScreen.main.bounds.height)
-    public static let initialScale: CGFloat = UIScreen.main.scale
+
     //
     // This channels is the number of byte (UInt8) elements in a pixel,
     // i.e. one byte each for red, blue, green, and alpha, aka RGBA.
@@ -18,9 +15,9 @@ public class Screen
     public static let channels: Int = 4
 
     private var _initialized: Bool = false
-    private var _width: Int = initialWidth
-    private var _height: Int = initialHeight
-    private var _scale: CGFloat = initialScale
+    private var _width: Int = Int(UIScreen.main.bounds.width)
+    private var _height: Int = Int(UIScreen.main.bounds.height)
+    private var _scale: CGFloat = UIScreen.main.scale
 
     public var width: Int {
         self._width
