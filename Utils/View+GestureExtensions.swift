@@ -1,10 +1,24 @@
 import SwiftUI
 
+// Consolidated various gestures. Usage like thisa:
+//  
+//    .onSmartGesture(threshold: self.dragThreshold,
+//                    normalize: self.normalizePoint,
+//        onDrag:      { value in self.onDrag(value) },
+//        onDragEnd:   { value in self.onDragEnd(value) },
+//        onTap:       { value in self.onTap(value) },
+//        onDoubleTap: { self.onDoubleTap() },
+//        onLongTap:   { value in self.onLongTap(value) },
+//        onZoom:      { value in self.onZoom(value) },
+//        onZoomEnd:   { value in self.onZoomEnd(value) }
+//    )
+//
 // N.B. This was inspired by ChatGPT.
 //
-private struct SmartGestureModifier: ViewModifier
+private struct SmartGesture: ViewModifier
 {
     let threshold: CGFloat
+    let normalize: ((CGPoint) -> CGPoint)?
     let onDrag: (CGPoint) -> Void
     let onDragEnd: (CGPoint) -> Void
     let onTap: (CGPoint) -> Void
@@ -21,18 +35,19 @@ private struct SmartGestureModifier: ViewModifier
             DragGesture(minimumDistance: 0)
                 .onChanged { value in
                     if (dragging) {
-                        onDrag(value.location)
+                        onDrag(normalize?(value.location) ?? value.location)
                     }
                     else {
                         if (dragStart == nil) { dragStart = value.location }
-                        if (SmartGestureModifier.dragDistance(start: dragStart!, current: value.location) > threshold) {
+                        if (SmartGesture.dragDistance(start: dragStart!, current: value.location) > threshold) {
                             dragging = true
-                            onDrag(value.location)
+                            onDrag(normalize?(value.location) ?? value.location)
                         }
                     }
                 }
                 .onEnded { value in
-                    dragging ? onDragEnd(value.location) : onTap(value.location)
+                    dragging ? onDragEnd(normalize?(value.location) ?? value.location)
+                             : onTap(normalize?(value.location) ?? value.location)
                     dragStart = nil
                     dragging = false
                 }
@@ -69,6 +84,7 @@ private struct SmartGestureModifier: ViewModifier
 
 public extension View {
     func onSmartGesture(threshold: CGFloat = 10,
+                        normalize: ((CGPoint) -> CGPoint)? = nil,
                         onDrag: @escaping (CGPoint) -> Void = { _ in },
                         onDragEnd: @escaping (CGPoint) -> Void = { _ in },
                         onTap: @escaping (CGPoint) -> Void = { _ in },
@@ -77,13 +93,14 @@ public extension View {
                         onZoom: @escaping (CGFloat) -> Void = { _ in },
                         onZoomEnd: @escaping (CGFloat) -> Void = { _ in }
     ) -> some View {
-        self.modifier(SmartGestureModifier(threshold: threshold,
-                                           onDrag: onDrag,
-                                           onDragEnd: onDragEnd,
-                                           onTap: onTap,
-                                           onDoubleTap: onDoubleTap,
-                                           onLongTap: onLongTap,
-                                           onZoom: onZoom,
-                                           onZoomEnd: onZoomEnd))
+        self.modifier(SmartGesture(threshold: threshold,
+                                   normalize: normalize,
+                                   onDrag: onDrag,
+                                   onDragEnd: onDragEnd,
+                                   onTap: onTap,
+                                   onDoubleTap: onDoubleTap,
+                                   onLongTap: onLongTap,
+                                   onZoom: onZoom,
+                                   onZoomEnd: onZoomEnd))
     }
 }
