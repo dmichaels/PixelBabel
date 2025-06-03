@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import Utils
 
-class DefaultSettings
+public class DefaultSettings
 {
     public static let ignoreSafeArea: Bool              = true
     public static let automationInterval: Double        = 0.2

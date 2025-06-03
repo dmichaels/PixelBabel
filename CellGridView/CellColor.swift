@@ -3,7 +3,7 @@ import SwiftUI
 // This is actually only currently used for the background color of the screen/image,
 // i.e. for the backgound color if the inset margin is greater than zero.
 //
-struct CellColor: Equatable
+public struct CellColor: Equatable
 {
     // These values works with Memory.fastcopy NOT using value.bigEndian;
     // if these were the opposite (i.e. red-24, green-16, blue-8, alpha-0)

@@ -1,6 +1,6 @@
 import Foundation
 
-enum CellColorMode: String, CaseIterable, Identifiable
+public enum CellColorMode: String, CaseIterable, Identifiable
 {
     case monochrome = "Monochrome"
     case grayscale  = "Grayscale"

@@ -3,7 +3,6 @@ import Utils
 
 extension CellGridView
 {
-    // @MainActor
     public struct Zoom
     {
         private let _cellGridView: CellGridView

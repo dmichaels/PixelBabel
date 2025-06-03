@@ -3,7 +3,6 @@ import Utils
 
 extension CellGridView
 {
-    // @MainActor
     public struct Drag
     {
         private let _cellGridView: CellGridView

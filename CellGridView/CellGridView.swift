@@ -13,10 +13,9 @@ import Utils
 // We say "point" or "view-point" to mean a pixel coordinate (coming from a gesture) which is not scaled.
 // We say "location" or "cell-location" to mean a cell-based coordinate on the cell-grid or grid-view.
 
-// @MainActor
-class CellGridView: ObservableObject
+public class CellGridView: ObservableObject
 {
-    struct Defaults {
+    public struct Defaults {
 
         public static let viewBackground: CellColor = CellColor.dark
         public static let viewTransparency: UInt8 = CellColor.OPAQUE

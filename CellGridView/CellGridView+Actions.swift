@@ -3,7 +3,6 @@ import SwiftUI
 
 extension CellGridView
 {
-    // @MainActor
     public class Actions
     {
         private let _cellGridView: CellGridView
