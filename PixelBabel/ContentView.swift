@@ -37,7 +37,7 @@ struct ContentView: View
                             .frame(width: geometry.size.width, height: geometry.size.height)
                             .rotationEffect(self.imageAngle)
                             .onSmartGesture(threshold: DefaultSettings.draggingThreshold,
-                                            normalize: self.normalizedPoint,
+                                            normalize: self.normalizePoint,
                                 onDrag:      { value in self.cellGridView.onDrag(value) },
                                 onDragEnd:   { value in self.cellGridView.onDragEnd(value) },
                                 onTap:       { value in self.cellGridView.onTap(value) },
@@ -132,10 +132,10 @@ struct ContentView: View
         }
     }
 
-    public func normalizedPoint(_ location: CGPoint) -> CGPoint {
-        return self.cellGridView.normalizedPoint(screenPoint: location,
-                                                 viewOrigin: parentRelativeImagePosition,
-                                                 orientation: self.orientation)
+    public func normalizePoint(_ location: CGPoint) -> CGPoint {
+        return self.cellGridView.normalizePoint(screenPoint: location,
+                                                viewOrigin: parentRelativeImagePosition,
+                                                orientation: self.orientation)
     }
 
     private func onChangeOrientation(_ current: UIDeviceOrientation, _ previous: UIDeviceOrientation) {

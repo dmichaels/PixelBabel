@@ -94,9 +94,9 @@ extension CellGridView
     // Normalizes an input point taking into account orientation et cetera.
     // The input screen point is (as always) unscaled as well as the returned point.
     //
-    public func normalizedPoint(screenPoint: CGPoint,
-                                viewOrigin: CGPoint,
-                                orientation: OrientationObserver) -> CGPoint
+    public func normalizePoint(screenPoint: CGPoint,
+                               viewOrigin: CGPoint,
+                               orientation: OrientationObserver) -> CGPoint
     {
         // Various oddities with upside-down mode and having to know the
         // previous orientation and whether or not we are an iPad and whatnot.
