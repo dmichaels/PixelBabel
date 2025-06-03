@@ -6,7 +6,7 @@
 //
 
 import Testing
-@testable import CellGrid
+@testable import CellGridView
 
 struct CellGridTests {
 

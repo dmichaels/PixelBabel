@@ -172,7 +172,7 @@
 		98F98D192DBBCB81003FF91D /* Utils */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Utils; sourceTree = "<group>"; };
 		98F98D282DBBCB81003FF91D /* UtilsTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = UtilsTests; sourceTree = "<group>"; };
 		98FFBFD22DBEBDD400C161DB /* CellGridView */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (98FFBFEE2DBEBDF400C161DB /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 98FFBFEF2DBEBDF400C161DB /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = CellGridView; sourceTree = "<group>"; };
-		98FFBFE12DBEBDD400C161DB /* CellGridTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = CellGridTests; sourceTree = "<group>"; };
+		98FFBFE12DBEBDD400C161DB /* CellGridViewTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = CellGridViewTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -241,7 +241,7 @@
 				98F98D192DBBCB81003FF91D /* Utils */,
 				98F98D282DBBCB81003FF91D /* UtilsTests */,
 				98FFBFD22DBEBDD400C161DB /* CellGridView */,
-				98FFBFE12DBEBDD400C161DB /* CellGridTests */,
+				98FFBFE12DBEBDD400C161DB /* CellGridViewTests */,
 				984AE8362D9904ED00DBCEDA /* Products */,
 			);
 			sourceTree = "<group>";
@@ -461,7 +461,7 @@
 				98FFBFE02DBEBDD400C161DB /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				98FFBFE12DBEBDD400C161DB /* CellGridTests */,
+				98FFBFE12DBEBDD400C161DB /* CellGridViewTests */,
 			);
 			name = CellGridTests;
 			packageProductDependencies = (
