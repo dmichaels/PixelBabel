@@ -1,4 +1,5 @@
 import SwiftUI
+import CellGridView
 
 class DefaultLifeSettings
 {

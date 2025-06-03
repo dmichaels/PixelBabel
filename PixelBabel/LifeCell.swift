@@ -1,4 +1,6 @@
 import SwiftUI
+import CellGridView
+import Utils
 
 class LifeCell: Cell {
 

@@ -1,0 +1,135 @@
+import Foundation
+
+let viewWidth: Int = 1161
+let viewSize: Int = viewWidth
+let viewAnchorFactor: Double = 0.5
+
+typealias AdjustShiftTotal = (Int, Int, Int, Int, Double) -> Int
+
+func adjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int,
+                      shiftTotal: Int, viewAnchorFactor: Double) -> Int {
+    let viewCenter: Double = Double(viewSize) * viewAnchorFactor
+    let round: (Double) -> Double = cellIncrement > 0 ? (cellSize % 2 == 0 ? ceil : floor)
+                                                          : (cellSize % 2 == 0 ? floor : ceil)
+    let cellsFromCenter: Int = Int(round((viewCenter - Double(shiftTotal)) / Double(cellSize)))
+    return shiftTotal - (cellsFromCenter * cellIncrement)
+}
+
+func xadjustShiftTotal(viewSize: Int, cellSize: Int, cellIncrement: Int,
+                            shiftTotal: Int, viewAnchorFactor: Double = 0.5) -> Int {
+    let anchor = Double(viewSize) * viewAnchorFactor
+    let oldSize = cellSize
+    let newSize = cellSize + cellIncrement
+    // The discrete cell index anchored by the old size
+    let cellIndex = Int(round((anchor - Double(shiftTotal)) / Double(oldSize)))
+    // Place the *same* cell index under the anchor, using the new size
+    return Int(round(anchor - Double(cellIndex) * Double(newSize)))
+}
+
+func adjustShiftTotalBF(viewSize: Int, cellSize: Int, cellIncrement: Int,
+                        shiftTotal: Int, viewAnchorFactor: Double = 0.5) -> Int {
+    var shiftTotal: Int = shiftTotal
+    let step: Int = cellIncrement > 0 ? 1 : -1
+    for increment in stride(from: 1, through: cellIncrement, by: step) {
+        shiftTotal = adjustShiftTotal(viewSize: viewSize,
+                                      cellSize: cellSize + increment - 1,
+                                      cellIncrement: 1,
+                                      shiftTotal: shiftTotal,
+                                      viewAnchorFactor: viewAnchorFactor)
+    }
+    return shiftTotal
+}
+
+func adjustShiftTotalGPT(viewSize: Int, cellSize: Int, cellIncrement: Int,
+                         shiftTotal: Int, viewAnchorFactor: Double = 0.5) -> Int {
+
+    let oldCellSize: Int = cellSize
+    let cellSize: Int = cellSize + cellIncrement
+    let viewCenter = Double(viewSize) * viewAnchorFactor
+    let oldIndex = Int(round((viewCenter - Double(shiftTotal)) / Double(oldCellSize)))
+    let newShift = Int(round(viewCenter - Double(oldIndex) * Double(cellSize)))
+    return newShift - (cellSize / 2) // i added to what gpt gave me based on observation: - cellSize / 2
+}
+
+func modulo(_ value: Int, _ modulus: Int) -> Int {
+    let remainder: Int = value % modulus
+    return remainder >= 0 ? remainder : remainder + modulus
+}
+
+func shiftOpposite(cellSize: Int, shiftX: Int, viewWidthExtra: Int) -> Int {
+    return modulo(cellSize + shiftX - viewWidthExtra, cellSize)
+}
+
+func T(cellSize: Int, cellIncrement: Int, shiftTotal: Int, f: AdjustShiftTotal = adjustShiftTotal, expected: (sh: Int, sho: Int)? = nil) {
+    let newShiftTotal: Int = f(viewSize, cellSize, cellIncrement, shiftTotal, viewAnchorFactor)
+    let newCellSize: Int = cellSize + cellIncrement
+    let newShiftCell: Int = newShiftTotal / newCellSize
+    let newShift: Int = newShiftTotal % newCellSize
+    let newViewSizeExtra: Int = viewSize % newCellSize
+    let newShiftOpposite: Int = shiftOpposite(cellSize: newCellSize, shiftX: newShift, viewWidthExtra: newViewSizeExtra)
+    let isAdjustmentEven: Bool = [0, 1].contains(abs(abs(newShiftOpposite) - abs(newShift)))
+    var result: String = ""
+    if (expected != nil) {
+        result = ((expected!.sh == newShift) && (expected!.sho == newShiftOpposite)) ? "OK" : "no"
+    }
+    let x = (f == adjustShiftTotal)
+    // let ftype: String = (f == adjustShiftTotal) ? "REG" : "X"
+    let ftype: String = "FOO"
+    print(ftype + "> " +
+          "cs: \(String(format: "%4d", cellSize))  " +
+          "ci: \(String(format: "%2d", cellIncrement))  " +
+          "csht: \(String(format: "%4d", shiftTotal))  ->  " +
+          "cs: \(String(format: "%4d", newCellSize))  " +
+          "vwe: \(String(format: "%4d", newViewSizeExtra))  " +
+          "sht: \(String(format: "%4d", newShiftTotal))  " +
+          "shc: \(String(format: "%4d", newShiftCell))  " +
+          "sh: \(String(format: "%4d", newShift))  " +
+          "sho: \(String(format: "%4d", shiftOpposite(cellSize: newCellSize, shiftX: newShift, viewWidthExtra: newViewSizeExtra)))  " +
+          (isAdjustmentEven ? "even  " : "uneven") +
+          // "even: \(isAdjustmentEven)" +
+          ((expected != nil) ? " -> \(result)" : "")
+    )
+}
+
+
+
+// T(cellSize: 130, cellIncrement: 1, shiftTotal:  -4, f: adjustShiftTotalBF) // -> from 130 to 131 by 1 -> sh:  -9 sho:  9
+// T(cellSize: 130, cellIncrement: 1, shiftTotal:  -4, f: adjustShiftTotal) // -> from 130 to 131 by 1 -> sh:  -9 sho:  9
+
+print()
+T(cellSize: 129, cellIncrement: 1, shiftTotal:   0, f: adjustShiftTotal,    expected: ( -4,  5)) // from 129 to 130 by 1 -> OK
+T(cellSize: 130, cellIncrement: 1, shiftTotal:  -4, f: adjustShiftTotal,    expected: ( -9,  9)) // from 130 to 131 by 1 -> OK
+T(cellSize: 131, cellIncrement: 1, shiftTotal:  -9, f: adjustShiftTotal,    expected: (-13, 14)) // from 131 to 132 by 1 -> OK
+T(cellSize: 132, cellIncrement: 1, shiftTotal: -13, f: adjustShiftTotal,    expected: (-18, 18)) // from 132 to 133 by 1 -> OK
+T(cellSize: 133, cellIncrement: 1, shiftTotal: -18, f: adjustShiftTotal,    expected: (-22, 23)) // from 133 to 134 by 1 -> OK
+T(cellSize: 134, cellIncrement: 1, shiftTotal: -22, f: adjustShiftTotal,    expected: (-27, 27)) // from 134 to 135 by 1 -> OK
+
+print()
+T(cellSize: 129, cellIncrement: 1, shiftTotal:   0, f: adjustShiftTotalGPT, expected: ( -4,  5)) // from 129 to 130 by 1 -> WRONG -> sh:  -5 sho:  4
+T(cellSize: 130, cellIncrement: 1, shiftTotal:  -4, f: adjustShiftTotalGPT, expected: ( -9,  9)) // from 130 to 131 by 1 -> WRONG -> sh:  -8 sho: 10
+T(cellSize: 131, cellIncrement: 1, shiftTotal:  -9, f: adjustShiftTotalGPT, expected: (-13, 14)) // from 131 to 132 by 1 -> WRONG -> sh: -14 sho: 13
+T(cellSize: 132, cellIncrement: 1, shiftTotal: -13, f: adjustShiftTotalGPT, expected: (-18, 18)) // from 132 to 133 by 1 -> WRONG -> sh: -17 sho: 19
+T(cellSize: 133, cellIncrement: 1, shiftTotal: -18, f: adjustShiftTotalGPT, expected: (-23, 22)) // from 133 to 134 by 1 -> WRONG -> sh: -23 sho: 22
+T(cellSize: 134, cellIncrement: 1, shiftTotal: -22, f: adjustShiftTotalGPT, expected: (-27, 27)) // from 134 to 135 by 1 -> WRONG -> sh: -26 sho: 28
+
+print()
+T(cellSize: 129, cellIncrement: 2, shiftTotal:   0, f: adjustShiftTotal,    expected: ( -9,  9)) // from 129 to 131 by 2 -> WRONG -> sh:  -8 sho: 10
+T(cellSize: 129, cellIncrement: 3, shiftTotal:   0, f: adjustShiftTotal,    expected: (-13, 14)) // from 129 to 132 by 3 -> WRONG -> sh: -12 sho: 15
+T(cellSize: 129, cellIncrement: 4, shiftTotal:   0, f: adjustShiftTotal,    expected: (-18, 18)) // from 129 to 133 by 4 -> WRONG -> sh: -16 sho: 20
+T(cellSize: 129, cellIncrement: 5, shiftTotal:   0, f: adjustShiftTotal,    expected: (-22, 23)) // from 129 to 134 by 5 -> WRONG -> sh: -20 sho: 25
+
+print()
+T(cellSize: 129, cellIncrement: 2, shiftTotal:   0, f: adjustShiftTotalGPT, expected: ( -9, 9))  // from 129 to 131 by 2 -> WRONG -> sh: -75 sho: 74 ...
+T(cellSize: 129, cellIncrement: 3, shiftTotal:   0, f: adjustShiftTotalGPT, expected: (-13, 14)) // from 129 to 132 by 3 -> WRONG -> sh: -80 sho: 79 ...
+T(cellSize: 129, cellIncrement: 4, shiftTotal:   0, f: adjustShiftTotalGPT, expected: (-18, 18)) // from 129 to 133 by 4 -> WRONG -> sh: -85 sho: 84 ...
+T(cellSize: 129, cellIncrement: 5, shiftTotal:   0, f: adjustShiftTotalGPT, expected: (-22, 23)) // from 129 to 134 by 5 -> WRONG -> sh: -90 sho: 89 ...
+// cs:  129  ci:  2  csht:    0  ->  cs:  131  vwe:  113  sht: -140  shc:   -1  sh:   -9  sho:    9  even   -> OK
+// cs:  129  ci:  3  csht:    0  ->  cs:  132  vwe:  105  sht: -146  shc:   -1  sh:  -14  sho:   13  even   -> no
+// cs:  129  ci:  4  csht:    0  ->  cs:  133  vwe:   97  sht: -151  shc:   -1  sh:  -18  sho:   18  even   -> OK
+// cs:  129  ci:  5  csht:    0  ->  cs:  134  vwe:   89  sht: -157  shc:   -1  sh:  -23  sho:   22  even   -> no
+
+print()
+T(cellSize: 129, cellIncrement: 2, shiftTotal:   0, f: adjustShiftTotalBF,  expected: ( -9, 9))  // from 129 to 131 by 2 -> OK
+T(cellSize: 129, cellIncrement: 3, shiftTotal:   0, f: adjustShiftTotalBF,  expected: (-13, 14)) // from 129 to 132 by 3 -> OK
+T(cellSize: 129, cellIncrement: 4, shiftTotal:   0, f: adjustShiftTotalBF,  expected: (-18, 18)) // from 129 to 133 by 4 -> OK
+T(cellSize: 129, cellIncrement: 5, shiftTotal:   0, f: adjustShiftTotalBF,  expected: (-22, 23)) // from 129 to 134 by 5 -> OK

@@ -1,4 +1,5 @@
 import Foundation
+import CellGridView
 
 class LifeCellGridView: CellGridView
 {

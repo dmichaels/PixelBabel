@@ -1,0 +1,24 @@
+i have this function to compute the new shift value for the display of a virtual (large) grid of cells within a display view when the cell size is incremented (e.g. for zooming in (or out)), i.e. i want the center to be maintained while incrementing ...
+
+func adjustShiftTotal(viewSize: Int, cellSize: Int, cellSizeIncrement: Int, shiftTotal: Int) -> Int {
+    let viewCenter:          Double = Double(viewSize) / 2.0
+    let viewCenterAdjusted:  Double = viewCenter - Double(shiftTotal)
+    let cellCenter:          Double = viewCenterAdjusted / Double(cellSize)
+    let cellSizeIncremented: Int    = cellSize + cellSizeIncrement
+    let shiftDelta:          Double = cellCenter * Double(cellSizeIncremented) - viewCenterAdjusted
+    let round                       = ((cellSizeIncremented) % 2 == 0) ? ceil : floor
+    return Int(round(Double(shiftTotal) - shiftDelta))
+}
+
+... when this is called repeatedly for cellSizeIncrement of 1 we get to some result, but when the cellSizeIncrement value is larger to get to the same result, i get different results, but i want them to be the same, i.e. incrementing the cell size 4 times by 1 should yield the same resultsas incrementing the cell size 1 time by 4. here is an example incremening 4 times by 1 ...
+
+adjustShiftTotal(viewSize: 1161, cellSize: 140, cellSizeIncrement: 1, shiftTotal: -49) == -54
+adjustShiftTotal(viewSize: 1161, cellSize: 141, cellSizeIncrement: 1, shiftTotal: -54) == -58
+adjustShiftTotal(viewSize: 1161, cellSize: 142, cellSizeIncrement: 1, shiftTotal: -58) == -63
+adjustShiftTotal(viewSize: 1161, cellSize: 143, cellSizeIncrement: 1, shiftTotal: -63) == -67
+
+... but then incrementing once by by 4 ...
+
+adjustShiftTotal(viewSize: 1161, cellSize: 140, cellSizeIncrement: 4, shiftTotal: -49) == -66 // i want this to be -67 like above
+
+...  how can i remedy this (aside from setting up to call the function N times for increment by 1) ...

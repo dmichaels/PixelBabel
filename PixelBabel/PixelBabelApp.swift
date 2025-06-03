@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CellGridView
 
 @main
 struct PixelBabelApp: App {
