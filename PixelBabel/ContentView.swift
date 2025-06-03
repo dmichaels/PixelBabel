@@ -36,35 +36,15 @@ struct ContentView: View
                             })
                             .frame(width: geometry.size.width, height: geometry.size.height)
                             .rotationEffect(self.imageAngle)
-                            .onSmartDrag(threshold: DefaultSettings.draggingThreshold,
-                                onDrag: { value in self.cellGridView.onDrag(self.normalizedPoint(value)) },
-                                onDragEnd: { value in self.cellGridView.onDragEnd(self.normalizedPoint(value)) },
-                                onTap: { value in self.cellGridView.onTap(self.normalizedPoint(value)) }
+                            .onSmartGesture(threshold: DefaultSettings.draggingThreshold,
+                                onDrag:      { value in self.cellGridView.onDrag(self.normalizedPoint(value)) },
+                                onDragEnd:   { value in self.cellGridView.onDragEnd(self.normalizedPoint(value)) },
+                                onTap:       { value in self.cellGridView.onTap(self.normalizedPoint(value)) },
+                                onDoubleTap: { self.cellGridView.onDoubleTap() },
+                                onLongTap:   { value in self.cellGridView.onLongTap(self.normalizedPoint(value)) },
+                                onZoom:      { value in self.cellGridView.onZoom(value) },
+                                onZoomEnd:   { value in self.cellGridView.onZoomEnd(value) }
                             )
-                            .simultaneousGesture(
-                                TapGesture(count: 2)
-                                    .onEnded { self.cellGridView.onDoubleTap() }
-                            )
-                            .simultaneousGesture(
-                                LongPressGesture(minimumDuration: 1.0)
-                                    .sequenced(before: DragGesture(minimumDistance: 0))
-                                    .onEnded { value in
-                                        switch value {
-                                            case .second(true, let drag):
-                                                if let location = drag?.location {
-                                                    self.cellGridView.onLongTap(self.normalizedPoint(location))
-                                                }
-                                            default:
-                                                break
-                                        }
-                                    }
-                            )
-                            .simultaneousGesture(
-                                MagnificationGesture()
-                                    .onChanged { value in self.cellGridView.onZoom(value) }
-                                    .onEnded   { value in self.cellGridView.onZoomEnd(value) }
-                            )
-
                             NavigationLink(
                                 destination: SettingsView(),
                                 isActive: $showSettingsView,
@@ -75,21 +55,20 @@ struct ContentView: View
                 .onAppear {
                     if (!self.cellGridView.initialized) {
                         let landscape = self.orientation.current.isLandscape
-                        Screen.shared.initialize(size: geometry.size, scale: UIScreen.main.scale)
-                        self.cellGridView.initialize(
-                            viewWidth: landscape ? Screen.shared.height : Screen.shared.width,
-                            viewHeight: landscape ? Screen.shared.width : Screen.shared.height,
-                            viewBackground: DefaultSettings.viewBackground,
-                            viewTransparency: DefaultSettings.viewTransparency,
-                            viewScaling: DefaultSettings.viewScaling,
-                            cellSize: DefaultSettings.cellSize,
-                            cellPadding: DefaultSettings.cellPadding,
-                            cellSizeFit: DefaultSettings.cellSizeFit,
-                            cellShape: DefaultSettings.cellShape,
-                            cellForeground: DefaultSettings.cellForeground,
-                            gridColumns: DefaultSettings.gridColumns,
-                            gridRows: DefaultSettings.gridRows,
-                            updateImage: self.updateImage)
+                        Screen.initialize(size: geometry.size, scale: UIScreen.main.scale)
+                        self.cellGridView.initialize(viewWidth: landscape ? Screen.shared.height : Screen.shared.width,
+                                                     viewHeight: landscape ? Screen.shared.width : Screen.shared.height,
+                                                     viewBackground: DefaultSettings.viewBackground,
+                                                     viewTransparency: DefaultSettings.viewTransparency,
+                                                     viewScaling: DefaultSettings.viewScaling,
+                                                     cellSize: DefaultSettings.cellSize,
+                                                     cellPadding: DefaultSettings.cellPadding,
+                                                     cellSizeFit: DefaultSettings.cellSizeFit,
+                                                     cellShape: DefaultSettings.cellShape,
+                                                     cellForeground: DefaultSettings.cellForeground,
+                                                     gridColumns: DefaultSettings.gridColumns,
+                                                     gridRows: DefaultSettings.gridRows,
+                                                     updateImage: self.updateImage)
                         self.rotateImage()
                     }
                 }

@@ -66,12 +66,20 @@ public class Screen: ObservableObject
 
     public func initialize(size: CGSize, scale: CGFloat) {
         //
-        // N.B. This should be called from within
-        // the onAppear within the main ContentView.
+        // N.B. This (or the static version of this) should be
+        // called from within the onAppear within the main ContentView.
         //
-        self._width = Int(size.width)
-        self._height = Int(size.height)
-        self._scale = scale
-        self._initialized = true
+        Screen.initialize(size: size, scale: scale)
+    }
+
+    public static func initialize(size: CGSize, scale: CGFloat) {
+        //
+        // N.B. This (or the non-static version of this) should be
+        // called from within the onAppear within the main ContentView.
+        //
+        Screen.shared._width = Int(size.width)
+        Screen.shared._height = Int(size.height)
+        Screen.shared._scale = scale
+        Screen.shared._initialized = true
     }
 }
