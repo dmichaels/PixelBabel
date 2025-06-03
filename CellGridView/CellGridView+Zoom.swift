@@ -29,7 +29,6 @@ extension CellGridView
         public func zoom(_ zoomFactor: CGFloat) {
             let cellSizeZoomed: CGFloat = CGFloat(self._startCellSize) * zoomFactor
             let cellSize: Int = Int(cellSizeZoomed.rounded(FloatingPointRoundingRule.toNearestOrEven))
-            let cellSizeIncrement: Int = cellSize - self._startCellSize
             Zoom.resizeCells(cellGridView: self._cellGridView, cellSize: cellSize, adjustShift: true, scaled: true)
         }
 

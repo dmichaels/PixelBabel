@@ -4,5 +4,5 @@ enum CellShape: String, CaseIterable, Identifiable
     case inset   = "Inset"
     case rounded = "Rounded"
     case circle  = "Circle"
-    var id: String { self.rawValue }
+    public var id: String { self.rawValue }
 }
