@@ -2,8 +2,8 @@ import SwiftUI
 
 // Consolidated various gestures. Usage like thisa:
 //  
-//    .onSmartGesture(threshold: self.dragThreshold,
-//                    normalize: self.normalizePoint,
+//    .onSmartGesture(dragThreshold: self.dragThreshold,
+//                    normalizePoint: self.normalizePoint,
 //        onDrag:      { value in self.onDrag(value) },
 //        onDragEnd:   { value in self.onDragEnd(value) },
 //        onTap:       { value in self.onTap(value) },
@@ -17,19 +17,20 @@ import SwiftUI
 //
 private struct SmartGesture: ViewModifier
 {
-    let threshold: CGFloat
-    let normalize: ((CGPoint) -> CGPoint)?
-    let orientation: OrientationObserver?
-    let onDrag: (CGPoint) -> Void
-    let onDragEnd: (CGPoint) -> Void
-    let onTap: (CGPoint) -> Void
-    let onDoubleTap: () -> Void
-    let onLongTap: (CGPoint) -> Void
-    let onZoom: (CGFloat) -> Void
-    let onZoomEnd: (CGFloat) -> Void
-    let onSwipeLeft: (() -> Void)?
-    let onSwipeRight: (() -> Void)?
-    private let swipeDistanceThreshold: CGFloat = 100
+
+    internal let dragThreshold: CGFloat
+    internal let swipeThreshold: CGFloat
+    internal let normalizePoint: ((CGPoint) -> CGPoint)?
+    internal let orientation: OrientationObserver?
+    internal let onDrag: (CGPoint) -> Void
+    internal let onDragEnd: (CGPoint) -> Void
+    internal let onTap: (CGPoint) -> Void
+    internal let onDoubleTap: () -> Void
+    internal let onLongTap: (CGPoint) -> Void
+    internal let onZoom: (CGFloat) -> Void
+    internal let onZoomEnd: (CGFloat) -> Void
+    internal let onSwipeLeft: (() -> Void)?
+    internal let onSwipeRight: (() -> Void)?
 
     @State private var dragStart: CGPoint? = nil
     @State private var dragging: Bool = false
@@ -39,13 +40,13 @@ private struct SmartGesture: ViewModifier
             DragGesture(minimumDistance: 0)
                 .onChanged { value in
                     if (dragging) {
-                        self.onDrag(normalize?(value.location) ?? value.location)
+                        self.onDrag(normalizePoint?(value.location) ?? value.location)
                     }
                     else {
                         if (dragStart == nil) { dragStart = value.location }
-                        if (SmartGesture.dragDistance(start: dragStart!, current: value.location) > threshold) {
+                        if (SmartGesture.dragDistance(start: dragStart!, current: value.location) > self.dragThreshold) {
                             dragging = true
-                            self.onDrag(normalize?(value.location) ?? value.location)
+                            self.onDrag(normalizePoint?(value.location) ?? value.location)
                         }
                     }
                 }
@@ -61,16 +62,16 @@ private struct SmartGesture: ViewModifier
                         )
                         if (!upsideDownButNotActuallySupported) {
                             let swipeDistance: CGFloat = upsideDown ? value.translation.width : value.translation.width
-                            if (swipeDistance < -swipeDistanceThreshold) {
+                            if (swipeDistance < -self.swipeThreshold) {
                                 self.onSwipeLeft?()
                             }
-                            else if (swipeDistance > swipeDistanceThreshold) {
+                            else if (swipeDistance > self.swipeThreshold) {
                                 self.onSwipeRight?()
                             }
                         }
                     }
-                    dragging ? self.onDragEnd(normalize?(value.location) ?? value.location)
-                             : self.onTap(normalize?(value.location) ?? value.location)
+                    dragging ? self.onDragEnd(normalizePoint?(value.location) ?? value.location)
+                             : self.onTap(normalizePoint?(value.location) ?? value.location)
                     dragStart = nil
                     dragging = false
                 }
@@ -86,7 +87,7 @@ private struct SmartGesture: ViewModifier
                     switch value {
                         case .second(true, let drag):
                             if let location = drag?.location {
-                                self.onLongTap(normalize?(location) ?? location)
+                                self.onLongTap(normalizePoint?(location) ?? location)
                             }
                         default:
                             break
@@ -106,8 +107,9 @@ private struct SmartGesture: ViewModifier
 }
 
 public extension View {
-    func onSmartGesture(threshold: CGFloat = 10,
-                        normalize: ((CGPoint) -> CGPoint)? = nil,
+    func onSmartGesture(dragThreshold: Int = 10,
+                        swipeThreshold: Int = 100,
+                        normalizePoint: ((CGPoint) -> CGPoint)? = nil,
                         orientation: OrientationObserver? = nil,
                         onDrag: @escaping (CGPoint) -> Void = { _ in },
                         onDragEnd: @escaping (CGPoint) -> Void = { _ in },
@@ -117,10 +119,11 @@ public extension View {
                         onZoom: @escaping (CGFloat) -> Void = { _ in },
                         onZoomEnd: @escaping (CGFloat) -> Void = { _ in },
                         onSwipeLeft: (() -> Void)? = nil,
-                        onSwipeRight: (() -> Void)? = nil
+                        onSwipeRight: (() -> Void)? = nil,
     ) -> some View {
-        self.modifier(SmartGesture(threshold: threshold,
-                                   normalize: normalize,
+        self.modifier(SmartGesture(dragThreshold: CGFloat(dragThreshold),
+                                   swipeThreshold: CGFloat(swipeThreshold),
+                                   normalizePoint: normalizePoint,
                                    orientation: orientation,
                                    onDrag: onDrag,
                                    onDragEnd: onDragEnd,

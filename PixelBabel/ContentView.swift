@@ -43,9 +43,11 @@ struct ContentView: View
                             })
                             .frame(width: geometry.size.width, height: geometry.size.height)
                             .rotationEffect(self.imageAngle)
-                            .onSmartGesture(threshold: DefaultSettings.draggingThreshold,
-                                            normalize: self.normalizePoint,
-                                            orientation: self.orientation,
+                            .onSmartGesture(
+                                dragThreshold: DefaultSettings.dragThreshold,
+                                swipeThreshold: DefaultSettings.swipeThreshold,
+                                normalizePoint: self.normalizePoint,
+                                orientation: self.orientation,
                                 onDrag:      { value in self.cellGridView.onDrag(value) },
                                 onDragEnd:   { value in self.cellGridView.onDragEnd(value) },
                                 onTap:       { value in self.cellGridView.onTap(value) },
@@ -53,7 +55,7 @@ struct ContentView: View
                                 onLongTap:   { value in self.cellGridView.onLongTap(value) },
                                 onZoom:      { value in self.cellGridView.onZoom(value) },
                                 onZoomEnd:   { value in self.cellGridView.onZoomEnd(value) },
-                                onSwipeLeft: { self.showSettingsView = true }
+                                onSwipeLeft: { self.showSettingsView = true },
                             )
                             NavigationLink(
                                 destination: SettingsView(),

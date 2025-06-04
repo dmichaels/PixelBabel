@@ -24,8 +24,8 @@ public class DefaultSettings
     public static let gridColumns: Int                  = 50
     public static let gridRows: Int                     = 75
 
-    public static let draggingThreshold: CGFloat        = 3.0
-    public static let swipeDistance: CGFloat            = 100
+    public static let dragThreshold: Int                = 3
+    public static let swipeThreshold: Int               = 100
     public static let updateMode: Bool                  = false
 
     public static let restrictShiftStrict: Bool         = false
