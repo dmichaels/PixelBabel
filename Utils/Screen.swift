@@ -6,7 +6,7 @@ public final class Screen: @unchecked Sendable
     // with this because it uses UIScreen which is a @MainActor which would require this class to be so as
     // well, which can be problematic if we want to put this within an external/reusable package; and also
     // there are complications because technically the screen size should not actually be obtained from
-    // UIScreen.main.bounds but rather from the geometry.size value in a GeometryReader.onAppear.
+    // UIScreen.main.bounds but rather from the geometry.size value in a GeometryReader.onAppear call.
 
     private let _width: Int
     private let _height: Int
