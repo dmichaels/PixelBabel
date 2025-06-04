@@ -45,6 +45,7 @@ struct ContentView: View
                             .rotationEffect(self.imageAngle)
                             .onSmartGesture(threshold: DefaultSettings.draggingThreshold,
                                             normalize: self.normalizePoint,
+                                            orientation: self.orientation,
                                 onDrag:      { value in self.cellGridView.onDrag(value) },
                                 onDragEnd:   { value in self.cellGridView.onDragEnd(value) },
                                 onTap:       { value in self.cellGridView.onTap(value) },

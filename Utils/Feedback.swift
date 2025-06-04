@@ -3,6 +3,7 @@ import AudioToolbox
 import CoreHaptics
 import AVFoundation
 
+@MainActor
 public struct Feedback
 {
     private var _soundsEnabled: Bool = false

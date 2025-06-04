@@ -19,6 +19,7 @@ private struct SmartGesture: ViewModifier
 {
     let threshold: CGFloat
     let normalize: ((CGPoint) -> CGPoint)?
+    let orientation: OrientationObserver?
     let onDrag: (CGPoint) -> Void
     let onDragEnd: (CGPoint) -> Void
     let onTap: (CGPoint) -> Void
@@ -50,7 +51,8 @@ private struct SmartGesture: ViewModifier
                 }
                 .onEnded { value in
                     if ((onSwipeLeft != nil) || (onSwipeRight != nil)) {
-                        let swipeDistance: CGFloat = value.translation.width
+                        let upsideDown: Bool = (self.orientation != nil) && (self.orientation!.current == .portraitUpsideDown)
+                        let swipeDistance: CGFloat = upsideDown ? -value.translation.width : value.translation.width
                         if (swipeDistance < -swipeDistanceThreshold) {
                             self.onSwipeLeft?()
                         }
@@ -97,6 +99,7 @@ private struct SmartGesture: ViewModifier
 public extension View {
     func onSmartGesture(threshold: CGFloat = 10,
                         normalize: ((CGPoint) -> CGPoint)? = nil,
+                        orientation: OrientationObserver? = nil,
                         onDrag: @escaping (CGPoint) -> Void = { _ in },
                         onDragEnd: @escaping (CGPoint) -> Void = { _ in },
                         onTap: @escaping (CGPoint) -> Void = { _ in },
@@ -109,6 +112,7 @@ public extension View {
     ) -> some View {
         self.modifier(SmartGesture(threshold: threshold,
                                    normalize: normalize,
+                                   orientation: orientation,
                                    onDrag: onDrag,
                                    onDragEnd: onDragEnd,
                                    onTap: onTap,

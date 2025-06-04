@@ -4,14 +4,14 @@ import Combine
 // Full disclosure: This idea was mostly from ChatGPT.
 //
 @MainActor
-public class OrientationObserver: ObservableObject {
+public class OrientationObserver: ObservableObject
+{
+    public typealias Callback = (_ current: UIDeviceOrientation, _ previous: UIDeviceOrientation) -> Void
 
     @Published public var current: UIDeviceOrientation = Orientation.current
     @Published public var previous: UIDeviceOrientation = Orientation.current
 
     public let ipad: Bool = (UIDevice.current.userInterfaceIdiom == .pad)
-
-    public typealias Callback = (_ current: UIDeviceOrientation, _ previous: UIDeviceOrientation) -> Void
 
     private var _callback: Callback?
     private var _cancellable: AnyCancellable?
@@ -75,6 +75,25 @@ public class OrientationObserver: ObservableObject {
         }
         return CGPoint(x: x, y: y)
     }
+
+    public final lazy var supported: [UIDeviceOrientation] = {
+        var result: [UIDeviceOrientation] = []
+        if let orientations = Bundle.main.object(forInfoDictionaryKey: "UISupportedInterfaceOrientations") as? [String] {
+            if (orientations.contains("UIInterfaceOrientationPortrait")) {
+                result.append(.portrait)
+            }
+            if (orientations.contains("UIInterfaceOrientationPortraitUpsideDown")) {
+                result.append(.portraitUpsideDown)
+            }
+            if (orientations.contains("UIInterfaceOrientationLandscapeLeft")) {
+                result.append(.landscapeLeft)
+            }
+            if (orientations.contains("UIInterfaceOrientationLandscapeRight")) {
+                result.append(.landscapeRight)
+            }
+        }
+        return result
+    }()
 
     public func deregister() {
         Orientation.endNotifications()
