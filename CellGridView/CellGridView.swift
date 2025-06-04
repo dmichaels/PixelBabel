@@ -108,20 +108,20 @@ public class CellGridView: ObservableObject
     // This initialize method should be called on startup as soon as possible,
     // e.g. from the onAppear notification of the main view (ZStack or whatever).
     //
-    public func initialize(screen: Screen,
-                           viewWidth: Int,
-                           viewHeight: Int,
-                           viewBackground: CellColor,
-                           viewTransparency: UInt8,
-                           viewScaling: Bool,
-                           cellSize: Int,
-                           cellPadding: Int,
-                           cellSizeFit: Bool,
-                           cellShape: CellShape,
-                           cellForeground: CellColor,
-                           gridColumns: Int,
-                           gridRows: Int,
-                           updateImage: @escaping () -> Void)
+    public final func initialize(screen: Screen,
+                                 viewWidth: Int,
+                                 viewHeight: Int,
+                                 viewBackground: CellColor,
+                                 viewTransparency: UInt8,
+                                 viewScaling: Bool,
+                                 cellSize: Int,
+                                 cellPadding: Int,
+                                 cellSizeFit: Bool,
+                                 cellShape: CellShape,
+                                 cellForeground: CellColor,
+                                 gridColumns: Int,
+                                 gridRows: Int,
+                                 updateImage: @escaping () -> Void)
     {
         self._screen = screen
 
@@ -161,15 +161,15 @@ public class CellGridView: ObservableObject
         self.updateImage()
     }
 
-    internal func configure(cellSize: Int,
-                            cellPadding: Int,
-                            cellShape: CellShape,
-                            viewWidth: Int,
-                            viewHeight: Int,
-                            viewBackground: CellColor,
-                            viewTransparency: UInt8,
-                            viewScaling: Bool,
-                            scaled: Bool = false)
+    internal final func configure(cellSize: Int,
+                                  cellPadding: Int,
+                                  cellShape: CellShape,
+                                  viewWidth: Int,
+                                  viewHeight: Int,
+                                  viewBackground: CellColor,
+                                  viewTransparency: UInt8,
+                                  viewScaling: Bool,
+                                  scaled: Bool = false)
     {
         // N.B. This here first so subsequent calls to self.scaled work properly.
 
