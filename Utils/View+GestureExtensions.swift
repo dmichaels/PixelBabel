@@ -51,13 +51,22 @@ private struct SmartGesture: ViewModifier
                 }
                 .onEnded { value in
                     if ((onSwipeLeft != nil) || (onSwipeRight != nil)) {
-                        let upsideDown: Bool = (self.orientation != nil) && (self.orientation!.current == .portraitUpsideDown)
-                        let swipeDistance: CGFloat = upsideDown ? -value.translation.width : value.translation.width
-                        if (swipeDistance < -swipeDistanceThreshold) {
-                            self.onSwipeLeft?()
-                        }
-                        else if (swipeDistance > swipeDistanceThreshold) {
-                            self.onSwipeRight?()
+                        let upsideDown: Bool = (
+                            (self.orientation != nil) &&
+                            (self.orientation!.current == .portraitUpsideDown)
+                        )
+                        let upsideDownButNotActuallySupported: Bool = (
+                            upsideDown &&
+                            !self.orientation!.supported.contains(.portraitUpsideDown)
+                        )
+                        if (!upsideDownButNotActuallySupported) {
+                            let swipeDistance: CGFloat = upsideDown ? value.translation.width : value.translation.width
+                            if (swipeDistance < -swipeDistanceThreshold) {
+                                self.onSwipeLeft?()
+                            }
+                            else if (swipeDistance > swipeDistanceThreshold) {
+                                self.onSwipeRight?()
+                            }
                         }
                     }
                     dragging ? self.onDragEnd(normalize?(value.location) ?? value.location)
