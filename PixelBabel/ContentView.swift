@@ -3,6 +3,8 @@ import Utils
 
 struct ContentView: View
 {
+    private let screen: Screen = Screen(size: UIScreen.main.bounds, scale: UIScreen.main.scale)
+
     @StateObject var orientation = OrientationObserver()
 
     @EnvironmentObject var cellGridView: CellGridView
@@ -56,9 +58,8 @@ struct ContentView: View
                 .onAppear {
                     if (!self.cellGridView.initialized) {
                         let landscape = self.orientation.current.isLandscape
-                        Screen.initialize(size: geometry.size, scale: UIScreen.main.scale)
-                        self.cellGridView.initialize(viewWidth: landscape ? Screen.shared.height : Screen.shared.width,
-                                                     viewHeight: landscape ? Screen.shared.width : Screen.shared.height,
+                        self.cellGridView.initialize(viewWidth: landscape ? screen.height : screen.width,
+                                                     viewHeight: landscape ? screen.width : screen.height,
                                                      viewBackground: DefaultSettings.viewBackground,
                                                      viewTransparency: DefaultSettings.viewTransparency,
                                                      viewScaling: DefaultSettings.viewScaling,

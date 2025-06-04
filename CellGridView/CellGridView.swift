@@ -208,7 +208,7 @@ public class CellGridView: ObservableObject
         self._viewBackground = viewBackground
         self._viewTransparency = viewTransparency
 
-        self._buffer = Memory.allocate(self._viewWidth * self._viewHeight * Screen.channels)
+        self._buffer = Memory.allocate(self._viewWidth * self._viewHeight * Screen.shared.channels)
         self._bufferBlocks = BufferBlocks.createBufferBlocks(bufferSize: self._buffer.count,
                                                              viewWidth: self._viewWidth,
                                                              viewHeight: self._viewHeight,
@@ -562,7 +562,7 @@ public class CellGridView: ObservableObject
         let shiftX: Int = (self._shiftX > 0) ? self._shiftX - self._cellSize : self._shiftX
         let shiftY: Int = (self._shiftY > 0) ? self._shiftY - self._cellSize : self._shiftY
         let offset: Int = ((self._cellSize * viewCellX) + shiftX +
-                           (self._cellSizeTimesViewWidth * viewCellY + shiftY * self._viewWidth)) * Screen.channels
+                           (self._cellSizeTimesViewWidth * viewCellY + shiftY * self._viewWidth)) * Screen.shared.channels
         let size: Int = self._buffer.count
 
         // Precompute as much as possible the specific color values needed in writeCellBlock;
