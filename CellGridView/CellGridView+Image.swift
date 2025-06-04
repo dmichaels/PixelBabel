@@ -15,7 +15,7 @@ extension CellGridView
                 width: self.viewWidthScaled,
                 height: self.viewHeightScaled,
                 bitsPerComponent: 8,
-                bytesPerRow: self.viewWidthScaled * Screen.shared.channels,
+                bytesPerRow: self.viewWidthScaled * Screen.channels,
                 space: CellGridView._colorSpace,
                 bitmapInfo: CellGridView._bitmapInfo
             ) {

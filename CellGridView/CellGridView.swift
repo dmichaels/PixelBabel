@@ -47,6 +47,7 @@ public class CellGridView: ObservableObject
     // e.g. cellSizeScaled, return the unscaled values. We actually (by default) switch to this mode
     // during zooming/resizing, for performance reasons (since the image buffer is nominall 3x smaller).
 
+    private var _screen: Screen? = nil
     private var _viewWidth: Int = 0
     private var _viewHeight: Int = 0
     private var _viewWidthExtra: Int = 0
@@ -111,7 +112,8 @@ public class CellGridView: ObservableObject
     // This initialize method should be called on startup as soon as possible,
     // e.g. from the onAppear notification of the main view (ZStack or whatever).
     //
-    public func initialize(viewWidth: Int,
+    public func initialize(screen: Screen,
+                           viewWidth: Int,
                            viewHeight: Int,
                            viewBackground: CellColor,
                            viewTransparency: UInt8,
@@ -125,6 +127,8 @@ public class CellGridView: ObservableObject
                            gridRows: Int,
                            updateImage: @escaping () -> Void)
     {
+        self._screen = screen
+
         let preferredSize = CellGridView.preferredSize(viewWidth: viewWidth, viewHeight: viewHeight,
                                                        cellSize: cellSize, enabled: cellSizeFit)
         self.configure(cellSize: preferredSize.cellSize,
@@ -208,7 +212,7 @@ public class CellGridView: ObservableObject
         self._viewBackground = viewBackground
         self._viewTransparency = viewTransparency
 
-        self._buffer = Memory.allocate(self._viewWidth * self._viewHeight * Screen.shared.channels)
+        self._buffer = Memory.allocate(self._viewWidth * self._viewHeight * Screen.channels)
         self._bufferBlocks = BufferBlocks.createBufferBlocks(bufferSize: self._buffer.count,
                                                              viewWidth: self._viewWidth,
                                                              viewHeight: self._viewHeight,
@@ -240,6 +244,8 @@ public class CellGridView: ObservableObject
     }
 
     public   final var initialized: Bool         { self._initialized }
+    public   final var screen: Screen            { self._screen! }
+
     public   final var viewWidth: Int            { self._unscaled_viewWidth }
     public   final var viewHeight: Int           { self._unscaled_viewHeight }
     public   final var viewColumns: Int          { self._viewColumns }
@@ -289,15 +295,15 @@ public class CellGridView: ObservableObject
     }
 
     public final var viewScale: CGFloat {
-        Screen.shared.scale(scaling: self._viewScaling)
+        self.screen.scale(scaling: self._viewScaling)
     }
 
     internal final func scaled(_ value: Int) -> Int {
-        return Screen.shared.scaled(value, scaling: self._viewScaling)
+        return self.screen.scaled(value, scaling: self._viewScaling)
     }
 
     internal final func unscaled(_ value: Int) -> Int {
-        return Screen.shared.unscaled(value, scaling: self._viewScaling)
+        return self.screen.unscaled(value, scaling: self._viewScaling)
     }
 
     // Sets the cell-grid within the grid-view to be shifted by the given amount,
@@ -562,7 +568,7 @@ public class CellGridView: ObservableObject
         let shiftX: Int = (self._shiftX > 0) ? self._shiftX - self._cellSize : self._shiftX
         let shiftY: Int = (self._shiftY > 0) ? self._shiftY - self._cellSize : self._shiftY
         let offset: Int = ((self._cellSize * viewCellX) + shiftX +
-                           (self._cellSizeTimesViewWidth * viewCellY + shiftY * self._viewWidth)) * Screen.shared.channels
+                           (self._cellSizeTimesViewWidth * viewCellY + shiftY * self._viewWidth)) * Screen.channels
         let size: Int = self._buffer.count
 
         // Precompute as much as possible the specific color values needed in writeCellBlock;

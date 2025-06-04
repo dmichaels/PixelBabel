@@ -4,7 +4,7 @@ import Utils
 extension CellGridView
 {
     private func scaled(_ viewPoint: CGFloat) -> CGFloat {
-        return Screen.shared.scaled(viewPoint, scaling: self.viewScaling)
+        return self.screen.scaled(viewPoint, scaling: self.viewScaling)
     }
 
     // Returns the cell-grid cell object for the given cell-grid cell location, or nil.

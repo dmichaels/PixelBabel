@@ -1,10 +1,10 @@
 import SwiftUI
 
-private var _shared: Screen? = nil
+// private var _shared: Screen? = nil
 
 public final class Screen: @unchecked Sendable
 {
-    public static var shared: Screen { return _shared! }
+    // public static var shared: Screen { return _shared! }
 
     // TODO
     // NO NEVERMIND THIS STILL WONT WORK IN EXTERNAL PACKAGE/LIBRARY ...
@@ -26,7 +26,7 @@ public final class Screen: @unchecked Sendable
         self._width = Int(size.width)
         self._height = Int(size.height)
         self._scale = scale
-        _shared = self
+        // _shared = self
     }
 
     public var width: Int { self._width }

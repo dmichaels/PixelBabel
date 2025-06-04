@@ -12,12 +12,12 @@ extension CellGridView
             //
             // Here so we can leave it as private in CellGridView.
             //
-            return Screen.shared.scaled(value, scaling: self.viewScaling)
+            return self.screen.scaled(value, scaling: self.viewScaling)
         }
 
-        print("SCREEN>         \(scaled(Screen.shared.width)) x \(scaled(Screen.shared.height))" +
-              (self.viewScaling ? " (unscaled: \(Screen.shared.width) x \(Screen.shared.height))" : "") +
-              " | SCALE: \(Screen.shared.scale()) | SCALING: \(self.viewScaling)")
+        print("SCREEN>         \(scaled(self.screen.width)) x \(scaled(self.screen.height))" +
+              (self.viewScaling ? " (unscaled: \(self.screen.width) x \(self.screen.height))" : "") +
+              " | SCALE: \(self.screen.scale()) | SCALING: \(self.viewScaling)")
         if ((viewWidthInit > 0) && (viewHeightInit > 0)) {
             print("VIEW-SIZE-INI>  \(viewWidthInit) x \(viewHeightInit)" + (self.viewScaling ? " (unscaled)" : "") +
                   (viewWidthInit != self.viewWidth || viewHeightInit != self.viewHeight

@@ -58,7 +58,8 @@ struct ContentView: View
                 .onAppear {
                     if (!self.cellGridView.initialized) {
                         let landscape = self.orientation.current.isLandscape
-                        self.cellGridView.initialize(viewWidth: landscape ? screen.height : screen.width,
+                        self.cellGridView.initialize(screen: screen,
+                                                     viewWidth: landscape ? screen.height : screen.width,
                                                      viewHeight: landscape ? screen.width : screen.height,
                                                      viewBackground: DefaultSettings.viewBackground,
                                                      viewTransparency: DefaultSettings.viewTransparency,

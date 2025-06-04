@@ -213,8 +213,8 @@ extension CellGridView
                         }
                     }
 
-                    let index: Int = (dy * viewWidth + dx) * Screen.shared.channels
-                    if ((index >= 0) && ((index + (Screen.shared.channels - 1)) < bufferSize)) {
+                    let index: Int = (dy * viewWidth + dx) * Screen.channels
+                    if ((index >= 0) && ((index + (Screen.channels - 1)) < bufferSize)) {
                         if (coverage > 0) {
                             blocks.append(index, foreground: true, blend: coverage, width: viewWidth)
     

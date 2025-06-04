@@ -131,8 +131,8 @@ extension CellGridView
             guard !cellGridView.viewScaling else {
                 return
             }
-            let shiftTotalX: Int = Screen.shared.scaled(cellGridView.shiftTotalX)
-            let shiftTotalY: Int = Screen.shared.scaled(cellGridView.shiftTotalY)
+            let shiftTotalX: Int = cellGridView.screen.scaled(cellGridView.shiftTotalX)
+            let shiftTotalY: Int = cellGridView.screen.scaled(cellGridView.shiftTotalY)
             cellGridView.configure(cellSize: cellGridView.cellSize,
                            cellPadding: cellGridView.cellPadding,
                            cellShape: cellGridView.cellShape,
@@ -148,8 +148,8 @@ extension CellGridView
             guard cellGridView.viewScaling else {
                 return
             }
-            let shiftTotalX: Int = Screen.shared.unscaled(cellGridView.shiftTotalScaledX)
-            let shiftTotalY: Int = Screen.shared.unscaled(cellGridView.shiftTotalScaledY)
+            let shiftTotalX: Int = cellGridView.screen.unscaled(cellGridView.shiftTotalScaledX)
+            let shiftTotalY: Int = cellGridView.screen.unscaled(cellGridView.shiftTotalScaledY)
             cellGridView.configure(cellSize: cellGridView.cellSize,
                            cellPadding: cellGridView.cellPadding,
                            cellShape: cellGridView.cellShape,
