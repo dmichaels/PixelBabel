@@ -46,19 +46,35 @@ public final class Screen: @unchecked Sendable
     //
     public static let channels: Int = 4
 
-    public func scaled(_ value: Int, scaling: Bool = true) -> Int {
+    public func scaled(_ value: Int) -> Int {
+        return Int(round(CGFloat(value) * self._scale))
+    }
+
+    public func scaled(_ value: Int, scaling: Bool) -> Int {
         return scaling ? Int(round(CGFloat(value) * self._scale)) : value
     }
 
-    public func scaled(_ value: CGFloat, scaling: Bool = true) -> CGFloat {
+    public func scaled(_ value: CGFloat) -> CGFloat {
+        return value * self._scale
+    }
+
+    public func scaled(_ value: CGFloat, scaling: Bool) -> CGFloat {
         return scaling ? value * self._scale : value
     }
 
-    public func unscaled(_ value: Int, scaling: Bool = true) -> Int {
+    public func unscaled(_ value: Int) -> Int {
+        return Int(round(CGFloat(value) / self._scale))
+    }
+
+    public func unscaled(_ value: Int, scaling: Bool) -> Int {
         return scaling ? Int(round(CGFloat(value) / self._scale)) : value
     }
 
-    public func unscaled(_ value: CGFloat, scaling: Bool = true) -> CGFloat {
+    public func unscaled(_ value: CGFloat) -> CGFloat {
+        return value / self._scale
+    }
+
+    public func unscaled(_ value: CGFloat, scaling: Bool) -> CGFloat {
         return scaling ? value / self._scale : value
     }
 }
