@@ -46,7 +46,7 @@ public final class Screen: @unchecked Sendable
     //
     public let channels: Int = 4
     //
-    // And for flexibility make this channels available as instance
+    // And for flexibility make this channels available as an instance
     // or class/static property; this surprisingly is allowed in Swift.
     //
     public static let channels: Int = 4
