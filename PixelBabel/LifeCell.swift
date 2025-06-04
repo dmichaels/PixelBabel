@@ -1,6 +1,6 @@
 import SwiftUI
 
-public class LifeCell: Cell {
+public final class LifeCell: Cell {
 
     private var _active: Bool
     private var _activeColor: CellColor = DefaultLifeSettings.cellActiveColor

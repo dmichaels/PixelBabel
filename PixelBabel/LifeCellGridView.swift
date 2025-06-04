@@ -1,6 +1,6 @@
 import Foundation
 
-public class LifeCellGridView: CellGridView
+public final class LifeCellGridView: CellGridView
 {
     public override func createCell<T: Cell>(x: Int, y: Int, foreground: CellColor) -> T? {
         return LifeCell(cellGridView: self, x: x, y: y, foreground: foreground) as? T
