@@ -3,7 +3,7 @@ import SwiftUI
 
 extension CellGridView
 {
-    public class Actions
+    public final class Actions
     {
         private let _cellGridView: CellGridView
         private let _automationInterval: Double
@@ -18,7 +18,7 @@ extension CellGridView
             self._automationInterval = automationInterval
         }
 
-        public final func automationToggle() {
+        public func automationToggle() {
             if (self._automation) {
                 self.automationStop()
                 self._automation = false
@@ -29,34 +29,34 @@ extension CellGridView
             }
         }
 
-        public final func automationStart() {
+        public func automationStart() {
             self._automationTimer = Timer.scheduledTimer(withTimeInterval: self._automationInterval, repeats: true) { _ in
                 self._cellGridView.automationStep()
             }
         }
 
-        public final func automationStop() {
+        public func automationStop() {
             if let automationTimer = self._automationTimer {
                 automationTimer.invalidate()
                 self._automationTimer = nil
             }
         }
 
-        public final func onTap(_ viewPoint: CGPoint) {
+        public func onTap(_ viewPoint: CGPoint) {
             if let cell: Cell = self._cellGridView.gridCell(viewPoint: viewPoint) {
                 cell.select()
                 self._cellGridView.updateImage()
             }
         }
 
-        public final func onLongTap(_ viewPoint: CGPoint) {
+        public func onLongTap(_ viewPoint: CGPoint) {
         }
 
-        public final func onDoubleTap() {
+        public func onDoubleTap() {
             self._pickerMode = !self._pickerMode
         }
 
-        public final func onDrag(_ viewPoint: CGPoint) {
+        public func onDrag(_ viewPoint: CGPoint) {
             guard let dragger: CellGridView.Drag = self._dragger else {
                 self._dragger = CellGridView.Drag(self._cellGridView, viewPoint, picker: self._pickerMode)
                 return
@@ -65,7 +65,7 @@ extension CellGridView
             self._cellGridView.updateImage()
         }
 
-        public final func onDragEnd(_ viewPoint: CGPoint) {
+        public func onDragEnd(_ viewPoint: CGPoint) {
             if let dragger: CellGridView.Drag = self._dragger {
                 dragger.end(viewPoint)
                 self._dragger = nil
@@ -73,7 +73,7 @@ extension CellGridView
             }
         }
 
-        public final func onZoom(_ zoomFactor: CGFloat) {
+        public func onZoom(_ zoomFactor: CGFloat) {
             if let zoomer: CellGridView.Zoom = self._zoomer {
                 zoomer.zoom(zoomFactor)
             }
@@ -83,7 +83,7 @@ extension CellGridView
             self._cellGridView.updateImage()
         }
 
-        public final func onZoomEnd(_ zoomFactor: CGFloat) {
+        public func onZoomEnd(_ zoomFactor: CGFloat) {
             if let zoomer: CellGridView.Zoom = self._zoomer {
                 zoomer.end(zoomFactor)
                 self._zoomer = nil

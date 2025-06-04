@@ -222,7 +222,7 @@ public class CellGridView: ObservableObject
         self._updateImage()
     }
 
-    private lazy var actions: CellGridView.Actions = {
+    private final lazy var actions: CellGridView.Actions = {
         return CellGridView.Actions(self, automationInterval: DefaultSettings.automationInterval)
     }()
 
@@ -650,10 +650,6 @@ public class CellGridView: ObservableObject
         self.writeCells(shiftTotalX: shiftTotalX, shiftTotalY: shiftTotalY)
     }
 
-    public func createCell<T: Cell>(x: Int, y: Int, foreground: CellColor) -> T? {
-        return Cell(cellGridView: self, x: x, y: y, foreground: foreground) as? T
-    }
-
     public final func automationToggle() { self.actions.automationToggle() }
     public final func automationStart() { self.actions.automationStart() }
     public final func automationStop() { self.actions.automationStop() }
@@ -666,4 +662,8 @@ public class CellGridView: ObservableObject
     public func onDragEnd(_ viewPoint: CGPoint) { self.actions.onDragEnd(viewPoint) }
     public func onZoom(_ zoomFactor: CGFloat) { self.actions.onZoom(zoomFactor) }
     public func onZoomEnd(_ zoomFactor: CGFloat) { self.actions.onZoomEnd(zoomFactor) }
+
+    public func createCell<T: Cell>(x: Int, y: Int, foreground: CellColor) -> T? {
+        return Cell(cellGridView: self, x: x, y: y, foreground: foreground) as? T
+    }
 }

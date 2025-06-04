@@ -3,9 +3,9 @@ import Utils
 
 extension CellGridView
 {
-    internal class BufferBlocks
+    internal final class BufferBlocks
     {
-        internal class BufferBlock
+        internal final class BufferBlock
         {
             internal let index: Int
             internal let foreground: Bool
