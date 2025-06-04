@@ -3,13 +3,13 @@ import Utils
 
 extension CellGridView
 {
-    private func scaled(_ viewPoint: CGFloat) -> CGFloat {
+    private final func scaled(_ viewPoint: CGFloat) -> CGFloat {
         return self.screen.scaled(viewPoint, scaling: self.viewScaling)
     }
 
     // Returns the cell-grid cell object for the given cell-grid cell location, or nil.
     //
-    public func gridCell<T: Cell>(_ gridCellX: Int, _ gridCellY: Int) -> T? {
+    public final func gridCell<T: Cell>(_ gridCellX: Int, _ gridCellY: Int) -> T? {
         guard gridCellX >= 0, gridCellX < self.gridColumns, gridCellY >= 0, gridCellY < self.gridRows else {
             return nil
         }
@@ -19,7 +19,7 @@ extension CellGridView
     // Returns the cell-grid cell object for the given grid-view input location, or nil;
     // note that the display input location is always in unscaled units.
     //
-    public func gridCell<T: Cell>(viewPoint: CGPoint) -> T? {
+    public final func gridCell<T: Cell>(viewPoint: CGPoint) -> T? {
         if let gridCellLocation: CellLocation = self.gridCellLocation(viewPoint: viewPoint) {
             return self.gridCell(gridCellLocation.x, gridCellLocation.y)
         }
@@ -28,7 +28,7 @@ extension CellGridView
 
     // Returns the cell-grid cell object for the given grid-view cell location, or nil.
     //
-    public func gridCell<T: Cell>(viewCellX: Int, viewCellY: Int) -> T? {
+    public final func gridCell<T: Cell>(viewCellX: Int, viewCellY: Int) -> T? {
         if let gridCellLocation: CellLocation = self.gridCellLocation(viewCellX: viewCellX, viewCellY: viewCellY) {
             return self.gridCells[gridCellLocation.y * self.gridColumns + gridCellLocation.x] as? T
         }
@@ -38,7 +38,7 @@ extension CellGridView
     // Returns the cell-grid cell location of the given grid-view input point, or nil;
     // note that the view input point is always in unscaled units.
     //
-    public func gridCellLocation(viewPoint: CGPoint) -> CellLocation? {
+    public final func gridCellLocation(viewPoint: CGPoint) -> CellLocation? {
         if let viewCellLocation: CellLocation = self.viewCellLocation(viewPoint: viewPoint) {
             let gridCellX: Int = viewCellLocation.x - self.shiftCellScaledX - ((self.shiftScaledX > 0) ? 1 : 0)
             guard gridCellX >= 0, gridCellX < self.gridColumns else { return nil }
@@ -51,7 +51,7 @@ extension CellGridView
 
     // Returns the cell-grid cell location of the given grid-view cell location.
     //
-    public func gridCellLocation(viewCellX: Int, viewCellY: Int) -> CellLocation? {
+    public final func gridCellLocation(viewCellX: Int, viewCellY: Int) -> CellLocation? {
         guard viewCellX >= 0, viewCellX <= self.viewCellEndX,
               viewCellY >= 0, viewCellY <= self.viewCellEndY else { return nil }
         let gridCellX: Int = viewCellX - self.shiftCellScaledX - ((self.shiftScaledX > 0) ? 1 : 0)
@@ -63,7 +63,7 @@ extension CellGridView
 
     // Returns the cell location relative to the grid-view of the given grid-view input point, or nil.
     //
-    public func viewCellLocation(viewPoint: CGPoint) -> CellLocation? {
+    public final func viewCellLocation(viewPoint: CGPoint) -> CellLocation? {
         let viewPoint: ViewPoint = ViewPoint(self.scaled(viewPoint.x), self.scaled(viewPoint.y))
         guard viewPoint.x >= 0, viewPoint.x < self.viewWidthScaled,
               viewPoint.y >= 0, viewPoint.y < self.viewHeightScaled else { return nil }
@@ -81,7 +81,7 @@ extension CellGridView
 
     // Returns the grid-view cell location of the given cell-grid cell location, or nil.
     //
-    public func viewCellLocation(gridCellX: Int, gridCellY: Int) -> CellLocation? {
+    public final func viewCellLocation(gridCellX: Int, gridCellY: Int) -> CellLocation? {
         guard gridCellX >= 0, gridCellX < self.gridColumns,
               gridCellY >= 0, gridCellY < self.gridRows else { return nil }
         let viewCellX: Int = gridCellX + self.shiftCellScaledX + ((self.shiftScaledX > 0) ? 1 : 0)
@@ -94,9 +94,9 @@ extension CellGridView
     // Normalizes an input point taking into account orientation et cetera.
     // The input screen point is (as always) unscaled as well as the returned point.
     //
-    public func normalizePoint(screenPoint: CGPoint,
-                               viewOrigin: CGPoint,
-                               orientation: OrientationObserver) -> CGPoint
+    public final func normalizePoint(screenPoint: CGPoint,
+                                     viewOrigin: CGPoint,
+                                     orientation: OrientationObserver) -> CGPoint
     {
         // Various oddities with upside-down mode and having to know the
         // previous orientation and whether or not we are an iPad and whatnot.

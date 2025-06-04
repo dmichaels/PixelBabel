@@ -5,8 +5,8 @@ import Utils
 
 extension CellGridView
 {
-    internal func printSizes(viewWidthInit: Int = 0, viewHeightInit: Int = 0,
-                             cellSizeInit: Int = 0, cellSizeFitInit: Bool = false) {
+    internal final func printSizes(viewWidthInit: Int = 0, viewHeightInit: Int = 0,
+                                   cellSizeInit: Int = 0, cellSizeFitInit: Bool = false) {
 
         func scaled(_ value: Int) -> Int {
             //
@@ -60,7 +60,7 @@ extension CellGridView
         }
     }
 
-    func printWriteCellsResult(_ start: Date) {
+    internal final func printWriteCellsResult(_ start: Date) {
         let shiftOppositeScaled: Int = modulo(self.cellSizeScaled + self.shiftScaledX - self.viewWidthExtraScaled,
                                               self.cellSizeScaled)
         var even: Bool = false

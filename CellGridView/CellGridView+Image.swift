@@ -6,7 +6,7 @@ extension CellGridView
     private static let _colorSpace = CGColorSpaceCreateDeviceRGB()
     private static let _bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
 
-    public var image: CGImage? {
+    public final var image: CGImage? {
         var image: CGImage?
         self._buffer.withUnsafeMutableBytes { rawBuffer in
             guard let baseAddress = rawBuffer.baseAddress else { fatalError("No buffer base address") }
