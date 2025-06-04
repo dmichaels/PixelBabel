@@ -9,7 +9,7 @@ struct ContentView: View
     @EnvironmentObject var settings: Settings
 
     @State private var ignoreSafeArea: Bool = DefaultSettings.ignoreSafeArea
-    @State private var parentRelativeImagePosition: CGPoint = CGPoint.zero
+    @State private var viewRectangle: CGRect = CGRect.zero
     @State private var image: CGImage? = nil
     @State private var imageAngle: Angle = Angle.zero
 
@@ -25,14 +25,21 @@ struct ContentView: View
                         Image(decorative: image, scale: self.cellGridView.viewScale)
                             .background(GeometryReader { geo in Color.clear
                                 .onAppear {
-                                    let parentOrigin = geo.frame(in: .named("zstack")).origin
-                                    self.parentRelativeImagePosition = self.orientation.current.isLandscape ?
-                                                                       CGPoint(x: parentOrigin.y, y: parentOrigin.x) :
-                                                                       parentOrigin
+                                    let parentOrigin: CGPoint = geo.frame(in: .named("zstack")).origin
+                                    self.viewRectangle = CGRect(origin: self.orientation.current.isLandscape
+                                                                        ? CGPoint(x: parentOrigin.y, y: parentOrigin.x)
+                                                                        : parentOrigin,
+                                                                size: CGSize(width: self.cellGridView.viewWidth,
+                                                                             height: self.cellGridView.viewHeight))
                                 }
-                                .onChange(of: self.parentRelativeImagePosition) { value in
-                                    self.parentRelativeImagePosition = value
-                                 }
+                                // TODO
+                                // Triple check that we don't actually need this; artifact of
+                                // previous development evidently; seems it never gets called,
+                                // except (sometimes) in response to the onAppear setting above.
+                                //
+                                // .onChange(of: self.parentRelativeImagePosition) { value in
+                                //     self.parentRelativeImagePosition = value
+                                // }
                             })
                             .frame(width: geometry.size.width, height: geometry.size.height)
                             .rotationEffect(self.imageAngle)
@@ -44,7 +51,8 @@ struct ContentView: View
                                 onDoubleTap: { self.cellGridView.onDoubleTap() },
                                 onLongTap:   { value in self.cellGridView.onLongTap(value) },
                                 onZoom:      { value in self.cellGridView.onZoom(value) },
-                                onZoomEnd:   { value in self.cellGridView.onZoomEnd(value) }
+                                onZoomEnd:   { value in self.cellGridView.onZoomEnd(value) },
+                                onSwipeLeft: { self.showSettingsView = true }
                             )
                             NavigationLink(
                                 destination: SettingsView(),
@@ -94,6 +102,9 @@ struct ContentView: View
         .onAppear {
             orientation.callback = self.onChangeOrientation
         }
+        .onDisappear {
+            orientation.deregister()
+        }
         // .conditionalModifier(ignoreSafeArea) { view in
             // view.ignoresSafeArea()
         // }
@@ -134,9 +145,7 @@ struct ContentView: View
     }
 
     public func normalizePoint(_ location: CGPoint) -> CGPoint {
-        return self.cellGridView.normalizePoint(screenPoint: location,
-                                                viewOrigin: parentRelativeImagePosition,
-                                                orientation: self.orientation)
+        return self.orientation.normalizePoint(screenPoint: location, view: self.viewRectangle)
     }
 
     private func onChangeOrientation(_ current: UIDeviceOrientation, _ previous: UIDeviceOrientation) {

@@ -3,6 +3,7 @@ import Combine
 
 // Full disclosure: This idea was mostly from ChatGPT.
 //
+@MainActor
 public class OrientationObserver: ObservableObject {
 
     @Published public var current: UIDeviceOrientation = Orientation.current
@@ -39,7 +40,43 @@ public class OrientationObserver: ObservableObject {
         set { self._callback = newValue }
     }
 
-    deinit {
+    public final func normalizePoint(screenPoint: CGPoint, view: CGRect) -> CGPoint
+    {
+        // Various oddities with upside-down mode and having to know the
+        // previous orientation and whether or not we are an iPad and whatnot.
+        //
+        let x, y: CGFloat
+        switch self.current {
+        case .portrait:
+            x = screenPoint.x - view.origin.x
+            y = screenPoint.y - view.origin.y
+        case .portraitUpsideDown:
+            if (self.ipad) {
+                x = CGFloat(view.size.width) - 1 - (screenPoint.x - view.origin.x)
+                y = CGFloat(view.size.height) - 1 - (screenPoint.y - view.origin.y)
+            }
+            else if (self.previous.isLandscape) {
+                x = screenPoint.y - view.origin.x
+                y = CGFloat(view.size.height) - 1 - (screenPoint.x - view.origin.y)
+            }
+            else {
+                x = screenPoint.x - view.origin.x
+                y = screenPoint.y - view.origin.y
+            }
+        case .landscapeRight:
+            x = screenPoint.y - view.origin.x
+            y = CGFloat(view.size.height) - 1 - (screenPoint.x - view.origin.y)
+        case .landscapeLeft:
+            x = CGFloat(view.size.width) - 1 - (screenPoint.y - view.origin.x)
+            y = screenPoint.x - view.origin.y
+        default:
+            x = screenPoint.x - view.origin.x
+            y = screenPoint.y - view.origin.y
+        }
+        return CGPoint(x: x, y: y)
+    }
+
+    public func deregister() {
         Orientation.endNotifications()
         self._cancellable?.cancel()
     }

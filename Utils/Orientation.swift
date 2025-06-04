@@ -1,5 +1,6 @@
 import SwiftUI
 
+@MainActor
 public class Orientation {
 
     public static var current: UIDeviceOrientation {
