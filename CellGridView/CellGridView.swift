@@ -105,10 +105,6 @@ public class CellGridView: ObservableObject
     //
     private var _updateImage: () -> Void = {}
 
-    // The _initialized property represents whether or not the initialized method has been called yet.
-    //
-    private var _initialized: Bool = false
-
     // This initialize method should be called on startup as soon as possible,
     // e.g. from the onAppear notification of the main view (ZStack or whatever).
     //
@@ -243,7 +239,7 @@ public class CellGridView: ObservableObject
         return cellPadding.clamped(0...cellPaddingMax)
     }
 
-    public   final var initialized: Bool         { self._initialized }
+    public   final var initialized: Bool         { self._screen != nil }
     public   final var screen: Screen            { self._screen! }
 
     public   final var viewWidth: Int            { self._unscaled_viewWidth }

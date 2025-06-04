@@ -1,11 +1,7 @@
 import SwiftUI
 
-// private var _shared: Screen? = nil
-
 public final class Screen: @unchecked Sendable
 {
-    // public static var shared: Screen { return _shared! }
-
     // TODO
     // NO NEVERMIND THIS STILL WONT WORK IN EXTERNAL PACKAGE/LIBRARY ...
     // Going to just have to not support a singleton for Screen, as it needs to be initialized
@@ -22,11 +18,10 @@ public final class Screen: @unchecked Sendable
     private let _height: Int
     private let _scale: CGFloat
 
-    public init(size: CGRect, scale: CGFloat) {
+    public init(size: CGSize, scale: CGFloat) {
         self._width = Int(size.width)
         self._height = Int(size.height)
         self._scale = scale
-        // _shared = self
     }
 
     public var width: Int { self._width }
