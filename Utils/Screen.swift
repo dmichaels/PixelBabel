@@ -2,17 +2,11 @@ import SwiftUI
 
 public final class Screen: @unchecked Sendable
 {
-    // TODO
-    // NO NEVERMIND THIS STILL WONT WORK IN EXTERNAL PACKAGE/LIBRARY ...
-    // Going to just have to not support a singleton for Screen, as it needs to be initialized
-    // with something that is not available until runtime, and which we cannot even use directly
-    // here without interferring with our ability to put this into a shared external reusable package.
-    // So think we will just create one of these in ContentView and pass to CellGridView for keeping/usage.
-    //
-    // N.B. If you want to use the above (shared) singleton then an instance of this class MUST be created first
-    // thing in from your app, i.e. let screen = Screen(size: UIScreen.main.bounds, scale: UIScreen.main.scale).
-    // It is setup this way because UIScreen may not be used within this class if we want this to be available
-    // from an external library/package, to due @MainActor complications.
+    // N.B. We offer no (shared) singleton for this class as we initially want to; there are complications
+    // with this because it uses UIScreen which is a @MainActor which would require this class to be so as
+    // well, which can be problematic if we want to put this within an external/reusable package; and also
+    // there are complications because technically the screen size should not actually be obtained from
+    // UIScreen.main.bounds but rather from the geometry.size value in a GeometryReader.onAppear.
 
     private let _width: Int
     private let _height: Int
@@ -34,47 +28,37 @@ public final class Screen: @unchecked Sendable
     // a scaling factor of 3.0 meaning 3 pixels per logical pixel per dimension, i.e per
     // horizontal/vertical, i.e. meaning 9 (3 * 3) physical pixels per one logical pixels.
     //
-    public func scale(scaling: Bool = true) -> CGFloat { return scaling ? self._scale : 1.0 }
+    public func scale(scaling: Bool = true) -> CGFloat { scaling ? self._scale : 1.0 }
     //
     // The channels is simply the number of bytes (UInt8) in a pixel,
     // i.e. one byte for each of: red, blue, green, alpha (aka RGBA)
     //
-    public let channels: Int = 4
+    public let channels: Int = Screen.channels
     //
     // And for flexibility make this channels available as an instance
     // or class/static property; this surprisingly is allowed in Swift.
     //
     public static let channels: Int = 4
 
-    public func scaled(_ value: Int) -> Int {
-        return Int(round(CGFloat(value) * self._scale))
-    }
-
+    // These functions scale the given value as appropriate; there are versions which
+    // take integer or floating point; as well as ones which take a scaling boolean
+    // indicating whether or not to really scale the value.
+    //
+    public func scaled(_ value: Int) -> Int { Int(round(CGFloat(value) * self._scale)) }
+    public func scaled(_ value: CGFloat) -> CGFloat { value * self._scale }
     public func scaled(_ value: Int, scaling: Bool) -> Int {
-        return scaling ? Int(round(CGFloat(value) * self._scale)) : value
+        scaling ? Int(round(CGFloat(value) * self._scale)) : value
     }
-
-    public func scaled(_ value: CGFloat) -> CGFloat {
-        return value * self._scale
-    }
-
     public func scaled(_ value: CGFloat, scaling: Bool) -> CGFloat {
-        return scaling ? value * self._scale : value
+        scaling ? value * self._scale : value
     }
 
-    public func unscaled(_ value: Int) -> Int {
-        return Int(round(CGFloat(value) / self._scale))
-    }
-
+    public func unscaled(_ value: Int) -> Int { Int(round(CGFloat(value) / self._scale)) }
+    public func unscaled(_ value: CGFloat) -> CGFloat { value / self._scale }
     public func unscaled(_ value: Int, scaling: Bool) -> Int {
-        return scaling ? Int(round(CGFloat(value) / self._scale)) : value
+        scaling ? Int(round(CGFloat(value) / self._scale)) : value
     }
-
-    public func unscaled(_ value: CGFloat) -> CGFloat {
-        return value / self._scale
-    }
-
     public func unscaled(_ value: CGFloat, scaling: Bool) -> CGFloat {
-        return scaling ? value / self._scale : value
+        scaling ? value / self._scale : value
     }
 }
