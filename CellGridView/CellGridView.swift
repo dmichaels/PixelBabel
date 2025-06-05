@@ -17,6 +17,11 @@ public class CellGridView: ObservableObject
 {
     public struct Defaults {
 
+        public static let centerCellGrid: Bool = true
+        public static let automationInterval: Double = 0.2
+        public static let restrictShiftStrict: Bool = false
+        public static let unscaledZoom: Bool = false
+
         public static let viewBackground: CellColor = CellColor.dark
         public static let viewTransparency: UInt8 = CellColor.OPAQUE
         public static let viewScaling: Bool = true
@@ -29,10 +34,10 @@ public class CellGridView: ObservableObject
 
         // The size related properties here (being effectively outward facing) are unscaled.
         //
-        public static var cellPaddingMax: Int = 8
-        public static var cellSizeMax: Int = 200
-        public static var cellSizeInnerMin: Int = 3
-        public static var cellPreferredSizeMarginMax: Int = 30
+        public static let cellPaddingMax: Int = 8
+        public static let cellSizeMax: Int = 200
+        public static let cellSizeInnerMin: Int = 3
+        public static let cellPreferredSizeMarginMax: Int = 30
         public static let cellAntialiasFade: Float = 0.6  // smaller is smoother
         public static let cellRoundedRectangleRadius: Float = 0.25
     }
@@ -149,7 +154,7 @@ public class CellGridView: ObservableObject
                             cellSizeInit: cellSize, cellSizeFitInit: cellSizeFit)
         #endif
 
-        if (DefaultSettings.centerCellGrid) {
+        if (Defaults.centerCellGrid) {
             self.center()
         }
         else {
@@ -223,7 +228,7 @@ public class CellGridView: ObservableObject
     }
 
     private final lazy var actions: CellGridView.Actions = {
-        return CellGridView.Actions(self, automationInterval: DefaultSettings.automationInterval)
+        return CellGridView.Actions(self, automationInterval: Defaults.automationInterval)
     }()
 
     internal final func constrainCellSize(_ cellSize: Int, cellPadding: Int? = nil, scaled: Bool = false) -> Int {
@@ -410,7 +415,7 @@ public class CellGridView: ObservableObject
             }
         }
 
-        if (DefaultSettings.restrictShiftStrict) {
+        if (Defaults.restrictShiftStrict) {
             restrictShiftStrict(shiftCell: &shiftCellX, shift: &shiftX,
                                 cellSize: self._cellSize,
                                 viewSize: self._viewWidth,

@@ -13,7 +13,7 @@ extension CellGridView
 
         public init(_ cellGridView: CellGridView, _ zoomFactor: CGFloat) {
 
-            self._unscaledZoom = DefaultSettings.unscaledZoom && cellGridView.viewScaling
+            self._unscaledZoom = Defaults.unscaledZoom && cellGridView.viewScaling
             if (self._unscaledZoom) {
                 cellGridView.viewScaling = false
             }

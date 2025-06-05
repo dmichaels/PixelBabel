@@ -46,7 +46,7 @@ public class Orientation {
         case .landscapeRight:
             return .landscapeLeft
         case .unknown:
-            return .landscapeLeft
+            return .unknown
         @unknown default:
             return .unknown
         }

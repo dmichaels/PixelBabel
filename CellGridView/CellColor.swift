@@ -3,7 +3,7 @@ import SwiftUI
 // This is actually only currently used for the background color of the screen/image,
 // i.e. for the backgound color if the inset margin is greater than zero.
 //
-public struct CellColor: Equatable
+public struct CellColor: Equatable, Sendable
 {
     // These values works with Memory.fastcopy NOT using value.bigEndian;
     // if these were the opposite (i.e. red-24, green-16, blue-8, alpha-0)
@@ -15,10 +15,10 @@ public struct CellColor: Equatable
     public static let ASHIFT: Int   =  24
     public static let OPAQUE: UInt8 = 255
 
-    var _red:   UInt8
-    var _green: UInt8
-    var _blue:  UInt8
-    var _alpha: UInt8 = 255
+    private let _red:   UInt8
+    private let _green: UInt8
+    private let _blue:  UInt8
+    private let _alpha: UInt8
 
     public var red:   UInt8 { self._red   }
     public var green: UInt8 { self._green }
@@ -38,14 +38,14 @@ public struct CellColor: Equatable
         String(format: "%02X", self.value)
     }
 
-    init(_ red: UInt8, _ green: UInt8, _ blue: UInt8, alpha: UInt8 = 255) {
+    init(_ red: UInt8, _ green: UInt8, _ blue: UInt8, alpha: UInt8 = CellColor.OPAQUE) {
         self._red   = red
         self._green = green
         self._blue  = blue
         self._alpha = alpha
     }
 
-    init(_ red: Int, _ green: Int, _ blue: Int, alpha: Int = 255) {
+    init(_ red: Int, _ green: Int, _ blue: Int, alpha: Int = Int(CellColor.OPAQUE)) {
         self._red   = UInt8(red)
         self._green = UInt8(green)
         self._blue  = UInt8(blue)
@@ -75,6 +75,7 @@ public struct CellColor: Equatable
             self._red   = 0
             self._green = 0
             self._blue  = 0
+            self._alpha = CellColor.OPAQUE
         }
     }
 

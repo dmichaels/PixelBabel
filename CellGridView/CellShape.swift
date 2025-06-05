@@ -1,4 +1,4 @@
-public enum CellShape: String, CaseIterable, Identifiable
+public enum CellShape: String, CaseIterable, Identifiable, Sendable
 {
     case square  = "Square"
     case inset   = "Inset"
